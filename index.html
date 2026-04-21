@@ -226,7 +226,15 @@
     /* Open question */
     .rq-open-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #ede9fe; border-radius: 8px; font-size: 0.82rem; color: #7c3aed; font-weight: 600; }
 
-    /* Drag handle */
+    /* Drag instructions */
+    .drag-instructions { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #94a3b8; font-weight: 500; margin-bottom: 10px; padding: 8px 12px; background: #f8f9fc; border-radius: 8px; border: 1px dashed #e2e8f0; }
+
+    /* Drag over — perforated top border shows where card will land */
+    .rq-card.drag-over { border-color: #2563eb; box-shadow: 0 -3px 0 0 #2563eb; }
+    .rq-card.drag-over::before { content: ''; display: block; height: 3px; background: repeating-linear-gradient(90deg, #2563eb 0px, #2563eb 8px, transparent 8px, transparent 14px); border-radius: 999px; margin: -1px -1px 0; }
+
+    /* Media attached banner */
+    .media-attached-banner { display: none; align-items: center; justify-content: space-between; gap: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 8px 14px; margin-bottom: 12px; font-size: 0.82rem; font-weight: 600; color: #166534; flex-wrap: wrap; }
     .drag-handle { cursor: grab; padding: 4px; color: #94a3b8; display: flex; align-items: center; }
     .drag-handle:active { cursor: grabbing; }
     .rq-card.dragging { opacity: 0.4; }
@@ -285,8 +293,8 @@
   <!-- Language toggle -->
   <div class="topbar">
     <div class="lang-toggle">
-      <button class="lang-btn active" id="btnFR" onclick="setLang('fr')">FR</button>
-      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+      <button class="lang-btn active" id="btnFR">FR</button>
+      <button class="lang-btn" id="btnEN">EN</button>
     </div>
   </div>
 
@@ -431,6 +439,16 @@
       <span id="reviewTotalStat"></span>
     </div>
 
+    <!-- Drag instructions -->
+    <div class="drag-instructions" id="dragInstructions">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <rect x="2" y="2" width="10" height="2" rx="1" fill="#94a3b8"/>
+        <rect x="2" y="6" width="10" height="2" rx="1" fill="#94a3b8"/>
+        <rect x="2" y="10" width="10" height="2" rx="1" fill="#94a3b8"/>
+      </svg>
+      <span data-i18n="dragInstructions"></span>
+    </div>
+
     <!-- Editable question list -->
     <div id="reviewList"></div>
 
@@ -499,16 +517,7 @@
       metaTitlePlaceholder:"Ex. Concours Parcoursup 2026",
       metaDurationLabel:  "Durée",
       metaDurationUnit:   "minutes",
-      addQuestion:        "+ Ajouter une question",
-      publishBtn:         "Confirmer et publier l'examen →",
-      toggleToOpen:       "→ Rédigée",
-      toggleToMCQ:        "→ QCM",
-      optCorrectBtn:      "✓ Correcte",
-      optCorrectSelected: "✓ Correcte",
-      openNoteLabel:      "Correction enseignant — réponse libre",
-      reviewStatsText:    "{total} questions · {mcq} QCM · {open} rédigées",
-      aiErrorNoKey:       "⚠ Veuillez saisir votre clé API Anthropic en haut de la page.",
-      aiErrorFailed:      "⚠ L'extraction a échoué. Vérifiez votre clé API et réessayez.",
+      dragInstructions:   "Glissez les questions par l'icône ≡ pour les réorganiser.",
       statFileLabel:  "Fichier",
       statCharsLabel: "Caractères extraits",
       previewLabel:  "Aperçu du document",
@@ -567,6 +576,7 @@
       metaTitleLabel:     "Exam title",
       metaTitlePlaceholder:"e.g. Parcoursup Entrance Exam 2026",
       metaDurationLabel:  "Duration",
+      dragInstructions:   "Drag questions using the ≡ icon on the left to reorder them.",
       metaDurationUnit:   "minutes",
       addQuestion:        "+ Add a question",
       publishBtn:         "Confirm and publish exam →",
@@ -609,6 +619,17 @@
 
   // Init with French
   setLang('fr');
+
+  // Rebuild review when language changes if already in review step
+  function setLangAndRefresh(l) {
+    setLang(l);
+    if (document.getElementById('reviewCard')?.classList.contains('visible')) {
+      buildReviewList();
+      updateReviewStats();
+    }
+  }
+  document.getElementById('btnFR').onclick = () => setLangAndRefresh('fr');
+  document.getElementById('btnEN').onclick = () => setLangAndRefresh('en');
 
   // ── File handling ─────────────────────────────────────────────
   const examZone = document.getElementById('examZone');
@@ -1044,6 +1065,22 @@
       { key:'pdf',   labelFR:'PDF',   labelEN:'PDF'    },
     ];
 
+    // Persistent attached file banner — stays visible regardless of tab
+    const attachedBanner = document.createElement('div');
+    attachedBanner.className = 'media-attached-banner';
+    attachedBanner.id = `mediaBanner_${idx}`;
+    if (q.media?.src) {
+      const typeName = mediaTypes.find(m => m.key === q.media.type)?.[lang === 'fr' ? 'labelFR' : 'labelEN'] || '';
+      const fileName = q.media.name || q.media.src.substring(0, 40);
+      attachedBanner.innerHTML = `
+        <span>✅ ${typeName} ${lang === 'fr' ? 'attaché' : 'attached'} — <em>${fileName}</em></span>
+        <button class="media-remove" onclick="removeMedia(${idx})">✕ ${lang === 'fr' ? 'Supprimer' : 'Remove'}</button>`;
+      attachedBanner.style.display = 'flex';
+    } else {
+      attachedBanner.style.display = 'none';
+    }
+    wrapper.appendChild(attachedBanner);
+
     // Type tabs
     const tabs = document.createElement('div');
     tabs.className = 'media-type-tabs';
@@ -1055,17 +1092,19 @@
       btn.addEventListener('click', () => {
         tabs.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Only update type — preserve src if same type, clear only if switching type
+        // Only update type + clear src if switching to a different type
         if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
         const prevType = window.extractedQuestions[idx].media.type;
         if (prevType !== mt.key) {
           window.extractedQuestions[idx].media.type = mt.key;
           window.extractedQuestions[idx].media.src  = null;
           window.extractedQuestions[idx].media.name = null;
+          // Update banner
+          attachedBanner.style.display = 'none';
+          updateMediaToggle(idx);
         }
-        // Re-render input area
         inputArea.innerHTML = '';
-        inputArea.appendChild(buildInputArea(mt.key, idx, previewArea));
+        inputArea.appendChild(buildInputArea(mt.key, idx, previewArea, attachedBanner));
         previewArea.innerHTML = '';
         if (window.extractedQuestions[idx].media?.src) {
           renderPreview(previewArea, window.extractedQuestions[idx].media);
@@ -1077,7 +1116,7 @@
 
     // Input area
     const inputArea = document.createElement('div');
-    inputArea.appendChild(buildInputArea(currentType, idx, null));
+    inputArea.appendChild(buildInputArea(currentType, idx, null, attachedBanner));
     wrapper.appendChild(inputArea);
 
     // Preview area
@@ -1086,18 +1125,16 @@
     if (q.media?.src) renderPreview(previewArea, q.media);
     wrapper.appendChild(previewArea);
 
-    // Fix reference for input area rebuild
-    tabs.querySelectorAll('.media-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        // update preview reference after rebuild
-        inputArea.querySelectorAll('input[type=file]').forEach(f => f.value = '');
-      });
-    });
-
     return wrapper;
   }
 
-  function buildInputArea(type, idx, previewArea) {
+  window.removeMedia = function(idx) {
+    window.extractedQuestions[idx].media = null;
+    updateMediaToggle(idx);
+    buildReviewList();
+  };
+
+  function buildInputArea(type, idx, previewArea, attachedBanner) {
     const frag = document.createDocumentFragment();
 
     if (type === 'video') {
@@ -1143,8 +1180,16 @@
           uploadArea.classList.add('has-file');
           uploadArea.querySelector('.media-upload-label').innerHTML =
             `<strong>✅ ${file.name}</strong>`;
+          // Update persistent banner
+          if (attachedBanner) {
+            const mediaTypes = { video:'Vidéo/Video', image:'Image', audio:'Audio', pdf:'PDF' };
+            attachedBanner.innerHTML = `
+              <span>✅ ${mediaTypes[type] || type} ${lang === 'fr' ? 'attaché' : 'attached'} — <em>${file.name}</em></span>
+              <button class="media-remove" onclick="removeMedia(${idx})">✕ ${lang === 'fr' ? 'Supprimer' : 'Remove'}</button>`;
+            attachedBanner.style.display = 'flex';
+          }
           // Update preview
-          const previewEl = fileInput.closest('.rq-media-panel')?.querySelector('.media-preview');
+          const previewEl = previewArea || attachedBanner?.closest('.rq-media-panel')?.querySelector('.media-preview');
           if (previewEl) renderPreview(previewEl, window.extractedQuestions[idx].media);
           updateMediaToggle(idx);
         };
