@@ -331,8 +331,16 @@
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
       <span id="uploadDoneLabel"></span>
     </div>
-    <!-- Format example — shown first -->
-    <div class="doc-wrap" style="margin-bottom:16px;">
+
+    <!-- 1. Title -->
+    <h2 data-i18n="cardTitle" style="margin:0 0 12px 0;"></h2>
+
+    <!-- 2. Instructions + hint -->
+    <p class="card-sub" data-i18n="cardSub" style="margin-bottom:8px;"></p>
+    <div class="no-star-hint" data-i18n="noStarHint" style="margin-bottom:20px;"></div>
+
+    <!-- 3. Format example -->
+    <div class="doc-wrap" style="margin-bottom:20px;">
       <div class="doc-wrap-label" data-i18n="docLabel"></div>
       <div class="doc-page">
         <div class="doc-col">
@@ -352,11 +360,7 @@
       </div>
     </div>
 
-    <!-- Instructions text -->
-    <p class="card-sub" data-i18n="cardSub" style="margin-bottom:6px;"></p>
-    <div class="no-star-hint" data-i18n="noStarHint" style="margin-bottom:16px;"></div>
-
-    <!-- Upload zone -->
+    <!-- 4. Upload zone -->
     <div class="upload-zone" id="examZone">
       <span class="zone-icon" id="zoneIcon">📘</span>
       <div class="zone-label" data-i18n="zoneLabel"></div>
@@ -480,12 +484,12 @@
       step2:         "Extraction IA",
       step3:         "Vérifier & modifier",
       step4:         "Publier",
-      cardTitle:     "Étape 1 — Importez votre document d'examen",
-      cardSub:       "Un seul fichier suffit — .docx ou .pdf. L'IA extrait les questions automatiquement.",
+      cardTitle:     "Importer votre document d'examen",
+      cardSub:       "Un seul fichier suffit. Marquez la bonne réponse avec un astérisque (*) avant l'option correcte dans votre document. Les questions rédigées sont détectées automatiquement.",
       zoneLabel:     "Document d'examen",
       zoneSub:       "Glissez-déposez ou cliquez pour choisir.\n.docx ou .pdf · Max 10 Mo",
       zoneBtn:       "Choisir un fichier",
-      docLabel:      "Format requis — exemple",
+      docLabel:      "Exemple de format",
       exQ1:          "1. Quelle est la capitale de l'Espagne ?",
       exA:           "A. Barcelone",
       exB:           "B. Madrid",
@@ -519,13 +523,13 @@
       reviewBtn:          "Vérifier et modifier les questions →",
       reviewTitle:        "Étape 3 — Vérifier et modifier",
       reviewSub:          "Corrigez les questions, ajustez les bonnes réponses, puis publiez.",
-      reviewInstructions: "✏ Modifiez le texte · ✓ Cliquez une option pour la marquer correcte · ↔ Glissez ≡ pour réorganiser · 🗑 Supprimez puis Annulez si erreur · 📎 Attachez un média par question",
+      reviewInstructions: "Modifiez le texte de chaque question directement. Cliquez sur une option pour la marquer comme correcte. Glissez l'icône de gauche pour réorganiser les questions. Supprimez une question avec le bouton Supprimer — un lien Annuler apparaîtra immédiatement. Ajoutez un média (image, audio, vidéo, PDF) via le bouton en bas de chaque question.",
       metaTitleLabel:     "Titre de l'examen",
       metaTitlePlaceholder:"Ex. Concours Parcoursup 2026",
       metaDurationLabel:  "Durée",
       metaDurationUnit:   "minutes",
       dragInstructions:   "Glissez les questions par l'icône ≡ pour les réorganiser.",
-      noStarHint:         "💡 Si votre document ne contient pas de marqueurs *, l'IA inférera les bonnes réponses — vérifiez-les à l'étape suivante.",
+      noStarHint:         "💡Si votre document ne contient pas de marqueurs *, l'IA inférera les bonnes réponses — vérifiez-les à l'étape suivante.",
       noStarWarning:      "⚠ Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
       partialStarWarning: "⚠ Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
     },
@@ -536,12 +540,12 @@
       step2:         "AI Extraction",
       step3:         "Review & Edit",
       step4:         "Publish",
-      cardTitle:     "Step 1 — Upload your exam document",
-      cardSub:       "One file is all you need — .docx or .pdf. The AI extracts the questions automatically.",
+      cardTitle:     "Import your exam document",
+      cardSub:       "One file is all you need. Mark the correct answer with an asterisk (*) before the correct option. Written questions are detected automatically.",
       zoneLabel:     "Exam Document",
       zoneSub:       "Drag and drop or click to choose.\n.docx or .pdf · Max 10MB",
       zoneBtn:       "Choose file",
-      docLabel:      "Required format — example",
+      docLabel:      "Format example",
       exQ1:          "1. What is the capital of Spain?",
       exA:           "A. Barcelona",
       exB:           "B. Madrid",
@@ -575,7 +579,7 @@
       reviewBtn:          "Review and edit questions →",
       reviewTitle:        "Step 3 — Review and edit",
       reviewSub:          "Correct any questions, adjust answers, then publish.",
-      reviewInstructions: "✏ Edit text inline · ✓ Click an option to mark it correct · ↔ Drag ≡ to reorder · 🗑 Delete then Undo if mistake · 📎 Attach media per question",
+      reviewInstructions: "Edit question text directly. Click an option to mark it as correct. Drag the left icon to reorder questions. Delete a question using the Delete button — an Undo link will appear immediately. Attach media (image, audio, video, PDF) using the button at the bottom of each question.",
       metaTitleLabel:     "Exam title",
       metaTitlePlaceholder:"e.g. Parcoursup Entrance Exam 2026",
       metaDurationLabel:  "Duration",
@@ -589,7 +593,7 @@
       optCorrectSelected: "✓ Correct",
       openNoteLabel:      "Teacher graded — open response",
       reviewStatsText:    "{total} questions · {mcq} MCQ · {open} written",
-      noStarHint:         "💡 If your document has no * markers, the AI will infer the correct answers — verify them in the next step.",
+      noStarHint:         "If your document has no * markers, the AI will infer the correct answers — verify them in the next step.",
       aiErrorNoKey:       "⚠ Please enter your Anthropic API key at the top of the page.",
       aiErrorFailed:      "⚠ Extraction failed. Check your API key and try again.",
       noStarWarning:      "⚠ No * markers detected — the AI will attempt to infer correct answers. Review carefully in the next step.",
@@ -749,7 +753,10 @@
   document.getElementById('nextBtn').addEventListener('click', async () => {
     const t = i18n[lang];
 
-    // Show AI card with spinner, scroll to top
+    // Fix 2: Hide Step 1 entirely, show only Step 2
+    document.getElementById('uploadCard').style.display = 'none';
+    document.getElementById('resultsCard').style.display = 'none';
+
     const aiCard = document.getElementById('aiCard');
     aiCard.classList.add('visible');
     document.getElementById('aiProgress').style.display = 'block';
@@ -896,10 +903,23 @@
       buildReviewList();
     });
 
-    // Focus highlight on any input interaction
+    // Focus highlight + keyboard navigation between questions
     div.addEventListener('focusin', () => {
       document.querySelectorAll('.rq-card').forEach(c => c.classList.remove('editing'));
       div.classList.add('editing');
+      window._activeCardIdx = idx;
+    });
+    div.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const next = document.querySelector(`.rq-card[data-idx="${idx + 1}"]`);
+        if (next) next.querySelector('textarea, input')?.focus();
+      }
+      if (e.key === 'ArrowUp' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const prev = document.querySelector(`.rq-card[data-idx="${idx - 1}"]`);
+        if (prev) prev.querySelector('textarea, input')?.focus();
+      }
     });
 
     // Header
@@ -964,7 +984,9 @@
 
         const btn = document.createElement('button');
         btn.className = `rq-opt-correct${q.correct === oi ? ' selected' : ''}`;
-        btn.textContent = t.optCorrectBtn;
+        btn.textContent = q.correct === oi
+          ? (lang === 'fr' ? 'Correcte' : 'Correct')
+          : (lang === 'fr' ? 'Marquer' : 'Mark');
         btn.addEventListener('click', () => setCorrect(idx, oi));
 
         row.appendChild(letter);
@@ -1122,14 +1144,9 @@
         // Only update type + clear src if switching to a different type
         if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
         const prevType = window.extractedQuestions[idx].media.type;
-        if (prevType !== mt.key) {
-          window.extractedQuestions[idx].media.type = mt.key;
-          window.extractedQuestions[idx].media.src  = null;
-          window.extractedQuestions[idx].media.name = null;
-          // Update banner
-          attachedBanner.style.display = 'none';
-          updateMediaToggle(idx);
-        }
+        // Fix 6: NEVER clear existing upload when switching tabs — only update type for new uploads
+        window.extractedQuestions[idx].media.type = mt.key;
+        // Do NOT clear src/name — user must manually delete
         inputArea.innerHTML = '';
         inputArea.appendChild(buildInputArea(mt.key, idx, previewArea, attachedBanner));
         previewArea.innerHTML = '';
