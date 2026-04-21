@@ -165,10 +165,100 @@
     .next-btn { width: 100%; background: #0f172a; color: #fff; border: none; padding: 15px; border-radius: 12px; font-size: 0.95rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; }
     .next-btn:hover { background: #1e3a5f; }
 
-    @media (max-width: 620px) {
-      .upload-grid { grid-template-columns: 1fr; }
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
-    }
+    /* ── Review interface ───────────────────────────────────────── */
+    .exam-meta { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .meta-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .meta-field-sm { flex: 0 0 160px; }
+    .meta-label { font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .meta-input { padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.9rem; font-family: inherit; color: #0f172a; outline: none; width: 100%; transition: border-color 0.2s; }
+    .meta-input:focus { border-color: #2563eb; }
+    .meta-duration { display: flex; align-items: center; gap: 8px; }
+    .meta-unit { font-size: 0.85rem; color: #64748b; white-space: nowrap; }
+
+    .review-stats { font-size: 0.85rem; color: #64748b; margin-bottom: 16px; font-weight: 500; }
+    .review-stats .rs-mcq { color: #16a34a; font-weight: 700; }
+    .review-stats .rs-open { color: #7c3aed; font-weight: 700; }
+    .review-stats .rs-total { color: #0f172a; font-weight: 700; }
+
+    /* Question cards */
+    #reviewList { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+    .rq-card { border: 1.5px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: #fff; transition: border-color 0.2s; }
+    .rq-card:hover { border-color: #cbd5e1; }
+    .rq-card.open-type { border-color: #c4b5fd; }
+    .rq-card.inferred { border-color: #fde68a; }
+
+    .rq-header { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #f8f9fc; border-bottom: 1px solid #e2e8f0; }
+    .rq-card.open-type .rq-header { background: #faf5ff; border-color: #e9d5ff; }
+    .rq-card.inferred .rq-header { background: #fffbeb; border-color: #fde68a; }
+
+    .rq-num { font-size: 0.75rem; font-weight: 700; color: #94a3b8; min-width: 28px; }
+    .rq-badge { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rq-badge.mcq { background: #dbeafe; color: #1d4ed8; }
+    .rq-badge.open { background: #ede9fe; color: #7c3aed; }
+    .rq-inferred { font-size: 0.72rem; color: #d97706; font-weight: 600; }
+
+    .rq-type-toggle { margin-left: 4px; font-size: 0.72rem; font-weight: 600; color: #64748b; background: none; border: 1px solid #e2e8f0; border-radius: 6px; padding: 2px 8px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .rq-type-toggle:hover { background: #f1f5f9; color: #0f172a; }
+
+    .rq-actions { margin-left: auto; display: flex; gap: 4px; }
+    .rq-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 6px; border-radius: 6px; color: #94a3b8; transition: all 0.15s; font-family: inherit; }
+    .rq-btn:hover { background: #f1f5f9; color: #0f172a; }
+    .rq-btn.delete:hover { background: #fee2e2; color: #dc2626; }
+
+    .rq-body { padding: 14px; }
+
+    .rq-q-input { width: 100%; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 0.88rem; font-family: inherit; color: #0f172a; resize: vertical; min-height: 60px; outline: none; margin-bottom: 12px; transition: border-color 0.2s; line-height: 1.5; }
+    .rq-q-input:focus { border-color: #2563eb; }
+
+    /* MCQ options */
+    .rq-options { display: flex; flex-direction: column; gap: 6px; }
+    .rq-option-row { display: flex; align-items: center; gap: 8px; }
+    .rq-opt-letter { font-size: 0.78rem; font-weight: 800; color: #94a3b8; min-width: 20px; text-align: center; }
+    .rq-opt-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 7px 10px; font-size: 0.84rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.2s; }
+    .rq-opt-input:focus { border-color: #2563eb; }
+    .rq-opt-correct { font-size: 0.72rem; font-weight: 700; padding: 5px 10px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: #f8f9fc; color: #64748b; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
+    .rq-opt-correct.selected { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .rq-opt-correct:not(.selected):hover { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
+    .rq-option-row.correct-row .rq-opt-input { border-color: #86efac; background: #f0fdf4; }
+    .rq-option-row.correct-row .rq-opt-letter { color: #16a34a; }
+
+    /* Open question */
+    .rq-open-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #ede9fe; border-radius: 8px; font-size: 0.82rem; color: #7c3aed; font-weight: 600; }
+
+    /* Media attachment */
+    .rq-media-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-top: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #64748b; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; font-family: inherit; transition: color 0.15s; }
+    .rq-media-toggle:hover { color: #2563eb; }
+    .rq-media-toggle.has-media { color: #2563eb; border-top-color: #bfdbfe; background: #f0f9ff; }
+
+    .rq-media-panel { display: none; padding: 14px; border-top: 1px solid #e2e8f0; background: #f8f9fc; }
+    .rq-media-panel.open { display: block; }
+
+    .media-type-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .media-tab { padding: 5px 12px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: #fff; font-size: 0.78rem; font-weight: 700; color: #64748b; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .media-tab.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+    .media-upload-area { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .media-upload-area:hover { border-color: #2563eb; background: #eff6ff; }
+    .media-upload-area.has-file { border-color: #16a34a; background: #f0fdf4; border-style: solid; }
+    .media-upload-label { font-size: 0.8rem; color: #64748b; font-weight: 500; }
+    .media-upload-label strong { color: #0f172a; }
+
+    .media-url-input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.84rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.2s; }
+    .media-url-input:focus { border-color: #2563eb; }
+
+    .media-preview { margin-top: 12px; border-radius: 8px; overflow: hidden; }
+    .media-preview img { max-width: 100%; max-height: 200px; border-radius: 8px; display: block; }
+    .media-preview audio { width: 100%; }
+    .media-preview iframe { width: 100%; height: 200px; border: none; border-radius: 8px; }
+    .media-preview-label { font-size: 0.72rem; color: #94a3b8; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .media-remove { margin-top: 8px; font-size: 0.78rem; color: #dc2626; background: none; border: none; cursor: pointer; font-family: inherit; font-weight: 600; padding: 0; }
+    .media-remove:hover { text-decoration: underline; }
+    .add-q-btn { width: 100%; padding: 12px; border: 2px dashed #cbd5e1; border-radius: 10px; background: transparent; color: #64748b; font-size: 0.88rem; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+    .add-q-btn:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .publish-btn { width: 100%; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+    .publish-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(22,163,74,0.3); }
   </style>
 </head>
 <body>
@@ -292,12 +382,44 @@
         <div class="stat"><div class="stat-label" data-i18n="aiTotalLabel"></div><div class="stat-value" id="aiTotalCount">—</div></div>
       </div>
 
-      <div class="section-label" data-i18n="aiPreviewLabel"></div>
-      <div class="q-list" id="qList"></div>
-
       <div class="alert" id="aiAlert" style="margin-top:16px;"></div>
       <button class="next-btn" id="reviewBtn" data-i18n="reviewBtn" style="margin-top:16px;"></button>
     </div>
+  </div>
+
+  <!-- Review card — Step 3 -->
+  <div class="card results-card" id="reviewCard">
+    <h2 data-i18n="reviewTitle"></h2>
+    <p class="card-sub" data-i18n="reviewSub"></p>
+
+    <!-- Exam metadata -->
+    <div class="exam-meta">
+      <div class="meta-field">
+        <label class="meta-label" data-i18n="metaTitleLabel"></label>
+        <input type="text" id="examTitle" class="meta-input" data-i18n-placeholder="metaTitlePlaceholder">
+      </div>
+      <div class="meta-field meta-field-sm">
+        <label class="meta-label" data-i18n="metaDurationLabel"></label>
+        <div class="meta-duration">
+          <input type="number" id="examDuration" class="meta-input" value="20" min="5" max="180">
+          <span class="meta-unit" data-i18n="metaDurationUnit"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Review stats -->
+    <div class="review-stats">
+      <span id="reviewTotalStat"></span>
+    </div>
+
+    <!-- Editable question list -->
+    <div id="reviewList"></div>
+
+    <!-- Add question -->
+    <button class="add-q-btn" id="addQuestionBtn" data-i18n="addQuestion"></button>
+
+    <!-- Publish -->
+    <button class="publish-btn" id="publishBtn" data-i18n="publishBtn"></button>
   </div>
 
 </div>
@@ -351,6 +473,21 @@
       aiTotalLabel:       "Total",
       aiPreviewLabel:     "Questions extraites",
       reviewBtn:          "Vérifier et modifier les questions →",
+      reviewBtn:          "Vérifier et modifier les questions →",
+      reviewTitle:        "Étape 3 — Vérifier et modifier",
+      reviewSub:          "Corrigez les questions, ajustez les bonnes réponses, puis publiez.",
+      metaTitleLabel:     "Titre de l'examen",
+      metaTitlePlaceholder:"Ex. Concours Parcoursup 2026",
+      metaDurationLabel:  "Durée",
+      metaDurationUnit:   "minutes",
+      addQuestion:        "+ Ajouter une question",
+      publishBtn:         "Confirmer et publier l'examen →",
+      toggleToOpen:       "→ Rédigée",
+      toggleToMCQ:        "→ QCM",
+      optCorrectBtn:      "✓ Correcte",
+      optCorrectSelected: "✓ Correcte",
+      openNoteLabel:      "Correction enseignant — réponse libre",
+      reviewStatsText:    "{total} questions · {mcq} QCM · {open} rédigées",
       aiErrorNoKey:       "⚠ Veuillez saisir votre clé API Anthropic en haut de la page.",
       aiErrorFailed:      "⚠ L'extraction a échoué. Vérifiez votre clé API et réessayez.",
       statFileLabel:  "Fichier",
@@ -405,6 +542,21 @@
       aiTotalLabel:       "Total",
       aiPreviewLabel:     "Extracted questions",
       reviewBtn:          "Review and edit questions →",
+      reviewBtn:          "Review and edit questions →",
+      reviewTitle:        "Step 3 — Review and edit",
+      reviewSub:          "Correct any questions, adjust answers, then publish.",
+      metaTitleLabel:     "Exam title",
+      metaTitlePlaceholder:"e.g. Parcoursup Entrance Exam 2026",
+      metaDurationLabel:  "Duration",
+      metaDurationUnit:   "minutes",
+      addQuestion:        "+ Add a question",
+      publishBtn:         "Confirm and publish exam →",
+      toggleToOpen:       "→ Written",
+      toggleToMCQ:        "→ MCQ",
+      optCorrectBtn:      "✓ Correct",
+      optCorrectSelected: "✓ Correct",
+      openNoteLabel:      "Teacher graded — open response",
+      reviewStatsText:    "{total} questions · {mcq} MCQ · {open} written",
       aiErrorNoKey:       "⚠ Please enter your Anthropic API key at the top of the page.",
       aiErrorFailed:      "⚠ Extraction failed. Check your API key and try again.",
       noStarWarning:      "⚠ No * markers detected — the AI will attempt to infer correct answers. Review carefully in the next step.",
@@ -599,53 +751,393 @@
     document.getElementById('aiOpenCount').textContent  = open;
     document.getElementById('aiTotalCount').textContent = questions.length;
 
-    const list = document.getElementById('qList');
-    list.innerHTML = '';
-    const letters = ['A','B','C','D'];
-
-    questions.forEach(q => {
-      const div = document.createElement('div');
-      div.className = 'q-item' + (q.type === 'open' ? ' open-q' : '');
-
-      if (q.type === 'mcq') {
-        const opts = q.options.map((opt, i) => {
-          const isCorrect = i === q.correct;
-          return `<div class="q-option${isCorrect ? ' correct' : ''}">
-            <span class="q-option-letter">${letters[i]}.</span>
-            <span>${opt}</span>
-            ${isCorrect ? '<span style="margin-left:auto;font-size:0.72rem;">✓ correct</span>' : ''}
-          </div>`;
-        }).join('');
-        div.innerHTML = `
-          <div class="q-header">
-            <span class="q-num">Q${q.number}</span>
-            <span class="q-type-badge mcq">QCM</span>
-            ${q.inferred ? '<span style="font-size:0.72rem;color:#d97706;font-weight:600;">⚠ inféré</span>' : ''}
-          </div>
-          <div class="q-text">${q.question}</div>
-          <div class="q-options">${opts}</div>`;
-      } else {
-        div.innerHTML = `
-          <div class="q-header">
-            <span class="q-num">Q${q.number}</span>
-            <span class="q-type-badge open">Rédigée</span>
-          </div>
-          <div class="q-text">${q.question}</div>
-          <div class="q-open-hint">→ ${lang === 'fr' ? 'Correction enseignant' : 'Teacher graded'}</div>`;
-      }
-      list.appendChild(div);
-    });
-
-    // Store for next step
+    // Store for review step
     window.extractedQuestions = questions;
   }
 
-  // ── Review button (Phase 2.5 placeholder) ────────────────────
+  // ── Review interface (Phase 2.5) ─────────────────────────────
+  const LETTERS = ['A','B','C','D'];
+
   document.getElementById('reviewBtn').addEventListener('click', () => {
+    if (!window.extractedQuestions?.length) return;
     markDone(3); markActive(4);
+
+    // Set placeholder for exam title using file name
+    const t = i18n[lang];
+    const titleInput = document.getElementById('examTitle');
+    if (currentFile) {
+      titleInput.placeholder = currentFile.name.replace(/\.(docx|pdf)$/i,'');
+    }
+    titleInput.setAttribute('placeholder', t.metaTitlePlaceholder);
+
+    buildReviewList();
+    updateReviewStats();
+
+    const reviewCard = document.getElementById('reviewCard');
+    reviewCard.classList.add('visible');
+    reviewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  function buildReviewList() {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = '';
+    window.extractedQuestions.forEach((q, idx) => {
+      list.appendChild(buildQuestionCard(q, idx));
+    });
+  }
+
+  function buildQuestionCard(q, idx) {
+    const t = i18n[lang];
+    const isMCQ  = q.type === 'mcq';
+    const isInferred = q.inferred;
+    const div = document.createElement('div');
+    div.className = `rq-card${isMCQ ? '' : ' open-type'}${isInferred ? ' inferred' : ''}`;
+    div.dataset.idx = idx;
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'rq-header';
+    header.innerHTML = `
+      <span class="rq-num">Q${idx + 1}</span>
+      <span class="rq-badge ${isMCQ ? 'mcq' : 'open'}">${isMCQ ? 'QCM' : (lang === 'fr' ? 'Rédigée' : 'Written')}</span>
+      ${isInferred ? `<span class="rq-inferred">⚠ ${lang === 'fr' ? 'réponse inférée' : 'inferred answer'}</span>` : ''}
+      <button class="rq-type-toggle" onclick="toggleType(${idx})">${isMCQ ? t.toggleToOpen : t.toggleToMCQ}</button>
+      <div class="rq-actions">
+        <button class="rq-btn" onclick="moveQuestion(${idx},-1)" title="Monter">↑</button>
+        <button class="rq-btn" onclick="moveQuestion(${idx},1)" title="Descendre">↓</button>
+        <button class="rq-btn delete" onclick="deleteQuestion(${idx})" title="Supprimer">🗑</button>
+      </div>`;
+    div.appendChild(header);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'rq-body';
+
+    // Question text
+    const qInput = document.createElement('textarea');
+    qInput.className = 'rq-q-input';
+    qInput.value = q.question;
+    qInput.rows = 2;
+    qInput.addEventListener('input', () => {
+      window.extractedQuestions[idx].question = qInput.value;
+    });
+    body.appendChild(qInput);
+
+    if (isMCQ) {
+      const optsDiv = document.createElement('div');
+      optsDiv.className = 'rq-options';
+      (q.options || ['','','','']).forEach((opt, oi) => {
+        const row = document.createElement('div');
+        row.className = `rq-option-row${q.correct === oi ? ' correct-row' : ''}`;
+        row.dataset.oi = oi;
+
+        const letter = document.createElement('span');
+        letter.className = 'rq-opt-letter';
+        letter.textContent = LETTERS[oi] + '.';
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'rq-opt-input';
+        input.value = opt;
+        input.addEventListener('input', () => {
+          if (!window.extractedQuestions[idx].options) window.extractedQuestions[idx].options = ['','','',''];
+          window.extractedQuestions[idx].options[oi] = input.value;
+        });
+
+        const btn = document.createElement('button');
+        btn.className = `rq-opt-correct${q.correct === oi ? ' selected' : ''}`;
+        btn.textContent = t.optCorrectBtn;
+        btn.addEventListener('click', () => setCorrect(idx, oi));
+
+        row.appendChild(letter);
+        row.appendChild(input);
+        row.appendChild(btn);
+        optsDiv.appendChild(row);
+      });
+      body.appendChild(optsDiv);
+    } else {
+      const note = document.createElement('div');
+      note.className = 'rq-open-note';
+      note.innerHTML = `<span>✍</span> <span>${t.openNoteLabel}</span>`;
+      body.appendChild(note);
+    }
+
+    div.appendChild(body);
+
+    // Media toggle + panel
+    const mediaToggle = document.createElement('button');
+    mediaToggle.className = `rq-media-toggle${q.media ? ' has-media' : ''}`;
+    mediaToggle.innerHTML = `📎 ${q.media ? (lang === 'fr' ? 'Média attaché — modifier' : 'Media attached — edit') : (lang === 'fr' ? 'Attacher un média (vidéo, image, audio, PDF)' : 'Attach media (video, image, audio, PDF)')}`;
+    mediaToggle.addEventListener('click', () => {
+      mediaPanel.classList.toggle('open');
+    });
+
+    const mediaPanel = document.createElement('div');
+    mediaPanel.className = 'rq-media-panel';
+    mediaPanel.appendChild(buildMediaPanel(q, idx));
+
+    div.appendChild(mediaToggle);
+    div.appendChild(mediaPanel);
+
+    return div;
+  }
+
+  function setCorrect(qIdx, optIdx) {
+    window.extractedQuestions[qIdx].correct = optIdx;
+    window.extractedQuestions[qIdx].inferred = false;
+    buildReviewList();
+  }
+
+  function toggleType(qIdx) {
+    const q = window.extractedQuestions[qIdx];
+    if (q.type === 'mcq') {
+      q.type = 'open';
+      q.correct = null;
+      q.options = [];
+    } else {
+      q.type = 'mcq';
+      q.options = q.options?.length ? q.options : ['','','',''];
+      q.correct = 0;
+    }
+    buildReviewList();
+    updateReviewStats();
+  }
+
+  function deleteQuestion(qIdx) {
+    window.extractedQuestions.splice(qIdx, 1);
+    buildReviewList();
+    updateReviewStats();
+  }
+
+  function moveQuestion(qIdx, dir) {
+    const qs = window.extractedQuestions;
+    const newIdx = qIdx + dir;
+    if (newIdx < 0 || newIdx >= qs.length) return;
+    [qs[qIdx], qs[newIdx]] = [qs[newIdx], qs[qIdx]];
+    buildReviewList();
+  }
+
+  document.getElementById('addQuestionBtn').addEventListener('click', () => {
+    window.extractedQuestions.push({
+      number: window.extractedQuestions.length + 1,
+      question: '',
+      type: 'mcq',
+      options: ['','','',''],
+      correct: 0,
+      inferred: false
+    });
+    buildReviewList();
+    updateReviewStats();
+    document.getElementById('reviewList').lastElementChild
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  function buildMediaPanel(q, idx) {
+    const t = i18n[lang];
+    const wrapper = document.createElement('div');
+    const currentType = q.media?.type || 'video';
+    const mediaTypes = [
+      { key:'video', labelFR:'Vidéo', labelEN:'Video'  },
+      { key:'image', labelFR:'Image', labelEN:'Image'  },
+      { key:'audio', labelFR:'Audio', labelEN:'Audio'  },
+      { key:'pdf',   labelFR:'PDF',   labelEN:'PDF'    },
+    ];
+
+    // Type tabs
+    const tabs = document.createElement('div');
+    tabs.className = 'media-type-tabs';
+    mediaTypes.forEach(mt => {
+      const btn = document.createElement('button');
+      btn.className = `media-tab${(q.media?.type || 'video') === mt.key ? ' active' : ''}`;
+      btn.textContent = lang === 'fr' ? mt.labelFR : mt.labelEN;
+      btn.dataset.type = mt.key;
+      btn.addEventListener('click', () => {
+        tabs.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Update question media type, clear src
+        if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
+        window.extractedQuestions[idx].media.type = mt.key;
+        window.extractedQuestions[idx].media.src  = null;
+        window.extractedQuestions[idx].media.name = null;
+        // Re-render input area
+        inputArea.innerHTML = '';
+        inputArea.appendChild(buildInputArea(mt.key, idx, previewArea));
+        previewArea.innerHTML = '';
+      });
+      tabs.appendChild(btn);
+    });
+    wrapper.appendChild(tabs);
+
+    // Input area
+    const inputArea = document.createElement('div');
+    inputArea.appendChild(buildInputArea(currentType, idx, null));
+    wrapper.appendChild(inputArea);
+
+    // Preview area
+    const previewArea = document.createElement('div');
+    previewArea.className = 'media-preview';
+    if (q.media?.src) renderPreview(previewArea, q.media);
+    wrapper.appendChild(previewArea);
+
+    // Fix reference for input area rebuild
+    tabs.querySelectorAll('.media-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        // update preview reference after rebuild
+        inputArea.querySelectorAll('input[type=file]').forEach(f => f.value = '');
+      });
+    });
+
+    return wrapper;
+  }
+
+  function buildInputArea(type, idx, previewArea) {
+    const frag = document.createDocumentFragment();
+
+    if (type === 'video') {
+      const urlInput = document.createElement('input');
+      urlInput.type = 'text';
+      urlInput.className = 'media-url-input';
+      urlInput.placeholder = lang === 'fr' ? 'Lien YouTube ou Vimeo…' : 'YouTube or Vimeo URL…';
+      urlInput.value = (window.extractedQuestions[idx].media?.type === 'video' && window.extractedQuestions[idx].media?.src) || '';
+      urlInput.addEventListener('input', () => {
+        if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
+        window.extractedQuestions[idx].media.type = 'video';
+        window.extractedQuestions[idx].media.src  = urlInput.value.trim();
+        updateMediaToggle(idx);
+      });
+      frag.appendChild(urlInput);
+    } else {
+      const accept = type === 'image' ? 'image/*' : type === 'audio' ? 'audio/*' : 'application/pdf';
+      const hint   = type === 'image'
+        ? (lang === 'fr' ? 'JPG, PNG, GIF, WebP' : 'JPG, PNG, GIF, WebP')
+        : type === 'audio'
+        ? (lang === 'fr' ? 'MP3, WAV, OGG, M4A' : 'MP3, WAV, OGG, M4A')
+        : 'PDF';
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file'; fileInput.accept = accept; fileInput.style.display = 'none';
+
+      const uploadArea = document.createElement('div');
+      uploadArea.className = `media-upload-area${window.extractedQuestions[idx].media?.type === type && window.extractedQuestions[idx].media?.src ? ' has-file' : ''}`;
+      uploadArea.innerHTML = `<div class="media-upload-label">
+        <strong>${lang === 'fr' ? 'Cliquer pour choisir' : 'Click to choose'}</strong> · ${hint}
+      </div>`;
+      uploadArea.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
+          window.extractedQuestions[idx].media.type = type;
+          window.extractedQuestions[idx].media.src  = e.target.result;
+          window.extractedQuestions[idx].media.name = file.name;
+          uploadArea.classList.add('has-file');
+          uploadArea.querySelector('.media-upload-label').innerHTML =
+            `<strong>✅ ${file.name}</strong>`;
+          // Update preview
+          const previewEl = fileInput.closest('.rq-media-panel')?.querySelector('.media-preview');
+          if (previewEl) renderPreview(previewEl, window.extractedQuestions[idx].media);
+          updateMediaToggle(idx);
+        };
+        reader.readAsDataURL(file);
+      });
+
+      frag.appendChild(fileInput);
+      frag.appendChild(uploadArea);
+
+      // Remove button
+      if (window.extractedQuestions[idx].media?.type === type && window.extractedQuestions[idx].media?.src) {
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'media-remove';
+        removeBtn.textContent = lang === 'fr' ? '✕ Supprimer le média' : '✕ Remove media';
+        removeBtn.addEventListener('click', () => {
+          window.extractedQuestions[idx].media = null;
+          buildReviewList();
+          updateReviewStats();
+        });
+        frag.appendChild(removeBtn);
+      }
+    }
+    return frag;
+  }
+
+  function renderPreview(container, media) {
+    container.innerHTML = '';
+    if (!media?.src) return;
+    const label = document.createElement('div');
+    label.className = 'media-preview-label';
+    label.textContent = lang === 'fr' ? 'Aperçu' : 'Preview';
+    container.appendChild(label);
+
+    if (media.type === 'image') {
+      const img = document.createElement('img');
+      img.src = media.src;
+      container.appendChild(img);
+    } else if (media.type === 'audio') {
+      const audio = document.createElement('audio');
+      audio.controls = true; audio.src = media.src;
+      container.appendChild(audio);
+    } else if (media.type === 'pdf') {
+      const iframe = document.createElement('iframe');
+      iframe.src = media.src;
+      iframe.style.cssText = 'width:100%;height:200px;border:none;border-radius:8px;';
+      container.appendChild(iframe);
+    } else if (media.type === 'video') {
+      const embedUrl = getEmbedUrl(media.src);
+      if (embedUrl) {
+        const iframe = document.createElement('iframe');
+        iframe.src = embedUrl;
+        iframe.style.cssText = 'width:100%;height:180px;border:none;border-radius:8px;';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+        container.appendChild(iframe);
+      }
+    }
+  }
+
+  function getEmbedUrl(url) {
+    if (!url) return null;
+    const yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/);
+    if (yt) return `https://www.youtube.com/embed/${yt[1]}`;
+    const vm = url.match(/vimeo\.com\/(\d+)/);
+    if (vm) return `https://player.vimeo.com/video/${vm[1]}`;
+    return null;
+  }
+
+  function updateMediaToggle(idx) {
+    const card = document.querySelector(`.rq-card[data-idx="${idx}"]`);
+    if (!card) return;
+    const toggle = card.querySelector('.rq-media-toggle');
+    if (!toggle) return;
+    const hasMedia = !!window.extractedQuestions[idx]?.media?.src;
+    toggle.className = `rq-media-toggle${hasMedia ? ' has-media' : ''}`;
+    toggle.innerHTML = `📎 ${hasMedia ? (lang === 'fr' ? 'Média attaché — modifier' : 'Media attached — edit') : (lang === 'fr' ? 'Attacher un média (vidéo, image, audio, PDF)' : 'Attach media (video, image, audio, PDF)')}`;
+  }
+
+  function updateReviewStats() {
+    const qs = window.extractedQuestions || [];
+    const t  = i18n[lang];
+    const mcq  = qs.filter(q => q.type === 'mcq').length;
+    const open = qs.filter(q => q.type === 'open').length;
+    document.getElementById('reviewTotalStat').innerHTML =
+      t.reviewStatsText
+        .replace('{total}', `<span class="rs-total">${qs.length}</span>`)
+        .replace('{mcq}',   `<span class="rs-mcq">${mcq}</span>`)
+        .replace('{open}',  `<span class="rs-open">${open}</span>`);
+  }
+
+  // ── Publish (Phase 2.6 placeholder) ──────────────────────────
+  document.getElementById('publishBtn').addEventListener('click', () => {
+    const title    = document.getElementById('examTitle').value.trim()
+                     || document.getElementById('examTitle').placeholder;
+    const duration = document.getElementById('examDuration').value;
+    const qs       = window.extractedQuestions || [];
+    const mcq      = qs.filter(q => q.type === 'mcq').length;
+    const open     = qs.filter(q => q.type === 'open').length;
     alert(lang === 'fr'
-      ? `Prêt pour l'étape de révision.\n\n${window.extractedQuestions?.length || 0} questions extraites et prêtes à vérifier.`
-      : `Ready for review step.\n\n${window.extractedQuestions?.length || 0} questions extracted and ready to verify.`
+      ? `✅ Prêt à publier !\n\n"${title}"\n${duration} minutes · ${qs.length} questions (${mcq} QCM · ${open} rédigées)\n\nPhase 2.6 — connexion au moteur d'examen à venir.`
+      : `✅ Ready to publish!\n\n"${title}"\n${duration} min · ${qs.length} questions (${mcq} MCQ · ${open} written)\n\nPhase 2.6 — exam engine connection coming next.`
     );
   });
 
