@@ -213,14 +213,18 @@
 
     /* MCQ options */
     .rq-options { display: flex; flex-direction: column; gap: 6px; }
+    .rq-cb { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid #cbd5e1; background: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; overflow: visible; }
+    .rq-cb-checked { background: #16a34a; border-color: #16a34a; }
+    .rq-correct-badge { font-size: 11px; font-weight: 600; color: #166534; white-space: nowrap; padding: 3px 10px; border-radius: 4px; background: #dcfce7; margin-left: auto; flex-shrink: 0; display: inline-flex; align-items: center; }
     .rq-option-row { display: flex; align-items: center; gap: 8px; }
     .rq-opt-letter { font-size: 0.78rem; font-weight: 800; color: #94a3b8; min-width: 20px; text-align: center; }
-    .rq-opt-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 7px 10px; font-size: 0.84rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.2s; }
+    .rq-opt-input { flex: 1; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 6px 10px; font-size: 0.84rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.2s; min-width: 0; }
     .rq-opt-input:focus { border-color: #2563eb; }
-    .rq-opt-correct { font-size: 0.72rem; font-weight: 700; padding: 5px 10px; border-radius: 6px; border: 1.5px solid #e2e8f0; background: #f8f9fc; color: #64748b; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
-    .rq-opt-correct.selected { background: #dcfce7; border-color: #86efac; color: #166534; }
-    .rq-opt-correct:not(.selected):hover { background: #f0fdf4; border-color: #86efac; color: #16a34a; }
-    .rq-option-row.correct-row .rq-opt-input { border-color: #86efac; background: #f0fdf4; }
+    .rq-correct-check { font-size: 0.85rem; font-weight: 800; color: #16a34a; padding: 0 8px; flex-shrink: 0; }
+    .rq-option-row { cursor: pointer; border-radius: 6px; transition: background 0.15s; }
+    .rq-option-row:hover:not(.correct-row) { background: #f0fdf4; }
+    .rq-option-row.correct-row { background: #f0fdf4; border: 1px solid #86efac !important; border-radius: 8px; padding: 6px 10px; }
+    .rq-option-row.correct-row .rq-opt-input { border-color: transparent; background: #f0fdf4; color: #166534; }
     .rq-option-row.correct-row .rq-opt-letter { color: #16a34a; }
 
     /* Open question */
@@ -428,7 +432,7 @@
   <div class="card results-card" id="reviewCard">
     <h2 data-i18n="reviewTitle"></h2>
     <p class="card-sub" data-i18n="reviewSub"></p>
-    <div class="review-instructions-box" data-i18n="reviewInstructions"></div>
+    <div class="review-instructions-box" data-i18n-html="reviewInstructions"></div>
 
     <!-- Exam metadata -->
     <div class="exam-meta">
@@ -523,13 +527,20 @@
       reviewBtn:          "Vérifier et modifier les questions →",
       reviewTitle:        "Étape 3 — Vérifier et modifier",
       reviewSub:          "Corrigez les questions, ajustez les bonnes réponses, puis publiez.",
-      reviewInstructions: "Modifiez le texte de chaque question directement. Cliquez sur une option pour la marquer comme correcte. Glissez l'icône de gauche pour réorganiser les questions. Supprimez une question avec le bouton Supprimer — un lien Annuler apparaîtra immédiatement. Ajoutez un média (image, audio, vidéo, PDF) via le bouton en bas de chaque question.",
+      reviewInstructions: "<strong>Vous pouvez :</strong><ul style='margin:6px 0 0 0;padding-left:18px;line-height:2;'><li>Modifier directement le texte de chaque question dans la zone de texte</li><li>Cliquer sur une option pour la marquer comme correcte</li><li>Faire glisser la question vers le haut ou vers le bas pour la réorganiser</li><li>Supprimer une question avec le bouton Supprimer (un lien Annuler apparaîtra immédiatement en cas d'erreur)</li><li>Ajouter un média (image, audio, vidéo ou PDF) via le bouton en bas de chaque question</li></ul>",
       metaTitleLabel:     "Titre de l'examen",
       metaTitlePlaceholder:"Ex. Concours Parcoursup 2026",
       metaDurationLabel:  "Durée",
       metaDurationUnit:   "minutes",
       dragInstructions:   "Glissez les questions par l'icône ≡ pour les réorganiser.",
-      noStarHint:         "💡 Si votre document ne contient pas de marqueurs *, l'IA inférera les bonnes réponses — vérifiez-les à l'étape suivante.",
+      noStarHint:         "Si votre document ne contient pas de marqueurs *, l'IA inférera les bonnes réponses — vérifiez-les à l'étape suivante.",
+      toggleToOpen:       "→ Rédigée",
+      toggleToMCQ:        "→ QCM",
+      openNoteLabel:      "Correction enseignant — réponse libre",
+      reviewStatsText:    "{total} questions · {mcq} QCM · {open} rédigées",
+      addQuestion:        "+ Ajouter une question",
+      publishBtn:         "Confirmer et publier l'examen →",
+      aiErrorFailed:      "⚠ L'extraction a échoué. Vérifiez votre clé API et réessayez.",
       noStarWarning:      "⚠ Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
       partialStarWarning: "⚠ Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
     },
@@ -579,7 +590,7 @@
       reviewBtn:          "Review and edit questions →",
       reviewTitle:        "Step 3 — Review and edit",
       reviewSub:          "Correct any questions, adjust answers, then publish.",
-      reviewInstructions: "Edit question text directly. Click an option to mark it as correct. Drag the left icon to reorder questions. Delete a question using the Delete button — an Undo link will appear immediately. Attach media (image, audio, video, PDF) using the button at the bottom of each question.",
+      reviewInstructions: "<strong>You can:</strong><ul style='margin:6px 0 0 0;padding-left:18px;line-height:2;'><li>Edit question text directly in the text field</li><li>Click an option to mark it as the correct answer</li><li>Drag a question up or down to reorder it</li><li>Delete a question with the Delete button (an Undo link appears immediately if you make a mistake)</li><li>Attach media (image, audio, video or PDF) using the button at the bottom of each question</li></ul>",
       metaTitleLabel:     "Exam title",
       metaTitlePlaceholder:"e.g. Parcoursup Entrance Exam 2026",
       metaDurationLabel:  "Duration",
@@ -614,6 +625,10 @@
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
       if (t[key] !== undefined) el.textContent = t[key];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      if (t[key] !== undefined) el.innerHTML = t[key];
     });
     // Dynamic elements
     document.getElementById('exQ1').textContent    = t.exQ1;
@@ -903,23 +918,16 @@
       buildReviewList();
     });
 
-    // Focus highlight + keyboard navigation between questions
-    div.addEventListener('focusin', () => {
+    // Fix 1: Click anywhere on card to highlight it blue
+    div.addEventListener('click', () => {
       document.querySelectorAll('.rq-card').forEach(c => c.classList.remove('editing'));
       div.classList.add('editing');
       window._activeCardIdx = idx;
     });
-    div.addEventListener('keydown', e => {
-      if (e.key === 'ArrowDown' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        const next = document.querySelector(`.rq-card[data-idx="${idx + 1}"]`);
-        if (next) next.querySelector('textarea, input')?.focus();
-      }
-      if (e.key === 'ArrowUp' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        const prev = document.querySelector(`.rq-card[data-idx="${idx - 1}"]`);
-        if (prev) prev.querySelector('textarea, input')?.focus();
-      }
+    div.addEventListener('focusin', () => {
+      document.querySelectorAll('.rq-card').forEach(c => c.classList.remove('editing'));
+      div.classList.add('editing');
+      window._activeCardIdx = idx;
     });
 
     // Header
@@ -982,16 +990,29 @@
           window.extractedQuestions[idx].options[oi] = input.value;
         });
 
-        const btn = document.createElement('button');
-        btn.className = `rq-opt-correct${q.correct === oi ? ' selected' : ''}`;
-        btn.textContent = q.correct === oi
-          ? (lang === 'fr' ? 'Correcte' : 'Correct')
-          : (lang === 'fr' ? 'Marquer' : 'Mark');
-        btn.addEventListener('click', () => setCorrect(idx, oi));
+        // Checkbox UI — green when correct, badge appears
+        const cb = document.createElement('div');
+        cb.className = 'rq-cb' + (q.correct === oi ? ' rq-cb-checked' : '');
+        if (q.correct === oi) {
+          cb.innerHTML = '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1,4 4,7 9,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        }
 
+        row.appendChild(cb);
         row.appendChild(letter);
         row.appendChild(input);
-        row.appendChild(btn);
+
+        if (q.correct === oi) {
+          const badge = document.createElement('span');
+          badge.className = 'rq-correct-badge';
+          badge.textContent = lang === 'fr' ? 'Bonne réponse' : 'Correct answer';
+          row.appendChild(badge);
+        }
+
+        row.style.cursor = 'pointer';
+        row.addEventListener('click', e => {
+          if (e.target.tagName === 'INPUT') return;
+          setCorrect(idx, oi);
+        });
         optsDiv.appendChild(row);
       });
       body.appendChild(optsDiv);
@@ -1104,79 +1125,129 @@
   });
 
   function buildMediaPanel(q, idx) {
-    const t = i18n[lang];
     const wrapper = document.createElement('div');
-    const currentType = q.media?.type || 'video';
     const mediaTypes = [
-      { key:'video', labelFR:'Vidéo', labelEN:'Video'  },
-      { key:'image', labelFR:'Image', labelEN:'Image'  },
-      { key:'audio', labelFR:'Audio', labelEN:'Audio'  },
-      { key:'pdf',   labelFR:'PDF',   labelEN:'PDF'    },
+      { key:'video', labelFR:'Vidéo', labelEN:'Video' },
+      { key:'image', labelFR:'Image', labelEN:'Image' },
+      { key:'audio', labelFR:'Audio', labelEN:'Audio' },
+      { key:'pdf',   labelFR:'PDF',   labelEN:'PDF'   },
     ];
 
-    // Persistent attached file banner — stays visible regardless of tab
-    const attachedBanner = document.createElement('div');
-    attachedBanner.className = 'media-attached-banner';
-    attachedBanner.id = `mediaBanner_${idx}`;
     if (q.media?.src) {
+      // File attached — show ONLY banner + remove. No tabs until deleted.
       const typeName = mediaTypes.find(m => m.key === q.media.type)?.[lang === 'fr' ? 'labelFR' : 'labelEN'] || '';
-      const fileName = q.media.name || q.media.src.substring(0, 40);
-      attachedBanner.innerHTML = `
-        <span>✅ ${typeName} ${lang === 'fr' ? 'attaché' : 'attached'} — <em>${fileName}</em></span>
-        <button class="media-remove" onclick="removeMedia(${idx})">✕ ${lang === 'fr' ? 'Supprimer' : 'Remove'}</button>`;
-      attachedBanner.style.display = 'flex';
+      const banner = document.createElement('div');
+      banner.className = 'media-attached-banner';
+      banner.style.display = 'flex';
+      banner.innerHTML =
+        '<span>&#x2705; ' + typeName + ' ' + (lang === 'fr' ? 'attach\u00e9' : 'attached') +
+        ' — <em>' + (q.media.name || '') + '</em></span>' +
+        '<button class="media-remove" onclick="removeMedia(' + idx + ')">&#x2715; ' +
+        (lang === 'fr' ? 'Supprimer' : 'Remove') + '</button>';
+      wrapper.appendChild(banner);
     } else {
-      attachedBanner.style.display = 'none';
-    }
-    wrapper.appendChild(attachedBanner);
+      // No file — show type tabs + upload zone
+      const currentType = q.media?.type || 'image';
+      let activeType = currentType;
 
-    // Type tabs
-    const tabs = document.createElement('div');
-    tabs.className = 'media-type-tabs';
-    mediaTypes.forEach(mt => {
-      const btn = document.createElement('button');
-      btn.className = `media-tab${(q.media?.type || 'video') === mt.key ? ' active' : ''}`;
-      btn.textContent = lang === 'fr' ? mt.labelFR : mt.labelEN;
-      btn.dataset.type = mt.key;
-      btn.addEventListener('click', () => {
-        tabs.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        // Only update type + clear src if switching to a different type
-        if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
-        const prevType = window.extractedQuestions[idx].media.type;
-        // Fix 6: NEVER clear existing upload when switching tabs — only update type for new uploads
-        window.extractedQuestions[idx].media.type = mt.key;
-        // Do NOT clear src/name — user must manually delete
+      const tabs = document.createElement('div');
+      tabs.className = 'media-type-tabs';
+
+      const inputArea = document.createElement('div');
+
+      const renderZone = (type) => {
         inputArea.innerHTML = '';
-        inputArea.appendChild(buildInputArea(mt.key, idx, previewArea, attachedBanner));
-        previewArea.innerHTML = '';
-        if (window.extractedQuestions[idx].media?.src) {
-          renderPreview(previewArea, window.extractedQuestions[idx].media);
-        }
+        inputArea.appendChild(buildUploadZone(type, idx, wrapper));
+      };
+
+      mediaTypes.forEach(mt => {
+        const btn = document.createElement('button');
+        btn.className = 'media-tab' + (activeType === mt.key ? ' active' : '');
+        btn.textContent = lang === 'fr' ? mt.labelFR : mt.labelEN;
+        btn.addEventListener('click', () => {
+          tabs.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeType = mt.key;
+          renderZone(mt.key);
+        });
+        tabs.appendChild(btn);
       });
-      tabs.appendChild(btn);
-    });
-    wrapper.appendChild(tabs);
 
-    // Input area
-    const inputArea = document.createElement('div');
-    inputArea.appendChild(buildInputArea(currentType, idx, null, attachedBanner));
-    wrapper.appendChild(inputArea);
-
-    // Preview area
-    const previewArea = document.createElement('div');
-    previewArea.className = 'media-preview';
-    if (q.media?.src) renderPreview(previewArea, q.media);
-    wrapper.appendChild(previewArea);
-
+      wrapper.appendChild(tabs);
+      renderZone(activeType);
+      wrapper.appendChild(inputArea);
+    }
     return wrapper;
+  }
+
+  function buildUploadZone(type, idx, panelWrapper) {
+    const frag = document.createDocumentFragment();
+    const hint = type === 'image' ? 'JPG, PNG, GIF, WebP'
+               : type === 'audio' ? 'MP3, WAV, OGG, M4A'
+               : type === 'pdf'   ? 'PDF'
+               : '';
+
+    if (type === 'video') {
+      const urlInput = document.createElement('input');
+      urlInput.type = 'text';
+      urlInput.className = 'media-url-input';
+      urlInput.placeholder = lang === 'fr' ? 'Lien YouTube ou Vimeo…' : 'YouTube or Vimeo URL…';
+      urlInput.addEventListener('blur', () => {
+        const url = urlInput.value.trim();
+        if (!url) return;
+        if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
+        window.extractedQuestions[idx].media.type = 'video';
+        window.extractedQuestions[idx].media.src  = url;
+        window.extractedQuestions[idx].media.name = url;
+        updateMediaToggle(idx);
+        const panel = panelWrapper.closest ? panelWrapper.closest('.rq-media-panel') : panelWrapper;
+        if (panel) { panel.innerHTML = ''; panel.appendChild(buildMediaPanel(window.extractedQuestions[idx], idx)); }
+      });
+      frag.appendChild(urlInput);
+    } else {
+      const accept = type === 'image' ? 'image/*' : type === 'audio' ? 'audio/*' : 'application/pdf';
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file'; fileInput.accept = accept; fileInput.style.display = 'none';
+
+      const uploadArea = document.createElement('div');
+      uploadArea.className = 'media-upload-area';
+      uploadArea.innerHTML = '<div class="media-upload-label"><strong>' +
+        (lang === 'fr' ? 'Cliquer pour choisir' : 'Click to choose') +
+        '</strong> · ' + hint + '</div>';
+      uploadArea.addEventListener('click', () => fileInput.click());
+
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
+          window.extractedQuestions[idx].media.type = type;
+          window.extractedQuestions[idx].media.src  = e.target.result;
+          window.extractedQuestions[idx].media.name = file.name;
+          updateMediaToggle(idx);
+          const panel = panelWrapper.closest ? panelWrapper.closest('.rq-media-panel') : panelWrapper;
+          if (panel) { panel.innerHTML = ''; panel.appendChild(buildMediaPanel(window.extractedQuestions[idx], idx)); }
+        };
+        reader.readAsDataURL(file);
+      });
+      frag.appendChild(fileInput);
+      frag.appendChild(uploadArea);
+    }
+    return frag;
   }
 
   window.removeMedia = function(idx) {
     window.extractedQuestions[idx].media = null;
     updateMediaToggle(idx);
-    buildReviewList();
+    const cards = document.querySelectorAll('.rq-media-panel');
+    const card  = document.querySelector('.rq-card[data-idx="' + idx + '"]');
+    if (card) {
+      const panel = card.querySelector('.rq-media-panel');
+      if (panel) { panel.innerHTML = ''; panel.appendChild(buildMediaPanel(window.extractedQuestions[idx], idx)); }
+    }
   };
+
 
   function buildInputArea(type, idx, previewArea, attachedBanner) {
     const frag = document.createDocumentFragment();
@@ -1205,40 +1276,55 @@
       const fileInput = document.createElement('input');
       fileInput.type = 'file'; fileInput.accept = accept; fileInput.style.display = 'none';
 
+      const hasExisting = !!(window.extractedQuestions[idx]?.media?.src);
       const uploadArea = document.createElement('div');
-      uploadArea.className = `media-upload-area${window.extractedQuestions[idx].media?.type === type && window.extractedQuestions[idx].media?.src ? ' has-file' : ''}`;
-      uploadArea.innerHTML = `<div class="media-upload-label">
-        <strong>${lang === 'fr' ? 'Cliquer pour choisir' : 'Click to choose'}</strong> · ${hint}
-      </div>`;
-      uploadArea.addEventListener('click', () => fileInput.click());
+      uploadArea.className = 'media-upload-area' + (hasExisting ? ' has-file' : '');
 
-      fileInput.addEventListener('change', () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = e => {
-          if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
-          window.extractedQuestions[idx].media.type = type;
-          window.extractedQuestions[idx].media.src  = e.target.result;
-          window.extractedQuestions[idx].media.name = file.name;
-          uploadArea.classList.add('has-file');
-          uploadArea.querySelector('.media-upload-label').innerHTML =
-            `<strong>✅ ${file.name}</strong>`;
-          // Update persistent banner
-          if (attachedBanner) {
-            const mediaTypes = { video:'Vidéo/Video', image:'Image', audio:'Audio', pdf:'PDF' };
-            attachedBanner.innerHTML = `
-              <span>✅ ${mediaTypes[type] || type} ${lang === 'fr' ? 'attaché' : 'attached'} — <em>${file.name}</em></span>
-              <button class="media-remove" onclick="removeMedia(${idx})">✕ ${lang === 'fr' ? 'Supprimer' : 'Remove'}</button>`;
-            attachedBanner.style.display = 'flex';
-          }
-          // Update preview
-          const previewEl = previewArea || attachedBanner?.closest('.rq-media-panel')?.querySelector('.media-preview');
-          if (previewEl) renderPreview(previewEl, window.extractedQuestions[idx].media);
-          updateMediaToggle(idx);
-        };
-        reader.readAsDataURL(file);
-      });
+      if (hasExisting) {
+        const existingName = window.extractedQuestions[idx].media.name || 'fichier attaché';
+        uploadArea.innerHTML = `<div class="media-upload-label">
+          <strong>\u2705 ${existingName}</strong><br>
+          <span style="font-size:0.75rem;color:#64748b;">${lang === 'fr' ? "Supprimez ce fichier avant d\'en importer un nouveau" : 'Delete this file before uploading a new one'}</span>
+        </div>`;
+        uploadArea.style.cursor = 'default';
+        uploadArea.addEventListener('click', () => {
+          alert(lang === 'fr'
+            ? "Un fichier est déjà attaché. Supprimez-le d\'abord via le bouton Supprimer."
+            : 'A file is already attached. Please delete it first using the Remove button.');
+        });
+      } else {
+        uploadArea.innerHTML = `<div class="media-upload-label">
+          <strong>${lang === 'fr' ? 'Cliquer pour choisir' : 'Click to choose'}</strong> · ${hint}
+        </div>`;
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+          const file = fileInput.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = e => {
+            if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
+            window.extractedQuestions[idx].media.type = type;
+            window.extractedQuestions[idx].media.src  = e.target.result;
+            window.extractedQuestions[idx].media.name = file.name;
+            if (attachedBanner) {
+              const typeLabels = { video:'Vidéo/Video', image:'Image', audio:'Audio', pdf:'PDF' };
+              attachedBanner.innerHTML = `
+                <span>&#x2705; ${typeLabels[type] || type} ${lang === 'fr' ? 'attaché' : 'attached'} — <em>${file.name}</em></span>
+                <button class="media-remove" onclick="removeMedia(${idx})">\u2715 ${lang === 'fr' ? 'Supprimer' : 'Remove'}</button>`;
+              attachedBanner.style.display = 'flex';
+            }
+            updateMediaToggle(idx);
+            // Rebuild the media panel to show blocked state
+            const panel = uploadArea.closest('.rq-media-panel');
+            if (panel) {
+              const q2 = window.extractedQuestions[idx];
+              panel.innerHTML = '';
+              panel.appendChild(buildMediaPanel(q2, idx));
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
 
       frag.appendChild(fileInput);
       frag.appendChild(uploadArea);
