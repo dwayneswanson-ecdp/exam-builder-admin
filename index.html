@@ -253,6 +253,19 @@
     .undo-toast.visible { display: flex; }
     .undo-toast button { background: #2563eb; border: none; color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .undo-toast button:hover { background: #1d4ed8; }
+    /* No-star hint */
+    .no-star-hint { font-size: 0.8rem; color: #64748b; background: #f8f9fc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-top: 10px; line-height: 1.5; }
+
+    /* Review instructions */
+    .review-instructions-box { font-size: 0.82rem; color: #475569; background: #f8f9fc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; line-height: 1.7; }
+
+    /* Collapsed card */
+    .card.step-collapsed { padding: 14px 20px; cursor: pointer; }
+    .card.step-collapsed > *:not(.step-done-bar) { display: none !important; }
+    .step-done-bar { display: none; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: #16a34a; }
+    .card.step-collapsed .step-done-bar { display: flex; }
+    .card.step-collapsed:hover { border-color: #2563eb; }
+
     .rq-media-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-top: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #64748b; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; font-family: inherit; transition: color 0.15s; }
     .rq-media-toggle:hover { color: #2563eb; }
     .rq-media-toggle.has-media { color: #2563eb; border-top-color: #bfdbfe; background: #f0f9ff; }
@@ -313,8 +326,11 @@
   </div>
 
   <!-- Upload card -->
-  <div class="card">
-    <h2 data-i18n="cardTitle"></h2>
+  <div class="card" id="uploadCard">
+    <div class="step-done-bar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+      <span id="uploadDoneLabel"></span>
+    </div>
     <p class="card-sub" data-i18n="cardSub"></p>
 
     <div class="upload-grid">
@@ -359,6 +375,7 @@
           </div>
           <div class="doc-footer" data-i18n="docFooter"></div>
         </div>
+        <div class="no-star-hint" data-i18n="noStarHint"></div>
 
         <div class="legend">
           <div class="legend-item"><div class="legend-dot red"></div><span data-i18n="legendStar"></span></div>
@@ -389,6 +406,10 @@
 
   <!-- AI extraction card — Step 2 -->
   <div class="card results-card" id="aiCard">
+    <div class="step-done-bar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+      <span id="aiDoneLabel"></span>
+    </div>
     <h2 data-i18n="aiTitle"></h2>
     <p class="card-sub" data-i18n="aiSub"></p>
 
@@ -418,6 +439,7 @@
   <div class="card results-card" id="reviewCard">
     <h2 data-i18n="reviewTitle"></h2>
     <p class="card-sub" data-i18n="reviewSub"></p>
+    <div class="review-instructions-box" data-i18n="reviewInstructions"></div>
 
     <!-- Exam metadata -->
     <div class="exam-meta">
@@ -510,19 +532,15 @@
       aiTotalLabel:       "Total",
       aiPreviewLabel:     "Questions extraites",
       reviewBtn:          "Vérifier et modifier les questions →",
-      reviewBtn:          "Vérifier et modifier les questions →",
       reviewTitle:        "Étape 3 — Vérifier et modifier",
       reviewSub:          "Corrigez les questions, ajustez les bonnes réponses, puis publiez.",
+      reviewInstructions: "✏ Modifiez le texte · ✓ Cliquez une option pour la marquer correcte · ↔ Glissez ≡ pour réorganiser · 🗑 Supprimez puis Annulez si erreur · 📎 Attachez un média par question",
       metaTitleLabel:     "Titre de l'examen",
       metaTitlePlaceholder:"Ex. Concours Parcoursup 2026",
       metaDurationLabel:  "Durée",
       metaDurationUnit:   "minutes",
       dragInstructions:   "Glissez les questions par l'icône ≡ pour les réorganiser.",
-      statFileLabel:  "Fichier",
-      statCharsLabel: "Caractères extraits",
-      previewLabel:  "Aperçu du document",
-      nextBtn:       "Envoyer à l'IA pour extraction des questions →",
-      alertResult:   "Prêt pour l'extraction IA.\n\n• {chars} caractères extraits\n• ~{mcq} questions QCM détectées\n• ~{open} questions rédigées détectées",
+      noStarHint:         "💡 Si votre document ne contient pas de marqueurs *, l'IA inférera les bonnes réponses — vérifiez-les à l'étape suivante.",
       noStarWarning:      "⚠ Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
       partialStarWarning: "⚠ Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
     },
@@ -570,9 +588,9 @@
       aiTotalLabel:       "Total",
       aiPreviewLabel:     "Extracted questions",
       reviewBtn:          "Review and edit questions →",
-      reviewBtn:          "Review and edit questions →",
       reviewTitle:        "Step 3 — Review and edit",
       reviewSub:          "Correct any questions, adjust answers, then publish.",
+      reviewInstructions: "✏ Edit text inline · ✓ Click an option to mark it correct · ↔ Drag ≡ to reorder · 🗑 Delete then Undo if mistake · 📎 Attach media per question",
       metaTitleLabel:     "Exam title",
       metaTitlePlaceholder:"e.g. Parcoursup Entrance Exam 2026",
       metaDurationLabel:  "Duration",
@@ -586,6 +604,7 @@
       optCorrectSelected: "✓ Correct",
       openNoteLabel:      "Teacher graded — open response",
       reviewStatsText:    "{total} questions · {mcq} MCQ · {open} written",
+      noStarHint:         "💡 If your document has no * markers, the AI will infer the correct answers — verify them in the next step.",
       aiErrorNoKey:       "⚠ Please enter your Anthropic API key at the top of the page.",
       aiErrorFailed:      "⚠ Extraction failed. Check your API key and try again.",
       noStarWarning:      "⚠ No * markers detected — the AI will attempt to infer correct answers. Review carefully in the next step.",
@@ -771,6 +790,17 @@
       const data = await response.json();
       showAIResults(data.questions, t);
 
+      // Collapse upload card
+      const uploadCard = document.getElementById('uploadCard');
+      document.getElementById('uploadDoneLabel').textContent = lang === 'fr'
+        ? `Étape 1 — Document importé ✓ — cliquer pour rouvrir`
+        : `Step 1 — Document uploaded ✓ — click to reopen`;
+      uploadCard.classList.add('step-collapsed');
+      uploadCard.onclick = e => { if (!e.target.closest('button')) uploadCard.classList.toggle('step-collapsed'); };
+
+      // Also collapse step 1 results card
+      document.getElementById('resultsCard').classList.remove('visible');
+
     } catch(err) {
       document.getElementById('aiProgress').style.display = 'none';
       const alertEl = document.getElementById('aiAlert');
@@ -809,17 +839,33 @@
 
   document.getElementById('reviewBtn').addEventListener('click', () => {
     if (!window.extractedQuestions?.length) return;
-    markDone(3); markActive(4);
 
-    // Set placeholder for exam title using file name
     const t = i18n[lang];
+
+    // Collapse AI card
+    const aiCard = document.getElementById('aiCard');
+    const mcqCount  = window.extractedQuestions.filter(q => q.type === 'mcq').length;
+    const openCount = window.extractedQuestions.filter(q => q.type === 'open').length;
+    document.getElementById('aiDoneLabel').textContent = lang === 'fr'
+      ? `Étape 2 — ${window.extractedQuestions.length} questions extraites (${mcqCount} QCM · ${openCount} rédigées) ✓ — cliquer pour rouvrir`
+      : `Step 2 — ${window.extractedQuestions.length} questions extracted (${mcqCount} MCQ · ${openCount} written) ✓ — click to reopen`;
+    aiCard.classList.add('step-collapsed');
+    aiCard.onclick = e => { if (!e.target.closest('button')) aiCard.classList.toggle('step-collapsed'); };
+
+    markActive(3);
+
+    // Set exam title placeholder
     const titleInput = document.getElementById('examTitle');
-    if (currentFile) {
-      titleInput.placeholder = currentFile.name.replace(/\.(docx|pdf)$/i,'');
-    }
     titleInput.setAttribute('placeholder', t.metaTitlePlaceholder);
 
-    buildReviewList();
+    // Build review list with error handling
+    try {
+      buildReviewList();
+    } catch(err) {
+      console.error('Review build error:', err);
+      alert((lang === 'fr' ? 'Erreur : ' : 'Error: ') + err.message);
+      return;
+    }
     updateReviewStats();
 
     const reviewCard = document.getElementById('reviewCard');
