@@ -546,10 +546,8 @@
     document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // ── Supabase config ───────────────────────────────────────────
-  const SUPABASE_URL  = 'https://toxgihdyfzdymgidgvaq.supabase.co';
-  const SUPABASE_ANON = 'sb_publishable_Xxxt5Xo9ECA20t9Ijekmww_mC0oEt-_';
-  const EDGE_FUNCTION = `${SUPABASE_URL}/functions/v1/extract-questions`;
+  // ── Supabase Edge Function ────────────────────────────────────
+  const EDGE_FUNCTION = 'https://toxgihdyfzdymgidgvaq.supabase.co/functions/v1/extract-questions';
 
   // ── Send to AI ────────────────────────────────────────────────
   document.getElementById('nextBtn').addEventListener('click', async () => {
@@ -569,8 +567,6 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON}`,
-          'apikey': SUPABASE_ANON,
         },
         body: JSON.stringify({ text: extractedText }),
       });
