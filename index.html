@@ -226,7 +226,25 @@
     /* Open question */
     .rq-open-note { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #ede9fe; border-radius: 8px; font-size: 0.82rem; color: #7c3aed; font-weight: 600; }
 
-    /* Media attachment */
+    /* Drag handle */
+    .drag-handle { cursor: grab; padding: 4px; color: #94a3b8; display: flex; align-items: center; }
+    .drag-handle:active { cursor: grabbing; }
+    .rq-card.dragging { opacity: 0.4; }
+    .rq-card.drag-over { border-color: #2563eb; box-shadow: 0 0 0 2px #bfdbfe; }
+
+    /* Editing highlight */
+    .rq-card.editing { border-color: #2563eb; box-shadow: 0 0 0 3px #dbeafe; }
+    .rq-card.editing .rq-header { background: #eff6ff; border-bottom-color: #bfdbfe; }
+
+    /* Delete button style */
+    .rq-btn.delete { display: flex; align-items: center; gap: 5px; font-size: 0.78rem; font-weight: 600; color: #94a3b8; border: 1px solid #e2e8f0; border-radius: 6px; padding: 4px 10px; }
+    .rq-btn.delete:hover { background: #fee2e2; border-color: #fca5a5; color: #dc2626; }
+
+    /* Undo toast */
+    .undo-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; padding: 12px 20px; border-radius: 10px; display: none; align-items: center; gap: 16px; font-size: 0.88rem; font-weight: 500; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    .undo-toast.visible { display: flex; }
+    .undo-toast button { background: #2563eb; border: none; color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .undo-toast button:hover { background: #1d4ed8; }
     .rq-media-toggle { display: flex; align-items: center; gap: 6px; padding: 10px 14px; border-top: 1px solid #e2e8f0; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: #64748b; background: none; border-left: none; border-right: none; border-bottom: none; width: 100%; text-align: left; font-family: inherit; transition: color 0.15s; }
     .rq-media-toggle:hover { color: #2563eb; }
     .rq-media-toggle.has-media { color: #2563eb; border-top-color: #bfdbfe; background: #f0f9ff; }
@@ -376,6 +394,7 @@
 
     <!-- AI results -->
     <div id="aiResults" style="display:none;">
+      <div id="aiSuccessBanner" class="success-msg" style="display:none;margin-bottom:16px;"></div>
       <div class="ai-stats-row">
         <div class="stat"><div class="stat-label" data-i18n="aiMCQLabel"></div><div class="stat-value green" id="aiMCQCount">—</div></div>
         <div class="stat"><div class="stat-label" data-i18n="aiOpenLabel"></div><div class="stat-value purple" id="aiOpenCount">—</div></div>
@@ -751,6 +770,15 @@
     document.getElementById('aiOpenCount').textContent  = open;
     document.getElementById('aiTotalCount').textContent = questions.length;
 
+    // Show success banner
+    const banner = document.getElementById('aiSuccessBanner');
+    if (banner) {
+      banner.textContent = lang === 'fr'
+        ? `✅ Analysé avec succès — ${questions.length} questions extraites`
+        : `✅ Analysed successfully — ${questions.length} questions extracted`;
+      banner.style.display = 'flex';
+    }
+
     // Store for review step
     window.extractedQuestions = questions;
   }
@@ -794,18 +822,60 @@
     div.className = `rq-card${isMCQ ? '' : ' open-type'}${isInferred ? ' inferred' : ''}`;
     div.dataset.idx = idx;
 
+    // Drag to reorder
+    div.draggable = true;
+    div.addEventListener('dragstart', e => {
+      window._dragIdx = idx;
+      div.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    div.addEventListener('dragend', () => div.classList.remove('dragging'));
+    div.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      div.classList.add('drag-over');
+    });
+    div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+    div.addEventListener('drop', e => {
+      e.preventDefault();
+      div.classList.remove('drag-over');
+      const from = window._dragIdx;
+      const to   = idx;
+      if (from === to) return;
+      const qs = window.extractedQuestions;
+      const item = qs.splice(from, 1)[0];
+      qs.splice(to, 0, item);
+      buildReviewList();
+    });
+
+    // Focus highlight on any input interaction
+    div.addEventListener('focusin', () => {
+      document.querySelectorAll('.rq-card').forEach(c => c.classList.remove('editing'));
+      div.classList.add('editing');
+    });
+
     // Header
     const header = document.createElement('div');
     header.className = 'rq-header';
     header.innerHTML = `
+      <span class="drag-handle" title="${lang === 'fr' ? 'Glisser pour réorganiser' : 'Drag to reorder'}">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="10" height="2" rx="1" fill="#94a3b8"/>
+          <rect x="2" y="6" width="10" height="2" rx="1" fill="#94a3b8"/>
+          <rect x="2" y="10" width="10" height="2" rx="1" fill="#94a3b8"/>
+        </svg>
+      </span>
       <span class="rq-num">Q${idx + 1}</span>
       <span class="rq-badge ${isMCQ ? 'mcq' : 'open'}">${isMCQ ? 'QCM' : (lang === 'fr' ? 'Rédigée' : 'Written')}</span>
       ${isInferred ? `<span class="rq-inferred">⚠ ${lang === 'fr' ? 'réponse inférée' : 'inferred answer'}</span>` : ''}
       <button class="rq-type-toggle" onclick="toggleType(${idx})">${isMCQ ? t.toggleToOpen : t.toggleToMCQ}</button>
       <div class="rq-actions">
-        <button class="rq-btn" onclick="moveQuestion(${idx},-1)" title="Monter">↑</button>
-        <button class="rq-btn" onclick="moveQuestion(${idx},1)" title="Descendre">↓</button>
-        <button class="rq-btn delete" onclick="deleteQuestion(${idx})" title="Supprimer">🗑</button>
+        <button class="rq-btn delete" onclick="deleteQuestion(${idx})">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4h6v2"/>
+          </svg>
+          ${lang === 'fr' ? 'Supprimer' : 'Delete'}
+        </button>
       </div>`;
     div.appendChild(header);
 
@@ -891,30 +961,61 @@
   function toggleType(qIdx) {
     const q = window.extractedQuestions[qIdx];
     if (q.type === 'mcq') {
+      // Save options before switching — restore if toggled back
+      q._savedOptions = q.options;
+      q._savedCorrect = q.correct;
       q.type = 'open';
       q.correct = null;
       q.options = [];
     } else {
       q.type = 'mcq';
-      q.options = q.options?.length ? q.options : ['','','',''];
-      q.correct = 0;
+      // Restore saved options if available
+      q.options = q._savedOptions?.length ? q._savedOptions : ['','','',''];
+      q.correct = q._savedCorrect ?? 0;
     }
     buildReviewList();
     updateReviewStats();
   }
 
+  // ── Undo delete ───────────────────────────────────────────────
+  window._deletedStack = [];
+
   function deleteQuestion(qIdx) {
+    const deleted = { q: window.extractedQuestions[qIdx], idx: qIdx };
+    window._deletedStack.push(deleted);
     window.extractedQuestions.splice(qIdx, 1);
     buildReviewList();
     updateReviewStats();
+    showUndoToast();
   }
 
-  function moveQuestion(qIdx, dir) {
-    const qs = window.extractedQuestions;
-    const newIdx = qIdx + dir;
-    if (newIdx < 0 || newIdx >= qs.length) return;
-    [qs[qIdx], qs[newIdx]] = [qs[newIdx], qs[qIdx]];
+  function showUndoToast() {
+    let toast = document.getElementById('undoToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'undoToast';
+      toast.className = 'undo-toast';
+      document.body.appendChild(toast);
+    }
+    const label = lang === 'fr' ? 'Question supprimée' : 'Question deleted';
+    const undo  = lang === 'fr' ? 'Annuler' : 'Undo';
+    toast.innerHTML = `<span>${label}</span><button onclick="undoDelete()">${undo}</button>`;
+    toast.classList.add('visible');
+    clearTimeout(window._undoTimer);
+    window._undoTimer = setTimeout(() => {
+      toast.classList.remove('visible');
+      window._deletedStack = [];
+    }, 5000);
+  }
+
+  function undoDelete() {
+    if (!window._deletedStack.length) return;
+    const { q, idx } = window._deletedStack.pop();
+    window.extractedQuestions.splice(idx, 0, q);
     buildReviewList();
+    updateReviewStats();
+    const toast = document.getElementById('undoToast');
+    if (toast) toast.classList.remove('visible');
   }
 
   document.getElementById('addQuestionBtn').addEventListener('click', () => {
@@ -954,15 +1055,21 @@
       btn.addEventListener('click', () => {
         tabs.querySelectorAll('.media-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Update question media type, clear src
+        // Only update type — preserve src if same type, clear only if switching type
         if (!window.extractedQuestions[idx].media) window.extractedQuestions[idx].media = {};
-        window.extractedQuestions[idx].media.type = mt.key;
-        window.extractedQuestions[idx].media.src  = null;
-        window.extractedQuestions[idx].media.name = null;
+        const prevType = window.extractedQuestions[idx].media.type;
+        if (prevType !== mt.key) {
+          window.extractedQuestions[idx].media.type = mt.key;
+          window.extractedQuestions[idx].media.src  = null;
+          window.extractedQuestions[idx].media.name = null;
+        }
         // Re-render input area
         inputArea.innerHTML = '';
         inputArea.appendChild(buildInputArea(mt.key, idx, previewArea));
         previewArea.innerHTML = '';
+        if (window.extractedQuestions[idx].media?.src) {
+          renderPreview(previewArea, window.extractedQuestions[idx].media);
+        }
       });
       tabs.appendChild(btn);
     });
