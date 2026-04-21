@@ -375,12 +375,6 @@
           </div>
           <div class="doc-footer" data-i18n="docFooter"></div>
         </div>
-        <div class="no-star-hint" data-i18n="noStarHint"></div>
-
-        <div class="legend">
-          <div class="legend-item"><div class="legend-dot red"></div><span data-i18n="legendStar"></span></div>
-          <div class="legend-item"><div class="legend-dot purple"></div><span data-i18n="legendOpen"></span></div>
-        </div>
 
       </div>
     </div>
@@ -496,7 +490,7 @@
       step3:         "Vérifier & modifier",
       step4:         "Publier",
       cardTitle:     "Étape 1 — Importez votre document d'examen",
-      cardSub:       "Un seul fichier suffit. Marquez la bonne réponse avec un astérisque (*) avant l'option correcte dans votre document. Les questions rédigées sont détectées automatiquement.",
+      cardSub:       "Un seul fichier suffit — .docx ou .pdf. L'IA extrait les questions automatiquement.",
       zoneLabel:     "Document d'examen",
       zoneSub:       "Glissez-déposez ou cliquez pour choisir.\n.docx ou .pdf · Max 10 Mo",
       zoneBtn:       "Choisir un fichier",
@@ -552,7 +546,7 @@
       step3:         "Review & Edit",
       step4:         "Publish",
       cardTitle:     "Step 1 — Upload your exam document",
-      cardSub:       "One file is all you need. Mark the correct answer with an asterisk (*) before the correct option in your document. Written questions are detected automatically.",
+      cardSub:       "One file is all you need — .docx or .pdf. The AI extracts the questions automatically.",
       zoneLabel:     "Exam Document",
       zoneSub:       "Drag and drop or click to choose.\n.docx or .pdf · Max 10MB",
       zoneBtn:       "Choose file",
@@ -764,14 +758,14 @@
   document.getElementById('nextBtn').addEventListener('click', async () => {
     const t = i18n[lang];
 
-    // Show AI card
+    // Show AI card with spinner, scroll to top
     const aiCard = document.getElementById('aiCard');
     aiCard.classList.add('visible');
     document.getElementById('aiProgress').style.display = 'block';
     document.getElementById('aiResults').style.display = 'none';
     document.getElementById('aiProgressLabel').textContent = t.aiProcessing;
-    aiCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    markDone(2); markActive(3);
+    markDone(1); markActive(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
       const response = await fetch(EDGE_FUNCTION, {
@@ -789,6 +783,7 @@
 
       const data = await response.json();
       showAIResults(data.questions, t);
+      markDone(2); markActive(3);
 
       // Collapse upload card
       const uploadCard = document.getElementById('uploadCard');
@@ -852,13 +847,10 @@
     aiCard.classList.add('step-collapsed');
     aiCard.onclick = e => { if (!e.target.closest('button')) aiCard.classList.toggle('step-collapsed'); };
 
-    markActive(3);
-
     // Set exam title placeholder
-    const titleInput = document.getElementById('examTitle');
-    titleInput.setAttribute('placeholder', t.metaTitlePlaceholder);
+    document.getElementById('examTitle').setAttribute('placeholder', t.metaTitlePlaceholder);
 
-    // Build review list with error handling
+    // Build review list
     try {
       buildReviewList();
     } catch(err) {
@@ -868,9 +860,11 @@
     }
     updateReviewStats();
 
+    markDone(3); markActive(4);
+
     const reviewCard = document.getElementById('reviewCard');
     reviewCard.classList.add('visible');
-    reviewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   function buildReviewList() {
