@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Exam Builder — Importer un examen</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
@@ -257,6 +258,14 @@
     .undo-toast.visible { display: flex; }
     .undo-toast button { background: #2563eb; border: none; color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
     .undo-toast button:hover { background: #1d4ed8; }
+    /* Exam lang toggle */
+    .meta-extra { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .meta-extra-field { flex: 1; min-width: 220px; }
+    .exam-lang-toggle { display: flex; gap: 6px; margin-top: 4px; }
+    .exam-lang-btn { padding: 7px 16px; border-radius: 999px; border: 2px solid #e2e8f0; background: #f8f9fc; color: #475569; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .exam-lang-btn.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .meta-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 5px; line-height: 1.5; }
+
     /* No-star hint */
     .no-star-hint { font-size: 0.8rem; color: #64748b; background: #f8f9fc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-top: 10px; line-height: 1.5; }
 
@@ -439,6 +448,7 @@
       <div class="meta-field">
         <label class="meta-label" data-i18n="metaTitleLabel"></label>
         <input type="text" id="examTitle" class="meta-input" data-i18n-placeholder="metaTitlePlaceholder">
+        <div id="examTitleError" style="display:none;font-size:0.75rem;color:#dc2626;margin-top:4px;font-weight:600;" data-i18n="metaTitleRequired"></div>
       </div>
       <div class="meta-field meta-field-sm">
         <label class="meta-label" data-i18n="metaDurationLabel"></label>
@@ -455,6 +465,24 @@
     </div>
 
     <!-- Drag instructions -->
+
+    <!-- Language of student instructions + Groups -->
+    <div class="meta-extra">
+      <div class="meta-extra-field">
+        <label class="meta-label" data-i18n="metaLangLabel"></label>
+        <div class="exam-lang-toggle">
+          <button class="exam-lang-btn active" id="examLangFR" onclick="setExamLang('fr')">🇫🇷 Français</button>
+          <button class="exam-lang-btn" id="examLangEN" onclick="setExamLang('en')">🇬🇧 English</button>
+        </div>
+        <div class="meta-hint" data-i18n="metaLangHint"></div>
+      </div>
+      <div class="meta-extra-field">
+        <label class="meta-label" data-i18n="metaGroupsLabel"></label>
+        <input type="text" id="examGroups" class="meta-input" data-i18n-placeholder="metaGroupsPlaceholder">
+        <div class="meta-hint" data-i18n="metaGroupsHint"></div>
+      </div>
+    </div>
+
     <div class="drag-instructions" id="dragInstructions">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
         <rect x="2" y="2" width="10" height="2" rx="1" fill="#94a3b8"/>
@@ -474,28 +502,66 @@
     <button class="publish-btn" id="publishBtn" data-i18n="publishBtn"></button>
 
     <!-- Publish result — shown after successful publish -->
-    <div id="publishResult" style="display:none; margin-top:20px; border:2px solid #86efac; border-radius:14px; overflow:hidden;">
-      <div style="background:#16a34a; padding:14px 20px; color:#fff;">
-        <div style="font-size:0.75rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8; margin-bottom:3px;">Épreuve publiée</div>
-        <div style="font-size:1rem; font-weight:700;">Partagez ce lien avec vos étudiants</div>
+    <div id="publishResult" style="display:none; margin-top:20px; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden; box-shadow:0 4px 20px rgba(15,23,42,0.08);">
+
+      <!-- Green header -->
+      <div style="background:linear-gradient(135deg,#16a34a,#15803d); padding:20px 24px;">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-bottom:4px;" data-i18n="publishedLabel"></div>
+        <div style="font-size:1.05rem;font-weight:700;color:#fff;">✅ <span data-i18n="publishedTitle"></span></div>
       </div>
-      <div style="padding:20px; background:#f0fdf4;">
-        <div style="font-size:0.8rem; font-weight:600; color:#166534; margin-bottom:6px;">Lien de l'épreuve</div>
-        <div style="display:flex; gap:8px; align-items:center;">
+
+      <div style="padding:22px 24px; background:#fff;">
+
+        <!-- Exam info pill -->
+        <div style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
+          <span style="font-size:1.2rem;">📄</span>
+          <div>
+            <div id="publishedExamTitle" style="font-size:0.9rem;font-weight:700;color:#0f172a;"></div>
+            <div id="publishedExamMeta" style="font-size:0.75rem;color:#64748b;margin-top:2px;"></div>
+          </div>
+        </div>
+
+        <!-- Link field -->
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:6px;" data-i18n="publishedLinkLabel"></div>
+        <div style="display:flex;gap:8px;margin-bottom:18px;">
           <input id="shareUrlDisplay" type="text" readonly
-            style="flex:1; font-size:0.82rem; background:#fff; border:1.5px solid #86efac; color:#0f172a; padding:9px 12px; border-radius:8px; font-family:monospace;">
-          <button onclick="navigator.clipboard.writeText(document.getElementById('shareUrlDisplay').value).then(()=>this.textContent='✅ Copié!').catch(()=>{})"
-            style="padding:9px 16px; border-radius:8px; font-size:0.82rem; white-space:nowrap; flex-shrink:0;">
-            Copier le lien
+            onclick="this.select()"
+            style="flex:1;padding:10px 13px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.8rem;font-family:monospace;color:#0f172a;background:#f8f9fc;cursor:text;min-width:0;">
+          <button id="copyLinkBtn"
+            onclick="copyShareLink()"
+            style="display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;box-shadow:0 3px 10px rgba(37,99,235,0.25);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            <span data-i18n="copyLinkBtn"></span>
           </button>
         </div>
-        <div style="margin-top:14px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-          <div style="font-size:0.8rem; font-weight:600; color:#166534;">Code d'accès étudiant :</div>
-          <div id="accessCodeDisplay" style="font-size:1.1rem; font-weight:800; font-family:monospace; color:#0f172a; background:#fff; border:1.5px solid #86efac; padding:6px 16px; border-radius:8px; letter-spacing:0.1em;"></div>
+
+        <!-- Access code -->
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:8px;" data-i18n="publishedCodeLabel"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+          <div id="accessCodeDisplay" style="font-size:1.15rem;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:7px 20px;border-radius:999px;"></div>
+          <button onclick="navigator.clipboard.writeText(document.getElementById('accessCodeDisplay').textContent).then(()=>{this.textContent='✓ Copié';setTimeout(()=>this.setAttribute('data-i18n-restore','copyCodeBtn'),1500)})"
+            style="padding:6px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8f9fc;color:#475569;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;"
+            onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'"
+            onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'"
+            data-i18n="copyCodeBtn"></button>
         </div>
-        <div style="margin-top:10px; font-size:0.78rem; color:#64748b; line-height:1.6;">
-          Les étudiants ouvrent le lien, saisissent leurs informations et ce code pour accéder à l'épreuve.
+
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 18px;">
+
+        <!-- Teacher email section -->
+        <div style="font-size:0.82rem;font-weight:600;color:#475569;margin-bottom:6px;" data-i18n="publishEmailLabel"></div>
+        <div style="display:flex;gap:8px;margin-bottom:6px;">
+          <input type="email" id="teacherEmailInput" data-i18n-placeholder="publishEmailPlaceholder"
+            style="flex:1;padding:10px 13px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.88rem;font-family:inherit;color:#0f172a;background:#fff;">
+          <button id="sendEmailBtn" onclick="sendTeacherEmail()"
+            style="display:flex;align-items:center;gap:6px;padding:10px 16px;border-radius:10px;border:2px solid #e2e8f0;background:#f1f5f9;color:#2563eb;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.15s;"
+            onmouseover="this.style.background='#eff6ff';this.style.borderColor='#93c5fd'"
+            onmouseout="this.style.background='#f1f5f9';this.style.borderColor='#e2e8f0'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span data-i18n="publishEmailBtn"></span>
+          </button>
         </div>
+        <div style="font-size:0.73rem;color:#94a3b8;line-height:1.5;" data-i18n="publishEmailHint"></div>
       </div>
     </div>
   </div>
@@ -566,6 +632,22 @@
       reviewStatsText:    "{total} questions · {mcq} QCM · {open} rédigées",
       addQuestion:        "+ Ajouter une question",
       publishBtn:         "Confirmer et publier l'examen →",
+      publishedLabel:     "Épreuve publiée avec succès",
+      publishedTitle:     "Partagez ces informations avec vos étudiants",
+      publishedLinkLabel: "Lien de l'épreuve",
+      publishedCodeLabel: "Code d'accès étudiant",
+      copyLinkBtn:        "Copier le lien",
+      copyCodeBtn:        "Copier le code",
+      publishEmailLabel:  "Recevoir le lien et les instructions par e-mail",
+      publishEmailPlaceholder: "votre.email@etablissement.fr",
+      publishEmailBtn:    "Envoyer",
+      publishEmailHint:   "Vous recevrez le lien, le code et une liste des bonnes pratiques à transmettre à vos étudiants.",
+      metaTitleRequired:  "⚠ Le titre de l'examen est obligatoire avant de publier.",
+      metaLangLabel:      "Langue des instructions étudiants",
+      metaLangHint:       "Définit la langue des consignes, boutons et messages affichés aux étudiants.",
+      metaGroupsLabel:    "Groupes (optionnel)",
+      metaGroupsPlaceholder: "Ex. G1, G2, G3 — séparé par des virgules",
+      metaGroupsHint:     "Les étudiants sélectionneront leur groupe au moment de la connexion.",
       aiErrorFailed:      "⚠ L'extraction a échoué. Vérifiez votre clé API et réessayez.",
       noStarWarning:      "⚠ Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
       partialStarWarning: "⚠ Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
@@ -624,6 +706,22 @@
       metaDurationUnit:   "minutes",
       addQuestion:        "+ Add a question",
       publishBtn:         "Confirm and publish exam →",
+      publishedLabel:     "Exam published successfully",
+      publishedTitle:     "Share these details with your students",
+      publishedLinkLabel: "Exam link",
+      publishedCodeLabel: "Student access code",
+      copyLinkBtn:        "Copy link",
+      copyCodeBtn:        "Copy code",
+      publishEmailLabel:  "Receive the link and instructions by email",
+      publishEmailPlaceholder: "your.email@institution.fr",
+      publishEmailBtn:    "Send",
+      publishEmailHint:   "You will receive the link, the code, and a list of best practices to share with your students.",
+      metaTitleRequired:  "⚠ Exam title is required before publishing.",
+      metaLangLabel:      "Language of student instructions",
+      metaLangHint:       "Sets the language of instructions, buttons and messages shown to students.",
+      metaGroupsLabel:    "Groups (optional)",
+      metaGroupsPlaceholder: "e.g. Group A, Group B — separated by commas",
+      metaGroupsHint:     "Students will select their group when logging in.",
       toggleToOpen:       "→ Written",
       toggleToMCQ:        "→ MCQ",
       optCorrectBtn:      "✓ Correct",
@@ -639,6 +737,7 @@
   };
 
   let lang = 'fr';
+  let examLang = 'fr'; // Language for student-facing exam UI
   let currentFile = null;
   let extractedText = '';
 
@@ -670,6 +769,11 @@
   setLang('fr');
 
   // Rebuild review when language changes if already in review step
+  // Init EmailJS
+  if (window.emailjs) {
+    try { emailjs.init({ publicKey: 'Bb0oPYBiZGQcyIz5r' }); } catch(e) {}
+  }
+
   function setLangAndRefresh(l) {
     setLang(l);
     if (document.getElementById('reviewCard')?.classList.contains('visible')) {
@@ -679,6 +783,12 @@
   }
   document.getElementById('btnFR').onclick = () => setLangAndRefresh('fr');
   document.getElementById('btnEN').onclick = () => setLangAndRefresh('en');
+
+  function setExamLang(l) {
+    examLang = l;
+    document.getElementById('examLangFR').classList.toggle('active', l === 'fr');
+    document.getElementById('examLangEN').classList.toggle('active', l === 'en');
+  }
 
   // ── File handling ─────────────────────────────────────────────
   const examZone = document.getElementById('examZone');
@@ -1455,6 +1565,103 @@
     return res.json();
   }
 
+  function copyShareLink() {
+    const input = document.getElementById('shareUrlDisplay');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+      const btn = document.getElementById('copyLinkBtn');
+      const span = btn.querySelector('span');
+      const t = i18n[lang];
+      if (span) span.textContent = '✓ ' + (lang === 'fr' ? 'Copié !' : 'Copied!');
+      btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
+      setTimeout(() => {
+        if (span) span.textContent = t.copyLinkBtn;
+        btn.style.background = 'linear-gradient(135deg,#2563eb,#1d4ed8)';
+      }, 2000);
+    });
+  }
+
+  function sendTeacherEmail() {
+    const email = document.getElementById('teacherEmailInput').value.trim();
+    if (!email || !email.includes('@')) {
+      alert(lang === 'fr' ? 'Merci de saisir une adresse e-mail valide.' : 'Please enter a valid email address.');
+      return;
+    }
+    const btn = document.getElementById('sendEmailBtn');
+    btn.disabled = true;
+    btn.querySelector('span').textContent = lang === 'fr' ? 'Envoi…' : 'Sending…';
+
+    const url   = document.getElementById('shareUrlDisplay').value;
+    const code  = document.getElementById('accessCodeDisplay').textContent;
+    const title = document.getElementById('publishedExamTitle').textContent;
+
+    const bodyFR = `Bonjour,
+
+Voici les informations pour accéder à l'épreuve « ${title} ».
+
+— Accès à l'épreuve —
+Lien vers l'épreuve : ${url}
+Code d'accès : ${code}
+
+Chaque étudiant saisit son nom, prénom et adresse e-mail, sélectionne son groupe et entre le code d'accès avant de commencer.
+
+— Recommandations techniques —
+1. L'épreuve doit être passée sur un ordinateur (PC ou Mac) — non compatible avec les tablettes ni les téléphones.
+2. Désactiver les notifications pendant toute la durée de l'épreuve.
+3. Désactiver le mode veille pour éviter que l'écran ne s'éteigne.
+4. L'épreuve se déroule en plein écran — toute sortie déclenche un avertissement de 15 secondes. Sans retour à temps, ou après 3 sorties, la copie est soumise automatiquement.
+5. Malgré les mesures anti-triche intégrées, il est fortement recommandé que les étudiants soient surveillés en présentiel afin d'éviter tout recours à un second appareil.
+
+Bonne épreuve,
+La plateforme Exam Builder`;
+
+    const bodyEN = `Hello,
+
+Here are the access details for the exam « ${title} ».
+
+— Exam Access —
+Exam link: ${url}
+Access code: ${code}
+
+Each student enters their last name, first name and email address, selects their group and enters the access code to begin.
+
+— Technical Recommendations —
+1. The exam must be taken on a computer (PC or Mac) — not compatible with tablets or smartphones.
+2. Disable all notifications for the duration of the exam.
+3. Disable sleep mode to prevent the screen from turning off.
+4. The exam runs in full-screen mode — any exit triggers a 15-second warning. If the student does not return in time, or after 3 exits, the exam is submitted automatically.
+5. Despite the built-in anti-cheat measures, it is strongly recommended that students be supervised in person to prevent the use of a second device.
+
+Good luck to your students,
+Exam Builder Platform`;
+
+    const body = lang === 'fr' ? bodyFR : bodyEN;
+    const subject = lang === 'fr' ? `Épreuve : ${title} — Lien et code d'accès` : `Exam: ${title} — Link and access code`;
+
+    if (window.emailjs) {
+      emailjs.send('service_opm4h6b', 'template_r0u784p', {
+        from_name:    'Exam Builder',
+        from_email:   email,
+        subject:      subject,
+        message_html: body.replace(/\n/g, '<br>')
+      }, 'Bb0oPYBiZGQcyIz5r')
+      .then(() => {
+        btn.querySelector('span').textContent = lang === 'fr' ? '✅ Envoyé !' : '✅ Sent!';
+        btn.style.background = '#f0fdf4';
+        btn.style.borderColor = '#86efac';
+        btn.style.color = '#16a34a';
+      })
+      .catch(err => {
+        alert((lang === 'fr' ? 'Erreur : ' : 'Error: ') + (err.text || err.message || JSON.stringify(err)));
+        btn.disabled = false;
+        btn.querySelector('span').textContent = i18n[lang].publishEmailBtn;
+      });
+    } else {
+      alert(lang === 'fr' ? 'EmailJS non chargé.' : 'EmailJS not loaded.');
+      btn.disabled = false;
+    }
+  }
+
   function generateShareId() {
     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
     return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -1475,10 +1682,19 @@
       return;
     }
 
-    const title    = document.getElementById('examTitle').value.trim()
-                  || document.getElementById('examTitle').placeholder
-                  || 'Examen sans titre';
+    // Required: exam title
+    const title = document.getElementById('examTitle').value.trim();
+    const titleError = document.getElementById('examTitleError');
+    if (!title) {
+      titleError.style.display = 'block';
+      document.getElementById('examTitle').focus();
+      document.getElementById('examTitle').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+    if (titleError) titleError.style.display = 'none';
+
     const duration = parseInt(document.getElementById('examDuration').value) || 20;
+    const groups   = document.getElementById('examGroups').value.trim();
 
     const btn = document.getElementById('publishBtn');
     btn.disabled = true;
@@ -1495,7 +1711,9 @@
         duration_mins: duration,
         status:        'published',
         share_id:      shareId,
-        access_code:   accessCode
+        access_code:   accessCode,
+        lang:          examLang,
+        groups:        groups
       });
       const examId = examRows[0].id;
 
@@ -1529,6 +1747,15 @@
       // 4. Show success panel
       btn.disabled = false;
       btn.textContent = lang === 'fr' ? '\u2705 Publié !' : '\u2705 Published!';
+      btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
+
+      // Populate panel info
+      const titleEl = document.getElementById('publishedExamTitle');
+      const metaEl  = document.getElementById('publishedExamMeta');
+      const mcqC = qs.filter(q => q.type === 'mcq').length;
+      const opnC = qs.filter(q => q.type === 'open').length;
+      if (titleEl) titleEl.textContent = title;
+      if (metaEl)  metaEl.textContent  = duration + ' min · ' + mcqC + ' QCM' + (opnC > 0 ? ' · ' + opnC + (lang === 'fr' ? ' rédigées' : ' written') : '');
       btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
 
       const publishResult = document.getElementById('publishResult');
