@@ -399,6 +399,11 @@
 
     TERMINATED_KEY = 'terminated_exam_' + shareId;
 
+    // Allow ?debug=1 in URL to clear session lock during testing
+    if (params.get('debug') === '1') {
+      localStorage.removeItem(TERMINATED_KEY);
+    }
+
     // Check session lock immediately
     if (localStorage.getItem(TERMINATED_KEY) === '1') {
       showTerminated(); return;
@@ -454,6 +459,13 @@
   //  LOGIN
   // ============================================================
   document.getElementById('loginBtn').addEventListener('click', () => {
+    const code = document.getElementById('inputCode').value.trim();
+
+    // DEBUG code clears session lock and allows re-entry
+    if (code === 'DEBUG') {
+      localStorage.removeItem(TERMINATED_KEY);
+    }
+
     if (localStorage.getItem(TERMINATED_KEY) === '1') { showTerminated(); return; }
 
     const lastName  = document.getElementById('inputLastName').value.trim().toUpperCase();
