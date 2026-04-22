@@ -1460,6 +1460,14 @@
     return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
   }
 
+  function generateAccessCode() {
+    const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // no I, O to avoid confusion
+    const digits  = '23456789';                  // no 0, 1
+    const l = () => letters[Math.floor(Math.random() * letters.length)];
+    const d = () => digits[Math.floor(Math.random() * digits.length)];
+    return l() + l() + l() + d() + d() + d();   // e.g. "RKT847"
+  }
+
   document.getElementById('publishBtn').addEventListener('click', async () => {
     const qs = window.extractedQuestions;
     if (!qs || qs.length === 0) {
@@ -1471,37 +1479,23 @@
                   || document.getElementById('examTitle').placeholder
                   || 'Examen sans titre';
     const duration = parseInt(document.getElementById('examDuration').value) || 20;
-    const t        = i18n[lang];
-
-    const mcq  = qs.filter(q => q.type === 'mcq').length;
-    const open = qs.filter(q => q.type === 'open').length;
-
-    // Ask teacher for access code
-    const accessCode = prompt(
-      lang === 'fr'
-        ? "D\u00e9finissez un code d'acc\u00e8s pour les \u00e9tudiants (ex: MON2026)\n\nLes \u00e9tudiants devront saisir ce code pour acc\u00e9der \u00e0 l'\u00e9preuve."
-        : "Set an access code for students (e.g. ENG2026)\n\nStudents will need this code to access the exam."
-    );
-    if (!accessCode || !accessCode.trim()) {
-      alert(lang === 'fr' ? "Publication annul\u00e9e — aucun code saisi." : 'Publish cancelled — no code entered.');
-      return;
-    }
 
     const btn = document.getElementById('publishBtn');
     btn.disabled = true;
     btn.textContent = lang === 'fr' ? 'Publication en cours…' : 'Publishing…';
 
     try {
-      const shareId = generateShareId();
+      const shareId    = generateShareId();
+      const accessCode = generateAccessCode();
 
       // 1. Create exam row
       const examRows = await sbPost('exams', {
-        teacher_id:   '00000000-0000-0000-0000-000000000000', // placeholder until auth
-        title:        title,
+        teacher_id:    '00000000-0000-0000-0000-000000000000',
+        title:         title,
         duration_mins: duration,
-        status:       'published',
-        share_id:     shareId,
-        access_code:  accessCode.trim().toUpperCase()
+        status:        'published',
+        share_id:      shareId,
+        access_code:   accessCode
       });
       const examId = examRows[0].id;
 
@@ -1519,6 +1513,7 @@
           option_c:      opts[2] || null,
           option_d:      opts[3] || null,
           correct_index: q.type === 'mcq' ? (q.correct ?? 0) : null,
+          correct_option: q.type === 'mcq' ? ['A','B','C','D'][q.correct ?? 0] : null,
           media_type:    q.media?.type || null,
           media_src:     q.media?.src  || null,
           media_name:    q.media?.name || null
@@ -1531,24 +1526,28 @@
         : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
       const shareUrl = baseUrl + '?id=' + shareId;
 
-      // 4. Show success with link
+      // 4. Show success panel
       btn.disabled = false;
-      btn.textContent = lang === 'fr' ? '✅ Publié !' : '✅ Published!';
+      btn.textContent = lang === 'fr' ? '\u2705 Publié !' : '\u2705 Published!';
+      btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
 
       const publishResult = document.getElementById('publishResult');
       if (publishResult) {
         publishResult.style.display = 'block';
         document.getElementById('shareUrlDisplay').value = shareUrl;
-        document.getElementById('accessCodeDisplay').textContent = accessCode.trim().toUpperCase();
+        document.getElementById('accessCodeDisplay').textContent = accessCode;
+        publishResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
     } catch (err) {
       console.error('Publish error:', err);
       alert((lang === 'fr' ? 'Erreur lors de la publication : ' : 'Publish error: ') + err.message);
       btn.disabled = false;
-      btn.textContent = lang === 'fr' ? "Confirmer et publier l'examen →" : 'Confirm and publish exam →';
+      btn.textContent = lang === 'fr' ? 'Confirmer et publier l\'examen \u2192' : 'Confirm and publish exam \u2192';
+      btn.style.background = '';
     }
   });
+
 
   // ── Reset ─────────────────────────────────────────────────────
   function resetState() {
