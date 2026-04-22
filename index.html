@@ -535,16 +535,9 @@
           </button>
         </div>
 
-        <!-- Access code -->
+        <!-- Access code(s) -->
         <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:8px;" data-i18n="publishedCodeLabel"></div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-          <div id="accessCodeDisplay" style="font-size:1.15rem;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:7px 20px;border-radius:999px;"></div>
-          <button onclick="navigator.clipboard.writeText(document.getElementById('accessCodeDisplay').textContent).then(()=>{this.textContent='✓ Copié';setTimeout(()=>this.setAttribute('data-i18n-restore','copyCodeBtn'),1500)})"
-            style="padding:6px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8f9fc;color:#475569;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;"
-            onmouseover="this.style.borderColor='#2563eb';this.style.color='#2563eb'"
-            onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#475569'"
-            data-i18n="copyCodeBtn"></button>
-        </div>
+        <div id="codesDisplay" style="margin-bottom:20px;"></div>
 
         <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 18px;">
 
@@ -1592,7 +1585,9 @@
     btn.querySelector('span').textContent = lang === 'fr' ? 'Envoi…' : 'Sending…';
 
     const url   = document.getElementById('shareUrlDisplay').value;
-    const code  = document.getElementById('accessCodeDisplay').textContent;
+    const code = window._publishedGroupCodes && Object.keys(window._publishedGroupCodes).length > 0
+      ? Object.entries(window._publishedGroupCodes).map(([g,c]) => `${g} : ${c}`).join('\n')
+      : (window._publishedAccessCode || '');
     const title = document.getElementById('publishedExamTitle').textContent;
 
     const bodyFR = `Bonjour,
@@ -1701,8 +1696,19 @@ Exam Builder Platform`;
     btn.textContent = lang === 'fr' ? 'Publication en cours…' : 'Publishing…';
 
     try {
-      const shareId    = generateShareId();
-      const accessCode = generateAccessCode();
+      const shareId = generateShareId();
+
+      // Generate one code per group, or one general code if no groups
+      const groupList = groups ? groups.split(',').map(g => g.trim()).filter(Boolean) : [];
+      let groupCodes = {};
+      let accessCode;
+      if (groupList.length > 0) {
+        groupList.forEach(g => { groupCodes[g] = generateAccessCode(); });
+        accessCode = Object.values(groupCodes)[0]; // fallback single code
+      } else {
+        accessCode = generateAccessCode();
+      }
+      const groupCodesJson = JSON.stringify(groupCodes);
 
       // 1. Create exam row
       const examRows = await sbPost('exams', {
@@ -1713,7 +1719,8 @@ Exam Builder Platform`;
         share_id:      shareId,
         access_code:   accessCode,
         lang:          examLang,
-        groups:        groups
+        groups:        groups,
+        group_codes:   groupCodesJson
       });
       const examId = examRows[0].id;
 
@@ -1756,6 +1763,32 @@ Exam Builder Platform`;
       const opnC = qs.filter(q => q.type === 'open').length;
       if (titleEl) titleEl.textContent = title;
       if (metaEl)  metaEl.textContent  = duration + ' min · ' + mcqC + ' QCM' + (opnC > 0 ? ' · ' + opnC + (lang === 'fr' ? ' rédigées' : ' written') : '');
+
+      // Populate codes display
+      const codesEl = document.getElementById('codesDisplay');
+      if (codesEl) {
+        if (groupList.length > 0) {
+          // One code card per group
+          codesEl.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:10px;">' +
+            groupList.map(g => `
+              <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 16px;text-align:center;min-width:120px;">
+                <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:4px;">${g}</div>
+                <div style="font-size:1rem;font-weight:800;font-family:monospace;letter-spacing:0.12em;color:#0f172a;">${groupCodes[g]}</div>
+              </div>`).join('') +
+            '</div>';
+        } else {
+          // Single code
+          codesEl.innerHTML = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div id="accessCodeDisplay" style="font-size:1.15rem;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:7px 20px;border-radius:999px;">${accessCode}</div>
+            <button onclick="navigator.clipboard.writeText('${accessCode}').then(()=>{this.textContent='✓ Copié';setTimeout(()=>{this.textContent='${lang==='fr'?'Copier le code':'Copy code'}'},1500)})"
+              style="padding:6px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8f9fc;color:#475569;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">
+              ${lang === 'fr' ? 'Copier le code' : 'Copy code'}
+            </button>
+          </div>`;
+        }
+      }
+      window._publishedGroupCodes = groupCodes;
+      window._publishedAccessCode = accessCode;
       btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
 
       const publishResult = document.getElementById('publishResult');
