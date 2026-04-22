@@ -399,21 +399,28 @@
 
     TERMINATED_KEY = 'terminated_exam_' + shareId;
 
-    // Allow ?debug=1 in URL to clear session lock during testing
     if (params.get('debug') === '1') {
       localStorage.removeItem(TERMINATED_KEY);
     }
 
-    // Check session lock immediately
     if (localStorage.getItem(TERMINATED_KEY) === '1') {
       showTerminated(); return;
     }
 
     try {
-      // Fetch exam by share_id
-      const exams = await sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=*`);
+      // Add 10-second timeout so spinner never hangs forever
+      const fetchWithTimeout = (promise, ms) => Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé — vérifiez votre connexion.')), ms))
+      ]);
+
+      const exams = await fetchWithTimeout(
+        sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=*`),
+        10000
+      );
+
       if (!exams || exams.length === 0) {
-        showError('Épreuve introuvable ou non publiée. Vérifiez le lien avec votre enseignant.');
+        showError('Épreuve introuvable ou non publiée. Vérifiez le lien avec votre enseignant. (id: ' + shareId + ')');
         return;
       }
       EXAM = exams[0];
@@ -459,19 +466,15 @@
   //  LOGIN
   // ============================================================
   document.getElementById('loginBtn').addEventListener('click', () => {
-    const code = document.getElementById('inputCode').value.trim();
-
-    // DEBUG code clears session lock and allows re-entry
-    if (code === 'DEBUG') {
-      localStorage.removeItem(TERMINATED_KEY);
-    }
-
-    if (localStorage.getItem(TERMINATED_KEY) === '1') { showTerminated(); return; }
-
     const lastName  = document.getElementById('inputLastName').value.trim().toUpperCase();
     const firstName = document.getElementById('inputFirstName').value.trim();
     const email     = document.getElementById('inputEmail').value.trim();
     const code      = document.getElementById('inputCode').value.trim();
+
+    // DEBUG code clears session lock and allows re-entry
+    if (code === 'DEBUG') localStorage.removeItem(TERMINATED_KEY);
+
+    if (localStorage.getItem(TERMINATED_KEY) === '1') { showTerminated(); return; }
 
     if (!lastName || !firstName || !email) { alert('Merci de remplir tous les champs.'); return; }
     if (!email.includes('@')) { alert('Adresse e-mail invalide.'); return; }
