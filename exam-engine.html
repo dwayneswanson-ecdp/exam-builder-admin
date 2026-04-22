@@ -251,19 +251,19 @@
     </div>
 
     <!-- Login -->
-    <section id="loginScreen" style="display:none;" class="card">
+    <section id="loginScreen" style="display:none;position:relative;" class="card">
       <h2 id="loginTitle" style="font-size:2rem;margin-bottom:8px;"></h2>
       <p id="loginSub" style="text-align:center;font-size:0.95rem;color:#64748b;margin-bottom:24px;"></p>
 
-      <!-- Student / Teacher toggle -->
-      <div style="display:flex;justify-content:center;gap:8px;margin-bottom:24px;">
+      <!-- Student / Teacher toggle — top right corner -->
+      <div id="loginModeToggle" style="position:absolute;top:20px;right:20px;display:flex;gap:0;background:#f1f5f9;border-radius:8px;padding:3px;border:1px solid #e2e8f0;">
         <button id="modeStudent" onclick="setLoginMode('student')"
-          style="padding:8px 20px;border-radius:999px;border:2px solid #2563eb;background:#2563eb;color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;" id="modeStudent">
-          🎓 <span id="modeStudentLabel">Étudiant</span>
+          style="padding:6px 14px;border-radius:6px;border:none;background:#fff;color:#0f172a;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(15,23,42,0.1);transition:all 0.15s;">
+          <span id="modeStudentLabel">Étudiant</span>
         </button>
         <button id="modeTeacher" onclick="setLoginMode('teacher')"
-          style="padding:8px 20px;border-radius:999px;border:2px solid #e2e8f0;background:#f1f5f9;color:#475569;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">
-          👨‍🏫 <span id="modeTeacherLabel">Enseignant</span>
+          style="padding:6px 14px;border-radius:6px;border:none;background:none;color:#64748b;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">
+          <span id="modeTeacherLabel">Enseignant</span>
         </button>
       </div>
 
@@ -291,7 +291,7 @@
         </div>
 
         <label id="labelCode" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Code de classe</label>
-        <input type="text" id="inputCode" placeholder="Code fourni par l'enseignant"
+        <input type="text" id="inputCode" id="inputCode" placeholder=""
           style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;">
       </div>
 
@@ -452,6 +452,11 @@
       showTerminated(); return;
     }
 
+    // Check if student already submitted this exam
+    if (localStorage.getItem('submitted_' + shareId) === '1') {
+      showSubmittedScreen(); return;
+    }
+
     try {
       // Add 10-second timeout so spinner never hangs forever
       const fetchWithTimeout = (promise, ms) => Promise.race([
@@ -460,7 +465,7 @@
       ]);
 
       const exams = await fetchWithTimeout(
-        sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=*`),
+        sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=id,title,duration_mins,access_code,lang,groups,group_codes,share_id,instructions`),
         10000
       );
 
@@ -500,7 +505,7 @@
       }
 
       // Apply UI language strings to login + confirm screens
-      document.getElementById('loginTitle').textContent = EXAM.title;
+      document.getElementById('loginTitle').textContent = UI.loginCardTitle;
       document.getElementById('loginSub').textContent = `${UI.loginSub} ${EXAM.duration_mins} ${UI.minutes}`;
       document.getElementById('modeStudentLabel').textContent = UI.modeStudent;
       document.getElementById('modeTeacherLabel').textContent = UI.modeTeacher;
@@ -543,6 +548,12 @@
     document.getElementById('errorScreen').style.display = 'block';
   }
 
+  function showSubmittedScreen() {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('terminatedScreen').style.display = 'none';
+    document.getElementById('submittedScreen').style.display = 'flex';
+  }
+
   function showTerminated() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('terminatedScreen').style.display = 'flex';
@@ -554,6 +565,7 @@
   function getUIStrings(l) {
     const isFR = l !== 'en';
     return {
+      loginCardTitle: isFR ? "Commencer l'épreuve" : 'Start the exam',
       loginSub:     isFR ? "Une fois l'épreuve lancée, vous disposerez de" : 'Once the exam has started, you will have',
       minutes:      isFR ? 'minutes pour la compléter.' : 'minutes to complete it.',
       modeStudent:  isFR ? 'Étudiant' : 'Student',
@@ -593,17 +605,18 @@
     const isTeacher = mode === 'teacher';
     const UI = window.UI || getUIStrings('fr');
 
-    document.getElementById('modeStudent').style.background  = isTeacher ? '#f1f5f9' : '#2563eb';
-    document.getElementById('modeStudent').style.color       = isTeacher ? '#475569' : '#fff';
-    document.getElementById('modeStudent').style.borderColor = isTeacher ? '#e2e8f0' : '#2563eb';
-    document.getElementById('modeTeacher').style.background  = isTeacher ? '#2563eb' : '#f1f5f9';
-    document.getElementById('modeTeacher').style.color       = isTeacher ? '#fff' : '#475569';
-    document.getElementById('modeTeacher').style.borderColor = isTeacher ? '#2563eb' : '#e2e8f0';
+    // Top-right pill toggle styling
+    document.getElementById('modeStudent').style.background = isTeacher ? 'none' : '#fff';
+    document.getElementById('modeStudent').style.color      = isTeacher ? '#64748b' : '#0f172a';
+    document.getElementById('modeStudent').style.boxShadow  = isTeacher ? 'none' : '0 1px 4px rgba(15,23,42,0.1)';
+    document.getElementById('modeTeacher').style.background = isTeacher ? '#fff' : 'none';
+    document.getElementById('modeTeacher').style.color      = isTeacher ? '#0f172a' : '#64748b';
+    document.getElementById('modeTeacher').style.boxShadow  = isTeacher ? '0 1px 4px rgba(15,23,42,0.1)' : 'none';
 
     // Teacher: hide group, change code label
     document.getElementById('groupRow').style.display = isTeacher ? 'none' : (EXAM?.groups ? 'block' : 'none');
     document.getElementById('labelCode').textContent  = isTeacher ? UI.labelCodeTeacher : UI.labelCode;
-    document.getElementById('inputCode').placeholder  = isTeacher ? 'PROF-' + (EXAM?.access_code || '…') : (window.UI?.labelCode || 'Code');
+    document.getElementById('inputCode').placeholder = window.UI?.labelCode || 'Code';
   }
 
   // ============================================================
@@ -638,7 +651,17 @@
       } else {
         const groupRow = document.getElementById('groupRow');
         if (groupRow && groupRow.style.display !== 'none' && !group) { alert(UI.alertGroup); return; }
-        if (code !== (EXAM?.access_code || '').toUpperCase() && code !== 'DEBUG') { alert(UI.alertCode); return; }
+        // Per-group code validation
+        let validCode = (code === 'DEBUG');
+        if (!validCode && EXAM.group_codes && EXAM.group_codes !== '{}') {
+          try {
+            const gc = JSON.parse(EXAM.group_codes);
+            validCode = group && gc[group] ? (code === gc[group].toUpperCase()) : (code === (EXAM.access_code || '').toUpperCase());
+          } catch(e) { validCode = (code === (EXAM.access_code || '').toUpperCase()); }
+        } else if (!validCode) {
+          validCode = (code === (EXAM.access_code || '').toUpperCase());
+        }
+        if (!validCode) { alert(UI.alertCode); return; }
       }
 
       studentName  = lastName + ' ' + firstName;
@@ -1134,6 +1157,7 @@
           'service_opm4h6b',
           'template_r0u784p',
           {
+            to_email:     window._teacherEmail || studentEmail,
             from_name:    studentName,
             from_email:   studentEmail,
             subject:      EXAM.title + ' — ' + studentName,
@@ -1141,16 +1165,21 @@
           },
           'Bb0oPYBiZGQcyIz5r'
         );
+        console.log('Email sent successfully');
       } catch (err) {
         console.error('EmailJS error:', err);
+        // Don't block the student — submission already saved to Supabase
       }
     }
 
+    // Lock student out after successful submission
+    localStorage.setItem('submitted_' + EXAM.share_id, '1');
+    localStorage.removeItem('examDeadline_' + EXAM.id);
+
     // Show success
-    document.getElementById('examScreen').style.display   = 'none';
+    document.getElementById('examScreen').style.display    = 'none';
     document.getElementById('successScreen').style.display = 'block';
     document.getElementById('timer').style.display = 'none';
-    localStorage.removeItem('examDeadline_' + EXAM.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
