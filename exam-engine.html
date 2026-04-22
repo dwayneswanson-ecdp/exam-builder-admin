@@ -610,40 +610,62 @@
   //  LOGIN
   // ============================================================
   document.getElementById('loginBtn').addEventListener('click', () => {
-    const lastName  = document.getElementById('inputLastName').value.trim().toUpperCase();
-    const firstName = document.getElementById('inputFirstName').value.trim();
-    const email     = document.getElementById('inputEmail').value.trim();
-    const code      = document.getElementById('inputCode').value.trim();
+    try {
+      const lastName  = document.getElementById('inputLastName').value.trim().toUpperCase();
+      const firstName = document.getElementById('inputFirstName').value.trim();
+      const email     = document.getElementById('inputEmail').value.trim();
+      const code      = document.getElementById('inputCode').value.trim().toUpperCase();
+      const groupEl   = document.getElementById('inputGroup');
+      const group     = groupEl ? groupEl.value : '';
+      const UI        = window.UI || getUIStrings('fr');
+      const isTeacher = loginMode === 'teacher';
 
-    // DEBUG code clears session lock and allows re-entry
-    if (code === 'DEBUG') localStorage.removeItem(TERMINATED_KEY);
+      // Teacher code = PROF- + access_code (case insensitive)
+      const teacherCode = 'PROF-' + (EXAM?.access_code || '').toUpperCase();
 
-    if (localStorage.getItem(TERMINATED_KEY) === '1') { showTerminated(); return; }
+      // DEBUG or PROF- code clears session lock
+      if (code === 'DEBUG' || code === teacherCode) {
+        localStorage.removeItem(TERMINATED_KEY);
+      }
 
-    if (!lastName || !firstName || !email) { alert('Merci de remplir tous les champs.'); return; }
-    if (!email.includes('@')) { alert('Adresse e-mail invalide.'); return; }
-    if (code !== EXAM.access_code && code !== 'DEBUG') { alert('Code d\'accès invalide.'); return; }
+      if (localStorage.getItem(TERMINATED_KEY) === '1') { showTerminated(); return; }
 
-    studentName  = lastName + ' ' + firstName;
-    studentEmail = email;
+      if (!lastName || !firstName || !email) { alert(UI.alertFillAll); return; }
+      if (!email.includes('@')) { alert(UI.alertEmail); return; }
 
-    document.getElementById('confirmName').textContent  = studentName;
-    document.getElementById('confirmEmail').textContent = studentEmail;
+      if (isTeacher) {
+        if (code !== teacherCode && code !== 'DEBUG') { alert(UI.alertCode); return; }
+      } else {
+        const groupRow = document.getElementById('groupRow');
+        if (groupRow && groupRow.style.display !== 'none' && !group) { alert(UI.alertGroup); return; }
+        if (code !== (EXAM?.access_code || '').toUpperCase() && code !== 'DEBUG') { alert(UI.alertCode); return; }
+      }
 
-    // Show group on confirm if applicable
-    if (group) {
-      document.getElementById('confirmGroup').textContent = group;
-      document.getElementById('confirmGroupRow').style.display = 'block';
-      window._studentGroup = group;
+      studentName  = lastName + ' ' + firstName;
+      studentEmail = email;
+
+      document.getElementById('confirmName').textContent  = studentName;
+      document.getElementById('confirmEmail').textContent = studentEmail;
+
+      const confirmGroupRow = document.getElementById('confirmGroupRow');
+      if (group && confirmGroupRow) {
+        document.getElementById('confirmGroup').textContent = group;
+        confirmGroupRow.style.display = 'block';
+        window._studentGroup = group;
+      }
+
+      const warningBox = document.getElementById('confirmWarningBox');
+      if (warningBox) warningBox.style.display = isTeacher ? 'none' : 'block';
+      window._isTeacher = isTeacher;
+
+      document.getElementById('loginScreen').style.display   = 'none';
+      document.getElementById('confirmScreen').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch(err) {
+      console.error('Login error:', err);
+      alert('Erreur : ' + err.message);
     }
-
-    // Hide warning box for teacher
-    document.getElementById('confirmWarningBox').style.display = isTeacher ? 'none' : 'block';
-    window._isTeacher = isTeacher;
-
-    document.getElementById('loginScreen').style.display   = 'none';
-    document.getElementById('confirmScreen').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
   document.getElementById('inputLastName').addEventListener('input', function() {
