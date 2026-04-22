@@ -1479,11 +1479,11 @@
     // Ask teacher for access code
     const accessCode = prompt(
       lang === 'fr'
-        ? 'Définissez un code d'accès pour les étudiants (ex: MON2026)\n\nLes étudiants devront saisir ce code pour accéder à l'épreuve.'
-        : 'Set an access code for students (e.g. ENG2026)\n\nStudents will need this code to access the exam.'
+        ? "D\u00e9finissez un code d'acc\u00e8s pour les \u00e9tudiants (ex: MON2026)\n\nLes \u00e9tudiants devront saisir ce code pour acc\u00e9der \u00e0 l'\u00e9preuve."
+        : "Set an access code for students (e.g. ENG2026)\n\nStudents will need this code to access the exam."
     );
     if (!accessCode || !accessCode.trim()) {
-      alert(lang === 'fr' ? 'Publication annulée — aucun code saisi.' : 'Publish cancelled — no code entered.');
+      alert(lang === 'fr' ? "Publication annul\u00e9e — aucun code saisi." : 'Publish cancelled — no code entered.');
       return;
     }
 
@@ -1546,9 +1546,9 @@
       console.error('Publish error:', err);
       alert((lang === 'fr' ? 'Erreur lors de la publication : ' : 'Publish error: ') + err.message);
       btn.disabled = false;
-      btn.textContent = lang === 'fr' ? 'Confirmer et publier l'examen →' : 'Confirm and publish exam →';
+      btn.textContent = lang === 'fr' ? "Confirmer et publier l'examen →" : 'Confirm and publish exam →';
     }
-  });;
+  });
 
   // ── Reset ─────────────────────────────────────────────────────
   function resetState() {
