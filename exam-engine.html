@@ -252,37 +252,82 @@
 
     <!-- Login -->
     <section id="loginScreen" style="display:none;" class="card">
-      <h2 id="loginTitle">Commencer l'épreuve</h2>
-      <p id="loginSub"></p>
-      <div class="warn-box">
-        <strong>Avant de commencer :</strong> l'épreuve se déroule en plein écran.
-        Chaque sortie de l'écran déclenche un avertissement. Après <strong>3 évènements</strong>,
-        l'épreuve est <strong>envoyée automatiquement</strong> et l'accès est bloqué sur cet appareil.
+      <h2 id="loginTitle" style="font-size:2rem;margin-bottom:8px;"></h2>
+      <p id="loginSub" style="text-align:center;font-size:0.95rem;color:#64748b;margin-bottom:24px;"></p>
+
+      <!-- Student / Teacher toggle -->
+      <div style="display:flex;justify-content:center;gap:8px;margin-bottom:24px;">
+        <button id="modeStudent" onclick="setLoginMode('student')"
+          style="padding:8px 20px;border-radius:999px;border:2px solid #2563eb;background:#2563eb;color:#fff;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;" id="modeStudent">
+          🎓 <span id="modeStudentLabel">Étudiant</span>
+        </button>
+        <button id="modeTeacher" onclick="setLoginMode('teacher')"
+          style="padding:8px 20px;border-radius:999px;border:2px solid #e2e8f0;background:#f1f5f9;color:#475569;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">
+          👨‍🏫 <span id="modeTeacherLabel">Enseignant</span>
+        </button>
       </div>
-      <label>Nom</label>
-      <input type="text" id="inputLastName" placeholder="NOM" style="text-transform:uppercase;">
-      <label>Prénom</label>
-      <input type="text" id="inputFirstName" placeholder="Prénom">
-      <label>Adresse e-mail</label>
-      <input type="email" id="inputEmail" placeholder="votre.email@example.com">
-      <label>Code d'accès</label>
-      <input type="text" id="inputCode" placeholder="Code fourni par l'enseignant">
-      <div class="btn-row center" style="margin-top:24px;">
-        <button id="loginBtn">Commencer l'épreuve →</button>
+
+      <div style="background:#f8f9fc;padding:24px;border-radius:12px;margin-bottom:24px;">
+        <!-- Name row: NOM + Prénom side by side -->
+        <label id="labelName" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Nom et prénom</label>
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <input type="text" id="inputLastName" placeholder="NOM"
+            style="flex:1;text-transform:uppercase;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;">
+          <input type="text" id="inputFirstName" placeholder="Prénom"
+            style="flex:1;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;">
+        </div>
+
+        <label id="labelEmail" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Adresse e-mail</label>
+        <input type="email" id="inputEmail" placeholder="votre.email@example.com"
+          style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;margin-bottom:16px;">
+
+        <!-- Groups dropdown — shown only when groups defined -->
+        <div id="groupRow" style="display:none;">
+          <label id="labelGroup" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Groupe</label>
+          <select id="inputGroup"
+            style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;margin-bottom:16px;background:#fff;cursor:pointer;">
+            <option value="">Sélectionner votre groupe</option>
+          </select>
+        </div>
+
+        <label id="labelCode" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Code de classe</label>
+        <input type="text" id="inputCode" placeholder="Code fourni par l'enseignant"
+          style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;">
+      </div>
+
+      <div style="display:flex;justify-content:center;">
+        <button id="loginBtn" style="font-size:1rem;padding:14px 48px;">Commencer l'épreuve</button>
       </div>
     </section>
 
     <!-- Confirm -->
     <section id="confirmScreen" style="display:none;" class="card">
-      <h2>Vérifiez vos informations</h2>
-      <p>Si quelque chose n'est pas correct, cliquez sur Modifier.</p>
-      <div class="confirm-grid">
-        <div class="confirm-item"><div class="confirm-item-label">Nom complet</div><div class="confirm-item-val" id="confirmName"></div></div>
-        <div class="confirm-item"><div class="confirm-item-label">Email</div><div class="confirm-item-val" id="confirmEmail"></div></div>
+      <h2 style="font-size:1.8rem;margin-bottom:20px;" id="confirmTitle">Avant de commencer l'épreuve</h2>
+
+      <!-- Yellow warning box — CC2 style -->
+      <div id="confirmWarningBox" style="background:#fef3c7;border-left:4px solid #f59e0b;padding:18px 20px;border-radius:8px;margin-bottom:24px;">
+        <p style="margin:0 0 10px;font-weight:600;color:#92400e;font-size:0.95rem;" id="confirmWarningTitle">Comment fonctionne l'épreuve ?</p>
+        <ul style="margin:0;padding-left:18px;color:#78350f;font-size:0.88rem;line-height:1.8;" id="confirmWarningList">
+          <li id="cw1"></li>
+          <li id="cw2"></li>
+          <li id="cw3"></li>
+          <li id="cw4"></li>
+          <li id="cw5"></li>
+        </ul>
       </div>
-      <div class="btn-row between">
-        <button class="btn-light" id="confirmBackBtn">← Modifier</button>
-        <button id="confirmStartBtn">Commencer →</button>
+
+      <!-- Info verification -->
+      <p style="font-weight:600;color:#0f172a;font-size:1rem;margin:0 0 14px;" id="confirmVerifyLabel">Vérifiez vos informations</p>
+      <div style="display:grid;gap:10px;margin-bottom:16px;">
+        <div class="confirm-item"><div class="confirm-item-label" id="confirmNameLabel">NOM &amp; PRÉNOM</div><div class="confirm-item-val" id="confirmName"></div></div>
+        <div class="confirm-item"><div class="confirm-item-label" id="confirmEmailLabel">EMAIL</div><div class="confirm-item-val" id="confirmEmail"></div></div>
+        <div class="confirm-item" id="confirmGroupRow" style="display:none;"><div class="confirm-item-label" id="confirmGroupLabel">GROUPE</div><div class="confirm-item-val" id="confirmGroup"></div></div>
+      </div>
+      <p style="font-size:0.88rem;color:#64748b;margin:0 0 24px;" id="confirmEditNote">Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent.</p>
+
+      <div style="display:flex;justify-content:space-between;gap:12px;">
+        <button class="btn-light" id="confirmBackBtn" style="border-radius:999px;padding:12px 24px;font-size:0.9rem;">← Modifier</button>
+        <button id="confirmStartBtn" style="border-radius:999px;padding:12px 32px;font-size:0.95rem;" id="confirmStartBtn">Commencer l'épreuve →</button>
       </div>
     </section>
 
@@ -434,17 +479,59 @@
         return;
       }
 
+      // Set exam language for UI
+      const examLang = EXAM.lang || 'fr';
+      const UI = getUIStrings(examLang);
+
       // Update page title
       document.getElementById('examTitleHeader').textContent = EXAM.title;
       document.title = EXAM.title;
 
+      // Populate groups dropdown if defined
+      if (EXAM.groups && EXAM.groups.trim()) {
+        const groups = EXAM.groups.split(',').map(g => g.trim()).filter(Boolean);
+        if (groups.length > 0) {
+          const select = document.getElementById('inputGroup');
+          const row    = document.getElementById('groupRow');
+          select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
+            groups.map(g => `<option value="${g}">${g}</option>`).join('');
+          row.style.display = 'block';
+        }
+      }
+
+      // Apply UI language strings to login + confirm screens
+      document.getElementById('loginTitle').textContent = EXAM.title;
+      document.getElementById('loginSub').textContent = `${UI.loginSub} ${EXAM.duration_mins} ${UI.minutes}`;
+      document.getElementById('modeStudentLabel').textContent = UI.modeStudent;
+      document.getElementById('modeTeacherLabel').textContent = UI.modeTeacher;
+      document.getElementById('labelName').textContent    = UI.labelName;
+      document.getElementById('labelEmail').textContent   = UI.labelEmail;
+      document.getElementById('labelGroup').textContent   = UI.labelGroup;
+      document.getElementById('labelCode').textContent    = UI.labelCode;
+      document.getElementById('loginBtn').textContent     = UI.loginBtn;
+      document.getElementById('confirmTitle').textContent        = UI.confirmTitle;
+      document.getElementById('confirmWarningTitle').textContent = UI.warningTitle;
+      document.getElementById('confirmVerifyLabel').textContent  = UI.verifyLabel;
+      document.getElementById('confirmNameLabel').textContent    = UI.nameLabel;
+      document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
+      document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
+                  editNote:     isFR ? "Si quelque chose n’est pas correct, cliquez sur « Modifier » pour revenir à l’écran précédent." : "If something is incorrect, click Edit to go back.",
+      document.getElementById('confirmBackBtn').textContent      = UI.backBtn;
+      document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
+
+      // Warning list items
+      const cwItems = [UI.cw1, UI.cw2, UI.cw3, UI.cw4, UI.cw5];
+      cwItems.forEach((text, i) => {
+        const el = document.getElementById('cw' + (i+1));
+        if (el) el.innerHTML = text;
+      });
+
       // Show login
       document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('loginTitle').textContent = EXAM.title;
-      if (EXAM.instructions) {
-        document.getElementById('loginSub').textContent = EXAM.instructions;
-      }
       document.getElementById('loginScreen').style.display = 'block';
+
+      // Store UI strings globally for use in startExam
+      window.UI = UI;
 
     } catch (err) {
       showError('Erreur de chargement : ' + err.message);
@@ -460,6 +547,64 @@
   function showTerminated() {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('terminatedScreen').style.display = 'flex';
+  }
+
+  // ============================================================
+  //  UI STRINGS — bilingual based on exam lang
+  // ============================================================
+  function getUIStrings(l) {
+    const isFR = l !== 'en';
+    return {
+      loginSub:     isFR ? "Une fois l'épreuve lancée, vous disposerez de" : 'Once the exam has started, you will have',
+      minutes:      isFR ? 'minutes pour la compléter.' : 'minutes to complete it.',
+      modeStudent:  isFR ? 'Étudiant' : 'Student',
+      modeTeacher:  isFR ? 'Enseignant' : 'Teacher',
+      labelName:    isFR ? 'Nom et prénom' : 'Full name',
+      labelEmail:   isFR ? 'Adresse e-mail' : 'Email address',
+      labelGroup:   isFR ? 'Groupe' : 'Group',
+      labelCode:    isFR ? 'Code de classe' : 'Access code',
+      labelCodeTeacher: isFR ? 'Code enseignant' : 'Teacher code',
+      loginBtn:     isFR ? "Commencer l'épreuve" : 'Start exam',
+      selectGroup:  isFR ? 'Sélectionner votre groupe' : 'Select your group',
+      confirmTitle: isFR ? "Avant de commencer l'épreuve" : 'Before you begin',
+      warningTitle: isFR ? "Comment fonctionne l'épreuve ?" : 'How does the exam work?',
+      verifyLabel:  isFR ? 'Vérifiez vos informations' : 'Check your details',
+      nameLabel:    isFR ? 'NOM & PRÉNOM' : 'FULL NAME',
+      emailLabel:   'EMAIL',
+      groupLabel:   isFR ? 'GROUPE' : 'GROUP',
+                  editNote:     isFR ? "Si quelque chose n’est pas correct, cliquez sur « Modifier » pour revenir à l’écran précédent." : "If something is incorrect, click Edit to go back.",
+      backBtn:      isFR ? '← Modifier' : '← Edit',
+      startBtn:     isFR ? "Commencer l'épreuve →" : 'Start exam →',
+      cw1: isFR ? "L'épreuve se déroule en <strong>plein écran</strong>." : "The exam runs in <strong>full-screen mode</strong>.",
+      cw2: isFR ? "Si vous quittez la fenêtre ou changez d'application, un <strong>message d'avertissement</strong> apparaît." : "If you leave the window or switch applications, a <strong>warning message</strong> will appear.",
+      cw3: isFR ? "Vous avez <strong>15 secondes</strong> pour revenir, sinon l'épreuve est arrêtée et devra être recommencée." : "You have <strong>15 seconds</strong> to return, otherwise the exam is terminated and must be restarted.",
+      cw4: isFR ? "Après <strong>3 évènements techniques</strong>, l'épreuve est <strong>envoyée automatiquement</strong>." : "After <strong>3 technical events</strong>, the exam is <strong>submitted automatically</strong>.",
+      cw5: isFR ? "Tous ces évènements sont enregistrés dans un <strong>récapitulatif de session</strong> joint à votre copie." : "All events are recorded in a <strong>session log</strong> attached to your submission.",
+      alertFillAll: isFR ? 'Merci de remplir tous les champs.' : 'Please fill in all fields.',
+      alertEmail:   isFR ? 'Adresse e-mail invalide.' : 'Invalid email address.',
+      alertGroup:   isFR ? 'Merci de sélectionner votre groupe.' : 'Please select your group.',
+      alertCode:    isFR ? "Code d'accès invalide." : 'Invalid access code.',
+    };
+  }
+
+  let loginMode = 'student'; // 'student' or 'teacher'
+
+  function setLoginMode(mode) {
+    loginMode = mode;
+    const isTeacher = mode === 'teacher';
+    const UI = window.UI || getUIStrings('fr');
+
+    document.getElementById('modeStudent').style.background  = isTeacher ? '#f1f5f9' : '#2563eb';
+    document.getElementById('modeStudent').style.color       = isTeacher ? '#475569' : '#fff';
+    document.getElementById('modeStudent').style.borderColor = isTeacher ? '#e2e8f0' : '#2563eb';
+    document.getElementById('modeTeacher').style.background  = isTeacher ? '#2563eb' : '#f1f5f9';
+    document.getElementById('modeTeacher').style.color       = isTeacher ? '#fff' : '#475569';
+    document.getElementById('modeTeacher').style.borderColor = isTeacher ? '#2563eb' : '#e2e8f0';
+
+    // Teacher: hide group, change code label
+    document.getElementById('groupRow').style.display = isTeacher ? 'none' : (EXAM?.groups ? 'block' : 'none');
+    document.getElementById('labelCode').textContent  = isTeacher ? UI.labelCodeTeacher : UI.labelCode;
+    document.getElementById('inputCode').placeholder  = isTeacher ? 'PROF-' + (EXAM?.access_code || '…') : (window.UI?.labelCode || 'Code');
   }
 
   // ============================================================
@@ -485,6 +630,18 @@
 
     document.getElementById('confirmName').textContent  = studentName;
     document.getElementById('confirmEmail').textContent = studentEmail;
+
+    // Show group on confirm if applicable
+    if (group) {
+      document.getElementById('confirmGroup').textContent = group;
+      document.getElementById('confirmGroupRow').style.display = 'block';
+      window._studentGroup = group;
+    }
+
+    // Hide warning box for teacher
+    document.getElementById('confirmWarningBox').style.display = isTeacher ? 'none' : 'block';
+    window._isTeacher = isTeacher;
+
     document.getElementById('loginScreen').style.display   = 'none';
     document.getElementById('confirmScreen').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -529,9 +686,10 @@
     examDeadline = Date.now() + EXAM.duration_mins * 60 * 1000;
     localStorage.setItem('examDeadline_' + EXAM.id, String(examDeadline));
 
-    examActive = true;
+    examActive    = true;
     examSubmitted = false;
     violationCount = 0;
+    window._teacherMode = window._isTeacher || false;
     logEvent('Exam started', studentName);
 
     isStartingExam = true;
@@ -704,6 +862,7 @@
 
   function askToExit(reason, source) {
     if (!examActive || examSubmitted || exitPromptOpen) return;
+    if (window._teacherMode) return; // Teacher mode — no anti-cheat
     if (Date.now() < antiCheatSuspendedUntil) return;
 
     violationCount++;
