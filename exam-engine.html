@@ -291,7 +291,7 @@
         </div>
 
         <label id="labelCode" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Code de classe</label>
-        <input type="text" id="inputCode" id="inputCode" placeholder=""
+        <input type="text" id="inputCode" placeholder=""
           style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;">
       </div>
 
@@ -1037,10 +1037,12 @@
     examActive = false;
     clearInterval(timerInterval);
 
+    // Show immediate feedback — don't leave user waiting silently
     const btn = document.getElementById('submitBtn');
-    if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours…'; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours — merci de patienter…'; }
 
     logEvent('Exam submitted', autoReason || 'Student clicked submit');
+    console.log('submitExam started', { student: studentName, email: studentEmail });
 
     // Collect answers
     const answers = {};
@@ -1151,27 +1153,6 @@
     }
 
     // Send email via EmailJS
-    if (window.emailjs) {
-      try {
-        await emailjs.send(
-          'service_opm4h6b',
-          'template_r0u784p',
-          {
-            to_email:     window._teacherEmail || studentEmail,
-            from_name:    studentName,
-            from_email:   studentEmail,
-            subject:      EXAM.title + ' — ' + studentName,
-            message_html: htmlReport
-          },
-          'Bb0oPYBiZGQcyIz5r'
-        );
-        console.log('Email sent successfully');
-      } catch (err) {
-        console.error('EmailJS error:', err);
-        // Don't block the student — submission already saved to Supabase
-      }
-    }
-
     // Lock student out after successful submission
     localStorage.setItem('submitted_' + EXAM.share_id, '1');
     localStorage.removeItem('examDeadline_' + EXAM.id);
@@ -1181,7 +1162,36 @@
     document.getElementById('successScreen').style.display = 'block';
     document.getElementById('timer').style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+
+
+    // EmailJS send — using existing template (do not modify template_r0u784p)
+    const emailPayload = {
+      from_name:    studentName,
+      from_email:   studentEmail,
+      subject:      EXAM.title + ' — ' + studentName,
+      message_html: htmlReport
+    };
+    console.log('EmailJS payload:', emailPayload);
+
+    if (window.emailjs) {
+      try {
+        const emailResult = await emailjs.send(
+          'service_opm4h6b',
+          'template_r0u784p',
+          emailPayload,
+          'Bb0oPYBiZGQcyIz5r'
+        );
+        console.log('EmailJS success:', emailResult.status, emailResult.text);
+      } catch (err) {
+        const errMsg = err?.text || err?.message || JSON.stringify(err);
+        console.error('EmailJS failed:', errMsg);
+        // Don't block — results already saved to Supabase
+        logEvent('Email failed', errMsg);
+      }
+    } else {
+      console.error('EmailJS not loaded — check script tag');
+      logEvent('Email failed', 'EmailJS not loaded');
+    }  }
 
   // ============================================================
   //  INIT
