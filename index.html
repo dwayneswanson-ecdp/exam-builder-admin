@@ -375,14 +375,14 @@
 
     <!-- 4. Upload zone -->
     <div class="upload-zone" id="examZone">
-      <span class="zone-icon" id="zoneIcon">📘</span>
+      <span class="zone-icon" id="zoneIcon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span>
       <div class="zone-label" data-i18n="zoneLabel"></div>
       <div class="zone-sub" data-i18n="zoneSub"></div>
       <button class="zone-btn" data-i18n="zoneBtn" onclick="document.getElementById('examInput').click()"></button>
       <input type="file" id="examInput" accept=".docx,.pdf" style="display:none">
     </div>
     <div class="file-pill" id="filePill">
-      <span id="pillIcon">📘</span>
+      <span id="pillIcon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
       <span class="pill-name" id="pillName">—</span>
       <span class="pill-size" id="pillSize">—</span>
       <button class="pill-remove" id="fileRemove">✕</button>
@@ -471,8 +471,8 @@
       <div class="meta-extra-field">
         <label class="meta-label" data-i18n="metaLangLabel"></label>
         <div class="exam-lang-toggle">
-          <button class="exam-lang-btn active" id="examLangFR" onclick="setExamLang('fr')">🇫🇷 Français</button>
-          <button class="exam-lang-btn" id="examLangEN" onclick="setExamLang('en')">🇬🇧 English</button>
+          <button class="exam-lang-btn active" id="examLangFR" onclick="setExamLang('fr')">Français</button>
+          <button class="exam-lang-btn" id="examLangEN" onclick="setExamLang('en')">English</button>
         </div>
         <div class="meta-hint" data-i18n="metaLangHint"></div>
       </div>
@@ -521,7 +521,7 @@
 
         <!-- Exam info pill -->
         <div style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
-          <span style="font-size:1.2rem;">📄</span>
+          <span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
           <div>
             <div id="publishedExamTitle" style="font-size:0.9rem;font-weight:700;color:#0f172a;"></div>
             <div id="publishedExamMeta" style="font-size:0.75rem;color:#64748b;margin-top:2px;"></div>
@@ -643,15 +643,15 @@
       publishEmailPlaceholder: "votre.email@etablissement.fr",
       publishEmailBtn:    "Envoyer",
       publishEmailHint:   "Vous recevrez le lien, le code et une liste des bonnes pratiques à transmettre à vos étudiants.",
-      metaTitleRequired:  "⚠ Le titre de l'examen est obligatoire avant de publier.",
+      metaTitleRequired:  "Le titre de l'examen est obligatoire avant de publier.",
       metaLangLabel:      "Langue des instructions étudiants",
       metaLangHint:       "Définit la langue des consignes, boutons et messages affichés aux étudiants.",
       metaGroupsLabel:    "Groupes (optionnel)",
       metaGroupsPlaceholder: "Ex. G1, G2, G3 — séparé par des virgules",
       metaGroupsHint:     "Les étudiants sélectionneront leur groupe au moment de la connexion.",
-      aiErrorFailed:      "⚠ L'extraction a échoué. Vérifiez votre clé API et réessayez.",
-      noStarWarning:      "⚠ Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
-      partialStarWarning: "⚠ Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
+      aiErrorFailed:      "L'extraction a échoué. Vérifiez votre clé API et réessayez.",
+      noStarWarning:      "Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
+      partialStarWarning: "Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
     },
     en: {
       title:         "Build New Exam",
@@ -718,7 +718,7 @@
       publishEmailPlaceholder: "your.email@institution.fr",
       publishEmailBtn:    "Send",
       publishEmailHint:   "You will receive the link, the code, and a list of best practices to share with your students.",
-      metaTitleRequired:  "⚠ Exam title is required before publishing.",
+      metaTitleRequired:  "Exam title is required before publishing.",
       metaLangLabel:      "Language of student instructions",
       metaLangHint:       "Sets the language of instructions, buttons and messages shown to students.",
       metaGroupsLabel:    "Groups (optional)",
@@ -731,10 +731,10 @@
       openNoteLabel:      "Teacher graded — open response",
       reviewStatsText:    "{total} questions · {mcq} MCQ · {open} written",
       noStarHint:         "If your document has no * markers, the AI will infer the correct answers — verify them in the next step.",
-      aiErrorNoKey:       "⚠ Please enter your Anthropic API key at the top of the page.",
-      aiErrorFailed:      "⚠ Extraction failed. Check your API key and try again.",
-      noStarWarning:      "⚠ No * markers detected — the AI will attempt to infer correct answers. Review carefully in the next step.",
-      partialStarWarning: "⚠ Some answers are not marked. Please verify all answers in the next step."
+      aiErrorNoKey:       "Please enter your Anthropic API key at the top of the page.",
+      aiErrorFailed:      "Extraction failed. Check your API key and try again.",
+      noStarWarning:      "No * markers detected — the AI will attempt to infer correct answers. Review carefully in the next step.",
+      partialStarWarning: "Some answers are not marked. Please verify all answers in the next step."
     }
   };
 
@@ -814,10 +814,10 @@
     if (!['docx','pdf'].includes(ext)) { showAlert(t.alertWrongType, 'error'); return; }
     if (file.size > 10 * 1024 * 1024) { showAlert(t.alertTooLarge, 'error'); return; }
     currentFile = file; hideAlert();
-    const icon = ext === 'pdf' ? '📕' : '📘';
+    const fileSvg = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
     examZone.classList.add('has-file');
-    document.getElementById('zoneIcon').textContent = icon;
-    document.getElementById('pillIcon').textContent = icon;
+    document.getElementById('zoneIcon').innerHTML = fileSvg;
+    document.getElementById('pillIcon').innerHTML = fileSvg;
     document.getElementById('pillName').textContent = file.name;
     document.getElementById('pillSize').textContent = formatBytes(file.size);
     document.getElementById('filePill').classList.add('visible');
@@ -1081,7 +1081,7 @@
       </span>
       <span class="rq-num">Q${idx + 1}</span>
       <span class="rq-badge ${isMCQ ? 'mcq' : 'open'}">${isMCQ ? 'QCM' : (lang === 'fr' ? 'Rédigée' : 'Written')}</span>
-      ${isInferred ? `<span class="rq-inferred">⚠ ${lang === 'fr' ? 'réponse inférée' : 'inferred answer'}</span>` : ''}
+      ${isInferred ? `<span class="rq-inferred">${lang === 'fr' ? 'réponse inférée' : 'inferred answer'}</span>` : ''}
       <button class="rq-type-toggle" onclick="toggleType(${idx})">${isMCQ ? t.toggleToOpen : t.toggleToMCQ}</button>
       <div class="rq-actions">
         <button class="rq-btn delete" onclick="deleteQuestion(${idx})">
@@ -1888,7 +1888,7 @@
     currentFile = null; extractedText = '';
     examInput.value = '';
     examZone.classList.remove('has-file');
-    document.getElementById('zoneIcon').textContent = '📘';
+    document.getElementById('zoneIcon').innerHTML = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
     document.getElementById('filePill').classList.remove('visible');
     document.getElementById('extractBtn').classList.remove('visible');
     document.getElementById('extractBtn').disabled = false;

@@ -331,7 +331,7 @@
         <!-- Logo upload -->
         <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
         <div class="logo-upload-row">
-          <div class="logo-thumb" id="logoThumb">🏛️</div>
+          <div class="logo-thumb" id="logoThumb"></div>
           <div class="logo-upload-info">
             <div class="logo-upload-name" id="logoFileName">No logo selected</div>
             <div class="logo-upload-sub">PNG, JPG or SVG recommended</div>
@@ -403,7 +403,7 @@
       </div>
       <div class="modal-body">
         <div class="delete-warning">
-          <div class="delete-warning-title">⚠ This action is permanent and cannot be undone.</div>
+          <div class="delete-warning-title">This action is permanent and cannot be undone.</div>
           <div class="delete-warning-text" id="deleteWarningText"></div>
         </div>
         <label class="delete-confirm-label">Type the institution name to confirm:</label>
@@ -532,7 +532,7 @@
       if (institutions.length === 0) {
         list.innerHTML = `
           <div class="empty-state">
-            <div class="empty-icon">🏛️</div>
+            <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21V11h6v10"/></svg></div>
             <div class="empty-title">No institutions yet</div>
             <div class="empty-sub">Click "Add Institution" to get started.</div>
           </div>`;
@@ -575,7 +575,7 @@
 
     function openModal() {
       uploadedLogoUrl = null;
-      document.getElementById('logoThumb').innerHTML        = '🏛️';
+      document.getElementById('logoThumb').innerHTML        = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21V11h6v10"/></svg>';
       document.getElementById('logoFileName').textContent   = 'No logo selected';
       document.getElementById('logoUploadStatus').textContent = '';
       document.getElementById('logoFileInput').value        = '';
@@ -625,7 +625,7 @@
 
       if (error) {
         console.error('Logo upload failed:', error.message);
-        statusEl.textContent = '⚠ Upload failed: ' + error.message;
+        statusEl.textContent = 'Upload failed: ' + error.message;
         statusEl.style.color = '#dc2626';
         uploadedLogoUrl = null;
         return;

@@ -1066,7 +1066,7 @@
           <td style="padding:8px;border:1px solid #ddd;">Q${idx+1}: ${q.question_text}</td>
           <td style="padding:8px;border:1px solid #ddd;">${selected >= 0 ? opts[selected] : 'Pas de réponse'}</td>
           <td style="padding:8px;border:1px solid #ddd;">${correct >= 0 ? opts[correct] : '—'}</td>
-          <td style="padding:8px;border:1px solid #ddd;color:${ok?'#166534':'#991b1b'};font-weight:600;">${ok?'✅ +1':'❌ 0'}</td>
+          <td style="padding:8px;border:1px solid #ddd;color:${ok?'#166534':'#991b1b'};font-weight:600;">${ok?'+1':'0'}</td>
         </tr>`;
       }
     });
@@ -1189,12 +1189,12 @@
       } catch (err) {
         const errMsg = err?.text || err?.message || JSON.stringify(err);
         console.error('EmailJS failed:', errMsg);
-        if (statusEl) statusEl.textContent = '⚠ Envoi des résultats échoué — résultats sauvegardés.';
+        if (statusEl) statusEl.textContent = 'Envoi des résultats échoué — résultats sauvegardés.';
         logEvent('Email failed', errMsg);
       }
     } else {
       console.error('EmailJS not loaded — check script tag');
-      if (statusEl) statusEl.textContent = '⚠ Envoi des résultats échoué — résultats sauvegardés.';
+      if (statusEl) statusEl.textContent = 'Envoi des résultats échoué — résultats sauvegardés.';
       logEvent('Email failed', 'EmailJS not loaded');
     }
   }

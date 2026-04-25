@@ -131,7 +131,6 @@
       if (!mount) return;
 
       const labels = { fr: 'Français', en: 'English' };
-      const flags  = { fr: '🇫🇷', en: '🇬🇧' };
 
       mount.innerHTML = `
         <button class="lang-globe-btn" id="langGlobeBtn" onclick="Lang._toggleMenu()">
@@ -147,11 +146,11 @@
         </button>
         <div class="lang-dropdown" id="langDropdown">
           <button class="lang-option ${this._lang === 'fr' ? 'selected' : ''}" onclick="Lang.set('fr')">
-            <span class="lang-option-left"><span class="lang-flag">🇫🇷</span> Français</span>
+            <span class="lang-option-left">Français</span>
             <span class="lang-check">✓</span>
           </button>
           <button class="lang-option ${this._lang === 'en' ? 'selected' : ''}" onclick="Lang.set('en')">
-            <span class="lang-option-left"><span class="lang-flag">🇬🇧</span> English</span>
+            <span class="lang-option-left">English</span>
             <span class="lang-check">✓</span>
           </button>
         </div>
