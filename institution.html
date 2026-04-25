@@ -118,6 +118,14 @@
     .remove-confirm-btn { width: 100%; background: #dc2626; color: #fff; border: none; padding: 11px; border-radius: 8px; font-size: 0.88rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; }
     .remove-confirm-btn:hover { background: #b91c1c; }
 
+    /* ── Key contact ── */
+    .key-contact-badge { font-size: 0.65rem; font-weight: 700; background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 2px 8px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+    .key-contact-toggle { display: flex; align-items: center; gap: 10px; background: #f8f9fc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; cursor: pointer; transition: border-color 0.15s; }
+    .key-contact-toggle:hover { border-color: #2563eb; }
+    .key-contact-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; flex-shrink: 0; }
+    .key-contact-toggle-label { font-size: 0.82rem; font-weight: 600; color: #475569; }
+    .key-contact-toggle-sub { font-size: 0.72rem; color: #94a3b8; margin-top: 1px; }
+
     /* ── Skeleton ── */
     .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
@@ -219,11 +227,22 @@
           <div class="modal-field"><label>Last name</label><input type="text" id="mLast" placeholder="Dupont"></div>
         </div>
         <div class="modal-field"><label>Email</label><input type="email" id="mEmail" placeholder="marie@institution.fr"></div>
-        <div class="modal-field"><label>Phone</label><input type="tel" id="mPhone" placeholder="+33 6 00 00 00 00"></div>
 
         <!-- Admin only: job title -->
         <div id="adminFields">
           <div class="modal-field"><label>Job title</label><input type="text" id="mJobTitle" placeholder="Head of Academic Affairs"></div>
+        </div>
+
+        <!-- Key contact toggle -->
+        <label class="key-contact-toggle" onclick="toggleKeyContact()">
+          <input type="checkbox" id="mIsKeyContact" onchange="toggleKeyContact()">
+          <div>
+            <div class="key-contact-toggle-label">Set as key contact</div>
+            <div class="key-contact-toggle-sub">Designates this person as the primary contact for this institution</div>
+          </div>
+        </label>
+        <div id="phoneField" style="display:none;">
+          <div class="modal-field"><label>Phone number</label><input type="tel" id="mPhone" placeholder="+33 6 00 00 00 00"></div>
         </div>
 
         <!-- Teacher only: classes -->
@@ -306,8 +325,8 @@
     async function loadPage() {
       const [instRes, adminLinksRes, teacherLinksRes] = await Promise.all([
         sb.from('institutions').select('*').eq('id', instId).single(),
-        sb.from('institution_admins').select('teacher_id').eq('institution_id', instId),
-        sb.from('institution_teachers').select('teacher_id').eq('institution_id', instId)
+        sb.from('institution_admins').select('teacher_id, is_key_contact').eq('institution_id', instId),
+        sb.from('institution_teachers').select('teacher_id, is_key_contact').eq('institution_id', instId)
       ]);
 
       const inst           = instRes.data;
@@ -380,10 +399,10 @@
           <div class="member-row">
             <div class="member-avatar">${initials}</div>
             <div class="member-info">
-              <div class="member-name">${t.full_name || '—'}</div>
+              <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-contact-badge">Key Contact</span>' : ''}</div>
               <div class="member-email">${t.email}</div>
               ${t.job_title ? `<div class="member-meta">${t.job_title}</div>` : ''}
-              ${t.phone    ? `<div class="member-meta">${t.phone}</div>` : ''}
+              ${link.is_key_contact && t.phone ? `<div class="member-meta">📞 ${t.phone}</div>` : ''}
             </div>
             <button class="remove-btn" onclick="openRemoveModal('${t.id}', 'admin', '${(t.full_name || t.email).replace(/'/g,"\\'")}')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -410,9 +429,9 @@
           <div class="member-row">
             <div class="member-avatar green">${initials}</div>
             <div class="member-info">
-              <div class="member-name">${t.full_name || '—'}</div>
+              <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-contact-badge">Key Contact</span>' : ''}</div>
               <div class="member-email">${t.email}</div>
-              ${t.phone ? `<div class="member-meta">${t.phone}</div>` : ''}
+              ${link.is_key_contact && t.phone ? `<div class="member-meta">📞 ${t.phone}</div>` : ''}
               ${classHtml}
             </div>
             <button class="remove-btn" onclick="openRemoveModal('${t.id}', 'teacher', '${(t.full_name || t.email).replace(/'/g,"\\'")}')">
@@ -452,6 +471,8 @@
       document.getElementById('adminFields').style.display  = role === 'admin'   ? 'block' : 'none';
       document.getElementById('teacherFields').style.display = role === 'teacher' ? 'block' : 'none';
       ['mFirst','mLast','mEmail','mPhone','mJobTitle'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('mIsKeyContact').checked   = false;
+      document.getElementById('phoneField').style.display = 'none';
       document.getElementById('addError').style.display   = 'none';
       document.getElementById('addSuccess').style.display = 'none';
       document.getElementById('addSubmitBtn').disabled    = false;
@@ -461,6 +482,11 @@
 
     function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
     function handleAddBackdrop(e) { if (e.target === document.getElementById('addModal')) closeAddModal(); }
+
+    function toggleKeyContact() {
+      const checked = document.getElementById('mIsKeyContact').checked;
+      document.getElementById('phoneField').style.display = checked ? 'block' : 'none';
+    }
 
     function renderClassInputs() {
       const container = document.getElementById('classInputsContainer');
@@ -491,8 +517,9 @@
       const firstName = document.getElementById('mFirst').value.trim();
       const lastName  = document.getElementById('mLast').value.trim();
       const email     = document.getElementById('mEmail').value.trim();
-      const phone     = document.getElementById('mPhone').value.trim();
-      const jobTitle  = document.getElementById('mJobTitle').value.trim();
+      const phone        = document.getElementById('mPhone').value.trim();
+      const jobTitle     = document.getElementById('mJobTitle').value.trim();
+      const isKeyContact = document.getElementById('mIsKeyContact').checked;
       const errEl     = document.getElementById('addError');
       const succEl    = document.getElementById('addSuccess');
       const btn       = document.getElementById('addSubmitBtn');
@@ -518,9 +545,10 @@
             role:           addModalRole,
             email,
             full_name:      `${firstName} ${lastName}`,
-            phone:          phone    || null,
-            job_title:      jobTitle || null,
-            classes:        addModalRole === 'teacher' ? classInputs.filter(c => c.trim()) : []
+            phone:           isKeyContact ? (phone || null) : null,
+            job_title:       jobTitle || null,
+            is_key_contact:  isKeyContact,
+            classes:         addModalRole === 'teacher' ? classInputs.filter(c => c.trim()) : []
           })
         });
 
