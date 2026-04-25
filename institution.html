@@ -23,6 +23,9 @@
     .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); }
     .logout-btn { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.4); background: none; border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
     .logout-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+    .lang-toggle { display: flex; background: rgba(255,255,255,0.08); border-radius: 6px; overflow: hidden; }
+    .lang-btn { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.4); background: none; border: none; padding: 5px 10px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .lang-btn.active { background: #2563eb; color: #fff; }
 
     /* ── Page ── */
     .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px; }
@@ -138,17 +141,21 @@
     <div class="header-left">
       <button class="back-btn" onclick="window.location.href='dashboard.html'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        All Institutions
+        <span id="backBtnText">All Institutions</span>
       </button>
       <div class="header-divider"></div>
       <span class="header-logo">Exam Builder</span>
     </div>
     <div class="header-right">
+      <div class="lang-toggle">
+        <button class="lang-btn active" id="btnFR" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+      </div>
       <div class="header-user">
         <div class="header-avatar" id="headerAvatar">—</div>
         <div class="header-name" id="headerName">—</div>
       </div>
-      <button class="logout-btn" onclick="signOut()">Sign out</button>
+      <button class="logout-btn" id="logoutBtn" onclick="signOut()">Sign out</button>
     </div>
   </header>
 
@@ -233,16 +240,18 @@
           <div class="modal-field"><label>Job title</label><input type="text" id="mJobTitle" placeholder="Head of Academic Affairs"></div>
         </div>
 
-        <!-- Key contact toggle -->
-        <label class="key-contact-toggle" onclick="toggleKeyContact()">
-          <input type="checkbox" id="mIsKeyContact" onchange="toggleKeyContact()">
-          <div>
-            <div class="key-contact-toggle-label">Set as key contact</div>
-            <div class="key-contact-toggle-sub">Designates this person as the primary contact for this institution</div>
+        <!-- Key contact toggle (admins only) -->
+        <div id="keyContactSection">
+          <label class="key-contact-toggle" onclick="toggleKeyContact()">
+            <input type="checkbox" id="mIsKeyContact" onchange="toggleKeyContact()">
+            <div>
+              <div class="key-contact-toggle-label" id="keyContactLabel">Set as key contact</div>
+              <div class="key-contact-toggle-sub" id="keyContactSub">Designates this person as the primary contact for this institution</div>
+            </div>
+          </label>
+          <div id="phoneField" style="display:none;">
+            <div class="modal-field"><label id="phoneLabel">Phone number</label><input type="tel" id="mPhone" placeholder="+33 6 00 00 00 00"></div>
           </div>
-        </label>
-        <div id="phoneField" style="display:none;">
-          <div class="modal-field"><label>Phone number</label><input type="tel" id="mPhone" placeholder="+33 6 00 00 00 00"></div>
         </div>
 
         <!-- Teacher only: classes -->
@@ -289,11 +298,111 @@
 
     const instId = new URLSearchParams(window.location.search).get('id');
 
-    let currentUser    = null;
-    let addModalRole   = 'teacher';
-    let classInputs    = [''];
-    let removeTargetId = null;
+    let currentUser      = null;
+    let addModalRole     = 'teacher';
+    let classInputs      = [''];
+    let removeTargetId   = null;
     let removeTargetRole = null;
+    let lang             = localStorage.getItem('dashLang') || 'fr';
+
+    const i18n = {
+      fr: {
+        backBtn:          'Toutes les institutions',
+        logout:           'Déconnexion',
+        statAdmins:       'Admins',
+        statTeachers:     'Enseignants',
+        statClasses:      'Classes',
+        statExams:        'Examens',
+        sectionAdmins:    'Administrateurs',
+        sectionTeachers:  'Enseignants',
+        sectionExams:     'Examens',
+        addAdmin:         'Ajouter un admin',
+        addTeacher:       'Ajouter un enseignant',
+        emptyAdmins:      'Aucun administrateur',
+        emptyTeachers:    'Aucun enseignant',
+        emptyExams:       'Aucun examen publié',
+        modalAddAdmin:    'Ajouter un administrateur',
+        modalAddTeacher:  'Ajouter un enseignant',
+        firstName:        'Prénom',
+        lastName:         'Nom',
+        email:            'E-mail',
+        jobTitle:         'Poste',
+        keyContactLabel:  'Définir comme contact principal',
+        keyContactSub:    'Cette personne sera le contact principal pour cette institution',
+        phone:            'Téléphone',
+        classes:          'Classes',
+        addClass:         '+ Ajouter une classe',
+        submitAdmin:      'Ajouter l\'administrateur',
+        submitTeacher:    'Ajouter l\'enseignant',
+        removeTitle:      'Retirer le membre',
+        removeCancel:     'Annuler',
+        removeConfirm:    'Retirer',
+        keyContact:       'Contact principal',
+        published:        'Publié',
+        firstNamePH:      'Marie',
+        lastNamePH:       'Dupont',
+        emailPH:          'marie@institution.fr',
+        phonePH:          '+33 6 00 00 00 00',
+        jobTitlePH:       'Responsable pédagogique',
+        classNamePH:      'Nom de la classe',
+      },
+      en: {
+        backBtn:          'All Institutions',
+        logout:           'Sign out',
+        statAdmins:       'Admins',
+        statTeachers:     'Teachers',
+        statClasses:      'Classes',
+        statExams:        'Exams',
+        sectionAdmins:    'Admins',
+        sectionTeachers:  'Teachers',
+        sectionExams:     'Exams',
+        addAdmin:         'Add Admin',
+        addTeacher:       'Add Teacher',
+        emptyAdmins:      'No admins yet',
+        emptyTeachers:    'No teachers yet',
+        emptyExams:       'No exams published yet',
+        modalAddAdmin:    'Add Admin',
+        modalAddTeacher:  'Add Teacher',
+        firstName:        'First name',
+        lastName:         'Last name',
+        email:            'Email',
+        jobTitle:         'Job title',
+        keyContactLabel:  'Set as key contact',
+        keyContactSub:    'Designates this person as the primary contact for this institution',
+        phone:            'Phone number',
+        classes:          'Classes',
+        addClass:         '+ Add class',
+        submitAdmin:      'Add Admin',
+        submitTeacher:    'Add Teacher',
+        removeTitle:      'Remove Member',
+        removeCancel:     'Cancel',
+        removeConfirm:    'Remove',
+        keyContact:       'Key Contact',
+        published:        'Published',
+        firstNamePH:      'Marie',
+        lastNamePH:       'Dupont',
+        emailPH:          'marie@institution.fr',
+        phonePH:          '+33 6 00 00 00 00',
+        jobTitlePH:       'Head of Academic Affairs',
+        classNamePH:      'Class name',
+      }
+    };
+
+    function setLang(l) {
+      lang = l;
+      localStorage.setItem('dashLang', l);
+      document.getElementById('btnFR').classList.toggle('active', l === 'fr');
+      document.getElementById('btnEN').classList.toggle('active', l === 'en');
+      applyI18n();
+    }
+
+    function applyI18n() {
+      const t = i18n[lang];
+      document.getElementById('backBtnText').textContent    = t.backBtn;
+      document.getElementById('logoutBtn').textContent      = t.logout;
+    }
+
+    function t(key) { return i18n[lang][key] || key; }
 
     // ── Auth ─────────────────────────────────────────────────────
 
@@ -311,6 +420,9 @@
       document.getElementById('headerAvatar').textContent = initials;
       document.getElementById('headerName').textContent   = teacher.full_name || teacher.email;
 
+      document.getElementById('btnFR').classList.toggle('active', lang === 'fr');
+      document.getElementById('btnEN').classList.toggle('active', lang === 'en');
+      applyI18n();
       document.getElementById('pageContent').style.display = 'block';
       await loadPage();
     }
@@ -466,12 +578,14 @@
     function openAddModal(role) {
       addModalRole = role;
       classInputs  = [''];
-      document.getElementById('addModalTitle').textContent  = role === 'admin' ? 'Add Admin' : 'Add Teacher';
-      document.getElementById('addSubmitBtn').textContent   = role === 'admin' ? 'Add Admin' : 'Add Teacher';
-      document.getElementById('adminFields').style.display  = role === 'admin'   ? 'block' : 'none';
+      document.getElementById('addModalTitle').textContent   = role === 'admin' ? t('modalAddAdmin') : t('modalAddTeacher');
+      document.getElementById('addSubmitBtn').textContent    = role === 'admin' ? t('submitAdmin')   : t('submitTeacher');
+      document.getElementById('adminFields').style.display   = role === 'admin'   ? 'block' : 'none';
       document.getElementById('teacherFields').style.display = role === 'teacher' ? 'block' : 'none';
+      // Key contact only applies to admins
+      document.getElementById('keyContactSection').style.display = role === 'admin' ? 'block' : 'none';
       ['mFirst','mLast','mEmail','mPhone','mJobTitle'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('mIsKeyContact').checked   = false;
+      document.getElementById('mIsKeyContact').checked    = false;
       document.getElementById('phoneField').style.display = 'none';
       document.getElementById('addError').style.display   = 'none';
       document.getElementById('addSuccess').style.display = 'none';
