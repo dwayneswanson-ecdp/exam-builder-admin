@@ -202,6 +202,19 @@
     .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
     .modal-error { font-size: 0.8rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; margin-top: 10px; display: none; }
     .modal-success { font-size: 0.8rem; color: #16a34a; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; padding: 8px 12px; margin-top: 10px; display: none; }
+
+    /* ── Delete button + modal ── */
+    .delete-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 6px; border-radius: 6px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
+    .delete-btn:hover { color: #dc2626; background: #fef2f2; }
+    .delete-warning { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+    .delete-warning-title { font-size: 0.88rem; font-weight: 700; color: #dc2626; margin-bottom: 6px; }
+    .delete-warning-text { font-size: 0.82rem; color: #7f1d1d; line-height: 1.6; }
+    .delete-confirm-label { font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; }
+    .delete-confirm-input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.15s; margin-bottom: 12px; }
+    .delete-confirm-input:focus { border-color: #dc2626; }
+    .delete-submit { width: 100%; background: #dc2626; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; }
+    .delete-submit:hover { background: #b91c1c; }
+    .delete-submit:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -354,8 +367,18 @@
           </div>
         </div>
         <div class="modal-field">
-          <label>Admin email</label>
-          <input type="email" id="adminEmail" placeholder="admin@sciencespo.fr">
+          <label>Job title</label>
+          <input type="text" id="adminJobTitle" placeholder="e.g. Head of Academic Affairs">
+        </div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Admin email</label>
+            <input type="email" id="adminEmail" placeholder="admin@sciencespo.fr">
+          </div>
+          <div class="modal-field">
+            <label>Phone</label>
+            <input type="tel" id="adminPhone" placeholder="+33 6 00 00 00 00">
+          </div>
         </div>
 
         <button class="modal-submit" id="modalSubmitBtn" onclick="submitInstitution()">
@@ -363,6 +386,31 @@
         </button>
         <div class="modal-error" id="modalError"></div>
         <div class="modal-success" id="modalSuccess"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       DELETE INSTITUTION MODAL
+  ══════════════════════════════════════ -->
+  <div class="modal-backdrop" id="deleteModal" style="display:none;" onclick="handleDeleteBackdropClick(event)">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <div class="modal-title">Delete Institution</div>
+        <button class="modal-close" onclick="closeDeleteModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="delete-warning">
+          <div class="delete-warning-title">⚠ This action is permanent and cannot be undone.</div>
+          <div class="delete-warning-text" id="deleteWarningText"></div>
+        </div>
+        <label class="delete-confirm-label">Type the institution name to confirm:</label>
+        <input type="text" class="delete-confirm-input" id="deleteConfirmInput" placeholder="" oninput="checkDeleteConfirm()">
+        <button class="delete-submit" id="deleteSubmitBtn" disabled onclick="confirmDelete()">
+          Permanently Delete Institution
+        </button>
       </div>
     </div>
   </div>
@@ -375,9 +423,11 @@
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let currentUser   = null;
-    let currentTeacher = null;
-    let uploadedLogoUrl = null;
+    let currentUser      = null;
+    let currentTeacher   = null;
+    let uploadedLogoUrl  = null;
+    let deleteTargetId   = null;
+    let deleteTargetName = null;
 
     // ── Auth ──────────────────────────────────────────────────────
 
@@ -514,7 +564,9 @@
               </div>
             </div>
             <div class="inst-status"><div class="dot"></div>Active</div>
-            <svg class="inst-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <button class="delete-btn" onclick="event.stopPropagation(); openDeleteModal('${inst.id}', '${inst.name.replace(/'/g, "\\'")}', ${adminCount}, ${teacherCount})" title="Delete institution">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
           </div>`;
       }).join('');
     }
@@ -527,7 +579,7 @@
       document.getElementById('logoFileName').textContent   = 'No logo selected';
       document.getElementById('logoUploadStatus').textContent = '';
       document.getElementById('logoFileInput').value        = '';
-      ['instName','instDomain','adminFirst','adminLast','adminEmail'].forEach(id => document.getElementById(id).value = '');
+      ['instName','instDomain','adminFirst','adminLast','adminEmail','adminPhone','adminJobTitle'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('modalError').style.display   = 'none';
       document.getElementById('modalSuccess').style.display = 'none';
       document.getElementById('modalSubmitBtn').disabled    = false;
@@ -596,6 +648,8 @@
       const firstName = document.getElementById('adminFirst').value.trim();
       const lastName  = document.getElementById('adminLast').value.trim();
       const email     = document.getElementById('adminEmail').value.trim();
+      const phone     = document.getElementById('adminPhone').value.trim();
+      const jobTitle  = document.getElementById('adminJobTitle').value.trim();
 
       const errEl  = document.getElementById('modalError');
       const succEl = document.getElementById('modalSuccess');
@@ -627,7 +681,9 @@
             institution_domain: domain,
             logo_url:           uploadedLogoUrl,
             admin_email:        email,
-            admin_full_name:    `${firstName} ${lastName}`
+            admin_full_name:    `${firstName} ${lastName}`,
+            admin_phone:        phone     || null,
+            admin_job_title:    jobTitle  || null
           })
         });
 
@@ -650,6 +706,61 @@
         errEl.style.display = 'block';
         btn.disabled        = false;
         btn.textContent     = 'Create Institution & Send Admin Invite';
+      }
+    }
+
+    // ── Delete institution ────────────────────────────────────────
+
+    function openDeleteModal(id, name, adminCount, teacherCount) {
+      deleteTargetId   = id;
+      deleteTargetName = name;
+      document.getElementById('deleteConfirmInput').value   = '';
+      document.getElementById('deleteSubmitBtn').disabled   = true;
+      document.getElementById('deleteWarningText').innerHTML =
+        `You are about to permanently delete <strong>${name}</strong>.<br>
+         This will remove <strong>${adminCount} admin${adminCount !== 1 ? 's' : ''}</strong> and
+         <strong>${teacherCount} teacher${teacherCount !== 1 ? 's' : ''}</strong> from the platform.<br><br>
+         All associated data will be lost.`;
+      document.getElementById('deleteConfirmInput').placeholder = name;
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').style.display = 'none';
+      deleteTargetId   = null;
+      deleteTargetName = null;
+    }
+
+    function handleDeleteBackdropClick(e) {
+      if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
+    }
+
+    function checkDeleteConfirm() {
+      const val = document.getElementById('deleteConfirmInput').value;
+      document.getElementById('deleteSubmitBtn').disabled = (val !== deleteTargetName);
+    }
+
+    async function confirmDelete() {
+      const btn = document.getElementById('deleteSubmitBtn');
+      btn.disabled    = true;
+      btn.textContent = 'Deleting…';
+
+      try {
+        // CASCADE on institution_admins and institution_teachers handles those rows
+        const { error } = await sb
+          .from('institutions')
+          .delete()
+          .eq('id', deleteTargetId);
+
+        if (error) throw error;
+
+        closeDeleteModal();
+        await loadInstitutions();
+
+      } catch (err) {
+        btn.disabled    = false;
+        btn.textContent = 'Permanently Delete Institution';
+        alert('Delete failed: ' + err.message);
       }
     }
 
