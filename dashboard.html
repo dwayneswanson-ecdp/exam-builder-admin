@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Builder — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    /* ── Login ── */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .login-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .login-logo {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+    .login-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+    .login-sub {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: #2563eb; }
+    .login-btn {
+      width: 100%;
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+    .login-btn:hover { background: #1e293b; }
+    .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .login-error {
+      font-size: 0.8rem;
+      color: #dc2626;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #0f172a;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; }
+    .header-logo span { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-user { display: flex; align-items: center; gap: 10px; }
+    .header-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); }
+    .header-role { font-size: 0.68rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
+    .logout-btn { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.4); background: none; border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .logout-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+
+    /* ── Page ── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .page-sub { font-size: 0.88rem; color: #64748b; margin-bottom: 32px; }
+
+    /* ── Stats ── */
+    .stats-bar { display: flex; gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; flex: 1; }
+    .stat-label { font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .stat-value { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
+    .stat-value.blue { color: #2563eb; }
+    .stat-value.green { color: #16a34a; }
+
+    /* ── Section header ── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title { font-size: 1rem; font-weight: 700; color: #0f172a; }
+    .add-btn { display: flex; align-items: center; gap: 6px; background: #0f172a; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .add-btn:hover { background: #1e293b; }
+
+    /* ── Institution list ── */
+    .institution-list { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .institution-row { padding: 18px 24px; display: flex; align-items: center; gap: 20px; border-bottom: 1px dashed #e2e8f0; transition: background 0.15s; cursor: pointer; }
+    .institution-row:last-child { border-bottom: none; }
+    .institution-row:hover { background: #f8f9fc; }
+    .inst-logo { width: 52px; height: 52px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border: 1px solid #e2e8f0; }
+    .inst-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+    .inst-logo.no-logo { background: #f1f5f9; border: 1.5px dashed #cbd5e1; color: #94a3b8; font-size: 11px; font-weight: 700; text-align: center; }
+    .inst-info { flex: 1; min-width: 0; }
+    .inst-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+    .inst-domain { font-size: 0.78rem; color: #94a3b8; font-family: monospace; }
+    .inst-meta { display: flex; align-items: center; gap: 24px; flex-shrink: 0; }
+    .inst-meta-item { text-align: center; }
+    .inst-meta-val { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
+    .inst-meta-lbl { font-size: 0.68rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
+    .inst-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: #16a34a; background: #f0fdf4; border: 1px solid #86efac; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+    .inst-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
+    .inst-arrow { color: #cbd5e1; flex-shrink: 0; }
+
+    /* ── Empty state ── */
+    .empty-state { padding: 48px 24px; text-align: center; }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .empty-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .empty-sub { font-size: 0.82rem; color: #94a3b8; }
+
+    /* ── Loading skeleton ── */
+    .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton-row { padding: 18px 24px; display: flex; align-items: center; gap: 20px; border-bottom: 1px dashed #e2e8f0; }
+    .skeleton-logo { width: 52px; height: 52px; border-radius: 10px; flex-shrink: 0; }
+    .skeleton-text { flex: 1; }
+    .skeleton-line { height: 14px; margin-bottom: 8px; }
+    .skeleton-line.short { width: 40%; }
+
+    /* ── Modal ── */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 24px 28px 0; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .modal-title { font-size: 1rem; font-weight: 700; color: #0f172a; }
+    .modal-close { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 6px; transition: color 0.15s; }
+    .modal-close:hover { color: #0f172a; }
+    .modal-body { padding: 0 28px 28px; }
+
+    /* ── Logo upload zone ── */
+    .logo-zone {
+      border: 2px dashed #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .logo-zone:hover, .logo-zone.dragover { border-color: #2563eb; background: #eff6ff; }
+    .logo-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .logo-zone-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .logo-zone-text { font-size: 0.82rem; font-weight: 600; color: #475569; margin-bottom: 4px; }
+    .logo-zone-sub { font-size: 0.72rem; color: #94a3b8; }
+    .logo-preview { width: 72px; height: 72px; border-radius: 10px; object-fit: contain; margin: 0 auto 8px; display: block; border: 1px solid #e2e8f0; padding: 4px; }
+    .logo-change { font-size: 0.72rem; color: #2563eb; font-weight: 600; cursor: pointer; }
+
+    /* ── Modal fields ── */
+    .modal-section-label { font-size: 0.68rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label { display: block; font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+    .modal-field input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.15s; }
+    .modal-field input:focus { border-color: #2563eb; }
+    .modal-row { display: flex; gap: 12px; }
+    .modal-row .modal-field { flex: 1; }
+    .modal-submit { width: 100%; background: #0f172a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
+    .modal-submit:hover { background: #1e293b; }
+    .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .modal-error { font-size: 0.8rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; margin-top: 10px; display: none; }
+    .modal-success { font-size: 0.8rem; color: #16a34a; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; padding: 8px 12px; margin-top: 10px; display: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       LOGIN SCREEN
+  ══════════════════════════════════════ -->
+  <div id="loginScreen">
+    <div class="login-card">
+      <div class="login-logo">Exam Builder</div>
+      <h1 class="login-title">Dashboard</h1>
+      <p class="login-sub">Sign in to manage your institutions and exams.</p>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@institution.com" autocomplete="email">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="login-btn" id="loginBtn" onclick="signIn()">Sign in</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════════ -->
+  <div id="dashboard" style="display:none;">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-logo">
+        <span>Exam Builder</span>
+        <span class="header-badge" id="headerBadge">Loading…</span>
+      </div>
+      <div class="header-right">
+        <div class="header-user">
+          <div class="header-avatar" id="headerAvatar">—</div>
+          <div>
+            <div class="header-name" id="headerName">—</div>
+            <div class="header-role" id="headerRoleLabel">—</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="signOut()">Sign out</button>
+      </div>
+    </header>
+
+    <!-- Super Admin View -->
+    <div id="superAdminView" style="display:none;">
+      <div class="page">
+        <h1 class="page-title">Institutions</h1>
+        <p class="page-sub">Manage all institutions and their administrators.</p>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+          <div class="stat-card">
+            <div class="stat-label">Institutions</div>
+            <div class="stat-value blue" id="statInstitutions">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Admins</div>
+            <div class="stat-value" id="statAdmins">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Teachers</div>
+            <div class="stat-value" id="statTeachers">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Exams Published</div>
+            <div class="stat-value green" id="statExams">—</div>
+          </div>
+        </div>
+
+        <!-- List -->
+        <div class="section-header">
+          <div class="section-title">All Institutions</div>
+          <button class="add-btn" onclick="openModal()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Institution
+          </button>
+        </div>
+        <div class="institution-list" id="institutionList">
+          <!-- skeleton -->
+          <div class="skeleton-row">
+            <div class="skeleton skeleton-logo"></div>
+            <div class="skeleton-text"><div class="skeleton skeleton-line" style="width:60%"></div><div class="skeleton skeleton-line short"></div></div>
+          </div>
+          <div class="skeleton-row">
+            <div class="skeleton skeleton-logo"></div>
+            <div class="skeleton-text"><div class="skeleton skeleton-line" style="width:50%"></div><div class="skeleton skeleton-line short"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════
+       ADD INSTITUTION MODAL
+  ══════════════════════════════════════ -->
+  <div class="modal-backdrop" id="addModal" style="display:none;" onclick="handleBackdropClick(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Add Institution</div>
+        <button class="modal-close" onclick="closeModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Logo upload -->
+        <div class="logo-zone" id="logoZone"
+          ondragover="handleDragOver(event)"
+          ondragleave="handleDragLeave(event)"
+          ondrop="handleDrop(event)">
+          <input type="file" id="logoFileInput" accept="image/*" onchange="handleFileSelect(event)">
+          <div id="logoZoneContent">
+            <div class="logo-zone-icon">🏛️</div>
+            <div class="logo-zone-text">Drag & drop institution logo</div>
+            <div class="logo-zone-sub">PNG, JPG or SVG — click to browse</div>
+          </div>
+        </div>
+
+        <!-- Institution details -->
+        <div class="modal-section-label">Institution</div>
+        <div class="modal-field">
+          <label>Institution name</label>
+          <input type="text" id="instName" placeholder="e.g. Sciences Po Paris">
+        </div>
+        <div class="modal-field">
+          <label>Domain</label>
+          <input type="text" id="instDomain" placeholder="e.g. sciencespo.fr">
+        </div>
+
+        <!-- Admin details -->
+        <div class="modal-section-label">Institution Admin</div>
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>First name</label>
+            <input type="text" id="adminFirst" placeholder="Marie">
+          </div>
+          <div class="modal-field">
+            <label>Last name</label>
+            <input type="text" id="adminLast" placeholder="Dupont">
+          </div>
+        </div>
+        <div class="modal-field">
+          <label>Admin email</label>
+          <input type="email" id="adminEmail" placeholder="admin@sciencespo.fr">
+        </div>
+
+        <button class="modal-submit" id="modalSubmitBtn" onclick="submitInstitution()">
+          Create Institution &amp; Send Admin Invite
+        </button>
+        <div class="modal-error" id="modalError"></div>
+        <div class="modal-success" id="modalSuccess"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL  = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+    const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const EDGE_FN_URL   = 'https://toxgihdyfzdymgidgvaq.supabase.co/functions/v1/onboard-institution';
+
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser   = null;
+    let currentTeacher = null;
+    let uploadedLogoUrl = null;
+
+    // ── Auth ──────────────────────────────────────────────────────
+
+    async function signIn() {
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn      = document.getElementById('loginBtn');
+      const errEl    = document.getElementById('loginError');
+
+      if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in…';
+      errEl.style.display = 'none';
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        showLoginError(error.message);
+        btn.disabled = false;
+        btn.textContent = 'Sign in';
+        return;
+      }
+      await loadDashboard(data.user);
+    }
+
+    async function signOut() {
+      await sb.auth.signOut();
+      location.reload();
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // ── Init ─────────────────────────────────────────────────────
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) {
+        await loadDashboard(session.user);
+      }
+    }
+
+    async function loadDashboard(user) {
+      currentUser = user;
+
+      const { data: teacher, error } = await sb
+        .from('teachers')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error || !teacher) {
+        showLoginError('No teacher record found for this account.');
+        return;
+      }
+
+      currentTeacher = teacher;
+
+      // Header
+      const initials = (teacher.full_name || teacher.email).split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('headerAvatar').textContent    = initials;
+      document.getElementById('headerName').textContent      = teacher.full_name || teacher.email;
+      document.getElementById('headerRoleLabel').textContent = teacher.role.replace('_', ' ');
+      document.getElementById('headerBadge').textContent     = teacher.role === 'super_admin' ? 'Super Admin' : teacher.role === 'admin' ? 'Admin' : 'Teacher';
+
+      // Show dashboard
+      document.getElementById('loginScreen').style.display  = 'none';
+      document.getElementById('dashboard').style.display    = 'block';
+
+      if (teacher.role === 'super_admin') {
+        document.getElementById('superAdminView').style.display = 'block';
+        await loadInstitutions();
+      }
+    }
+
+    // ── Load institutions ─────────────────────────────────────────
+
+    async function loadInstitutions() {
+      const [instRes, adminsRes, teachersRes, examsRes] = await Promise.all([
+        sb.from('institutions').select('*').order('name'),
+        sb.from('institution_admins').select('institution_id'),
+        sb.from('institution_teachers').select('institution_id'),
+        sb.from('exams').select('id', { count: 'exact', head: true })
+      ]);
+
+      const institutions = instRes.data  || [];
+      const admins       = adminsRes.data || [];
+      const teachers     = teachersRes.data || [];
+      const examCount    = examsRes.count ?? 0;
+
+      // Stats
+      document.getElementById('statInstitutions').textContent = institutions.length;
+      document.getElementById('statAdmins').textContent       = admins.length;
+      document.getElementById('statTeachers').textContent     = teachers.length;
+      document.getElementById('statExams').textContent        = examCount;
+
+      // Render list
+      const list = document.getElementById('institutionList');
+      if (institutions.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🏛️</div>
+            <div class="empty-title">No institutions yet</div>
+            <div class="empty-sub">Click "Add Institution" to get started.</div>
+          </div>`;
+        return;
+      }
+
+      list.innerHTML = institutions.map(inst => {
+        const adminCount   = admins.filter(a => a.institution_id === inst.id).length;
+        const teacherCount = teachers.filter(t => t.institution_id === inst.id).length;
+        const logoHtml     = inst.logo_url
+          ? `<img src="${inst.logo_url}" alt="${inst.name}">`
+          : `<div style="font-size:10px;font-weight:700;color:#94a3b8;text-align:center;padding:4px;">${inst.name.substring(0,4).toUpperCase()}</div>`;
+
+        return `
+          <div class="institution-row">
+            <div class="inst-logo ${inst.logo_url ? '' : 'no-logo'}">${logoHtml}</div>
+            <div class="inst-info">
+              <div class="inst-name">${inst.name}</div>
+              <div class="inst-domain">${inst.domain || '—'}</div>
+            </div>
+            <div class="inst-meta">
+              <div class="inst-meta-item">
+                <div class="inst-meta-val">${adminCount}</div>
+                <div class="inst-meta-lbl">Admins</div>
+              </div>
+              <div class="inst-meta-item">
+                <div class="inst-meta-val">${teacherCount}</div>
+                <div class="inst-meta-lbl">Teachers</div>
+              </div>
+            </div>
+            <div class="inst-status"><div class="dot"></div>Active</div>
+            <svg class="inst-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>`;
+      }).join('');
+    }
+
+    // ── Modal ─────────────────────────────────────────────────────
+
+    function openModal() {
+      uploadedLogoUrl = null;
+      document.getElementById('logoZoneContent').innerHTML = `
+        <div class="logo-zone-icon">🏛️</div>
+        <div class="logo-zone-text">Drag & drop institution logo</div>
+        <div class="logo-zone-sub">PNG, JPG or SVG — click to browse</div>`;
+      ['instName','instDomain','adminFirst','adminLast','adminEmail'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('modalError').style.display   = 'none';
+      document.getElementById('modalSuccess').style.display = 'none';
+      document.getElementById('modalSubmitBtn').disabled    = false;
+      document.getElementById('modalSubmitBtn').textContent = 'Create Institution & Send Admin Invite';
+      document.getElementById('addModal').style.display     = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('addModal').style.display = 'none';
+    }
+
+    function handleBackdropClick(e) {
+      if (e.target === document.getElementById('addModal')) closeModal();
+    }
+
+    // ── Logo drag & drop ──────────────────────────────────────────
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      document.getElementById('logoZone').classList.add('dragover');
+    }
+
+    function handleDragLeave() {
+      document.getElementById('logoZone').classList.remove('dragover');
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      document.getElementById('logoZone').classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) processLogoFile(file);
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) processLogoFile(file);
+    }
+
+    function processLogoFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('logoZoneContent').innerHTML = `
+          <img src="${e.target.result}" class="logo-preview" alt="Preview">
+          <div class="logo-change">Click to change logo</div>`;
+      };
+      reader.readAsDataURL(file);
+      uploadLogoToStorage(file);
+    }
+
+    async function uploadLogoToStorage(file) {
+      const { data: { session } } = await sb.auth.getSession();
+      const ext      = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
+
+      const { error } = await sb.storage
+        .from('institution-logos')
+        .upload(fileName, file, { upsert: true });
+
+      if (error) {
+        console.error('Logo upload failed:', error.message);
+        return;
+      }
+
+      const { data: { publicUrl } } = sb.storage
+        .from('institution-logos')
+        .getPublicUrl(fileName);
+
+      uploadedLogoUrl = publicUrl;
+    }
+
+    // ── Submit institution ────────────────────────────────────────
+
+    async function submitInstitution() {
+      const name      = document.getElementById('instName').value.trim();
+      const domain    = document.getElementById('instDomain').value.trim();
+      const firstName = document.getElementById('adminFirst').value.trim();
+      const lastName  = document.getElementById('adminLast').value.trim();
+      const email     = document.getElementById('adminEmail').value.trim();
+
+      const errEl  = document.getElementById('modalError');
+      const succEl = document.getElementById('modalSuccess');
+      const btn    = document.getElementById('modalSubmitBtn');
+
+      errEl.style.display  = 'none';
+      succEl.style.display = 'none';
+
+      if (!name || !email || !firstName || !lastName) {
+        errEl.textContent = 'Please fill in all required fields.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Creating…';
+
+      const { data: { session } } = await sb.auth.getSession();
+
+      try {
+        const res = await fetch(EDGE_FN_URL, {
+          method:  'POST',
+          headers: {
+            'Content-Type':  'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          },
+          body: JSON.stringify({
+            institution_name:   name,
+            institution_domain: domain,
+            logo_url:           uploadedLogoUrl,
+            admin_email:        email,
+            admin_full_name:    `${firstName} ${lastName}`
+          })
+        });
+
+        const result = await res.json();
+
+        if (!res.ok || result.error) {
+          throw new Error(result.error || 'Unknown error');
+        }
+
+        succEl.textContent   = `✅ ${name} created. Invite sent to ${email}.`;
+        succEl.style.display = 'block';
+        btn.textContent      = '✅ Done';
+
+        await loadInstitutions();
+
+        setTimeout(closeModal, 2000);
+
+      } catch (err) {
+        errEl.textContent   = 'Error: ' + err.message;
+        errEl.style.display = 'block';
+        btn.disabled        = false;
+        btn.textContent     = 'Create Institution & Send Admin Invite';
+      }
+    }
+
+    // ── Login on Enter ────────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') signIn();
+    });
+
+    init();
+  </script>
+</body>
+</html>
