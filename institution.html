@@ -147,10 +147,7 @@
       <span class="header-logo">Exam Builder</span>
     </div>
     <div class="header-right">
-      <div class="lang-toggle">
-        <button class="lang-btn active" id="btnFR" onclick="setLang('fr')">FR</button>
-        <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
-      </div>
+      <div id="langToggleMount"></div>
       <div class="header-user">
         <div class="header-avatar" id="headerAvatar">—</div>
         <div class="header-name" id="headerName">—</div>
@@ -173,47 +170,47 @@
 
     <!-- Stats -->
     <div class="stats-bar">
-      <div class="stat-card"><div class="stat-label">Admins</div><div class="stat-value blue" id="statAdmins">—</div></div>
-      <div class="stat-card"><div class="stat-label">Teachers</div><div class="stat-value green" id="statTeachers">—</div></div>
-      <div class="stat-card"><div class="stat-label">Classes</div><div class="stat-value purple" id="statClasses">—</div></div>
-      <div class="stat-card"><div class="stat-label">Exams</div><div class="stat-value" id="statExams">—</div></div>
+      <div class="stat-card"><div class="stat-label" data-i18n="statAdmins">Admins</div><div class="stat-value blue" id="statAdmins">—</div></div>
+      <div class="stat-card"><div class="stat-label" data-i18n="statTeachers">Teachers</div><div class="stat-value green" id="statTeachers">—</div></div>
+      <div class="stat-card"><div class="stat-label" data-i18n="statClasses">Classes</div><div class="stat-value purple" id="statClasses">—</div></div>
+      <div class="stat-card"><div class="stat-label" data-i18n="statExams">Exams</div><div class="stat-value" id="statExams">—</div></div>
     </div>
 
     <!-- Admins section -->
     <div class="section">
       <div class="section-header">
-        <div class="section-title">Admins</div>
+        <div class="section-title" data-i18n="sectionAdmins">Admins</div>
         <button class="add-btn" onclick="openAddModal('admin')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Admin
+          <span data-i18n="addAdmin">Add Admin</span>
         </button>
       </div>
       <div class="member-list" id="adminList">
-        <div class="empty-state"><div class="empty-title">No admins yet</div></div>
+        <div class="empty-state"><div class="empty-title" data-i18n="emptyAdmins">No admins yet</div></div>
       </div>
     </div>
 
     <!-- Teachers section -->
     <div class="section">
       <div class="section-header">
-        <div class="section-title">Teachers</div>
+        <div class="section-title" data-i18n="sectionTeachers">Teachers</div>
         <button class="add-btn" onclick="openAddModal('teacher')">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Teacher
+          <span data-i18n="addTeacher">Add Teacher</span>
         </button>
       </div>
       <div class="member-list" id="teacherList">
-        <div class="empty-state"><div class="empty-title">No teachers yet</div></div>
+        <div class="empty-state"><div class="empty-title" data-i18n="emptyTeachers">No teachers yet</div></div>
       </div>
     </div>
 
     <!-- Exams section -->
     <div class="section">
       <div class="section-header">
-        <div class="section-title">Exams</div>
+        <div class="section-title" data-i18n="sectionExams">Exams</div>
       </div>
       <div class="member-list" id="examList">
-        <div class="empty-state"><div class="empty-title">No exams yet</div></div>
+        <div class="empty-state"><div class="empty-title" data-i18n="emptyExams">No exams yet</div></div>
       </div>
     </div>
 
@@ -303,8 +300,8 @@
     let classInputs      = [''];
     let removeTargetId   = null;
     let removeTargetRole = null;
-    let lang             = localStorage.getItem('dashLang') || 'fr';
-
+    // Cached page data — used for live re-render on lang change
+    let _adminLinks = [], _teacherLinks = [], _teachers = [], _classes = [], _exams = [];
     const i18n = {
       fr: {
         backBtn:          'Toutes les institutions',
@@ -388,21 +385,8 @@
       }
     };
 
-    function setLang(l) {
-      lang = l;
-      localStorage.setItem('dashLang', l);
-      document.getElementById('btnFR').classList.toggle('active', l === 'fr');
-      document.getElementById('btnEN').classList.toggle('active', l === 'en');
-      applyI18n();
-    }
-
-    function applyI18n() {
-      const t = i18n[lang];
-      document.getElementById('backBtnText').textContent    = t.backBtn;
-      document.getElementById('logoutBtn').textContent      = t.logout;
-    }
-
-    function t(key) { return i18n[lang][key] || key; }
+    // ── i18n helper — delegates to shared Lang ────────────────────
+    function T(key) { return Lang.t(key); }
 
     // ── Auth ─────────────────────────────────────────────────────
 
@@ -420,11 +404,11 @@
       document.getElementById('headerAvatar').textContent = initials;
       document.getElementById('headerName').textContent   = teacher.full_name || teacher.email;
 
-      document.getElementById('btnFR').classList.toggle('active', lang === 'fr');
-      document.getElementById('btnEN').classList.toggle('active', lang === 'en');
-      applyI18n();
+      Lang.init(i18n);
       document.getElementById('pageContent').style.display = 'block';
       await loadPage();
+
+      document.addEventListener('langchange', () => rerender());
     }
 
     async function signOut() {
@@ -480,21 +464,31 @@
         ? await sb.from('exams').select('*').in('teacher_id', teacherIds).order('created_at', { ascending: false })
         : { data: [] };
 
-      // Stats
-      const totalClasses = classes.length;
+      // Cache for live re-render
+      _adminLinks   = adminLinks;
+      _teacherLinks = teacherLinks;
+      _teachers     = teachers;
+      _classes      = classes;
+      _exams        = exams || [];
+
+      rerender();
+    }
+
+    function rerender() {
+      const adminLinks   = _adminLinks;
+      const teacherLinks = _teacherLinks;
+      const teachers     = _teachers;
+      const classes      = _classes;
+      const exams        = _exams;
+
       document.getElementById('statAdmins').textContent   = adminLinks.length;
       document.getElementById('statTeachers').textContent = teacherLinks.length;
-      document.getElementById('statClasses').textContent  = totalClasses;
-      document.getElementById('statExams').textContent    = (exams || []).length;
+      document.getElementById('statClasses').textContent  = classes.length;
+      document.getElementById('statExams').textContent    = exams.length;
 
-      // Render admins
       renderAdmins(adminLinks, teachers);
-
-      // Render teachers
       renderTeachers(teacherLinks, teachers, classes);
-
-      // Render exams
-      renderExams(exams || [], teachers);
+      renderExams(exams, teachers);
     }
 
     function renderAdmins(links, teachers) {
@@ -578,8 +572,8 @@
     function openAddModal(role) {
       addModalRole = role;
       classInputs  = [''];
-      document.getElementById('addModalTitle').textContent   = role === 'admin' ? t('modalAddAdmin') : t('modalAddTeacher');
-      document.getElementById('addSubmitBtn').textContent    = role === 'admin' ? t('submitAdmin')   : t('submitTeacher');
+      document.getElementById('addModalTitle').textContent   = role === 'admin' ? T('modalAddAdmin') : T('modalAddTeacher');
+      document.getElementById('addSubmitBtn').textContent    = role === 'admin' ? T('submitAdmin')   : T('submitTeacher');
       document.getElementById('adminFields').style.display   = role === 'admin'   ? 'block' : 'none';
       document.getElementById('teacherFields').style.display = role === 'teacher' ? 'block' : 'none';
       // Key contact only applies to admins
@@ -722,5 +716,6 @@
 
     init();
   </script>
+  <script src="lang.js"></script>
 </body>
 </html>

@@ -318,10 +318,7 @@
 
   <!-- Language toggle -->
   <div class="topbar">
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btnFR">FR</button>
-      <button class="lang-btn" id="btnEN">EN</button>
-    </div>
+    <div id="langToggleMount"></div>
   </div>
 
   <!-- Header -->
@@ -738,7 +735,7 @@
     }
   };
 
-  let lang = 'fr';
+  let lang = (localStorage.getItem('examBuilderLang') || 'fr');
   let examLang = 'fr'; // Language for student-facing exam UI
   let currentFile = null;
   let extractedText = '';
@@ -746,8 +743,6 @@
   // ── Language switch ───────────────────────────────────────────
   function setLang(l) {
     lang = l;
-    document.getElementById('btnFR').classList.toggle('active', l === 'fr');
-    document.getElementById('btnEN').classList.toggle('active', l === 'en');
     const t = i18n[l];
     document.querySelectorAll('[data-i18n]').forEach(el => {
       const key = el.getAttribute('data-i18n');
@@ -767,15 +762,15 @@
     document.getElementById('exWritten').textContent = t.exWritten;
   }
 
-  // Init with French
-  setLang('fr');
+  // Init with stored or default language
+  setLang(lang);
 
-  // Rebuild review when language changes if already in review step
   // Init EmailJS
   if (window.emailjs) {
     try { emailjs.init({ publicKey: 'Bb0oPYBiZGQcyIz5r' }); } catch(e) {}
   }
 
+  // Wire lang.js toggle — runs after lang.js loads
   function setLangAndRefresh(l) {
     setLang(l);
     if (document.getElementById('reviewCard')?.classList.contains('visible')) {
@@ -783,8 +778,9 @@
       updateReviewStats();
     }
   }
-  document.getElementById('btnFR').onclick = () => setLangAndRefresh('fr');
-  document.getElementById('btnEN').onclick = () => setLangAndRefresh('en');
+
+  // Lang.js fires 'langchange' when the globe dropdown is used
+  document.addEventListener('langchange', e => setLangAndRefresh(e.detail.lang));
 
   function setExamLang(l) {
     examLang = l;
@@ -1921,6 +1917,11 @@
     el.querySelector('.step-num').textContent = '✓';
   }
   function markActive(n) { document.getElementById('step'+n).classList.add('active'); }
+</script>
+<script src="lang.js"></script>
+<script>
+  // Init globe toggle after lang.js loads — passes existing i18n strings
+  Lang.init(i18n);
 </script>
 </body>
 </html>

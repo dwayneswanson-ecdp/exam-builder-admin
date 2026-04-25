@@ -254,6 +254,7 @@
         <span class="header-badge" id="headerBadge">Loading…</span>
       </div>
       <div class="header-right">
+        <div id="langToggleMount"></div>
         <div class="header-user">
           <div class="header-avatar" id="headerAvatar">—</div>
           <div>
@@ -261,42 +262,42 @@
             <div class="header-role" id="headerRoleLabel">—</div>
           </div>
         </div>
-        <button class="logout-btn" onclick="signOut()">Sign out</button>
+        <button class="logout-btn" id="dashLogoutBtn" onclick="signOut()">Sign out</button>
       </div>
     </header>
 
     <!-- Super Admin View -->
     <div id="superAdminView" style="display:none;">
       <div class="page">
-        <h1 class="page-title">Institutions</h1>
-        <p class="page-sub">Manage all institutions and their administrators.</p>
+        <h1 class="page-title" data-i18n="pageTitle">Institutions</h1>
+        <p class="page-sub" data-i18n="pageSub">Manage all institutions and their administrators.</p>
 
         <!-- Stats -->
         <div class="stats-bar">
           <div class="stat-card">
-            <div class="stat-label">Institutions</div>
+            <div class="stat-label" data-i18n="statInstitutions">Institutions</div>
             <div class="stat-value blue" id="statInstitutions">—</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Admins</div>
+            <div class="stat-label" data-i18n="statAdminsLabel">Admins</div>
             <div class="stat-value" id="statAdmins">—</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Teachers</div>
+            <div class="stat-label" data-i18n="statTeachersLabel">Teachers</div>
             <div class="stat-value" id="statTeachers">—</div>
           </div>
           <div class="stat-card">
-            <div class="stat-label">Exams Published</div>
+            <div class="stat-label" data-i18n="statExamsLabel">Exams Published</div>
             <div class="stat-value green" id="statExams">—</div>
           </div>
         </div>
 
         <!-- List -->
         <div class="section-header">
-          <div class="section-title">All Institutions</div>
+          <div class="section-title" data-i18n="sectionTitle">All Institutions</div>
           <button class="add-btn" onclick="openModal()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Institution
+            <span data-i18n="addInstitution">Add Institution</span>
           </button>
         </div>
         <div class="institution-list" id="institutionList">
@@ -429,6 +430,35 @@
     let deleteTargetId   = null;
     let deleteTargetName = null;
 
+    const dashI18n = {
+      fr: {
+        pageTitle:        'Institutions',
+        pageSub:          'Gérez toutes les institutions et leurs administrateurs.',
+        statInstitutions: 'Institutions',
+        statAdminsLabel:  'Admins',
+        statTeachersLabel:'Enseignants',
+        statExamsLabel:   'Examens publiés',
+        sectionTitle:     'Toutes les institutions',
+        addInstitution:   'Ajouter une institution',
+        logout:           'Déconnexion',
+        emptyTitle:       'Aucune institution',
+        emptySub:         'Cliquez sur "Ajouter une institution" pour commencer.',
+      },
+      en: {
+        pageTitle:        'Institutions',
+        pageSub:          'Manage all institutions and their administrators.',
+        statInstitutions: 'Institutions',
+        statAdminsLabel:  'Admins',
+        statTeachersLabel:'Teachers',
+        statExamsLabel:   'Exams Published',
+        sectionTitle:     'All Institutions',
+        addInstitution:   'Add Institution',
+        logout:           'Sign out',
+        emptyTitle:       'No institutions yet',
+        emptySub:         'Click "Add Institution" to get started.',
+      }
+    };
+
     // ── Auth ──────────────────────────────────────────────────────
 
     async function signIn() {
@@ -499,6 +529,12 @@
       // Show dashboard
       document.getElementById('loginScreen').style.display  = 'none';
       document.getElementById('dashboard').style.display    = 'block';
+
+      Lang.init(dashI18n);
+      document.addEventListener('langchange', () => {
+        document.getElementById('dashLogoutBtn').textContent = Lang.t('logout');
+        loadInstitutions();
+      });
 
       if (teacher.role === 'super_admin') {
         document.getElementById('superAdminView').style.display = 'block';
@@ -774,5 +810,6 @@
 
     init();
   </script>
+  <script src="lang.js"></script>
 </body>
 </html>
