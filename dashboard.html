@@ -547,7 +547,7 @@
           : `<div style="font-size:10px;font-weight:700;color:#94a3b8;text-align:center;padding:4px;">${inst.name.substring(0,4).toUpperCase()}</div>`;
 
         return `
-          <div class="institution-row">
+          <div class="institution-row" onclick="window.location.href='institution.html?id=${inst.id}'" style="cursor:pointer;">
             <div class="inst-logo ${inst.logo_url ? '' : 'no-logo'}">${logoHtml}</div>
             <div class="inst-info">
               <div class="inst-name">${inst.name}</div>
