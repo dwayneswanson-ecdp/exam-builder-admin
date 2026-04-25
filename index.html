@@ -1606,13 +1606,17 @@
     const hasGroups  = Object.keys(groupCodes).length > 0;
     const codesHtml  = hasGroups
       ? Object.entries(groupCodes).map(([g, c]) => `
-          <div style="background:#fff;border:1.5px solid #bfdbfe;border-radius:10px;padding:12px 16px;text-align:center;min-width:120px;display:inline-block;margin:4px;">
-            <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${g}</div>
-            <div style="font-size:1.1rem;font-weight:800;font-family:monospace;letter-spacing:0.12em;color:#0f172a;">${c}</div>
-          </div>`).join('')
-      : `<div style="font-size:1.1rem;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:8px 20px;border-radius:999px;display:inline-block;">${window._publishedAccessCode || ''}</div>`;
+          <td style="padding:4px;">
+            <table cellpadding="0" cellspacing="0" style="background:#fff;border:1.5px solid #bfdbfe;border-radius:10px;width:130px;text-align:center;">
+              <tr><td style="padding:10px 12px 4px;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;">${g}</td></tr>
+              <tr><td style="padding:4px 12px 10px;font-size:16px;font-weight:800;font-family:monospace;letter-spacing:0.12em;color:#0f172a;">${c}</td></tr>
+            </table>
+          </td>`).join('')
+      : `<td style="padding:4px;">
+          <span style="display:inline-block;font-size:16px;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:8px 20px;border-radius:6px;">${window._publishedAccessCode || ''}</span>
+        </td>`;
 
-    const recsHtml = isFR
+    const recs = isFR
       ? [
           "L'épreuve doit être passée sur un ordinateur (PC ou Mac) — non compatible avec les tablettes ni les téléphones.",
           "Désactiver les notifications pendant toute la durée de l'épreuve.",
@@ -1628,53 +1632,73 @@
           "Despite the built-in anti-cheat measures, it is strongly recommended that students be supervised in person to prevent the use of a second device."
         ];
 
-    const recsRows = recsHtml.map((r, i) => `
-      <li style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:0.87rem;color:#374151;line-height:1.6;">
-        <span style="font-size:0.72rem;font-weight:800;color:#fff;background:#0f172a;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">${i+1}</span>
-        ${r}
-      </li>`).join('');
+    const recsRows = recs.map((r, i) => `
+      <tr>
+        <td valign="top" style="padding:10px 12px 10px 0;border-bottom:1px solid #f1f5f9;width:28px;">
+          <span style="display:inline-block;width:20px;height:20px;line-height:20px;text-align:center;font-size:11px;font-weight:800;color:#fff;background:#0f172a;border-radius:50%;">${i+1}</span>
+        </td>
+        <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#374151;line-height:1.6;">${r}</td>
+      </tr>`).join('');
 
-    const body = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-<style>
-  body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;margin:0;padding:24px 16px;}
-  a{color:#2563eb;}
-</style></head><body>
-<div style="max-width:600px;margin:0 auto;">
-  <div style="background:linear-gradient(135deg,#1e293b,#0f172a);padding:36px 40px;text-align:center;border-radius:12px 12px 0 0;">
-    <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Exam Builder</div>
-    <h1 style="margin:0;font-size:1.35rem;font-weight:700;color:#fff;">${isFR ? 'Accès à votre épreuve en ligne' : 'Access to your online exam'}</h1>
-  </div>
-  <div style="background:#fff;padding:36px 40px;border-radius:0 0 12px 12px;box-shadow:0 8px 32px rgba(15,23,42,0.12);">
-    <p style="font-size:1rem;color:#0f172a;font-weight:600;margin:0 0 8px;">${isFR ? 'Bonjour,' : 'Hello,'}</p>
-    <p style="font-size:0.9rem;color:#475569;line-height:1.7;margin:0 0 28px;">${isFR ? `Voici les informations nécessaires pour déployer l'épreuve auprès de vos étudiants.` : 'Here are the details to share with your students before the exam session.'}</p>
+    const body = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,sans-serif;">
+<table cellpadding="0" cellspacing="0" width="100%" style="background:#f1f5f9;padding:24px 0;">
+<tr><td align="center">
+<table cellpadding="0" cellspacing="0" width="600" style="max-width:600px;">
 
-    <div style="background:#f8f9fc;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:24px;">
-      <div style="background:#0f172a;padding:12px 20px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);">${isFR ? "Informations de l'épreuve" : 'Exam details'}</div>
-      <div style="display:flex;gap:16px;padding:14px 20px;border-bottom:1px solid #e2e8f0;">
-        <span style="font-size:0.78rem;font-weight:700;color:#94a3b8;min-width:120px;text-transform:uppercase;letter-spacing:0.04em;">${isFR ? 'Titre' : 'Title'}</span>
-        <span style="font-size:0.88rem;color:#0f172a;font-weight:600;">${title}</span>
-      </div>
-      <div style="display:flex;gap:16px;padding:14px 20px;">
-        <span style="font-size:0.78rem;font-weight:700;color:#94a3b8;min-width:120px;text-transform:uppercase;letter-spacing:0.04em;">${isFR ? 'Détails' : 'Details'}</span>
-        <span style="font-size:0.88rem;color:#0f172a;font-weight:600;">${meta}</span>
-      </div>
-    </div>
+  <!-- Header -->
+  <tr><td style="background:#0f172a;padding:32px 40px;text-align:center;border-radius:12px 12px 0 0;">
+    <p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Exam Builder</p>
+    <h1 style="margin:0;font-size:20px;font-weight:700;color:#fff;">${isFR ? 'Accès à votre épreuve en ligne' : 'Access to your online exam'}</h1>
+  </td></tr>
 
-    <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
-      <div style="font-size:0.72rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">${isFR ? "Lien de l'épreuve" : 'Exam link'}</div>
-      <a href="${url}" style="font-size:0.82rem;font-family:monospace;color:#1d4ed8;word-break:break-all;background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;display:block;margin-bottom:14px;text-decoration:none;">${url}</a>
-      <div style="font-size:0.72rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">${isFR ? "Codes d'accès" : 'Access codes'}</div>
-      <div>${codesHtml}</div>
-    </div>
+  <!-- Body -->
+  <tr><td style="background:#fff;padding:36px 40px;border-radius:0 0 12px 12px;border:1px solid #e2e8f0;">
 
-    <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">${isFR ? 'Recommandations techniques' : 'Technical recommendations'}</div>
-    <ul style="list-style:none;margin:0;padding:0;">${recsRows}</ul>
+    <p style="margin:0 0 6px;font-size:15px;font-weight:700;color:#0f172a;">${isFR ? 'Bonjour,' : 'Hello,'}</p>
+    <p style="margin:0 0 28px;font-size:14px;color:#475569;line-height:1.7;">${isFR ? "Voici les informations nécessaires pour déployer l'épreuve auprès de vos étudiants." : 'Here are the details to share with your students before the exam session.'}</p>
 
-    <div style="background:#f8f9fc;border-top:1px solid #e2e8f0;padding:20px 0 0;margin-top:28px;text-align:center;">
-      <p style="font-size:0.75rem;color:#94a3b8;margin:0;line-height:1.6;">${isFR ? 'Cet e-mail a été généré automatiquement par Exam Builder.<br>Pour toute question, contactez votre administrateur de plateforme.' : 'This email was generated automatically by Exam Builder.<br>For any questions, contact your platform administrator.'}</p>
-    </div>
-  </div>
-</div>
+    <!-- Exam info block -->
+    <table cellpadding="0" cellspacing="0" width="100%" style="background:#f8f9fc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:24px;overflow:hidden;">
+      <tr><td style="background:#0f172a;padding:10px 18px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);">${isFR ? "Informations de l'épreuve" : 'Exam details'}</td></tr>
+      <tr><td>
+        <table cellpadding="0" cellspacing="0" width="100%">
+          <tr>
+            <td style="padding:12px 18px;border-bottom:1px solid #e2e8f0;width:130px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.04em;vertical-align:top;">${isFR ? 'Titre' : 'Title'}</td>
+            <td style="padding:12px 18px;border-bottom:1px solid #e2e8f0;font-size:13px;color:#0f172a;font-weight:600;">${title}</td>
+          </tr>
+          <tr>
+            <td style="padding:12px 18px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.04em;vertical-align:top;">${isFR ? 'Détails' : 'Details'}</td>
+            <td style="padding:12px 18px;font-size:13px;color:#0f172a;font-weight:600;">${meta}</td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+
+    <!-- Link + codes block -->
+    <table cellpadding="0" cellspacing="0" width="100%" style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:20px 24px;margin-bottom:24px;">
+      <tr><td>
+        <p style="margin:0 0 8px;font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;">${isFR ? "Lien de l'épreuve" : 'Exam link'}</p>
+        <a href="${url}" style="display:block;font-size:12px;font-family:monospace;color:#1d4ed8;word-break:break-all;background:#fff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 14px;margin-bottom:16px;text-decoration:none;">${url}</a>
+        <p style="margin:0 0 10px;font-size:11px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;">${isFR ? "Codes d'accès" : 'Access codes'}</p>
+        <table cellpadding="0" cellspacing="0"><tr>${codesHtml}</tr></table>
+      </td></tr>
+    </table>
+
+    <!-- Recommendations -->
+    <p style="margin:0 0 12px;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">${isFR ? 'Recommandations techniques' : 'Technical recommendations'}</p>
+    <table cellpadding="0" cellspacing="0" width="100%">${recsRows}</table>
+
+    <!-- Footer -->
+    <table cellpadding="0" cellspacing="0" width="100%" style="margin-top:28px;border-top:1px solid #e2e8f0;">
+      <tr><td style="padding-top:20px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;">
+        ${isFR ? 'Cet e-mail a été généré automatiquement par Exam Builder.' : 'This email was generated automatically by Exam Builder.'}<br>
+        ${isFR ? 'Pour toute question, contactez votre administrateur de plateforme.' : 'For any questions, contact your platform administrator.'}
+      </td></tr>
+    </table>
+
+  </td></tr>
+</table>
+</td></tr></table>
 </body></html>`;
 
     const subject = isFR ? `Épreuve : ${title} — Lien et code d'accès` : `Exam: ${title} — Link and access code`;
