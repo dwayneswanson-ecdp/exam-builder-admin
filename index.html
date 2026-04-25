@@ -1634,7 +1634,8 @@ Exam Builder Platform`;
     const subject = lang === 'fr' ? `Épreuve : ${title} — Lien et code d'accès` : `Exam: ${title} — Link and access code`;
 
     if (window.emailjs) {
-      emailjs.send('service_opm4h6b', 'template_r0u784p', {
+      emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
+        to_email:     email,
         from_name:    'Exam Builder',
         from_email:   email,
         subject:      subject,
@@ -1713,6 +1714,7 @@ Exam Builder Platform`;
       // 1. Create exam row
       const examRows = await sbPost('exams', {
         teacher_id:    '00000000-0000-0000-0000-000000000000',
+        teacher_email: email,
         title:         title,
         duration_mins: duration,
         status:        'published',

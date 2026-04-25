@@ -465,7 +465,7 @@
       ]);
 
       const exams = await fetchWithTimeout(
-        sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=id,title,duration_mins,access_code,lang,groups,group_codes,share_id,instructions`),
+        sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=id,title,duration_mins,access_code,lang,groups,group_codes,share_id,instructions,teacher_email`),
         10000
       );
 
@@ -1164,8 +1164,9 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
 
-    // EmailJS send — using existing template (do not modify template_r0u784p)
+    // EmailJS send
     const emailPayload = {
+      to_email:     EXAM.teacher_email,
       from_name:    studentName,
       from_email:   studentEmail,
       subject:      EXAM.title + ' — ' + studentName,
@@ -1177,7 +1178,7 @@
       try {
         const emailResult = await emailjs.send(
           'service_opm4h6b',
-          'template_r0u784p',
+          'template_x7bkb1l',
           emailPayload,
           'Bb0oPYBiZGQcyIz5r'
         );
