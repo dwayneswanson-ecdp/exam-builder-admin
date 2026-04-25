@@ -693,7 +693,10 @@
           throw new Error(result.error || 'Unknown error');
         }
 
-        succEl.textContent   = `✅ ${name} created. Invite sent to ${email}.`;
+        succEl.innerHTML     = `✅ <strong>${name}</strong> created.<br>Share these credentials with <strong>${email}</strong>:<br><br>
+          Email: <code>${email}</code><br>
+          Temporary password: <code>${result.temp_password}</code><br><br>
+          <small>They should change this password on first login.</small>`;
         succEl.style.display = 'block';
         btn.textContent      = '✅ Done';
 
