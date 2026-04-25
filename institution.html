@@ -94,6 +94,7 @@
     .modal-body { padding: 0 28px 28px; }
     .modal-field { margin-bottom: 14px; }
     .modal-field label { display: block; font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
+    .req { color: #dc2626; font-weight: 700; margin-left: 2px; }
     .modal-field input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.15s; }
     .modal-field input:focus { border-color: #2563eb; }
     .modal-row { display: flex; gap: 12px; }
@@ -227,14 +228,14 @@
       </div>
       <div class="modal-body">
         <div class="modal-row">
-          <div class="modal-field"><label>First name</label><input type="text" id="mFirst" placeholder="Marie"></div>
-          <div class="modal-field"><label>Last name</label><input type="text" id="mLast" placeholder="Dupont"></div>
+          <div class="modal-field"><label data-i18n="firstName">First name <span class="req">*</span></label><input type="text" id="mFirst" data-i18n-placeholder="firstNamePH" placeholder="Marie"></div>
+          <div class="modal-field"><label data-i18n="lastName">Last name <span class="req">*</span></label><input type="text" id="mLast" data-i18n-placeholder="lastNamePH" placeholder="Dupont"></div>
         </div>
-        <div class="modal-field"><label>Email</label><input type="email" id="mEmail" placeholder="marie@institution.fr"></div>
+        <div class="modal-field"><label data-i18n="email">Email <span class="req">*</span></label><input type="email" id="mEmail" data-i18n-placeholder="emailPH" placeholder="marie@institution.fr"></div>
 
         <!-- Admin only: job title -->
         <div id="adminFields">
-          <div class="modal-field"><label>Job title</label><input type="text" id="mJobTitle" placeholder="Head of Academic Affairs"></div>
+          <div class="modal-field"><label data-i18n="jobTitle">Job title</label><input type="text" id="mJobTitle" data-i18n-placeholder="jobTitlePH" placeholder="Head of Academic Affairs"></div>
         </div>
 
         <!-- Key contact toggle (admins only) -->
@@ -242,12 +243,12 @@
           <label class="key-contact-toggle" onclick="toggleKeyContact()">
             <input type="checkbox" id="mIsKeyContact" onchange="toggleKeyContact()">
             <div>
-              <div class="key-contact-toggle-label" id="keyContactLabel">Set as key contact</div>
-              <div class="key-contact-toggle-sub" id="keyContactSub">Designates this person as the primary contact for this institution</div>
+              <div class="key-contact-toggle-label" id="keyContactLabel" data-i18n="keyContactLabel">Set as key contact</div>
+              <div class="key-contact-toggle-sub" id="keyContactSub" data-i18n="keyContactSub">Designates this person as the primary contact for this institution</div>
             </div>
           </label>
           <div id="phoneField" style="display:none;">
-            <div class="modal-field"><label id="phoneLabel">Phone number</label><input type="tel" id="mPhone" placeholder="+33 6 00 00 00 00"></div>
+            <div class="modal-field"><label id="phoneLabel" data-i18n="phone">Phone number <span class="req">*</span></label><input type="tel" id="mPhone" data-i18n-placeholder="phonePH" placeholder="+33 6 00 00 00 00"></div>
           </div>
         </div>
 
@@ -633,8 +634,15 @@
       const btn       = document.getElementById('addSubmitBtn');
 
       errEl.style.display = succEl.style.display = 'none';
-      if (!firstName || !lastName || !email) {
-        errEl.textContent = 'First name, last name and email are required.';
+
+      const missing = [];
+      if (!firstName)                        missing.push(Lang.t('firstName'));
+      if (!lastName)                         missing.push(Lang.t('lastName'));
+      if (!email || !email.includes('@'))    missing.push(Lang.t('email'));
+      if (isKeyContact && !phone)            missing.push(Lang.t('phone'));
+
+      if (missing.length) {
+        errEl.textContent   = (Lang.get() === 'fr' ? 'Champs requis : ' : 'Required: ') + missing.join(', ');
         errEl.style.display = 'block';
         return;
       }
