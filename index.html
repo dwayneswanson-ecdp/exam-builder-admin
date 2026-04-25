@@ -1599,48 +1599,85 @@
       : (window._publishedAccessCode || '');
     const title = document.getElementById('publishedExamTitle').textContent;
 
-    const bodyFR = `Bonjour,
+    const meta  = document.getElementById('publishedExamMeta').textContent; // e.g. "20 min · 15 QCM · 2 rédigées"
+    const isFR  = lang === 'fr';
 
-Voici les informations pour accéder à l'épreuve « ${title} ».
+    const groupCodes = window._publishedGroupCodes || {};
+    const hasGroups  = Object.keys(groupCodes).length > 0;
+    const codesHtml  = hasGroups
+      ? Object.entries(groupCodes).map(([g, c]) => `
+          <div style="background:#fff;border:1.5px solid #bfdbfe;border-radius:10px;padding:12px 16px;text-align:center;min-width:120px;display:inline-block;margin:4px;">
+            <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">${g}</div>
+            <div style="font-size:1.1rem;font-weight:800;font-family:monospace;letter-spacing:0.12em;color:#0f172a;">${c}</div>
+          </div>`).join('')
+      : `<div style="font-size:1.1rem;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:8px 20px;border-radius:999px;display:inline-block;">${window._publishedAccessCode || ''}</div>`;
 
-— Accès à l'épreuve —
-Lien vers l'épreuve : ${url}
-Code d'accès : ${code}
+    const recsHtml = isFR
+      ? [
+          "L'épreuve doit être passée sur un ordinateur (PC ou Mac) — non compatible avec les tablettes ni les téléphones.",
+          "Désactiver les notifications pendant toute la durée de l'épreuve.",
+          "Désactiver le mode veille pour éviter que l'écran ne s'éteigne.",
+          "L'épreuve se déroule en plein écran. Toute sortie déclenche un avertissement de 15 secondes. Sans retour à temps, ou après 3 sorties, la copie est soumise automatiquement.",
+          "Malgré les mesures anti-triche intégrées, il est fortement recommandé que les étudiants soient surveillés en présentiel afin d'éviter tout recours à un second appareil."
+        ]
+      : [
+          "The exam must be taken on a computer (PC or Mac) — not compatible with tablets or smartphones.",
+          "Disable all notifications for the duration of the exam.",
+          "Disable sleep mode to prevent the screen from turning off.",
+          "The exam runs in full-screen mode. Any exit triggers a 15-second warning. If the student does not return in time, or after 3 exits, the exam is submitted automatically.",
+          "Despite the built-in anti-cheat measures, it is strongly recommended that students be supervised in person to prevent the use of a second device."
+        ];
 
-Chaque étudiant saisit son nom, prénom et adresse e-mail, sélectionne son groupe et entre le code d'accès avant de commencer.
+    const recsRows = recsHtml.map((r, i) => `
+      <li style="display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:0.87rem;color:#374151;line-height:1.6;">
+        <span style="font-size:0.72rem;font-weight:800;color:#fff;background:#0f172a;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;">${i+1}</span>
+        ${r}
+      </li>`).join('');
 
-— Recommandations techniques —
-1. L'épreuve doit être passée sur un ordinateur (PC ou Mac) — non compatible avec les tablettes ni les téléphones.
-2. Désactiver les notifications pendant toute la durée de l'épreuve.
-3. Désactiver le mode veille pour éviter que l'écran ne s'éteigne.
-4. L'épreuve se déroule en plein écran — toute sortie déclenche un avertissement de 15 secondes. Sans retour à temps, ou après 3 sorties, la copie est soumise automatiquement.
-5. Malgré les mesures anti-triche intégrées, il est fortement recommandé que les étudiants soient surveillés en présentiel afin d'éviter tout recours à un second appareil.
+    const body = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+  body{font-family:'Inter',Arial,sans-serif;background:#f1f5f9;margin:0;padding:24px 16px;}
+  a{color:#2563eb;}
+</style></head><body>
+<div style="max-width:600px;margin:0 auto;">
+  <div style="background:linear-gradient(135deg,#1e293b,#0f172a);padding:36px 40px;text-align:center;border-radius:12px 12px 0 0;">
+    <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Exam Builder</div>
+    <h1 style="margin:0;font-size:1.35rem;font-weight:700;color:#fff;">${isFR ? 'Accès à votre épreuve en ligne' : 'Access to your online exam'}</h1>
+  </div>
+  <div style="background:#fff;padding:36px 40px;border-radius:0 0 12px 12px;box-shadow:0 8px 32px rgba(15,23,42,0.12);">
+    <p style="font-size:1rem;color:#0f172a;font-weight:600;margin:0 0 8px;">${isFR ? 'Bonjour,' : 'Hello,'}</p>
+    <p style="font-size:0.9rem;color:#475569;line-height:1.7;margin:0 0 28px;">${isFR ? `Voici les informations nécessaires pour déployer l'épreuve auprès de vos étudiants.` : 'Here are the details to share with your students before the exam session.'}</p>
 
-Bonne épreuve,
-La plateforme Exam Builder`;
+    <div style="background:#f8f9fc;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:24px;">
+      <div style="background:#0f172a;padding:12px 20px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.6);">${isFR ? "Informations de l'épreuve" : 'Exam details'}</div>
+      <div style="display:flex;gap:16px;padding:14px 20px;border-bottom:1px solid #e2e8f0;">
+        <span style="font-size:0.78rem;font-weight:700;color:#94a3b8;min-width:120px;text-transform:uppercase;letter-spacing:0.04em;">${isFR ? 'Titre' : 'Title'}</span>
+        <span style="font-size:0.88rem;color:#0f172a;font-weight:600;">${title}</span>
+      </div>
+      <div style="display:flex;gap:16px;padding:14px 20px;">
+        <span style="font-size:0.78rem;font-weight:700;color:#94a3b8;min-width:120px;text-transform:uppercase;letter-spacing:0.04em;">${isFR ? 'Détails' : 'Details'}</span>
+        <span style="font-size:0.88rem;color:#0f172a;font-weight:600;">${meta}</span>
+      </div>
+    </div>
 
-    const bodyEN = `Hello,
+    <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;padding:20px 24px;margin-bottom:24px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">${isFR ? "Lien de l'épreuve" : 'Exam link'}</div>
+      <a href="${url}" style="font-size:0.82rem;font-family:monospace;color:#1d4ed8;word-break:break-all;background:#fff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;display:block;margin-bottom:14px;text-decoration:none;">${url}</a>
+      <div style="font-size:0.72rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">${isFR ? "Codes d'accès" : 'Access codes'}</div>
+      <div>${codesHtml}</div>
+    </div>
 
-Here are the access details for the exam « ${title} ».
+    <div style="font-size:0.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid #e2e8f0;">${isFR ? 'Recommandations techniques' : 'Technical recommendations'}</div>
+    <ul style="list-style:none;margin:0;padding:0;">${recsRows}</ul>
 
-— Exam Access —
-Exam link: ${url}
-Access code: ${code}
+    <div style="background:#f8f9fc;border-top:1px solid #e2e8f0;padding:20px 0 0;margin-top:28px;text-align:center;">
+      <p style="font-size:0.75rem;color:#94a3b8;margin:0;line-height:1.6;">${isFR ? 'Cet e-mail a été généré automatiquement par Exam Builder.<br>Pour toute question, contactez votre administrateur de plateforme.' : 'This email was generated automatically by Exam Builder.<br>For any questions, contact your platform administrator.'}</p>
+    </div>
+  </div>
+</div>
+</body></html>`;
 
-Each student enters their last name, first name and email address, selects their group and enters the access code to begin.
-
-— Technical Recommendations —
-1. The exam must be taken on a computer (PC or Mac) — not compatible with tablets or smartphones.
-2. Disable all notifications for the duration of the exam.
-3. Disable sleep mode to prevent the screen from turning off.
-4. The exam runs in full-screen mode — any exit triggers a 15-second warning. If the student does not return in time, or after 3 exits, the exam is submitted automatically.
-5. Despite the built-in anti-cheat measures, it is strongly recommended that students be supervised in person to prevent the use of a second device.
-
-Good luck to your students,
-Exam Builder Platform`;
-
-    const body = lang === 'fr' ? bodyFR : bodyEN;
-    const subject = lang === 'fr' ? `Épreuve : ${title} — Lien et code d'accès` : `Exam: ${title} — Link and access code`;
+    const subject = isFR ? `Épreuve : ${title} — Lien et code d'accès` : `Exam: ${title} — Link and access code`;
 
     if (window.emailjs) {
       emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
@@ -1648,7 +1685,7 @@ Exam Builder Platform`;
         from_name:    'Exam Builder',
         from_email:   email,
         subject:      subject,
-        message_html: body.replace(/\n/g, '<br>')
+        message_html: body
       }, 'Bb0oPYBiZGQcyIz5r')
       .then(() => {
         btn.querySelector('span').textContent = lang === 'fr' ? '✅ Envoyé !' : '✅ Sent!';

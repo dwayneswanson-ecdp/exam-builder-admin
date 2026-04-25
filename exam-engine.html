@@ -346,6 +346,7 @@
       <div class="check">✅</div>
       <h2 style="text-align:center;">Épreuve envoyée !</h2>
       <p>Votre copie a bien été transmise. Vous pouvez fermer cette fenêtre.</p>
+      <p id="emailStatus" style="font-size:0.82rem;color:#64748b;text-align:center;margin-top:8px;"></p>
     </div>
   </main>
 
@@ -1165,34 +1166,43 @@
 
 
     // EmailJS send
-    const emailPayload = {
-      to_email:     EXAM.teacher_email,
-      from_name:    studentName,
-      from_email:   studentEmail,
-      subject:      EXAM.title + ' — ' + studentName,
-      message_html: htmlReport
-    };
-    console.log('EmailJS payload:', emailPayload);
-
-    if (window.emailjs) {
-      try {
-        const emailResult = await emailjs.send(
-          'service_opm4h6b',
-          'template_x7bkb1l',
-          emailPayload,
-          'Bb0oPYBiZGQcyIz5r'
-        );
-        console.log('EmailJS success:', emailResult.status, emailResult.text);
-      } catch (err) {
-        const errMsg = err?.text || err?.message || JSON.stringify(err);
-        console.error('EmailJS failed:', errMsg);
-        // Don't block — results already saved to Supabase
-        logEvent('Email failed', errMsg);
-      }
+    const statusEl = document.getElementById('emailStatus');
+    if (!EXAM.teacher_email) {
+      if (statusEl) statusEl.textContent = '⚠ Résultats non envoyés — adresse enseignant manquante.';
+      logEvent('Email skipped', 'teacher_email null');
     } else {
-      console.error('EmailJS not loaded — check script tag');
-      logEvent('Email failed', 'EmailJS not loaded');
-    }  }
+      const emailPayload = {
+        to_email:     EXAM.teacher_email,
+        from_name:    studentName,
+        from_email:   studentEmail,
+        subject:      EXAM.title + ' — ' + studentName,
+        message_html: htmlReport
+      };
+      console.log('EmailJS payload:', emailPayload);
+
+      if (window.emailjs) {
+        try {
+          const emailResult = await emailjs.send(
+            'service_opm4h6b',
+            'template_x7bkb1l',
+            emailPayload,
+            'Bb0oPYBiZGQcyIz5r'
+          );
+          console.log('EmailJS success:', emailResult.status, emailResult.text);
+          if (statusEl) statusEl.textContent = '📧 Résultats envoyés à votre enseignant.';
+        } catch (err) {
+          const errMsg = err?.text || err?.message || JSON.stringify(err);
+          console.error('EmailJS failed:', errMsg);
+          if (statusEl) statusEl.textContent = '⚠ Envoi des résultats échoué — résultats sauvegardés.';
+          logEvent('Email failed', errMsg);
+        }
+      } else {
+        console.error('EmailJS not loaded — check script tag');
+        if (statusEl) statusEl.textContent = '⚠ Envoi des résultats échoué — résultats sauvegardés.';
+        logEvent('Email failed', 'EmailJS not loaded');
+      }
+    }
+  }
 
   // ============================================================
   //  INIT
