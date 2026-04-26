@@ -6,6 +6,7 @@
   <title>Exam Builder — Importer un examen</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <style>
@@ -1548,14 +1549,39 @@
   const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
 
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUserId    = null;
+  let currentUserEmail = null;
+  let authToken        = SUPABASE_KEY; // upgraded to user JWT after session check
+
+  // ── Session check — redirect to dashboard if not logged in ────
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    currentUserId    = session.user.id;
+    currentUserEmail = session.user.email;
+    authToken        = session.access_token;
+
+    // Pre-fill teacher email fields from session
+    const preEl   = document.getElementById('teacherEmailPre');
+    const inputEl = document.getElementById('teacherEmailInput');
+    if (preEl   && !preEl.value)   preEl.value   = currentUserEmail;
+    if (inputEl && !inputEl.value) inputEl.value = currentUserEmail;
+  })();
+
   async function sbPost(path, body) {
     const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
       method: 'POST',
       headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'apikey':        SUPABASE_KEY,
+        'Authorization': 'Bearer ' + authToken,
+        'Content-Type':  'application/json',
+        'Prefer':        'return=representation'
       },
       body: JSON.stringify(body)
     });
@@ -1778,9 +1804,9 @@
       const groupCodesJson = JSON.stringify(groupCodes);
 
       // 1. Create exam row
-      const teacherEmail = document.getElementById('teacherEmailPre').value.trim();
+      const teacherEmail = document.getElementById('teacherEmailPre').value.trim() || currentUserEmail;
       const examRows = await sbPost('exams', {
-        teacher_id:    '00000000-0000-0000-0000-000000000000',
+        teacher_id:    currentUserId,
         teacher_email: teacherEmail || null,
         title:         title,
         duration_mins: duration,
