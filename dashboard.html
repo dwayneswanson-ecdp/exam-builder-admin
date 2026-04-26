@@ -370,6 +370,49 @@
   </div>
 
   <!-- ══════════════════════════════════════
+       TEACHER VIEW
+  ══════════════════════════════════════ -->
+  <div id="teacherView" style="display:none;">
+    <div class="page">
+
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;">
+        <div>
+          <h1 class="page-title" data-i18n="teacherPageTitle">My Exams</h1>
+          <p class="page-sub" id="teacherPageSub">—</p>
+        </div>
+        <a href="index.html" style="display:flex;align-items:center;gap:7px;background:#2563eb;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:700;white-space:nowrap;font-family:inherit;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="teacherNewExam">New Exam</span>
+        </a>
+      </div>
+
+      <div class="stats-bar">
+        <div class="stat-card"><div class="stat-label" data-i18n="statExamsLabel">Exams Published</div><div class="stat-value blue" id="teacherStatExams">—</div></div>
+        <div class="stat-card"><div class="stat-label" data-i18n="statSubmissionsLabel">Submissions</div><div class="stat-value" id="teacherStatSubs">—</div></div>
+        <div class="stat-card"><div class="stat-label" data-i18n="teacherStatPendingLabel">Pending Review</div><div class="stat-value" style="color:#ea580c;" id="teacherStatPending">—</div></div>
+      </div>
+
+      <!-- Exams list -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title" data-i18n="teacherSectionExams">Published Exams</div>
+          <a class="section-link" href="index.html" data-i18n="teacherViewAll">View all →</a>
+        </div>
+        <div class="member-panel" id="teacherExamList"></div>
+      </div>
+
+      <!-- Recent submissions -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title" data-i18n="teacherSectionSubs">Recent Submissions</div>
+        </div>
+        <div class="member-panel" id="teacherSubList"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
        ADD INSTITUTION MODAL
   ══════════════════════════════════════ -->
   <div class="modal-backdrop" id="addModal" style="display:none;" onclick="handleBackdropClick(event)">
@@ -499,7 +542,18 @@
         adminPageSub:         'Vue d\'ensemble de l\'institution',
         adminSectionAdmins:   'Administrateurs',
         adminSectionTeachers: 'Enseignants',
-        statSubmissionsLabel: 'Soumissions',
+        statSubmissionsLabel:    'Soumissions',
+        teacherPageTitle:        'Mes examens',
+        teacherNewExam:          'Nouvel examen',
+        teacherStatPendingLabel: 'En attente',
+        teacherSectionExams:     'Examens publiés',
+        teacherSectionSubs:      'Soumissions récentes',
+        teacherViewAll:          'Voir tout →',
+        teacherPublished:        'Publié',
+        teacherPending:          'En attente',
+        teacherReview:           'Corriger',
+        teacherNoExams:          'Aucun examen publié',
+        teacherNoSubs:           'Aucune soumission',
       },
       en: {
         pageTitle:            'Institutions',
@@ -516,7 +570,18 @@
         adminPageSub:         'Institution overview',
         adminSectionAdmins:   'Admins',
         adminSectionTeachers: 'Teachers',
-        statSubmissionsLabel: 'Submissions',
+        statSubmissionsLabel:    'Submissions',
+        teacherPageTitle:        'My Exams',
+        teacherNewExam:          'New Exam',
+        teacherStatPendingLabel: 'Pending Review',
+        teacherSectionExams:     'Published Exams',
+        teacherSectionSubs:      'Recent Submissions',
+        teacherViewAll:          'View all →',
+        teacherPublished:        'Published',
+        teacherPending:          'Pending review',
+        teacherReview:           'Review',
+        teacherNoExams:          'No exams published yet',
+        teacherNoSubs:           'No submissions yet',
       }
     };
 
@@ -596,6 +661,7 @@
         document.getElementById('dashLogoutBtn').textContent = Lang.t('logout');
         if (teacher.role === 'super_admin') loadInstitutions();
         if (teacher.role === 'admin')       loadAdminDashboard();
+        if (teacher.role === 'teacher')     loadTeacherDashboard();
       });
 
       if (teacher.role === 'super_admin') {
@@ -604,6 +670,9 @@
       } else if (teacher.role === 'admin') {
         document.getElementById('adminView').style.display = 'block';
         await loadAdminDashboard();
+      } else if (teacher.role === 'teacher') {
+        document.getElementById('teacherView').style.display = 'block';
+        await loadTeacherDashboard();
       }
     }
 
@@ -712,6 +781,110 @@
                   <div class="member-sub">${t.email}</div>
                   ${tClasses.length ? `<div class="member-tags">${tagsHtml}</div>` : ''}
                 </div>
+              </div>`;
+          }).join('');
+    }
+
+    // ── Teacher dashboard ─────────────────────────────────────────
+
+    async function loadTeacherDashboard() {
+      const tid = currentTeacher.id;
+
+      // Fetch institution link + classes in parallel
+      const [instLinkRes, classRes, examsRes] = await Promise.all([
+        sb.from('institution_teachers').select('institution_id').eq('teacher_id', tid).single(),
+        sb.from('classes').select('*').eq('teacher_id', tid),
+        sb.from('exams').select('*').eq('teacher_id', tid).order('created_at', { ascending: false })
+      ]);
+
+      const classes = classRes.data || [];
+      const exams   = examsRes.data || [];
+
+      // Sub-header: institution name + class list
+      let subText = '';
+      if (instLinkRes.data?.institution_id) {
+        const { data: inst } = await sb.from('institutions').select('name').eq('id', instLinkRes.data.institution_id).single();
+        if (inst) subText = inst.name;
+      }
+      if (classes.length) subText += (subText ? ' · ' : '') + classes.map(c => c.name).join(', ');
+      document.getElementById('teacherPageSub').textContent = subText || '—';
+
+      // Exam IDs for submission queries
+      const examIds = exams.map(e => e.id);
+
+      // Fetch attempts
+      let attempts = [], pendingCount = 0;
+      if (examIds.length) {
+        // Get questions to find exams with open questions (pending review)
+        const { data: openQs } = await sb.from('questions')
+          .select('exam_id').eq('type', 'open').in('exam_id', examIds);
+        const openExamIds = [...new Set((openQs || []).map(q => q.exam_id))];
+        if (openExamIds.length) {
+          const { count } = await sb.from('exam_attempts')
+            .select('id', { count: 'exact', head: true }).in('exam_id', openExamIds);
+          pendingCount = count || 0;
+        }
+
+        // Recent submissions
+        const { data } = await sb.from('exam_attempts')
+          .select('*').in('exam_id', examIds)
+          .order('submitted_at', { ascending: false }).limit(10);
+        attempts = data || [];
+      }
+
+      // Submission count per exam (for display)
+      const subCountMap = {};
+      if (examIds.length) {
+        const { data: countRows } = await sb.from('exam_attempts').select('exam_id').in('exam_id', examIds);
+        (countRows || []).forEach(r => { subCountMap[r.exam_id] = (subCountMap[r.exam_id] || 0) + 1; });
+      }
+
+      // Stats
+      document.getElementById('teacherStatExams').textContent   = exams.length;
+      document.getElementById('teacherStatSubs').textContent    = Object.values(subCountMap).reduce((a,b) => a+b, 0);
+      document.getElementById('teacherStatPending').textContent = pendingCount;
+
+      // Render exam list
+      const examListEl = document.getElementById('teacherExamList');
+      examListEl.innerHTML = exams.length === 0
+        ? `<div class="empty-state"><div class="empty-title">${Lang.t('teacherNoExams')}</div></div>`
+        : exams.map(exam => {
+            const subs    = subCountMap[exam.id] || 0;
+            const pending = pendingCount > 0;
+            const date    = new Date(exam.created_at).toLocaleDateString(Lang.get() === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
+            return `
+              <div class="member-row">
+                <div class="member-info">
+                  <div class="member-name">${exam.title || 'Untitled'}</div>
+                  <div class="member-sub">${exam.duration_mins} min · ${date}</div>
+                </div>
+                <div style="font-size:0.78rem;font-weight:600;color:#475569;flex-shrink:0;">${subs} sub.</div>
+                <div class="inst-status"><div class="dot"></div>${Lang.t('teacherPublished')}</div>
+              </div>`;
+          }).join('');
+
+      // Render submissions
+      const subListEl = document.getElementById('teacherSubList');
+      subListEl.innerHTML = attempts.length === 0
+        ? `<div class="empty-state"><div class="empty-title">${Lang.t('teacherNoSubs')}</div></div>`
+        : attempts.map(att => {
+            const exam    = exams.find(e => e.id === att.exam_id);
+            const mcqMax  = exam ? exam.duration_mins : null;
+            const date    = att.submitted_at
+              ? new Date(att.submitted_at).toLocaleDateString(Lang.get() === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short' }) + ' ' +
+                new Date(att.submitted_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })
+              : '—';
+            const hasScore = att.score_mcq !== null && att.score_mcq !== undefined;
+            return `
+              <div class="member-row">
+                <div class="member-info">
+                  <div class="member-name">${att.student_name || '—'}</div>
+                  <div class="member-sub">${exam?.title || '—'} · ${date}</div>
+                </div>
+                ${hasScore
+                  ? `<div style="font-size:0.82rem;font-weight:800;color:#16a34a;flex-shrink:0;">${att.score_mcq}</div>`
+                  : `<div style="font-size:0.68rem;font-weight:700;background:#fef9c3;color:#854d0e;border:1px solid #fde68a;padding:3px 10px;border-radius:999px;flex-shrink:0;">${Lang.t('teacherPending')}</div>`
+                }
               </div>`;
           }).join('');
     }
