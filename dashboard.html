@@ -154,6 +154,25 @@
     .inst-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
     .inst-arrow { color: #cbd5e1; flex-shrink: 0; }
 
+    /* ── Admin view ── */
+    .section { margin-bottom: 28px; }
+    .member-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .member-row { padding: 14px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 1px dashed #e2e8f0; }
+    .member-row:last-child { border-bottom: none; }
+    .member-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .member-avatar.purple { background: #7c3aed; }
+    .member-avatar.green  { background: #16a34a; }
+    .member-avatar.orange { background: #ea580c; }
+    .member-info { flex: 1; min-width: 0; }
+    .member-name { font-size: 0.88rem; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+    .member-sub  { font-size: 0.73rem; color: #94a3b8; }
+    .member-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+    .member-tag  { font-size: 0.65rem; font-weight: 600; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 1px 7px; border-radius: 999px; }
+    .key-badge   { font-size: 0.62rem; font-weight: 700; background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
+    .section-link { font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; text-decoration: none; }
+    .section-link:hover { text-decoration: underline; }
+    .stat-value.purple { color: #7c3aed; }
+
     /* ── Empty state ── */
     .empty-state { padding: 48px 24px; text-align: center; }
     .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
@@ -317,6 +336,40 @@
   </div>
 
   <!-- ══════════════════════════════════════
+       ADMIN VIEW
+  ══════════════════════════════════════ -->
+  <div id="adminView" style="display:none;">
+    <div class="page">
+      <h1 class="page-title" id="adminInstName">—</h1>
+      <p class="page-sub" data-i18n="adminPageSub">Institution overview</p>
+
+      <div class="stats-bar">
+        <div class="stat-card"><div class="stat-label" data-i18n="statTeachersLabel">Teachers</div><div class="stat-value purple" id="adminStatTeachers">—</div></div>
+        <div class="stat-card"><div class="stat-label" data-i18n="statExamsLabel">Exams Published</div><div class="stat-value blue" id="adminStatExams">—</div></div>
+        <div class="stat-card"><div class="stat-label" data-i18n="statSubmissionsLabel">Submissions</div><div class="stat-value" id="adminStatSubmissions">—</div></div>
+      </div>
+
+      <!-- Admins -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title" data-i18n="adminSectionAdmins">Admins</div>
+          <a class="section-link" id="adminManageLink" href="#">Manage →</a>
+        </div>
+        <div class="member-panel" id="adminAdminList"></div>
+      </div>
+
+      <!-- Teachers -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title" data-i18n="adminSectionTeachers">Teachers</div>
+          <a class="section-link" id="adminTeacherLink" href="#">Manage →</a>
+        </div>
+        <div class="member-panel" id="adminTeacherList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
        ADD INSTITUTION MODAL
   ══════════════════════════════════════ -->
   <div class="modal-backdrop" id="addModal" style="display:none;" onclick="handleBackdropClick(event)">
@@ -440,22 +493,30 @@
         statExamsLabel:   'Examens publiés',
         sectionTitle:     'Toutes les institutions',
         addInstitution:   'Ajouter une institution',
-        logout:           'Déconnexion',
-        emptyTitle:       'Aucune institution',
-        emptySub:         'Cliquez sur "Ajouter une institution" pour commencer.',
+        logout:               'Déconnexion',
+        emptyTitle:           'Aucune institution',
+        emptySub:             'Cliquez sur "Ajouter une institution" pour commencer.',
+        adminPageSub:         'Vue d\'ensemble de l\'institution',
+        adminSectionAdmins:   'Administrateurs',
+        adminSectionTeachers: 'Enseignants',
+        statSubmissionsLabel: 'Soumissions',
       },
       en: {
-        pageTitle:        'Institutions',
-        pageSub:          'Manage all institutions and their administrators.',
-        statInstitutions: 'Institutions',
-        statAdminsLabel:  'Admins',
-        statTeachersLabel:'Teachers',
-        statExamsLabel:   'Exams Published',
-        sectionTitle:     'All Institutions',
-        addInstitution:   'Add Institution',
-        logout:           'Sign out',
-        emptyTitle:       'No institutions yet',
-        emptySub:         'Click "Add Institution" to get started.',
+        pageTitle:            'Institutions',
+        pageSub:              'Manage all institutions and their administrators.',
+        statInstitutions:     'Institutions',
+        statAdminsLabel:      'Admins',
+        statTeachersLabel:    'Teachers',
+        statExamsLabel:       'Exams Published',
+        sectionTitle:         'All Institutions',
+        addInstitution:       'Add Institution',
+        logout:               'Sign out',
+        emptyTitle:           'No institutions yet',
+        emptySub:             'Click "Add Institution" to get started.',
+        adminPageSub:         'Institution overview',
+        adminSectionAdmins:   'Admins',
+        adminSectionTeachers: 'Teachers',
+        statSubmissionsLabel: 'Submissions',
       }
     };
 
@@ -533,13 +594,126 @@
       Lang.init(dashI18n);
       document.addEventListener('langchange', () => {
         document.getElementById('dashLogoutBtn').textContent = Lang.t('logout');
-        loadInstitutions();
+        if (teacher.role === 'super_admin') loadInstitutions();
+        if (teacher.role === 'admin')       loadAdminDashboard();
       });
 
       if (teacher.role === 'super_admin') {
         document.getElementById('superAdminView').style.display = 'block';
         await loadInstitutions();
+      } else if (teacher.role === 'admin') {
+        document.getElementById('adminView').style.display = 'block';
+        await loadAdminDashboard();
       }
+    }
+
+    // ── Admin dashboard ───────────────────────────────────────────
+
+    async function loadAdminDashboard() {
+      // 1. Find which institution this admin belongs to
+      const { data: link } = await sb
+        .from('institution_admins')
+        .select('institution_id')
+        .eq('teacher_id', currentTeacher.id)
+        .single();
+      if (!link) return;
+
+      const instId = link.institution_id;
+
+      // Set Manage links
+      document.getElementById('adminManageLink').href   = `institution.html?id=${instId}`;
+      document.getElementById('adminTeacherLink').href  = `institution.html?id=${instId}`;
+
+      // 2. Fetch all data in parallel
+      const [instRes, adminLinksRes, teacherLinksRes] = await Promise.all([
+        sb.from('institutions').select('*').eq('id', instId).single(),
+        sb.from('institution_admins').select('teacher_id, is_key_contact').eq('institution_id', instId),
+        sb.from('institution_teachers').select('teacher_id').eq('institution_id', instId)
+      ]);
+
+      const inst         = instRes.data;
+      const adminLinks   = adminLinksRes.data  || [];
+      const teacherLinks = teacherLinksRes.data || [];
+
+      document.getElementById('adminInstName').textContent = inst?.name || '—';
+
+      // 3. Fetch teacher details
+      const allIds = [...new Set([
+        ...adminLinks.map(a => a.teacher_id),
+        ...teacherLinks.map(t => t.teacher_id)
+      ])];
+      let teachers = [];
+      if (allIds.length) {
+        const { data } = await sb.from('teachers').select('*').in('id', allIds);
+        teachers = data || [];
+      }
+
+      // 4. Fetch classes for teachers
+      const teacherIds = teacherLinks.map(t => t.teacher_id);
+      let classes = [];
+      if (teacherIds.length) {
+        const { data } = await sb.from('classes').select('*').in('teacher_id', teacherIds);
+        classes = data || [];
+      }
+
+      // 5. Count exams and submissions
+      const { count: examCount } = teacherIds.length
+        ? await sb.from('exams').select('id', { count: 'exact', head: true }).in('teacher_id', teacherIds)
+        : { count: 0 };
+
+      let subCount = 0;
+      if (examCount > 0) {
+        const { data: examIds } = await sb.from('exams').select('id').in('teacher_id', teacherIds);
+        if (examIds?.length) {
+          const ids = examIds.map(e => e.id);
+          const { count } = await sb.from('exam_attempts').select('id', { count: 'exact', head: true }).in('exam_id', ids);
+          subCount = count || 0;
+        }
+      }
+
+      // 6. Stats
+      document.getElementById('adminStatTeachers').textContent    = teacherLinks.length;
+      document.getElementById('adminStatExams').textContent       = examCount || 0;
+      document.getElementById('adminStatSubmissions').textContent = subCount;
+
+      // 7. Render admins
+      const adminListEl = document.getElementById('adminAdminList');
+      adminListEl.innerHTML = adminLinks.length === 0
+        ? `<div class="empty-state"><div class="empty-title">No admins</div></div>`
+        : adminLinks.map(link => {
+            const t = teachers.find(t => t.id === link.teacher_id);
+            if (!t) return '';
+            const initials = (t.full_name || t.email).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+            return `
+              <div class="member-row">
+                <div class="member-avatar purple">${initials}</div>
+                <div class="member-info">
+                  <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-badge">Key Contact</span>' : ''}</div>
+                  <div class="member-sub">${t.email}${t.job_title ? ' · ' + t.job_title : ''}</div>
+                </div>
+              </div>`;
+          }).join('');
+
+      // 8. Render teachers
+      const teacherListEl = document.getElementById('adminTeacherList');
+      teacherListEl.innerHTML = teacherLinks.length === 0
+        ? `<div class="empty-state"><div class="empty-title">No teachers</div></div>`
+        : teacherLinks.map(link => {
+            const t = teachers.find(t => t.id === link.teacher_id);
+            if (!t) return '';
+            const initials   = (t.full_name || t.email).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+            const tClasses   = classes.filter(c => c.teacher_id === t.id);
+            const tagsHtml   = tClasses.map(c => `<span class="member-tag">${c.name}</span>`).join('');
+            return `
+              <div class="member-row">
+                <div class="member-avatar green">${initials}</div>
+                <div class="member-info">
+                  <div class="member-name">${t.full_name || '—'}</div>
+                  <div class="member-sub">${t.email}</div>
+                  ${tClasses.length ? `<div class="member-tags">${tagsHtml}</div>` : ''}
+                </div>
+              </div>`;
+          }).join('');
     }
 
     // ── Load institutions ─────────────────────────────────────────
