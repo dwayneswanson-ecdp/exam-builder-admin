@@ -672,13 +672,25 @@
         const result = await res.json();
         if (!res.ok || result.error) throw new Error(result.error || 'Unknown error');
 
-        succEl.innerHTML     = `<strong>${firstName} ${lastName}</strong> added.<br>
-          ${result.temp_password ? `Temporary password: <code>${result.temp_password}</code>` : 'Account linked.'}`;
+        if (result.temp_password) {
+          succEl.innerHTML = `
+            <strong>${firstName} ${lastName}</strong> added.<br><br>
+            <span style="font-size:0.75rem;color:#475569;">Temporary password — copy before closing:</span><br>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+              <code id="tempPwdCode" style="flex:1;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:6px;font-size:0.85rem;letter-spacing:0.04em;">${result.temp_password}</code>
+              <button onclick="navigator.clipboard.writeText('${result.temp_password}').then(()=>this.textContent='Copied').catch(()=>{})"
+                style="font-size:0.72rem;font-weight:700;background:#0f172a;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;font-family:inherit;">
+                Copy
+              </button>
+            </div>`;
+        } else {
+          succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added. Account linked.`;
+        }
         succEl.style.display = 'block';
         btn.textContent      = 'Done';
+        btn.onclick          = closeAddModal;
 
         await loadPage();
-        setTimeout(closeAddModal, 3000);
 
       } catch (err) {
         errEl.textContent   = 'Error: ' + err.message;
