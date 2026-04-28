@@ -262,6 +262,25 @@
   </div>
 
   <!-- ══════════════════════════════════════
+       PASSWORD RESET SCREEN
+  ══════════════════════════════════════ -->
+  <div id="resetScreen" style="display:none;">
+    <div class="login-card">
+      <div class="login-logo">Exam Builder</div>
+      <h1 class="login-title">Set New Password</h1>
+      <p class="login-sub">Choose a new password for your account.</p>
+      <form onsubmit="submitNewPassword(); return false;">
+        <div class="field">
+          <label>New Password</label>
+          <input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" minlength="8">
+        </div>
+        <button type="submit" class="login-btn" id="resetBtn">Set Password</button>
+      </form>
+      <div class="login-error" id="resetError"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
        DASHBOARD
   ══════════════════════════════════════ -->
   <div id="dashboard" style="display:none;">
@@ -375,12 +394,12 @@
   <div id="teacherView" style="display:none;">
     <div class="page">
 
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;">
-        <div>
-          <h1 class="page-title" data-i18n="teacherPageTitle">My Exams</h1>
-          <p class="page-sub" id="teacherPageSub">—</p>
-        </div>
-        <a href="index.html" style="display:flex;align-items:center;gap:7px;background:#2563eb;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:700;white-space:nowrap;font-family:inherit;">
+      <!-- Institution identity row -->
+      <div id="teacherInstBadge" style="display:flex;align-items:center;gap:14px;margin-bottom:28px;"></div>
+      <!-- Page title + action -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+        <h1 class="page-title" style="margin:0;" data-i18n="teacherPageTitle">My Exams</h1>
+        <a href="exam-onboarding.html" style="display:flex;align-items:center;gap:7px;background:#2563eb;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:700;white-space:nowrap;font-family:inherit;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span data-i18n="teacherNewExam">New Exam</span>
         </a>
@@ -623,13 +642,48 @@
     // ── Init ─────────────────────────────────────────────────────
 
     async function init() {
+      // Handle password recovery link (#access_token=...&type=recovery)
+      const hash = Object.fromEntries(new URLSearchParams(window.location.hash.slice(1)));
+      if (hash.type === 'recovery' && hash.access_token) {
+        await sb.auth.setSession({ access_token: hash.access_token, refresh_token: hash.refresh_token || '' });
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('resetScreen').style.display = 'block';
+        return;
+      }
+
       const { data: { session } } = await sb.auth.getSession();
       if (session) {
-        await loadDashboard(session.user);
+        await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+        const previewId = new URLSearchParams(window.location.search).get('preview');
+        if (previewId) {
+          await loadDashboard(session.user, previewId);
+        } else {
+          await loadDashboard(session.user);
+        }
       }
     }
 
-    async function loadDashboard(user) {
+    async function submitNewPassword() {
+      const btn = document.getElementById('resetBtn');
+      const errEl = document.getElementById('resetError');
+      const pw = document.getElementById('newPassword').value.trim();
+      if (!pw || pw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+      const { error } = await sb.auth.updateUser({ password: pw });
+      if (error) {
+        errEl.textContent = error.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Set Password';
+      } else {
+        btn.textContent = 'Password set! Signing you in…';
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) await loadDashboard(session.user);
+      }
+    }
+
+    async function loadDashboard(user, previewTeacherId = null) {
       currentUser = user;
 
       const { data: teacher, error } = await sb
@@ -639,7 +693,7 @@
         .single();
 
       if (error || !teacher) {
-        showLoginError('No teacher record found for this account.');
+        showLoginError('No account found for this email. Please contact your administrator.');
         return;
       }
 
@@ -657,6 +711,25 @@
       document.getElementById('dashboard').style.display    = 'block';
 
       Lang.init(dashI18n);
+
+      // Preview mode: super_admin viewing a teacher's dashboard
+      if (previewTeacherId && teacher.role === 'super_admin') {
+        const { data: previewTeacher } = await sb.from('teachers').select('*').eq('id', previewTeacherId).single();
+        if (previewTeacher) {
+          currentTeacher = previewTeacher;
+          // Show preview banner
+          document.getElementById('dashboard').insertAdjacentHTML('afterbegin',
+            `<div style="background:#fef9c3;border-bottom:1px solid #fde68a;padding:8px 32px;font-size:0.8rem;font-weight:600;color:#854d0e;display:flex;align-items:center;justify-content:space-between;">
+              <span>Previewing: ${previewTeacher.full_name || previewTeacher.email}</span>
+              <a href="javascript:history.back()" style="color:#854d0e;font-weight:700;">← Back</a>
+            </div>`
+          );
+          document.getElementById('teacherView').style.display = 'block';
+          await loadTeacherDashboard();
+          return;
+        }
+      }
+
       document.addEventListener('langchange', () => {
         document.getElementById('dashLogoutBtn').textContent = Lang.t('logout');
         if (teacher.role === 'super_admin') loadInstitutions();
@@ -800,14 +873,18 @@
       const classes = classRes.data || [];
       const exams   = examsRes.data || [];
 
-      // Sub-header: institution name + class list
-      let subText = '';
-      if (instLinkRes.data?.institution_id) {
-        const { data: inst } = await sb.from('institutions').select('name').eq('id', instLinkRes.data.institution_id).single();
-        if (inst) subText = inst.name;
+      // Institution badge
+      const badgeEl = document.getElementById('teacherInstBadge');
+      const instLink = Array.isArray(instLinkRes.data) ? instLinkRes.data[0] : instLinkRes.data;
+      if (instLink?.institution_id) {
+        const { data: inst } = await sb.from('institutions').select('name, logo_url').eq('id', instLink.institution_id).single();
+        if (inst) {
+          const logoHtml = inst.logo_url
+            ? `<img src="${inst.logo_url}" style="height:72px;max-width:200px;object-fit:contain;" alt="${inst.name}">`
+            : `<div style="height:72px;padding:0 16px;border-radius:10px;background:#e2e8f0;color:#475569;font-size:0.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:0.04em;">${inst.name.substring(0,4).toUpperCase()}</div>`;
+          badgeEl.innerHTML = `${logoHtml}<span style="font-size:1.25rem;font-weight:700;color:#0f172a;">${inst.name}</span>`;
+        }
       }
-      if (classes.length) subText += (subText ? ' · ' : '') + classes.map(c => c.name).join(', ');
-      document.getElementById('teacherPageSub').textContent = subText || '—';
 
       // Exam IDs for submission queries
       const examIds = exams.map(e => e.id);
@@ -853,7 +930,7 @@
             const pending = pendingCount > 0;
             const date    = new Date(exam.created_at).toLocaleDateString(Lang.get() === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
             return `
-              <div class="member-row">
+              <div class="member-row" style="cursor:pointer;" onclick="window.location.href='submissions.html?exam=${exam.id}'">
                 <div class="member-info">
                   <div class="member-name">${exam.title || 'Untitled'}</div>
                   <div class="member-sub">${exam.duration_mins} min · ${date}</div>
@@ -876,7 +953,7 @@
               : '—';
             const hasScore = att.score_mcq !== null && att.score_mcq !== undefined;
             return `
-              <div class="member-row">
+              <div class="member-row" style="cursor:pointer;" onclick="window.location.href='submissions.html?exam=${att.exam_id}'">
                 <div class="member-info">
                   <div class="member-name">${att.student_name || '—'}</div>
                   <div class="member-sub">${exam?.title || '—'} · ${date}</div>

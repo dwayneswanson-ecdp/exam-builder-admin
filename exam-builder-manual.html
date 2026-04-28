@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Exam — Build Manually</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.15s; }
+    .back-btn:hover { color: #fff; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 680px; margin: 0 auto; padding: 28px 24px 80px; }
+
+    .exam-summary { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .exam-summary-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 3px; }
+    .exam-summary-meta { font-size: 0.75rem; color: #94a3b8; }
+    .edit-link { font-size: 0.75rem; font-weight: 700; color: #2563eb; background: none; border: none; cursor: pointer; font-family: inherit; }
+    .edit-link:hover { text-decoration: underline; }
+
+    .steps { display: flex; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-right: 1px solid #e2e8f0; font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
+    .step:last-child { border-right: none; }
+    .step.active { color: #0f172a; }
+    .step.done { color: #16a34a; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step.active .step-num { background: #2563eb; color: #fff; }
+    .step.done .step-num { background: #16a34a; color: #fff; }
+
+    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: #7c3aed; color: #fff; font-size: 0.52rem; font-weight: 800; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Rubric */
+    .rubric-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .rubric-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; cursor: pointer; user-select: none; }
+    .rubric-head:hover { background: #fafafa; }
+    .rubric-head-left { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #0f172a; }
+    .rubric-sub { font-size: 0.73rem; color: #94a3b8; font-weight: 400; }
+    .rubric-toggle { font-size: 0.72rem; font-weight: 600; color: #2563eb; background: none; border: none; cursor: pointer; font-family: inherit; }
+    .rubric-body { display: none; padding: 0 18px 18px; border-top: 1px solid #f1f5f9; }
+    .rubric-inner { padding-top: 14px; }
+    .field-label { font-size: 0.72rem; font-weight: 700; color: #475569; margin-bottom: 6px; display: block; }
+    .rubric-ta { width: 100%; font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 13px; color: #374151; outline: none; resize: vertical; min-height: 68px; line-height: 1.6; }
+    .rubric-ta:focus { border-color: #2563eb; }
+    .rubric-ta::placeholder { color: #cbd5e1; font-style: italic; }
+    .scale-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .scale-score { width: 52px; text-align: center; font-weight: 700; font-size: 0.82rem; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px; font-family: inherit; color: #0f172a; outline: none; }
+    .scale-desc { flex: 1; font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px 10px; color: #374151; outline: none; }
+    .rm-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 4px; font-size: 0.9rem; }
+    .rm-btn:hover { color: #dc2626; }
+    .add-scale-btn { font-size: 0.72rem; font-weight: 700; color: #2563eb; background: none; border: none; cursor: pointer; font-family: inherit; margin-top: 4px; }
+
+    /* Section card */
+    .section-card { border-radius: 12px; overflow: hidden; border: 2px solid #1e293b; }
+    .section-head { background: #0f172a; padding: 11px 16px; display: flex; align-items: center; gap: 10px; }
+    .section-lbl { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); flex-shrink: 0; }
+    .section-title-input { flex: 1; background: transparent; border: none; outline: none; font-size: 0.9rem; font-weight: 700; color: #fff; font-family: inherit; }
+    .section-title-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
+    .s-acts { display: flex; gap: 1px; }
+    .s-btn { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.3); padding: 5px; border-radius: 5px; display: flex; align-items: center; transition: color 0.15s; }
+    .s-btn:hover { color: #fff; }
+    .s-btn.del:hover { color: #fca5a5; }
+    .section-body { background: #f8fafc; border-top: 1px solid #1e293b; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+    .section-instr { flex: 1; background: transparent; border: none; outline: none; font-size: 0.78rem; color: #64748b; font-family: inherit; }
+    .section-instr::placeholder { color: #cbd5e1; font-style: italic; }
+    .s-pts { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .s-pts-input { width: 44px; text-align: center; font-weight: 700; font-size: 0.82rem; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 3px; font-family: inherit; outline: none; }
+    .s-pts-lbl { font-size: 0.72rem; color: #94a3b8; }
+
+    /* Question card */
+    .q-card { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 11px; overflow: hidden; }
+    .q-card.open-type { border-color: #e9d5ff; }
+    .q-head { display: flex; align-items: center; gap: 9px; padding: 10px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .q-card.open-type .q-head { background: #faf5ff; border-bottom-color: #e9d5ff; }
+    .q-num { font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
+    .q-badge { font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+    .badge-mcq  { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-open { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+    .q-acts { margin-left: auto; display: flex; align-items: center; gap: 1px; }
+    .q-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 5px; border-radius: 5px; display: flex; align-items: center; transition: color 0.15s; }
+    .q-btn:hover { color: #475569; }
+    .q-btn.del:hover { color: #dc2626; }
+    .q-body { padding: 14px; }
+
+    .q-input { width: 100%; font-size: 0.87rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; color: #0f172a; outline: none; resize: vertical; min-height: 42px; line-height: 1.5; margin-bottom: 12px; }
+    .q-input:focus { border-color: #2563eb; }
+    .q-card.open-type .q-input:focus { border-color: #7c3aed; }
+
+    .opts { display: flex; flex-direction: column; gap: 6px; }
+    .opt-row { display: flex; align-items: center; gap: 8px; }
+    .opt-letter { font-size: 0.7rem; font-weight: 800; color: #94a3b8; width: 14px; flex-shrink: 0; }
+    .opt-input { flex: 1; font-size: 0.84rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 7px 10px; color: #0f172a; outline: none; }
+    .opt-row.correct .opt-input { border-color: #86efac; background: #f0fdf4; color: #166534; }
+    .opt-radio { width: 15px; height: 15px; accent-color: #16a34a; cursor: pointer; flex-shrink: 0; }
+    .correct-tag { font-size: 0.63rem; font-weight: 700; color: #16a34a; white-space: nowrap; }
+
+    .open-note { font-size: 0.75rem; color: #94a3b8; font-style: italic; margin-bottom: 12px; padding: 8px 12px; background: #f8fafc; border-radius: 7px; }
+    .crit-label { font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #a78bfa; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+    .crit-hint { font-weight: 500; color: #c4b5fd; font-size: 0.64rem; }
+    .crit-ta { width: 100%; font-size: 0.79rem; font-family: inherit; border: 1.5px solid #e9d5ff; border-radius: 8px; padding: 9px 12px; color: #4c1d95; outline: none; resize: vertical; min-height: 52px; background: #faf5ff; line-height: 1.6; margin-bottom: 8px; }
+    .crit-ta::placeholder { color: #c4b5fd; font-style: italic; }
+    .crit-ta:focus { border-color: #7c3aed; }
+    .pts-row { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+    .pts-lbl { font-size: 0.71rem; color: #94a3b8; }
+    .pts-inp { width: 46px; text-align: center; font-weight: 700; font-size: 0.87rem; border: 1.5px solid #e9d5ff; border-radius: 7px; padding: 4px; font-family: inherit; color: #4c1d95; background: #faf5ff; outline: none; }
+
+    /* Attachments */
+    .attach-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+    .attach-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 8px; display: block; }
+    .attach-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .attach-opt { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: #475569; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 5px 10px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .attach-opt:hover { border-color: #94a3b8; color: #0f172a; }
+    .attach-preview { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .attach-file { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: #166534; background: #f0fdf4; border: 1px solid #86efac; border-radius: 7px; padding: 5px 10px; }
+    .attach-rm { color: #94a3b8; cursor: pointer; margin-left: 2px; background: none; border: none; font-size: 0.82rem; }
+    .video-link-row { display: flex; gap: 6px; margin-top: 8px; }
+    .video-link-input { flex: 1; font-size: 0.8rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px 10px; color: #0f172a; outline: none; }
+    .video-link-input:focus { border-color: #2563eb; }
+    .video-confirm-btn { font-size: 0.75rem; font-weight: 700; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px 12px; cursor: pointer; font-family: inherit; color: #475569; }
+
+    /* Insert zone */
+    .insert-zone { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+    .insert-line { flex: 1; height: 1.5px; background: #e2e8f0; }
+    .insert-plus { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #e2e8f0; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #94a3b8; font-size: 1.1rem; font-weight: 300; flex-shrink: 0; transition: all 0.15s; position: relative; line-height: 1; }
+    .insert-plus:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .insert-popup { display: none; position: absolute; top: 28px; left: 50%; transform: translateX(-50%); background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); z-index: 20; white-space: nowrap; }
+    .insert-popup.open { display: flex; gap: 4px; }
+    .ins-btn { font-size: 0.72rem; font-weight: 700; padding: 5px 10px; border-radius: 7px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #475569; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .ins-btn:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .ins-btn.open-t { border-color: #e9d5ff; background: #faf5ff; color: #7c3aed; }
+    .ins-btn.open-t:hover { border-color: #c4b5fd; background: #ede9fe; }
+
+    /* Add buttons */
+    .add-row { display: flex; gap: 10px; margin-top: 4px; }
+    .add-card { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 10px; border-radius: 11px; font-size: 0.82rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+    .add-section-card { background: #f8fafc; border: 1.5px solid #e2e8f0; color: #374151; }
+    .add-section-card:hover { background: #f1f5f9; border-color: #94a3b8; color: #0f172a; }
+    .add-mcq-card { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #2563eb; }
+    .add-mcq-card:hover { background: #dbeafe; border-color: #2563eb; }
+    .add-open-card { background: #faf5ff; border: 1.5px solid #e9d5ff; color: #7c3aed; }
+    .add-open-card:hover { background: #ede9fe; border-color: #c4b5fd; }
+
+    /* Bottom card */
+    .bottom-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; margin-top: 16px; }
+    .summary-row { padding: 14px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .summary-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; white-space: nowrap; }
+    .summary-div { width: 1px; height: 14px; background: #e2e8f0; }
+    .summary-pill { font-size: 0.8rem; font-weight: 600; color: #475569; }
+    .summary-pill .n { font-size: 0.88rem; font-weight: 800; color: #0f172a; }
+    .summary-pill .n.purple { color: #7c3aed; }
+    .publish-section { padding: 20px; }
+    .publish-btn { width: 100%; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 0.92rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+    .publish-btn:hover { box-shadow: 0 6px 20px rgba(22,163,74,0.3); }
+    .publish-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+
+    /* Success card */
+    .success-card { margin-top: 16px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .success-header { background: linear-gradient(135deg, #16a34a, #15803d); padding: 16px 20px; }
+    .success-lbl { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); margin-bottom: 3px; }
+    .success-title { font-size: 0.95rem; font-weight: 700; color: #fff; }
+    .success-body { padding: 20px; background: #fff; }
+    .field-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 7px; }
+    .link-row { display: flex; gap: 8px; margin-bottom: 18px; }
+    .link-input { flex: 1; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.78rem; font-family: monospace; color: #0f172a; background: #f8fafc; min-width: 0; cursor: text; }
+    .copy-btn { padding: 9px 16px; border-radius: 8px; border: none; background: #2563eb; color: #fff; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .code-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+    .code-row { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 14px; }
+    .code-group { font-size: 0.82rem; font-weight: 600; color: #475569; }
+    .code-val { font-family: monospace; font-size: 0.95rem; font-weight: 800; color: #0f172a; letter-spacing: 0.1em; }
+    .code-copy { font-size: 0.72rem; font-weight: 700; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 3px 9px; cursor: pointer; font-family: inherit; color: #475569; }
+    .action-btns { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .action-btn { display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #475569; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .action-btn:hover { border-color: #94a3b8; color: #0f172a; }
+    .draft-panel { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+    .draft-select { width: 100%; font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 7px 10px; color: #0f172a; outline: none; background: #fff; margin-bottom: 12px; }
+    .draft-select:focus { border-color: #2563eb; }
+    .draft-textarea { width: 100%; font-size: 0.8rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 12px; color: #374151; background: #fff; line-height: 1.7; min-height: 180px; resize: none; outline: none; margin-bottom: 8px; }
+    .draft-copy-btn { display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .view-subs-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+    .view-subs-btn { display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.82rem; font-weight: 600; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
+    .toast.show { opacity: 1; }
+
+    .empty-state { background: #fff; border: 2px dashed #e2e8f0; border-radius: 14px; padding: 44px 24px; text-align: center; margin-bottom: 4px; }
+    .empty-title { font-size: 0.9rem; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
+    .empty-sub { font-size: 0.78rem; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="window.location.href='dashboard.html'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+    <span class="header-name" id="headerName"></span>
+  </header>
+
+  <div class="page">
+
+    <!-- Exam summary banner -->
+    <div class="exam-summary" id="examSummaryBanner">
+      <div>
+        <div class="exam-summary-title" id="summaryTitle">New Exam</div>
+        <div class="exam-summary-meta" id="summaryMeta"></div>
+      </div>
+      <button class="edit-link" onclick="window.location.href='exam-onboarding.html'">Edit details →</button>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps">
+      <div class="step active" id="step1"><div class="step-num">1</div> Build Questions</div>
+      <div class="step" id="step2"><div class="step-num">2</div> Publish</div>
+    </div>
+
+    <!-- Global grading rubric -->
+    <div class="rubric-card">
+      <div class="rubric-head" onclick="toggleRubric()">
+        <div class="rubric-head-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Global Grading Rubric
+          <span class="rubric-sub">— for all written questions</span>
+        </div>
+        <button class="rubric-toggle" id="rubricBtn">Expand</button>
+      </div>
+      <div class="rubric-body" id="rubricBody">
+        <div class="rubric-inner">
+          <label class="field-label">General expectations</label>
+          <textarea class="rubric-ta" id="rubricExpectations" placeholder="e.g. Answers must be structured. Minimum 80 words. Use correct terminology from the course."></textarea>
+          <label class="field-label" style="margin-top:14px;">Scoring scale</label>
+          <div id="scaleList">
+            <div class="scale-row"><input class="scale-score" type="text" placeholder="Score"><input class="scale-desc" type="text" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button></div>
+          </div>
+          <button class="add-scale-btn" onclick="addScaleRow()">+ Add score level</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question list -->
+    <div id="list">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-title">Start building your exam</div>
+        <div class="empty-sub">Add a section to group your questions, or jump straight to adding questions.</div>
+      </div>
+
+      <!-- Insert zone at bottom of list -->
+      <div class="insert-zone" id="bottomInsert"><div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div></div>
+
+      <!-- Add buttons -->
+      <div class="add-row" id="addRow">
+        <button class="add-card add-section-card" onclick="append('section')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          Add Section
+        </button>
+        <button class="add-card add-mcq-card" onclick="append('mcq')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          MCQ Question
+        </button>
+        <button class="add-card add-open-card" onclick="append('open')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Written Question
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom card: Exam Summary + Publish -->
+    <div class="bottom-card">
+      <div class="summary-row">
+        <span class="summary-lbl">Exam Summary</span>
+        <div class="summary-div"></div>
+        <div class="summary-pill"><span class="n" id="sC">0</span> sections</div>
+        <div class="summary-div"></div>
+        <div class="summary-pill"><span class="n" id="mC">0</span> MCQ</div>
+        <div class="summary-div"></div>
+        <div class="summary-pill"><span class="n purple" id="oC">0</span> written</div>
+        <div class="summary-div"></div>
+        <div class="summary-pill"><span class="n" id="tC">0</span> total questions</div>
+      </div>
+      <div class="publish-section">
+        <button class="publish-btn" id="publishBtn" onclick="publish()">Confirm and publish exam →</button>
+
+        <!-- Success card (shown after publish) -->
+        <div class="success-card" id="successCard" style="display:none;">
+          <div class="success-header">
+            <div class="success-lbl">Published successfully</div>
+            <div class="success-title">✅ Share these details with your students</div>
+          </div>
+          <div class="success-body">
+            <div class="field-lbl">Exam Link</div>
+            <div class="link-row">
+              <input class="link-input" id="shareUrlInput" type="text" readonly onclick="this.select()">
+              <button class="copy-btn" onclick="copyText(document.getElementById('shareUrlInput').value, this)">Copy</button>
+            </div>
+            <div class="field-lbl">Access Codes by Group</div>
+            <div class="code-list" id="codeList"></div>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
+            <div class="action-btns">
+              <button class="action-btn" id="emailMeBtn" onclick="emailTeacher()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Email me the details
+              </button>
+              <button class="action-btn" onclick="toggleDraftEmail()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Draft student email
+              </button>
+            </div>
+            <div class="draft-panel" id="draftPanel" style="display:none;">
+              <div class="field-lbl" style="margin-bottom:8px;">Select group</div>
+              <select class="draft-select" id="groupSelect" onchange="updateDraft()">
+                <option value="">— Choose a group —</option>
+              </select>
+              <div id="draftContent" style="display:none;">
+                <div class="field-lbl" style="margin-bottom:6px;">Email draft — copy and paste into your email client</div>
+                <textarea class="draft-textarea" id="draftText" readonly onclick="this.select()"></textarea>
+                <button class="draft-copy-btn" id="draftCopyBtn" onclick="copyDraft()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  Copy email
+                </button>
+              </div>
+            </div>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
+            <div class="view-subs-row">
+              <div>
+                <div style="font-size:0.85rem;font-weight:700;color:#0f172a;margin-bottom:2px;">Ready to receive submissions</div>
+                <div style="font-size:0.75rem;color:#94a3b8;">Monitor and grade responses as students submit.</div>
+              </div>
+              <button class="view-subs-btn" id="viewSubsBtn">View submissions →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const EMAILJS_SERVICE  = 'service_opm4h6b';
+    const EMAILJS_TEMPLATE = 'template_x7bkb1l';
+    const EMAILJS_KEY      = 'Bb0oPYBiZGQcyIz5r';
+
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentTeacher  = null;
+    let onboardingData  = null;
+    let publishedExamId = null;
+    let publishedShareId = null;
+    let publishedGroups = [];
+    let qCounter = 0;
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.insert-plus')) {
+        document.querySelectorAll('.insert-popup.open').forEach(p => p.classList.remove('open'));
+      }
+    });
+
+    async function init() {
+      try { emailjs.init({ publicKey: EMAILJS_KEY }); } catch(e) {}
+
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'dashboard.html'; return; }
+      await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+
+      const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
+      if (!teacher) { window.location.href = 'dashboard.html'; return; }
+      currentTeacher = teacher;
+      document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
+
+      try {
+        const raw = localStorage.getItem('examOnboarding');
+        if (raw) {
+          onboardingData = JSON.parse(raw);
+          localStorage.removeItem('examOnboarding');
+        }
+      } catch(e) {}
+
+      if (onboardingData) {
+        document.getElementById('summaryTitle').textContent = onboardingData.title || 'New Exam';
+        const meta = [
+          onboardingData.duration + ' min',
+          onboardingData.lang === 'fr' ? 'Français' : 'English',
+          onboardingData.groups?.length ? onboardingData.groups.length + ' group' + (onboardingData.groups.length > 1 ? 's' : '') : null,
+          onboardingData.coefficient ? 'Score /' + onboardingData.coefficient : null
+        ].filter(Boolean).join(' · ');
+        document.getElementById('summaryMeta').textContent = meta;
+      }
+    }
+
+    // ── Rubric ──────────────────────────────────────────────────
+    function toggleRubric() {
+      const body = document.getElementById('rubricBody');
+      const btn  = document.getElementById('rubricBtn');
+      const open = body.style.display === 'block';
+      body.style.display = open ? 'none' : 'block';
+      btn.textContent    = open ? 'Expand' : 'Collapse';
+    }
+
+    function addScaleRow() {
+      const row = document.createElement('div');
+      row.className = 'scale-row';
+      row.innerHTML = `<input class="scale-score" type="text" placeholder="Score"><input class="scale-desc" type="text" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button>`;
+      document.getElementById('scaleList').appendChild(row);
+    }
+
+    // ── Card builders ────────────────────────────────────────────
+    function makeInsertZone() {
+      const iz = document.createElement('div');
+      iz.className = 'insert-zone';
+      iz.innerHTML = `<div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div>`;
+      return iz;
+    }
+
+    function attachBlockHtml() {
+      return `<div class="attach-section">
+        <span class="attach-label">Attachments</span>
+        <div class="attach-options">
+          <button class="attach-opt" onclick="this.nextElementSibling.click()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
+          </button>
+          <input type="file" accept="image/*" style="display:none;" onchange="showFile(this,'image')">
+          <button class="attach-opt" onclick="this.nextElementSibling.click()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+          </button>
+          <input type="file" accept=".pdf" style="display:none;" onchange="showFile(this,'pdf')">
+          <button class="attach-opt" onclick="this.nextElementSibling.click()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio
+          </button>
+          <input type="file" accept="audio/*" style="display:none;" onchange="showFile(this,'audio')">
+          <button class="attach-opt" onclick="toggleVideoInput(this)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link
+          </button>
+        </div>
+        <div class="attach-preview"></div>
+      </div>`;
+    }
+
+    function buildCard(type) {
+      const el = document.createElement('div');
+      if (type === 'section') {
+        el.className = 'section-card';
+        el.innerHTML = `
+          <div class="section-head">
+            <span class="section-lbl">Section</span>
+            <input class="section-title-input" type="text" placeholder="Section title…">
+            <div class="s-acts">
+              <button class="s-btn" onclick="moveEl(this.closest('.section-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+              <button class="s-btn" onclick="moveEl(this.closest('.section-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+              <button class="s-btn del" onclick="removeEl(this.closest('.section-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+          </div>
+          <div class="section-body">
+            <input class="section-instr" type="text" placeholder="Section instructions (optional)…">
+            <div class="s-pts"><span class="s-pts-lbl">Pts</span><input class="s-pts-input" type="number" value="10"><span class="s-pts-lbl">pts</span></div>
+          </div>`;
+      } else {
+        qCounter++;
+        const isMCQ = type === 'mcq';
+        el.className = `q-card${isMCQ ? '' : ' open-type'}`;
+        const qBody = isMCQ
+          ? `<textarea class="q-input" rows="2" placeholder="Question text…"></textarea>
+             <div class="opts">${['A','B','C','D'].map((l,oi) => `<div class="opt-row"><span class="opt-letter">${l}</span><input class="opt-input" type="text" placeholder="Option ${l}…"><input type="radio" name="c${qCounter}" class="opt-radio" ${oi===0?'checked':''}></div>`).join('')}</div>`
+          : `<textarea class="q-input" rows="2" placeholder="Question text…"></textarea>
+             <div class="open-note">Students type a written response — you grade it after the exam.</div>
+             <div class="crit-label"><span class="ai-chip">AI</span> Grading Criteria <span class="crit-hint">(optional — used for AI scoring suggestions during grading)</span></div>
+             <textarea class="crit-ta" rows="3" placeholder="e.g. — Key point (2 pts)&#10;— Supporting argument (2 pts)"></textarea>
+             <div class="pts-row"><span class="pts-lbl">Max points</span><input class="pts-inp" type="number" value="5" min="1"><span class="pts-lbl">pts</span></div>`;
+        el.innerHTML = `
+          <div class="q-head">
+            <span class="q-num">Q${qCounter}</span>
+            <span class="q-badge ${isMCQ ? 'badge-mcq">MCQ' : 'badge-open">Written'}</span>
+            <div class="q-acts">
+              <button class="q-btn" onclick="moveEl(this.closest('.q-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+              <button class="q-btn" onclick="moveEl(this.closest('.q-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+              <button class="q-btn del" onclick="removeEl(this.closest('.q-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/></svg></button>
+            </div>
+          </div>
+          <div class="q-body">
+            ${qBody}
+            ${attachBlockHtml()}
+          </div>`;
+      }
+      return el;
+    }
+
+    // ── List manipulation ────────────────────────────────────────
+    function toggleInsert(btn) {
+      const popup  = btn.querySelector('.insert-popup');
+      const wasOpen = popup.classList.contains('open');
+      document.querySelectorAll('.insert-popup.open').forEach(p => p.classList.remove('open'));
+      if (!wasOpen) popup.classList.add('open');
+    }
+
+    function insertHere(btn, type) {
+      btn.closest('.insert-popup').classList.remove('open');
+      const iz   = btn.closest('.insert-zone');
+      const list = document.getElementById('list');
+      const card = buildCard(type);
+      const newIz = makeInsertZone();
+      list.insertBefore(newIz, iz);
+      list.insertBefore(card, newIz);
+      card.querySelector('input,textarea')?.focus();
+      updateStats();
+    }
+
+    function append(type) {
+      const list  = document.getElementById('list');
+      const addR  = document.getElementById('addRow');
+      const botIz = document.getElementById('bottomInsert');
+      const card  = buildCard(type);
+      const iz    = makeInsertZone();
+      list.insertBefore(iz, botIz);
+      list.insertBefore(card, iz);
+      card.querySelector('input,textarea')?.focus();
+      addR.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      updateStats();
+    }
+
+    function moveEl(el, dir) {
+      const list  = document.getElementById('list');
+      const cards = [...list.children].filter(c =>
+        c.classList.contains('q-card') || c.classList.contains('section-card')
+      );
+      const idx    = cards.indexOf(el);
+      const target = cards[idx + dir];
+      if (!target) return;
+      if (dir === -1) list.insertBefore(el, target);
+      else target.after(el);
+    }
+
+    function removeEl(el) {
+      const prev = el.previousElementSibling;
+      if (prev?.classList.contains('insert-zone')) prev.remove();
+      el.remove();
+      updateStats();
+    }
+
+    function updateStats() {
+      const s = document.querySelectorAll('#list .section-card').length;
+      const m = document.querySelectorAll('#list .q-card:not(.open-type)').length;
+      const o = document.querySelectorAll('#list .q-card.open-type').length;
+      const t = m + o;
+      document.getElementById('sC').textContent = s;
+      document.getElementById('mC').textContent = m;
+      document.getElementById('oC').textContent = o;
+      document.getElementById('tC').textContent = t;
+      document.getElementById('emptyState').style.display = (s + t === 0) ? 'block' : 'none';
+    }
+
+    // ── Attachments ──────────────────────────────────────────────
+    function showFile(input, type) {
+      if (!input.files[0]) return;
+      const name  = input.files[0].name;
+      const icons = { image: '🖼', pdf: '📄', audio: '🔊' };
+      const preview = input.closest('.attach-section').querySelector('.attach-preview');
+      const pill = document.createElement('span');
+      pill.className = 'attach-file';
+      pill.innerHTML = `${icons[type] || '📎'} ${name} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
+      preview.appendChild(pill);
+      input.value = '';
+    }
+
+    function toggleVideoInput(btn) {
+      const body = btn.closest('.attach-section');
+      let row = body.querySelector('.video-link-row');
+      if (row) { row.remove(); return; }
+      row = document.createElement('div');
+      row.className = 'video-link-row';
+      row.innerHTML = `<input class="video-link-input" type="url" placeholder="Paste YouTube or Vimeo URL…"><button class="video-confirm-btn" onclick="confirmVideo(this)">Confirm</button>`;
+      btn.closest('.attach-options').after(row);
+      row.querySelector('input').focus();
+    }
+
+    function confirmVideo(btn) {
+      const input  = btn.previousElementSibling;
+      const url    = input.value.trim();
+      if (!url) return;
+      const preview = btn.closest('.attach-section').querySelector('.attach-preview');
+      const pill = document.createElement('span');
+      pill.className = 'attach-file';
+      pill.innerHTML = `▶ ${url.length > 40 ? url.slice(0,40) + '…' : url} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
+      preview.appendChild(pill);
+      btn.closest('.video-link-row').remove();
+    }
+
+    // ── Collect & Publish ────────────────────────────────────────
+    function collectItems() {
+      const items = [];
+      document.querySelectorAll('#list .section-card, #list .q-card').forEach(el => {
+        if (el.classList.contains('section-card')) {
+          items.push({
+            type:         'section',
+            title:        el.querySelector('.section-title-input').value.trim() || 'Section',
+            instructions: el.querySelector('.section-instr').value.trim(),
+            points:       parseInt(el.querySelector('.s-pts-input').value) || 0
+          });
+        } else {
+          const isMCQ = !el.classList.contains('open-type');
+          if (isMCQ) {
+            const opts    = [...el.querySelectorAll('.opt-input')].map(i => i.value.trim());
+            const correct = [...el.querySelectorAll('.opt-radio')].findIndex(r => r.checked);
+            items.push({ type: 'mcq', text: el.querySelector('.q-input').value.trim(), options: opts, correct: correct >= 0 ? correct : 0 });
+          } else {
+            items.push({
+              type:             'open',
+              text:             el.querySelector('.q-input').value.trim(),
+              grading_criteria: el.querySelector('.crit-ta')?.value.trim() || null,
+              max_points:       parseInt(el.querySelector('.pts-inp')?.value) || 5
+            });
+          }
+        }
+      });
+      return items;
+    }
+
+    function generateShareId() {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let id = '';
+      for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+      return id;
+    }
+
+    function generateCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    async function publish() {
+      const items = collectItems();
+      const questions = items.filter(i => i.type !== 'section');
+      if (questions.length === 0) { showToast('Add at least one question before publishing.'); return; }
+
+      const btn = document.getElementById('publishBtn');
+      btn.disabled = true;
+      btn.textContent = 'Publishing…';
+
+      try {
+        const shareId = generateShareId();
+        const groups  = onboardingData?.groups || [];
+        let groupCodes = {};
+        let accessCode;
+        if (groups.length > 0) {
+          groups.forEach(g => { groupCodes[g.name] = g.code; });
+          accessCode = groups[0].code;
+        } else {
+          accessCode = generateCode();
+        }
+
+        const { data: examRows, error: examErr } = await sb.from('exams').insert({
+          teacher_id:    currentTeacher.id,
+          teacher_email: currentTeacher.email,
+          title:         onboardingData?.title || 'Untitled Exam',
+          duration_mins: onboardingData?.duration || 60,
+          status:        'published',
+          share_id:      shareId,
+          access_code:   accessCode,
+          lang:          onboardingData?.lang || 'fr',
+          groups:        groups.map(g => g.name).join(', '),
+          group_codes:   JSON.stringify(groupCodes),
+          instructions:  onboardingData?.instructions || null
+        }).select();
+
+        if (examErr) throw examErr;
+        const examId = examRows[0].id;
+        publishedExamId  = examId;
+        publishedShareId = shareId;
+        publishedGroups  = groups.length > 0 ? groups : [{ name: 'All students', code: accessCode }];
+
+        for (let i = 0; i < items.length; i++) {
+          const q = items[i];
+          const row = {
+            exam_id:       examId,
+            position:      i + 1,
+            type:          q.type,
+            question_text: q.type === 'section' ? q.title : q.text,
+            option_a:      q.type === 'section' ? (q.instructions || null) : (q.options?.[0] || null),
+            option_b:      q.options?.[1] || null,
+            option_c:      q.options?.[2] || null,
+            option_d:      q.options?.[3] || null,
+            correct_index: q.type === 'mcq' ? q.correct : null,
+            grading_criteria: q.grading_criteria || null,
+            max_points:    q.max_points || (q.type === 'open' ? 5 : null)
+          };
+          const { error: qErr } = await sb.from('questions').insert(row);
+          if (qErr) console.warn('Question insert error:', qErr);
+        }
+
+        showSuccess(shareId, examId);
+
+      } catch (err) {
+        console.error('Publish error:', err);
+        showToast('Publish error: ' + (err.message || err));
+        btn.disabled = false;
+        btn.textContent = 'Confirm and publish exam →';
+      }
+    }
+
+    function showSuccess(shareId, examId) {
+      const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+      const shareUrl = `${baseUrl}?id=${shareId}`;
+
+      document.getElementById('publishBtn').style.display = 'none';
+      document.getElementById('shareUrlInput').value = shareUrl;
+
+      const codeList = document.getElementById('codeList');
+      codeList.innerHTML = publishedGroups.map(g => `
+        <div class="code-row">
+          <span class="code-group">${g.name}</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="code-val">${g.code}</span>
+            <button class="code-copy" onclick="copyText('${g.code}',this)">Copy</button>
+          </div>
+        </div>`).join('');
+
+      const sel = document.getElementById('groupSelect');
+      sel.innerHTML = '<option value="">— Choose a group —</option>' +
+        publishedGroups.map(g => `<option value="${g.name}|${g.code}">${g.name}</option>`).join('');
+
+      document.getElementById('viewSubsBtn').onclick = () =>
+        window.location.href = `submissions.html?exam=${examId}`;
+
+      document.getElementById('successCard').style.display = 'block';
+      document.getElementById('step1').className = 'step done';
+      document.getElementById('step1').querySelector('.step-num').textContent = '✓';
+      document.getElementById('step2').className = 'step done';
+      document.getElementById('step2').querySelector('.step-num').textContent = '✓';
+      document.getElementById('successCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ── Post-publish actions ─────────────────────────────────────
+    function emailTeacher() {
+      const btn = document.getElementById('emailMeBtn');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+      const baseUrl = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+      const shareUrl = `${baseUrl}?id=${publishedShareId}`;
+      const codesText = publishedGroups.map(g => `${g.name}: ${g.code}`).join('\n');
+      emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+        to_email:    currentTeacher.email,
+        to_name:     currentTeacher.full_name || currentTeacher.email,
+        subject:     `Exam published: ${onboardingData?.title || 'New Exam'}`,
+        exam_title:  onboardingData?.title || 'New Exam',
+        exam_link:   shareUrl,
+        codes:       codesText,
+        teacher_name: currentTeacher.full_name || currentTeacher.email
+      }).then(() => {
+        btn.innerHTML = '✓ Sent to ' + currentTeacher.email;
+        btn.style.color = '#16a34a';
+        btn.style.borderColor = '#86efac';
+        btn.style.background = '#f0fdf4';
+      }).catch(() => {
+        btn.textContent = 'Email me the details';
+        btn.disabled = false;
+        showToast('Email failed — check EmailJS settings.');
+      });
+    }
+
+    function toggleDraftEmail() {
+      const panel = document.getElementById('draftPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateDraft() {
+      const val     = document.getElementById('groupSelect').value;
+      const content = document.getElementById('draftContent');
+      if (!val) { content.style.display = 'none'; return; }
+      const [groupName, code] = val.split('|');
+      const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+      const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+      const shareUrl = `${baseUrl}?id=${publishedShareId}`;
+      const title    = onboardingData?.title || 'Exam';
+      const duration = onboardingData?.duration || '';
+      document.getElementById('draftText').value =
+`Subject: ${title} — Exam Link & Access Code
+
+Dear students,
+
+Please find below the details for your upcoming exam.
+
+Exam: ${title}
+Group: ${groupName}${duration ? '\nDuration: ' + duration + ' minutes' : ''}
+
+Exam link:
+${shareUrl}
+
+Access code: ${code}
+
+Instructions:
+- Click the link above to access the exam.
+- Enter your full name, email address, and the access code above.
+- The exam will begin immediately once confirmed.
+- Do not refresh or close your browser during the exam.
+
+Good luck,
+${currentTeacher.full_name || currentTeacher.email}`;
+      content.style.display = 'block';
+    }
+
+    function copyDraft() {
+      const ta  = document.getElementById('draftText');
+      const btn = document.getElementById('draftCopyBtn');
+      navigator.clipboard.writeText(ta.value).then(() => {
+        btn.textContent = '✓ Copied';
+        setTimeout(() => btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy email', 1500);
+      });
+    }
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(() => btn.textContent = orig, 1200);
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    init();
+  </script>
+</body>
+</html>

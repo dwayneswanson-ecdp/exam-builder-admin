@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Exam — Exam Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.15s; }
+    .back-btn:hover { color: #fff; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 660px; margin: 0 auto; padding: 44px 24px 80px; }
+    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 6px; }
+    .page-sub { font-size: 0.87rem; color: #94a3b8; margin-bottom: 32px; }
+
+    .form-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px; margin-bottom: 14px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .card-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label { font-size: 0.78rem; font-weight: 700; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+    .req { color: #dc2626; }
+    .field-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 5px; line-height: 1.5; }
+    .field-input {
+      width: 100%; font-size: 0.88rem; font-family: inherit;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 9px 13px; color: #0f172a; outline: none;
+      transition: border-color 0.15s; background: #fff;
+    }
+    .field-input:focus { border-color: #2563eb; }
+    .field-input::placeholder { color: #cbd5e1; }
+    textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
+
+    .field-row { display: flex; gap: 12px; }
+    .field-row .field { flex: 1; margin-bottom: 0; }
+
+    .lang-toggle { display: flex; border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+    .lang-opt { flex: 1; padding: 8px; text-align: center; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; font-family: inherit; background: #fff; color: #94a3b8; transition: all 0.15s; }
+    .lang-opt.active { background: #0f172a; color: #fff; }
+
+    /* Groups */
+    .col-labels { display: flex; gap: 8px; margin-bottom: 8px; padding: 0 2px; }
+    .col-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #cbd5e1; }
+    .group-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .group-row:last-of-type { margin-bottom: 0; }
+    .group-name-input {
+      flex: 1; font-size: 0.85rem; font-family: inherit;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 12px; color: #0f172a; outline: none; transition: border-color 0.15s;
+    }
+    .group-name-input:focus { border-color: #2563eb; }
+    .group-code-input {
+      width: 100px; font-size: 0.88rem; font-weight: 700; font-family: 'Courier New', monospace;
+      letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 8px 10px; color: #0f172a; outline: none; transition: border-color 0.15s;
+    }
+    .group-code-input:focus { border-color: #2563eb; }
+    .gen-btn { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 11px; font-size: 0.73rem; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
+    .gen-btn:hover { border-color: #94a3b8; color: #0f172a; }
+    .remove-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 4px; display: flex; align-items: center; border-radius: 6px; transition: color 0.15s; flex-shrink: 0; }
+    .remove-btn:hover { color: #dc2626; }
+    .add-group-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1.5px dashed #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; color: #94a3b8; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .add-group-btn:hover { border-color: #2563eb; color: #2563eb; }
+
+    /* Info note */
+    .info-note { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 12px 14px; font-size: 0.78rem; color: #4c1d95; line-height: 1.7; display: flex; gap: 10px; }
+    .info-note svg { flex-shrink: 0; margin-top: 2px; color: #7c3aed; }
+    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: #7c3aed; color: #fff; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; margin-left: 5px; flex-shrink: 0; }
+
+    /* Report options */
+    .report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .report-option { border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; cursor: pointer; text-align: left; background: #fff; font-family: inherit; transition: all 0.15s; }
+    .report-option:hover { border-color: #93c5fd; }
+    .report-option.selected { border-color: #2563eb; background: #eff6ff; }
+    .report-option-title { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
+    .report-option-desc { font-size: 0.72rem; color: #64748b; line-height: 1.5; }
+
+    /* Method options */
+    .method-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .method-option { border: 2px solid #e2e8f0; border-radius: 10px; padding: 18px 16px; cursor: pointer; text-align: left; background: #fff; font-family: inherit; transition: all 0.15s; }
+    .method-option:hover { border-color: #c4b5fd; }
+    .method-option.manual:hover { border-color: #93c5fd; }
+    .method-option.selected { border-color: #7c3aed; background: #faf5ff; }
+    .method-option.selected .method-label { color: #4c1d95; }
+    .method-option.manual.selected { border-color: #2563eb; background: #eff6ff; }
+    .method-option.manual.selected .method-label { color: #1d4ed8; }
+    .method-label { font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .method-desc { font-size: 0.72rem; color: #64748b; line-height: 1.55; }
+    .method-badge { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: 10px; }
+    .badge-ready { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .badge-soon  { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+
+    /* Teacher row */
+    .teacher-row { display: flex; align-items: center; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
+    .teacher-avatar { width: 38px; height: 38px; background: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .teacher-name { font-size: 0.88rem; font-weight: 700; color: #0f172a; }
+    .teacher-email { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+
+    /* CTA */
+    .cta-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.88rem; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; padding: 11px 22px; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
+    .btn-ghost:hover { border-color: #94a3b8; }
+
+    .error-msg { font-size: 0.78rem; color: #dc2626; font-weight: 600; margin-top: 12px; text-align: right; display: none; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn" onclick="window.location.href='dashboard.html'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+    <span class="header-name" id="headerName"></span>
+  </header>
+
+  <div class="page">
+    <div class="page-title">New Exam</div>
+    <div class="page-sub">Configure your exam before building the questions.</div>
+
+    <!-- 1. Exam Details -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Exam Details</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Exam Title <span class="req">*</span></label>
+        <input class="field-input" type="text" id="examTitle" placeholder="e.g. Finance d'entreprise — Partiel S2">
+      </div>
+
+      <div class="field-row" style="margin-bottom:18px;">
+        <div class="field">
+          <label class="field-label">Duration <span class="req">*</span></label>
+          <input class="field-input" type="number" id="examDuration" placeholder="45" min="5" max="300">
+          <div class="field-hint">Minutes</div>
+        </div>
+        <div class="field">
+          <label class="field-label">Exam Language <span class="req">*</span></label>
+          <div class="lang-toggle">
+            <button class="lang-opt active" id="langFR" onclick="setLang('fr')">Français</button>
+            <button class="lang-opt" id="langEN" onclick="setLang('en')">English</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:0;">
+        <label class="field-label">Student Instructions <span style="font-weight:500;color:#94a3b8;font-size:0.72rem;">(optional)</span></label>
+        <textarea class="field-input" id="examInstructions" placeholder="Instructions shown to students before the exam starts. e.g. No notes, calculators permitted, answer all questions."></textarea>
+      </div>
+    </div>
+
+    <!-- 2. Groups & Access Codes -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Groups &amp; Access Codes</div>
+        <button class="add-group-btn" onclick="addGroup()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Group
+        </button>
+      </div>
+
+      <div class="col-labels">
+        <div class="col-label" style="flex:1;">Group Name</div>
+        <div class="col-label" style="width:100px;text-align:center;">Access Code</div>
+        <div style="width:80px;"></div>
+        <div style="width:24px;"></div>
+      </div>
+
+      <div id="groupList"></div>
+      <div class="field-hint" style="margin-top:12px;">Each group gets a unique code. Students select their group when entering the exam.</div>
+    </div>
+
+    <!-- 3. Grading & Results -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Grading &amp; Results</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Score Scale <span class="req">*</span></label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input class="field-input" type="number" id="examCoefficient" value="20" min="1" max="100" style="width:80px;text-align:center;font-weight:700;font-size:1rem;">
+          <span style="font-size:0.82rem;color:#64748b;">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Results Report Sent to Students</label>
+        <div class="report-options">
+          <button class="report-option selected" id="reportFull" onclick="setReport('full')">
+            <div class="report-option-title">Full Report</div>
+            <div class="report-option-desc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
+          </button>
+          <button class="report-option" id="reportScore" onclick="setReport('score')">
+            <div class="report-option-title">Score Only</div>
+            <div class="report-option-desc">Final score only — no breakdown or answers shared.</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:0;">
+        <div class="info-note">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span>
+            <strong>MCQ questions are graded automatically.</strong> <span class="ai-chip">AI</span><br>
+            <span style="color:#475569;font-size:0.78rem;">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Question Builder -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Question Builder</div>
+      </div>
+      <div class="method-options">
+        <button class="method-option selected" id="methodAI" onclick="setMethod('ai')">
+          <div class="method-label">AI Extraction <span class="ai-chip">AI</span></div>
+          <div class="method-desc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically.</div>
+          <div class="method-badge badge-ready">Available</div>
+        </button>
+        <button class="method-option manual" id="methodManual" onclick="setMethod('manual')">
+          <div class="method-label">Build Manually</div>
+          <div class="method-desc">Add questions one by one directly inside the platform.</div>
+          <div class="method-badge badge-soon">Coming soon</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- 5. Exam Owner -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Exam Owner</div>
+      </div>
+      <div class="teacher-row">
+        <div class="teacher-avatar" id="teacherAvatar">—</div>
+        <div>
+          <div class="teacher-name" id="teacherName">—</div>
+          <div class="teacher-email" id="teacherEmail">—</div>
+        </div>
+      </div>
+      <div class="field-hint" style="margin-top:10px;">Submissions are linked to this account. A failsafe copy of each result is sent to this email.</div>
+    </div>
+
+    <div class="error-msg" id="errorMsg">Please fill in all required fields (title, duration, at least one group with a code).</div>
+
+    <div class="cta-row">
+      <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'">Cancel</button>
+      <button class="btn btn-primary" id="continueBtn" onclick="proceed()">
+        Continue
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentTeacher = null;
+    let selectedLang   = 'fr';
+    let selectedMethod = 'ai';
+    let selectedReport = 'full';
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'dashboard.html'; return; }
+      await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+
+      const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
+      if (!teacher) { window.location.href = 'dashboard.html'; return; }
+      currentTeacher = teacher;
+
+      document.getElementById('headerName').textContent  = teacher.full_name || teacher.email;
+      document.getElementById('teacherName').textContent  = teacher.full_name || teacher.email;
+      document.getElementById('teacherEmail').textContent = teacher.email;
+      const initials = (teacher.full_name || teacher.email).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('teacherAvatar').textContent = initials;
+
+      addGroup();
+    }
+
+    function genCode() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      return code;
+    }
+
+    function addGroup() {
+      const code  = genCode();
+      const count = document.querySelectorAll('.group-row').length + 1;
+      const row   = document.createElement('div');
+      row.className = 'group-row';
+      row.innerHTML = `
+        <input class="group-name-input" type="text" placeholder="Group name" value="Group ${count}">
+        <input class="group-code-input" type="text" value="${code}" maxlength="10">
+        <button class="gen-btn" onclick="regenCode(this)">↻ Generate</button>
+        <button class="remove-btn" onclick="removeGroup(this)" title="Remove">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`;
+      document.getElementById('groupList').appendChild(row);
+    }
+
+    function regenCode(btn) {
+      btn.previousElementSibling.value = genCode();
+    }
+
+    function removeGroup(btn) {
+      const rows = document.querySelectorAll('.group-row');
+      if (rows.length <= 1) return;
+      btn.closest('.group-row').remove();
+    }
+
+    function setLang(lang) {
+      selectedLang = lang;
+      document.getElementById('langFR').classList.toggle('active', lang === 'fr');
+      document.getElementById('langEN').classList.toggle('active', lang === 'en');
+    }
+
+    function setMethod(method) {
+      selectedMethod = method;
+      document.getElementById('methodAI').classList.toggle('selected', method === 'ai');
+      document.getElementById('methodManual').classList.toggle('selected', method === 'manual');
+    }
+
+    function setReport(report) {
+      selectedReport = report;
+      document.getElementById('reportFull').classList.toggle('selected', report === 'full');
+      document.getElementById('reportScore').classList.toggle('selected', report === 'score');
+    }
+
+    function proceed() {
+      const title       = document.getElementById('examTitle').value.trim();
+      const duration    = document.getElementById('examDuration').value.trim();
+      const coefficient = document.getElementById('examCoefficient').value.trim() || '20';
+      const instructions = document.getElementById('examInstructions').value.trim();
+      const errEl       = document.getElementById('errorMsg');
+
+      const groups = [...document.querySelectorAll('.group-row')].map(row => ({
+        name: row.querySelector('.group-name-input').value.trim(),
+        code: row.querySelector('.group-code-input').value.trim().toUpperCase()
+      })).filter(g => g.name && g.code);
+
+      if (!title || !duration || groups.length === 0) {
+        errEl.style.display = 'block';
+        return;
+      }
+      errEl.style.display = 'none';
+
+      localStorage.setItem('examOnboarding', JSON.stringify({
+        title,
+        duration:     parseInt(duration),
+        lang:         selectedLang,
+        coefficient:  parseInt(coefficient),
+        report:       selectedReport,
+        instructions,
+        groups,
+        teacherEmail: currentTeacher.email,
+        teacherName:  currentTeacher.full_name || currentTeacher.email
+      }));
+
+      window.location.href = selectedMethod === 'manual' ? 'exam-builder-manual.html' : 'index.html';
+    }
+
+    init();
+  </script>
+</body>
+</html>

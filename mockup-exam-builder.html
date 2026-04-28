@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Exam — Exam Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    /* ── Standard header ── */
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.15s; }
+    .back-btn:hover { color: #fff; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 720px; margin: 0 auto; padding: 36px 24px 80px; }
+
+    /* ── Steps ── */
+    .steps { display: flex; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-right: 1px solid #e2e8f0; font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
+    .step:last-child { border-right: none; }
+    .step.active { color: #0f172a; }
+    .step.done { color: #16a34a; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step.active .step-num { background: #2563eb; color: #fff; }
+    .step.done .step-num { background: #16a34a; color: #fff; }
+    .step.active-ai { color: #4c1d95; }
+    .step.active-ai .step-num { background: #7c3aed; color: #fff; }
+
+    /* ── Exam summary banner ── */
+    .exam-summary { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .exam-summary-left { flex: 1; min-width: 0; }
+    .exam-summary-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exam-summary-meta { font-size: 0.75rem; color: #94a3b8; display: flex; gap: 12px; flex-wrap: wrap; }
+    .meta-pill { display: inline-flex; align-items: center; gap: 4px; }
+    .edit-link { font-size: 0.75rem; font-weight: 700; color: #2563eb; text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+    .edit-link:hover { text-decoration: underline; }
+
+    /* ── Cards ── */
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px; margin-bottom: 14px; }
+    .card-title { font-size: 1rem; font-weight: 800; color: #0f172a; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .card-sub { font-size: 0.82rem; color: #94a3b8; line-height: 1.6; margin-bottom: 20px; }
+
+    /* AI chip */
+    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: #7c3aed; color: #fff; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Upload zone ── */
+    .upload-zone { border: 2px dashed #e2e8f0; border-radius: 12px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.15s; }
+    .upload-zone:hover { border-color: #93c5fd; background: #f8faff; }
+    .upload-zone-icon { color: #cbd5e1; margin-bottom: 12px; }
+    .upload-zone-label { font-size: 0.9rem; font-weight: 700; color: #374151; margin-bottom: 4px; }
+    .upload-zone-sub { font-size: 0.78rem; color: #94a3b8; margin-bottom: 16px; }
+    .btn-upload { background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 18px; font-size: 0.82rem; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; }
+    .btn-upload:hover { border-color: #94a3b8; }
+
+    /* ── Extract button ── */
+    .extract-btn { width: 100%; background: #2563eb; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 0.92rem; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 16px; transition: background 0.15s; }
+    .extract-btn:hover { background: #1d4ed8; }
+
+    /* ── AI progress card ── */
+    .ai-card { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 14px; padding: 28px; margin-bottom: 14px; }
+    .ai-spinner-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .spinner { width: 20px; height: 20px; border: 2.5px solid #e9d5ff; border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-status { font-size: 0.85rem; font-weight: 600; color: #7c3aed; }
+    .ai-stats { display: flex; gap: 12px; }
+    .ai-stat { flex: 1; background: #fff; border: 1px solid #e9d5ff; border-radius: 10px; padding: 14px; text-align: center; }
+    .ai-stat-val { font-size: 1.5rem; font-weight: 800; color: #7c3aed; }
+    .ai-stat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #a78bfa; margin-top: 3px; }
+
+    /* ── Review card ── */
+    .section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 12px; }
+
+    /* Question rows */
+    .q-row { border: 1.5px solid #e2e8f0; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+    .q-row-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .q-type-badge { font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+    .badge-mcq  { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-open { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+    .q-text { font-size: 0.85rem; font-weight: 700; color: #0f172a; flex: 1; }
+    .q-row-body { padding: 14px; }
+    .q-options { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+    .q-option { font-size: 0.8rem; color: #475569; padding: 6px 10px; border: 1.5px solid #e2e8f0; border-radius: 7px; display: flex; align-items: center; gap: 6px; }
+    .q-option.correct { border-color: #86efac; background: #f0fdf4; color: #166534; font-weight: 600; }
+    .q-option-letter { font-size: 0.68rem; font-weight: 800; color: #94a3b8; }
+    .q-option.correct .q-option-letter { color: #16a34a; }
+
+    /* Open question fields */
+    .open-answer-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; font-size: 0.8rem; color: #94a3b8; font-style: italic; margin-bottom: 12px; }
+    .criteria-field-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #a78bfa; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .criteria-textarea { width: 100%; font-size: 0.8rem; font-family: inherit; border: 1.5px solid #e9d5ff; border-radius: 8px; padding: 9px 12px; color: #4c1d95; outline: none; resize: vertical; min-height: 56px; background: #faf5ff; line-height: 1.6; }
+    .criteria-textarea::placeholder { color: #c4b5fd; font-style: italic; }
+    .criteria-textarea:focus { border-color: #7c3aed; }
+
+    /* Add question btn */
+    .add-q-btn { width: 100%; border: 1.5px dashed #e2e8f0; border-radius: 10px; padding: 12px; font-size: 0.82rem; font-weight: 700; color: #94a3b8; background: none; cursor: pointer; font-family: inherit; transition: all 0.15s; margin-top: 4px; }
+    .add-q-btn:hover { border-color: #2563eb; color: #2563eb; }
+
+    /* ── Publish button ── */
+    .publish-btn { width: 100%; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 4px; transition: all 0.2s; }
+    .publish-btn:hover { box-shadow: 0 6px 20px rgba(22,163,74,0.3); }
+
+    /* ── Publish result ── */
+    .publish-result { border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; margin-top: 16px; }
+    .publish-result-header { background: linear-gradient(135deg, #16a34a, #15803d); padding: 20px 24px; }
+    .publish-result-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.65); margin-bottom: 4px; }
+    .publish-result-title { font-size: 1rem; font-weight: 700; color: #fff; }
+    .publish-result-body { padding: 24px; background: #fff; }
+    .publish-field-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 8px; }
+    .publish-link-row { display: flex; gap: 8px; margin-bottom: 20px; }
+    .publish-link-input { flex: 1; padding: 10px 13px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 0.8rem; font-family: monospace; color: #0f172a; background: #f8fafc; }
+    .btn-copy { display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 10px; border: none; background: #2563eb; color: #fff; font-size: 0.82rem; font-weight: 700; cursor: pointer; white-space: nowrap; font-family: inherit; }
+
+    /* Group codes */
+    .group-codes { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .group-code-row { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; }
+    .group-code-name { font-size: 0.82rem; font-weight: 600; color: #475569; }
+    .group-code-val { font-family: 'Courier New', monospace; font-size: 1rem; font-weight: 800; color: #0f172a; letter-spacing: 0.1em; }
+    .btn-copy-sm { background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.72rem; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; }
+
+    hr.divider { border: none; border-top: 1px solid #e2e8f0; margin: 0 0 20px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; padding: 9px 16px; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .file-pill { display: none; align-items: center; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-top: 12px; font-size: 0.82rem; color: #475569; font-weight: 600; }
+    .file-pill.visible { display: flex; }
+  </style>
+</head>
+<body>
+
+  <!-- Standard header -->
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+    <span class="header-name">Dwayne Swanson</span>
+  </header>
+
+  <div class="page">
+
+    <!-- Page title -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:1.3rem;font-weight:800;color:#0f172a;letter-spacing:-0.02em;margin-bottom:4px;">New Exam</div>
+      <div style="font-size:0.82rem;color:#94a3b8;">Finance d'entreprise — Partiel S2</div>
+    </div>
+
+    <!-- Step indicator -->
+    <div class="steps">
+      <div class="step done" id="s1"><div class="step-num">✓</div> Upload File</div>
+      <div class="step done" id="s2" style="color:#4c1d95;">
+        <div class="step-num" style="background:#7c3aed;color:#fff;">✓</div>
+        <span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;">AI</span>
+        AI Extraction
+      </div>
+      <div class="step active" id="s3"><div class="step-num">3</div> Review &amp; Edit</div>
+      <div class="step" id="s4"><div class="step-num">4</div> Publish</div>
+    </div>
+
+    <!-- Exam summary banner — read-only, from onboarding -->
+    <div class="exam-summary">
+      <div class="exam-summary-left">
+        <div class="exam-summary-title">Finance d'entreprise — Partiel S2</div>
+        <div class="exam-summary-meta">
+          <span class="meta-pill">45 min</span>
+          <span class="meta-pill">·</span>
+          <span class="meta-pill">Français</span>
+          <span class="meta-pill">·</span>
+          <span class="meta-pill">3 groups</span>
+          <span class="meta-pill">·</span>
+          <span class="meta-pill">Score /20</span>
+          <span class="meta-pill">·</span>
+          <span class="meta-pill">Full report</span>
+        </div>
+      </div>
+      <a class="edit-link" href="exam-onboarding.html">Edit details →</a>
+    </div>
+
+    <!-- STEP 1: Upload -->
+    <div class="card" id="card-upload">
+      <div class="card-title">Upload your exam document</div>
+      <div class="card-sub">Upload a Word (.docx) or PDF file. Mark the correct MCQ answer with an asterisk (*). Written questions are detected automatically.</div>
+      <div class="upload-zone" onclick="document.getElementById('fakeInput').click()">
+        <div class="upload-zone-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="upload-zone-label">Drop your file here</div>
+        <div class="upload-zone-sub">or click to browse — .docx or .pdf</div>
+        <button class="btn-upload" onclick="event.stopPropagation();selectFile()">Browse file</button>
+        <input type="file" id="fakeInput" accept=".docx,.pdf" style="display:none" onchange="showPill(this)">
+      </div>
+      <div class="file-pill" id="filePill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span id="pillName">Finance_S2.docx</span>
+        <span style="color:#cbd5e1;">·</span>
+        <span style="font-weight:400;color:#94a3b8;">142 KB</span>
+        <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:1rem;" onclick="document.getElementById('filePill').classList.remove('visible')">✕</button>
+      </div>
+      <button class="extract-btn" onclick="showAICard()">
+        Send to AI for extraction →
+      </button>
+    </div>
+
+    <!-- STEP 2: AI extraction — purple tint -->
+    <div class="ai-card" id="card-ai" style="display:none;">
+      <div class="card-title" style="color:#4c1d95;">
+        <span class="ai-chip">AI</span>
+        AI Extraction
+      </div>
+      <div class="card-sub" style="color:#7c3aed;">Analysing your document and extracting questions…</div>
+
+      <!-- Processing state -->
+      <div id="ai-processing">
+        <div class="ai-spinner-row">
+          <div class="spinner"></div>
+          <span class="ai-status">Processing document…</span>
+        </div>
+        <button class="btn btn-primary" style="font-size:0.78rem;" onclick="showAIResults()">Skip (show results)</button>
+      </div>
+
+      <!-- Results state -->
+      <div id="ai-results" style="display:none;">
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:0.82rem;color:#166534;font-weight:600;margin-bottom:16px;">
+          ✅ 22 questions extracted successfully
+        </div>
+        <div class="ai-stats">
+          <div class="ai-stat"><div class="ai-stat-val">18</div><div class="ai-stat-label">MCQ</div></div>
+          <div class="ai-stat"><div class="ai-stat-val">4</div><div class="ai-stat-label">Written</div></div>
+          <div class="ai-stat"><div class="ai-stat-val">22</div><div class="ai-stat-label">Total</div></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px;width:100%;" onclick="showReviewCard()">Review &amp; edit questions →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Review & edit -->
+    <div class="card" id="card-review" style="display:none;">
+      <div class="card-title">Review &amp; Edit Questions</div>
+      <div class="card-sub">Correct any questions, verify correct answers, and add grading criteria to written questions.</div>
+
+      <div class="section-label">MCQ Questions — 18</div>
+
+      <!-- Sample MCQ -->
+      <div class="q-row">
+        <div class="q-row-head">
+          <span style="font-size:0.72rem;font-weight:700;color:#94a3b8;">Q1</span>
+          <span class="q-type-badge badge-mcq">MCQ</span>
+          <span class="q-text">Qu'est-ce que le besoin en fonds de roulement (BFR) ?</span>
+          <button style="background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:1rem;">✕</button>
+        </div>
+        <div class="q-row-body">
+          <div class="q-options">
+            <div class="q-option"><span class="q-option-letter">A</span>La différence entre actif circulant et passif circulant</div>
+            <div class="q-option correct"><span class="q-option-letter">B</span>✓ Le besoin de financement du cycle d'exploitation</div>
+            <div class="q-option"><span class="q-option-letter">C</span>Le montant des dettes financières à court terme</div>
+            <div class="q-option"><span class="q-option-letter">D</span>La trésorerie nette de l'entreprise</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-row" style="opacity:0.5;">
+        <div class="q-row-head">
+          <span style="font-size:0.72rem;font-weight:700;color:#94a3b8;">Q2</span>
+          <span class="q-type-badge badge-mcq">MCQ</span>
+          <span class="q-text">Le ratio de liquidité générale est calculé comme :</span>
+          <button style="background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:1rem;">✕</button>
+        </div>
+      </div>
+
+      <div style="text-align:center;font-size:0.75rem;color:#94a3b8;margin:8px 0 20px;">16 more MCQ questions…</div>
+
+      <!-- Written questions -->
+      <div class="section-label" style="margin-top:8px;">Written Questions — 4 <span class="ai-chip" style="margin-left:4px;">AI</span></div>
+
+      <!-- Open question with grading criteria -->
+      <div class="q-row">
+        <div class="q-row-head" style="background:#faf5ff;border-bottom-color:#e9d5ff;">
+          <span style="font-size:0.72rem;font-weight:700;color:#a78bfa;">Q19</span>
+          <span class="q-type-badge badge-open">Written <span class="ai-chip" style="width:14px;height:14px;font-size:0.5rem;margin-left:2px;">AI</span></span>
+          <span class="q-text" style="color:#4c1d95;">Expliquez l'impact d'une hausse des taux d'intérêt sur la valorisation d'une entreprise.</span>
+          <button style="background:none;border:none;cursor:pointer;color:#c4b5fd;font-size:1rem;">✕</button>
+        </div>
+        <div class="q-row-body">
+          <div class="open-answer-box">Student written response — graded by teacher after exam.</div>
+          <div class="criteria-field-label">
+            <span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;">AI</span>
+            Grading Criteria
+            <span style="font-weight:500;color:#c4b5fd;font-size:0.68rem;">(optional — used for AI scoring suggestions)</span>
+          </div>
+          <textarea class="criteria-textarea" placeholder="e.g. — Mentions impact on cost of capital / discount rate (2 pts)&#10;— Links to reduction in present value of future cash flows (2 pts)&#10;— Specific mention of growth companies or time horizon (1 pt)">— Mentions impact on cost of capital / discount rate (2 pts)
+— Links to reduction in present value of future cash flows (2 pts)
+— Specific mention of growth companies or time horizon (1 pt)</textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+            <span style="font-size:0.72rem;color:#94a3b8;">Max points</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <input type="number" value="5" style="width:52px;text-align:center;font-weight:700;font-size:0.9rem;border:1.5px solid #e9d5ff;border-radius:7px;padding:4px;font-family:inherit;color:#4c1d95;background:#faf5ff;outline:none;">
+              <span style="font-size:0.78rem;color:#a78bfa;">pts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q-row" style="opacity:0.5;">
+        <div class="q-row-head" style="background:#faf5ff;border-bottom-color:#e9d5ff;">
+          <span style="font-size:0.72rem;font-weight:700;color:#a78bfa;">Q20</span>
+          <span class="q-type-badge badge-open">Written</span>
+          <span class="q-text" style="color:#4c1d95;">Définissez la notion de levier financier et ses risques.</span>
+        </div>
+      </div>
+
+      <div style="text-align:center;font-size:0.75rem;color:#94a3b8;margin:8px 0 12px;">2 more written questions…</div>
+
+      <button class="add-q-btn">+ Add question</button>
+
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #f1f5f9;">
+        <button class="publish-btn" onclick="showPublishResult()">Confirm and publish exam →</button>
+      </div>
+
+      <!-- Publish result -->
+      <div class="publish-result" id="publishResult" style="display:none;">
+        <div class="publish-result-header">
+          <div class="publish-result-label">Published successfully</div>
+          <div class="publish-result-title">✅ Share these details with your students</div>
+        </div>
+        <div class="publish-result-body">
+
+          <div style="display:flex;align-items:center;gap:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:20px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <div>
+              <div style="font-size:0.9rem;font-weight:700;color:#0f172a;">Finance d'entreprise — Partiel S2</div>
+              <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">45 min · 18 MCQ · 4 Written · Score /20</div>
+            </div>
+          </div>
+
+          <div class="publish-field-label">Exam Link</div>
+          <div class="publish-link-row">
+            <input class="publish-link-input" type="text" readonly value="http://localhost:3000/exam-engine.html?id=s4vyr6hw">
+            <button class="btn-copy">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+
+          <div class="publish-field-label">Access Codes by Group</div>
+          <div class="group-codes">
+            <div class="group-code-row">
+              <span class="group-code-name">Finance L3 — Group 1</span>
+              <span class="group-code-val">GZU936</span>
+              <button class="btn-copy-sm">Copy</button>
+            </div>
+            <div class="group-code-row">
+              <span class="group-code-name">Finance L3 — Group 2</span>
+              <span class="group-code-val">RKT482</span>
+              <button class="btn-copy-sm">Copy</button>
+            </div>
+            <div class="group-code-row">
+              <span class="group-code-name">Finance L3 — Group 3</span>
+              <span class="group-code-val">MNP751</span>
+              <button class="btn-copy-sm">Copy</button>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:0.82rem;font-weight:700;color:#0f172a;margin-bottom:2px;">View Submissions</div>
+              <div style="font-size:0.75rem;color:#94a3b8;">Monitor responses as students submit.</div>
+            </div>
+            <button class="btn btn-primary">Go to submissions →</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function selectFile() { document.getElementById('fakeInput').click(); }
+    function showPill(input) {
+      if (input.files[0]) {
+        document.getElementById('filePill').classList.add('visible');
+        document.getElementById('pillName').textContent = input.files[0].name;
+      }
+    }
+    function showAICard() {
+      document.getElementById('card-ai').style.display = 'block';
+      document.getElementById('s1').className = 'step done';
+      document.getElementById('s1').querySelector('.step-num').textContent = '✓';
+      const s2 = document.getElementById('s2');
+      s2.className = 'step active-ai';
+      s2.innerHTML = `<div class="step-num" style="background:#7c3aed;color:#fff;">2</div><span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;">AI</span> AI Extraction`;
+    }
+    function showAIResults() {
+      document.getElementById('ai-processing').style.display = 'none';
+      document.getElementById('ai-results').style.display = 'block';
+      const s2 = document.getElementById('s2');
+      s2.className = 'step done';
+      s2.style.color = '#4c1d95';
+      s2.innerHTML = `<div class="step-num" style="background:#7c3aed;color:#fff;">✓</div><span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;">AI</span> AI Extraction`;
+    }
+    function showReviewCard() {
+      document.getElementById('card-review').style.display = 'block';
+      document.getElementById('s3').className = 'step active';
+      document.getElementById('card-review').scrollIntoView({ behavior: 'smooth' });
+    }
+    function showPublishResult() {
+      document.getElementById('publishResult').style.display = 'block';
+      document.getElementById('s4').className = 'step done';
+      document.getElementById('s4').querySelector('.step-num').textContent = '✓';
+      document.getElementById('publishResult').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

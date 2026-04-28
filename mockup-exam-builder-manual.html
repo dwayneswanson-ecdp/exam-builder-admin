@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Exam — Build Manually</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 680px; margin: 0 auto; padding: 28px 24px 80px; }
+
+    .exam-summary { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .exam-summary-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 3px; }
+    .exam-summary-meta { font-size: 0.75rem; color: #94a3b8; }
+    .edit-link { font-size: 0.75rem; font-weight: 700; color: #2563eb; background: none; border: none; cursor: pointer; font-family: inherit; }
+
+    .steps { display: flex; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+    .step { flex: 1; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-right: 1px solid #e2e8f0; font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
+    .step:last-child { border-right: none; }
+    .step.active { color: #0f172a; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step.active .step-num { background: #2563eb; color: #fff; }
+
+    /* ── Global rubric ── */
+    .rubric-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .rubric-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; cursor: pointer; user-select: none; }
+    .rubric-head:hover { background: #fafafa; }
+    .rubric-head-left { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: #0f172a; }
+    .rubric-sub { font-size: 0.73rem; color: #94a3b8; font-weight: 400; }
+    .rubric-toggle { font-size: 0.72rem; font-weight: 600; color: #2563eb; background: none; border: none; cursor: pointer; font-family: inherit; }
+    .rubric-body { display: none; padding: 0 18px 18px; border-top: 1px solid #f1f5f9; }
+    .rubric-body-inner { padding-top: 14px; }
+    .field-label { font-size: 0.72rem; font-weight: 700; color: #475569; margin-bottom: 6px; display: block; }
+    .rubric-ta { width: 100%; font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 13px; color: #374151; outline: none; resize: vertical; min-height: 68px; line-height: 1.6; }
+    .rubric-ta:focus { border-color: #2563eb; }
+    .rubric-ta::placeholder { color: #cbd5e1; font-style: italic; }
+    .scale-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .scale-score { width: 52px; text-align: center; font-weight: 700; font-size: 0.82rem; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px; font-family: inherit; color: #0f172a; outline: none; }
+    .scale-desc { flex: 1; font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px 10px; color: #374151; outline: none; }
+    .rm-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 4px; font-size: 0.9rem; }
+    .rm-btn:hover { color: #dc2626; }
+    .add-scale-btn { font-size: 0.72rem; font-weight: 700; color: #2563eb; background: none; border: none; cursor: pointer; font-family: inherit; margin-top: 4px; }
+    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: #7c3aed; color: #fff; font-size: 0.52rem; font-weight: 800; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Section card ── */
+    .section-card { border-radius: 12px; overflow: hidden; border: 2px solid #1e293b; }
+    .section-head { background: #0f172a; padding: 11px 16px; display: flex; align-items: center; gap: 10px; }
+    .section-lbl { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.35); flex-shrink: 0; }
+    .section-title-input { flex: 1; background: transparent; border: none; outline: none; font-size: 0.9rem; font-weight: 700; color: #fff; font-family: inherit; }
+    .section-title-input::placeholder { color: rgba(255,255,255,0.25); font-weight: 400; }
+    .s-acts { display: flex; gap: 1px; }
+    .s-btn { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.3); padding: 5px; border-radius: 5px; display: flex; align-items: center; transition: color 0.15s; }
+    .s-btn:hover { color: #fff; }
+    .s-btn.del:hover { color: #fca5a5; }
+    .section-body { background: #f8fafc; border-top: 1px solid #1e293b; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+    .section-instr { flex: 1; background: transparent; border: none; outline: none; font-size: 0.78rem; color: #64748b; font-family: inherit; }
+    .section-instr::placeholder { color: #cbd5e1; font-style: italic; }
+    .s-pts { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .s-pts-input { width: 44px; text-align: center; font-weight: 700; font-size: 0.82rem; border: 1.5px solid #e2e8f0; border-radius: 6px; padding: 3px; font-family: inherit; outline: none; }
+    .s-pts-lbl { font-size: 0.72rem; color: #94a3b8; }
+
+    /* ── Question card ── */
+    .q-card { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 11px; overflow: hidden; }
+    .q-card.open-type { border-color: #e9d5ff; }
+    .q-head { display: flex; align-items: center; gap: 9px; padding: 10px 14px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .q-card.open-type .q-head { background: #faf5ff; border-bottom-color: #e9d5ff; }
+    .q-num { font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
+    .q-badge { font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+    .badge-mcq  { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-open { background: #faf5ff; color: #7c3aed; border: 1px solid #e9d5ff; }
+    .q-acts { margin-left: auto; display: flex; align-items: center; gap: 1px; }
+    .q-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 5px; border-radius: 5px; display: flex; align-items: center; transition: color 0.15s; }
+    .q-btn:hover { color: #475569; }
+    .q-btn.del:hover { color: #dc2626; }
+    .q-body { padding: 14px; }
+
+    .q-input { width: 100%; font-size: 0.87rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 9px 12px; color: #0f172a; outline: none; resize: vertical; min-height: 42px; line-height: 1.5; margin-bottom: 12px; }
+    .q-input:focus { border-color: #2563eb; }
+    .q-card.open-type .q-input:focus { border-color: #7c3aed; }
+
+    .opts { display: flex; flex-direction: column; gap: 6px; }
+    .opt-row { display: flex; align-items: center; gap: 8px; }
+    .opt-letter { font-size: 0.7rem; font-weight: 800; color: #94a3b8; width: 14px; flex-shrink: 0; }
+    .opt-input { flex: 1; font-size: 0.84rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 7px 10px; color: #0f172a; outline: none; }
+    .opt-row.correct .opt-input { border-color: #86efac; background: #f0fdf4; color: #166534; }
+    .opt-radio { width: 15px; height: 15px; accent-color: #16a34a; cursor: pointer; flex-shrink: 0; }
+    .correct-tag { font-size: 0.63rem; font-weight: 700; color: #16a34a; white-space: nowrap; }
+
+    .open-note { font-size: 0.75rem; color: #94a3b8; font-style: italic; margin-bottom: 12px; padding: 8px 12px; background: #f8fafc; border-radius: 7px; }
+    .crit-label { font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #a78bfa; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+    .crit-hint { font-weight: 500; color: #c4b5fd; font-size: 0.64rem; }
+    .crit-ta { width: 100%; font-size: 0.79rem; font-family: inherit; border: 1.5px solid #e9d5ff; border-radius: 8px; padding: 9px 12px; color: #4c1d95; outline: none; resize: vertical; min-height: 52px; background: #faf5ff; line-height: 1.6; margin-bottom: 8px; }
+    .crit-ta::placeholder { color: #c4b5fd; font-style: italic; }
+    .crit-ta:focus { border-color: #7c3aed; }
+    .pts-row { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+    .pts-lbl { font-size: 0.71rem; color: #94a3b8; }
+    .pts-inp { width: 46px; text-align: center; font-weight: 700; font-size: 0.87rem; border: 1.5px solid #e9d5ff; border-radius: 7px; padding: 4px; font-family: inherit; color: #4c1d95; background: #faf5ff; outline: none; }
+
+    /* ── Attachments ── */
+    .attach-section { margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+    .attach-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 8px; display: block; }
+    .attach-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .attach-opt { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: #475569; background: #fff; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 5px 10px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .attach-opt:hover { border-color: #94a3b8; color: #0f172a; }
+    .attach-preview { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+    .attach-file { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: #166534; background: #f0fdf4; border: 1px solid #86efac; border-radius: 7px; padding: 5px 10px; }
+    .attach-file .rm { color: #94a3b8; cursor: pointer; margin-left: 2px; }
+    /* Video link input */
+    .video-link-row { display: flex; gap: 6px; margin-top: 8px; }
+    .video-link-input { flex: 1; font-size: 0.8rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px 10px; color: #0f172a; outline: none; }
+    .video-link-input:focus { border-color: #2563eb; }
+    .video-link-btn { font-size: 0.75rem; font-weight: 700; background: #f1f5f9; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 6px 12px; cursor: pointer; font-family: inherit; color: #475569; }
+
+    /* ── Insert zone ── */
+    .insert-zone { display: flex; align-items: center; gap: 8px; padding: 6px 0; position: relative; }
+    .insert-line { flex: 1; height: 1.5px; background: #e2e8f0; }
+    .insert-plus { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid #e2e8f0; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #94a3b8; font-size: 1rem; font-weight: 300; flex-shrink: 0; transition: all 0.15s; position: relative; }
+    .insert-plus:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .insert-popup { display: none; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); z-index: 10; white-space: nowrap; }
+    .insert-popup.open { display: flex; gap: 4px; }
+    .ins-btn { font-size: 0.72rem; font-weight: 700; padding: 5px 11px; border-radius: 7px; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #475569; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .ins-btn:hover { border-color: #2563eb; color: #2563eb; background: #eff6ff; }
+    .ins-btn.open-t { border-color: #e9d5ff; background: #faf5ff; color: #7c3aed; }
+    .ins-btn.open-t:hover { border-color: #c4b5fd; background: #ede9fe; }
+
+    /* ── Add buttons (soft tint) ── */
+    .add-row { display: flex; gap: 10px; margin-top: 4px; }
+    .add-card { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 10px; border-radius: 11px; font-size: 0.82rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+    .add-section-card { background: #f8fafc; border: 1.5px solid #e2e8f0; color: #374151; }
+    .add-section-card:hover { background: #f1f5f9; border-color: #94a3b8; color: #0f172a; }
+    .add-mcq-card { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #2563eb; }
+    .add-mcq-card:hover { background: #dbeafe; border-color: #2563eb; }
+    .add-open-card { background: #faf5ff; border: 1.5px solid #e9d5ff; color: #7c3aed; }
+    .add-open-card:hover { background: #ede9fe; border-color: #c4b5fd; }
+
+    /* ── Exam summary + publish (combined) ── */
+    .publish-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; }
+    .summary-section { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .summary-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; white-space: nowrap; }
+    .summary-divider { width: 1px; height: 14px; background: #e2e8f0; }
+    .summary-pill { font-size: 0.8rem; font-weight: 600; color: #475569; }
+    .summary-pill .n { font-size: 0.88rem; font-weight: 800; color: #0f172a; }
+    .summary-pill .n.purple { color: #7c3aed; }
+    .publish-section { padding: 20px; }
+    .publish-btn { width: 100%; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 0.92rem; font-weight: 700; font-family: inherit; cursor: pointer; }
+    .publish-btn:hover { box-shadow: 0 6px 20px rgba(22,163,74,0.3); }
+    .publish-hint { font-size: 0.75rem; color: #94a3b8; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+    <span class="header-name">Dwayne Swanson</span>
+  </header>
+
+  <div class="page">
+
+    <div class="exam-summary">
+      <div>
+        <div class="exam-summary-title">Finance d'entreprise — Partiel S2</div>
+        <div class="exam-summary-meta">45 min · Français · 3 groups · Score /20 · Full report</div>
+      </div>
+      <button class="edit-link">Edit details →</button>
+    </div>
+
+    <div class="steps">
+      <div class="step active"><div class="step-num">1</div> Build Questions</div>
+      <div class="step"><div class="step-num">2</div> Publish</div>
+    </div>
+
+    <!-- Global grading rubric -->
+    <div class="rubric-card">
+      <div class="rubric-head" onclick="toggleRubric()">
+        <div class="rubric-head-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Global Grading Rubric
+          <span class="rubric-sub">— for all written questions</span>
+        </div>
+        <button class="rubric-toggle" id="rubricBtn">Expand</button>
+      </div>
+      <div class="rubric-body" id="rubricBody">
+        <div class="rubric-body-inner">
+          <label class="field-label">General expectations</label>
+          <textarea class="rubric-ta" placeholder="e.g. Answers must be structured. Minimum 80 words. Use correct terminology from the course."></textarea>
+          <label class="field-label" style="margin-top:14px;">Scoring scale</label>
+          <div id="scaleList">
+            <div class="scale-row"><input class="scale-score" type="text" value="0" placeholder="Score"><input class="scale-desc" type="text" value="No attempt or off-topic" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button></div>
+            <div class="scale-row"><input class="scale-score" type="text" value="1–2" placeholder="Score"><input class="scale-desc" type="text" value="Partial, significant gaps" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button></div>
+            <div class="scale-row"><input class="scale-score" type="text" value="3–4" placeholder="Score"><input class="scale-desc" type="text" value="Good, minor omissions" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button></div>
+            <div class="scale-row"><input class="scale-score" type="text" value="5" placeholder="Score"><input class="scale-desc" type="text" value="Complete, accurate, well-structured" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button></div>
+          </div>
+          <button class="add-scale-btn" onclick="addScaleRow()">+ Add score level</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Question list -->
+    <div id="list">
+
+      <!-- SECTION 1 -->
+      <div class="section-card" style="margin-bottom:0;">
+        <div class="section-head">
+          <span class="section-lbl">Section</span>
+          <input class="section-title-input" type="text" value="Section 1 — Questions à choix multiples">
+          <div class="s-acts">
+            <button class="s-btn" onclick="moveEl(this.closest('.section-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+            <button class="s-btn" onclick="moveEl(this.closest('.section-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="s-btn del" onclick="removeEl(this.closest('.section-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+          </div>
+        </div>
+        <div class="section-body">
+          <input class="section-instr" type="text" value="Choisissez la meilleure réponse. Une seule réponse correcte." placeholder="Section instructions (optional)…">
+          <div class="s-pts"><span class="s-pts-lbl">Pts</span><input class="s-pts-input" type="number" value="10"><span class="s-pts-lbl">pts</span></div>
+        </div>
+      </div>
+
+      <!-- Insert zone -->
+      <div class="insert-zone"><div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div></div>
+
+      <!-- Q1 -->
+      <div class="q-card" style="margin-bottom:0;">
+        <div class="q-head">
+          <span class="q-num">Q1</span><span class="q-badge badge-mcq">MCQ</span>
+          <div class="q-acts">
+            <button class="q-btn" onclick="moveEl(this.closest('.q-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+            <button class="q-btn" onclick="moveEl(this.closest('.q-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="q-btn del" onclick="removeEl(this.closest('.q-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/></svg></button>
+          </div>
+        </div>
+        <div class="q-body">
+          <textarea class="q-input" rows="2">Qu'est-ce que le besoin en fonds de roulement (BFR) ?</textarea>
+          <div class="opts">
+            <div class="opt-row"><span class="opt-letter">A</span><input class="opt-input" type="text" value="La différence entre actif circulant et passif circulant"><input type="radio" name="c0" class="opt-radio"></div>
+            <div class="opt-row correct"><span class="opt-letter">B</span><input class="opt-input" type="text" value="Le besoin de financement du cycle d'exploitation"><input type="radio" name="c0" class="opt-radio" checked><span class="correct-tag">✓ Correct</span></div>
+            <div class="opt-row"><span class="opt-letter">C</span><input class="opt-input" type="text" value="Le montant des dettes financières"><input type="radio" name="c0" class="opt-radio"></div>
+            <div class="opt-row"><span class="opt-letter">D</span><input class="opt-input" type="text" placeholder="Option D (optional)…"><input type="radio" name="c0" class="opt-radio"></div>
+          </div>
+          <div class="attach-section">
+            <span class="attach-label">Attachments</span>
+            <div class="attach-options">
+              <button class="attach-opt" onclick="this.nextElementSibling.click()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
+              </button>
+              <input type="file" accept="image/*" style="display:none;" onchange="showFile(this,'image')">
+              <button class="attach-opt" onclick="this.nextElementSibling.click()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+              </button>
+              <input type="file" accept=".pdf" style="display:none;" onchange="showFile(this,'pdf')">
+              <button class="attach-opt" onclick="this.nextElementSibling.click()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio
+              </button>
+              <input type="file" accept="audio/*" style="display:none;" onchange="showFile(this,'audio')">
+              <button class="attach-opt" onclick="toggleVideoInput(this)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link
+              </button>
+            </div>
+            <!-- Example: image attached -->
+            <div class="attach-preview">
+              <span class="attach-file"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> graph-bfr.png <span class="rm">✕</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insert zone -->
+      <div class="insert-zone"><div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div></div>
+
+      <!-- Q2 Written -->
+      <div class="q-card open-type" style="margin-bottom:0;">
+        <div class="q-head">
+          <span class="q-num">Q2</span><span class="q-badge badge-open">Written</span>
+          <div class="q-acts">
+            <button class="q-btn" onclick="moveEl(this.closest('.q-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+            <button class="q-btn" onclick="moveEl(this.closest('.q-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button class="q-btn del" onclick="removeEl(this.closest('.q-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/></svg></button>
+          </div>
+        </div>
+        <div class="q-body">
+          <textarea class="q-input" rows="2">Expliquez l'impact d'une hausse des taux d'intérêt sur la valorisation d'une entreprise.</textarea>
+          <div class="open-note">Students type a written response — you grade it after the exam.</div>
+          <div class="crit-label"><span class="ai-chip">AI</span> Grading Criteria <span class="crit-hint">(optional — used for AI scoring suggestions during grading)</span></div>
+          <textarea class="crit-ta" rows="3" placeholder="e.g. — Mentions impact on cost of capital (2 pts)&#10;— Links to reduction in PV of future cash flows (2 pts)"></textarea>
+          <div class="pts-row"><span class="pts-lbl">Max points</span><input class="pts-inp" type="number" value="5"><span class="pts-lbl">pts</span></div>
+          <div class="attach-section">
+            <span class="attach-label">Attachments</span>
+            <div class="attach-options">
+              <button class="attach-opt" onclick="this.nextElementSibling.click()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image
+              </button>
+              <input type="file" accept="image/*" style="display:none;" onchange="showFile(this,'image')">
+              <button class="attach-opt" onclick="this.nextElementSibling.click()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF
+              </button>
+              <input type="file" accept=".pdf" style="display:none;" onchange="showFile(this,'pdf')">
+              <button class="attach-opt" onclick="this.nextElementSibling.click()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio
+              </button>
+              <input type="file" accept="audio/*" style="display:none;" onchange="showFile(this,'audio')">
+              <button class="attach-opt" onclick="toggleVideoInput(this)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link
+              </button>
+            </div>
+            <div class="video-link-row" id="videoRow2">
+              <input class="video-link-input" type="url" placeholder="Paste YouTube or Vimeo URL…" value="https://youtube.com/watch?v=example">
+              <button class="video-link-btn">Confirm</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insert zone at bottom of list -->
+      <div class="insert-zone"><div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div></div>
+
+      <!-- Add buttons (card style, matching question borders) -->
+      <div class="add-row" id="addRow">
+        <button class="add-card add-section-card" onclick="append('section')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          Add Section
+        </button>
+        <button class="add-card add-mcq-card" onclick="append('mcq')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          MCQ Question
+        </button>
+        <button class="add-card add-open-card" onclick="append('open')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Written Question
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Exam Summary + Publish (combined) -->
+    <div class="publish-wrap" style="margin-top:16px;">
+      <div class="summary-section">
+        <span class="summary-lbl">Exam Summary</span>
+        <div class="summary-divider"></div>
+        <div class="summary-pill"><span class="n" id="sC">1</span> section</div>
+        <div class="summary-divider"></div>
+        <div class="summary-pill"><span class="n" id="mC">1</span> MCQ</div>
+        <div class="summary-divider"></div>
+        <div class="summary-pill"><span class="n purple" id="oC">1</span> written</div>
+        <div class="summary-divider"></div>
+        <div class="summary-pill"><span class="n" id="tC">2</span> total questions</div>
+      </div>
+      <div class="publish-section">
+        <button class="publish-btn" id="publishBtn" onclick="showPublishSuccess()">Confirm and publish exam →</button>
+
+        <!-- Success state (hidden until publish) -->
+        <div id="publishSuccess" style="display:none; margin-top:16px; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden;">
+          <div style="background:linear-gradient(135deg,#16a34a,#15803d);padding:16px 20px;">
+            <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.6);margin-bottom:3px;">Published successfully</div>
+            <div style="font-size:0.95rem;font-weight:700;color:#fff;">✅ Share these details with your students</div>
+          </div>
+          <div style="padding:20px;background:#fff;">
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:7px;">Exam Link</div>
+            <div style="display:flex;gap:8px;margin-bottom:18px;">
+              <input type="text" readonly value="http://localhost:3000/exam-engine.html?id=s4vyr6hw" onclick="this.select()"
+                style="flex:1;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.78rem;font-family:monospace;color:#0f172a;background:#f8fafc;min-width:0;">
+              <button onclick="navigator.clipboard.writeText('http://localhost:3000/exam-engine.html?id=s4vyr6hw').then(()=>{this.textContent='✓ Copied';setTimeout(()=>this.textContent='Copy',1500)})"
+                style="padding:9px 16px;border-radius:8px;border:none;background:#2563eb;color:#fff;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">Copy</button>
+            </div>
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:8px;">Access Codes by Group</div>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:9px 14px;">
+                <span style="font-size:0.82rem;font-weight:600;color:#475569;">Finance L3 — Group 1</span>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-family:monospace;font-size:0.95rem;font-weight:800;color:#0f172a;letter-spacing:0.1em;">GZU936</span>
+                  <button onclick="navigator.clipboard.writeText('GZU936').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Copy',1200)})"
+                    style="font-size:0.72rem;font-weight:700;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit;color:#475569;">Copy</button>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:9px 14px;">
+                <span style="font-size:0.82rem;font-weight:600;color:#475569;">Finance L3 — Group 2</span>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span style="font-family:monospace;font-size:0.95rem;font-weight:800;color:#0f172a;letter-spacing:0.1em;">RKT482</span>
+                  <button onclick="navigator.clipboard.writeText('RKT482').then(()=>{this.textContent='✓';setTimeout(()=>this.textContent='Copy',1200)})"
+                    style="font-size:0.72rem;font-weight:700;background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:6px;padding:3px 9px;cursor:pointer;font-family:inherit;color:#475569;">Copy</button>
+                </div>
+              </div>
+            </div>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
+
+            <!-- Email teacher + Draft email -->
+            <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+              <button id="emailMeBtn" onclick="emailTeacher()" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Email me the details
+              </button>
+              <button onclick="toggleDraftEmail()" style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='#e2e8f0'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Draft student email
+              </button>
+            </div>
+
+            <!-- Draft email panel -->
+            <div id="draftEmailPanel" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+                <label style="font-size:0.78rem;font-weight:700;color:#374151;white-space:nowrap;">Select group</label>
+                <select id="groupSelect" onchange="updateDraft()" style="flex:1;font-size:0.82rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:7px;padding:6px 10px;color:#0f172a;outline:none;background:#fff;">
+                  <option value="">— Choose a group —</option>
+                  <option value="Finance L3 — Group 1|GZU936">Finance L3 — Group 1</option>
+                  <option value="Finance L3 — Group 2|RKT482">Finance L3 — Group 2</option>
+                </select>
+              </div>
+              <div id="draftContent" style="display:none;">
+                <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:6px;">Email draft — copy and paste into your email client</div>
+                <textarea id="draftText" readonly onclick="this.select()" style="width:100%;font-size:0.8rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px;color:#374151;background:#fff;line-height:1.7;min-height:180px;resize:none;outline:none;"></textarea>
+                <button onclick="copyDraft()" style="margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;" id="copyDraftBtn">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  Copy email
+                </button>
+              </div>
+            </div>
+
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+              <div>
+                <div style="font-size:0.85rem;font-weight:700;color:#0f172a;margin-bottom:2px;">Ready to receive submissions</div>
+                <div style="font-size:0.75rem;color:#94a3b8;">Monitor and grade responses as students submit.</div>
+              </div>
+              <button style="display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:0.82rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:inherit;">
+                View submissions →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let qNum = 2;
+
+    // Close all popups when clicking outside
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.insert-plus')) {
+        document.querySelectorAll('.insert-popup.open').forEach(p => p.classList.remove('open'));
+      }
+    });
+
+    function toggleInsert(btn) {
+      const popup = btn.querySelector('.insert-popup');
+      const wasOpen = popup.classList.contains('open');
+      document.querySelectorAll('.insert-popup.open').forEach(p => p.classList.remove('open'));
+      if (!wasOpen) popup.classList.add('open');
+    }
+
+    function toggleRubric() {
+      const body = document.getElementById('rubricBody');
+      const btn  = document.getElementById('rubricBtn');
+      const open = body.style.display === 'block';
+      body.style.display = open ? 'none' : 'block';
+      btn.textContent    = open ? 'Expand' : 'Collapse';
+    }
+
+    function addScaleRow() {
+      const row = document.createElement('div');
+      row.className = 'scale-row';
+      row.innerHTML = `<input class="scale-score" type="text" placeholder="Score"><input class="scale-desc" type="text" placeholder="Description…"><button class="rm-btn" onclick="this.closest('.scale-row').remove()">✕</button>`;
+      document.getElementById('scaleList').appendChild(row);
+    }
+
+    function showFile(input, type) {
+      if (!input.files[0]) return;
+      const name = input.files[0].name;
+      const icons = { image: '🖼', pdf: '📄', audio: '🔊' };
+      const preview = document.createElement('div');
+      preview.className = 'attach-preview';
+      preview.style.marginTop = '8px';
+      preview.innerHTML = `<span class="attach-file">${icons[type] || '📎'} ${name} <span class="rm" onclick="this.closest('.attach-preview').remove()">✕</span></span>`;
+      input.closest('.attach-section').appendChild(preview);
+      input.value = '';
+    }
+
+    function toggleVideoInput(btn) {
+      const body = btn.closest('.q-body');
+      let row = body.querySelector('.video-link-row');
+      if (row) { row.remove(); return; }
+      row = document.createElement('div');
+      row.className = 'video-link-row';
+      row.innerHTML = `<input class="video-link-input" type="url" placeholder="Paste YouTube or Vimeo URL…"><button class="video-link-btn">Confirm</button>`;
+      btn.closest('.attach-options').after(row);
+    }
+
+    function buildCard(type) {
+      const el = document.createElement('div');
+      if (type === 'section') {
+        el.className = 'section-card';
+        el.style.marginBottom = '0';
+        el.innerHTML = `
+          <div class="section-head">
+            <span class="section-lbl">Section</span>
+            <input class="section-title-input" type="text" placeholder="Section title…">
+            <div class="s-acts">
+              <button class="s-btn" onclick="moveEl(this.closest('.section-card'),-1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+              <button class="s-btn" onclick="moveEl(this.closest('.section-card'),1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+              <button class="s-btn del" onclick="removeEl(this.closest('.section-card'))"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+          </div>
+          <div class="section-body">
+            <input class="section-instr" type="text" placeholder="Section instructions (optional)…">
+            <div class="s-pts"><span class="s-pts-lbl">Pts</span><input class="s-pts-input" type="number" value="10"><span class="s-pts-lbl">pts</span></div>
+          </div>`;
+      } else {
+        qNum++;
+        const isMCQ = type === 'mcq';
+        el.className = `q-card${isMCQ ? '' : ' open-type'}`;
+        el.style.marginBottom = '0';
+        const optLetters = ['A','B','C','D'];
+        const qBody = isMCQ
+          ? `<textarea class="q-input" rows="2" placeholder="Question text…"></textarea>
+             <div class="opts">${optLetters.map(l => `<div class="opt-row"><span class="opt-letter">${l}</span><input class="opt-input" type="text" placeholder="Option ${l}…"><input type="radio" name="c${qNum}" class="opt-radio"></div>`).join('')}</div>`
+          : `<textarea class="q-input" rows="2" placeholder="Question text…"></textarea>
+             <div class="open-note">Students type a written response — you grade it after the exam.</div>
+             <div class="crit-label"><span class="ai-chip">AI</span> Grading Criteria <span class="crit-hint">(optional)</span></div>
+             <textarea class="crit-ta" rows="3" placeholder="e.g. — Key point (2 pts)&#10;— Supporting argument (2 pts)"></textarea>
+             <div class="pts-row"><span class="pts-lbl">Max points</span><input class="pts-inp" type="number" value="5"><span class="pts-lbl">pts</span></div>`;
+        el.innerHTML = `
+          <div class="q-head">
+            <span class="q-num">Q${qNum}</span>
+            <span class="q-badge ${isMCQ ? 'badge-mcq">MCQ' : 'badge-open">Written'}</span>
+            <div class="q-acts">
+              <button class="q-btn" onclick="moveEl(this.closest('.q-card'),-1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
+              <button class="q-btn" onclick="moveEl(this.closest('.q-card'),1)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+              <button class="q-btn del" onclick="removeEl(this.closest('.q-card'))"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/></svg></button>
+            </div>
+          </div>
+          <div class="q-body">
+            ${qBody}
+            <div class="attach-section">
+              <span class="attach-label">Attachments</span>
+              <div class="attach-options">
+                <button class="attach-opt"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image / PDF</button>
+                <button class="attach-opt"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio file</button>
+                <button class="attach-opt" onclick="toggleVideoInput(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link</button>
+              </div>
+            </div>
+          </div>`;
+      }
+      return el;
+    }
+
+    function makeInsertZone() {
+      const iz = document.createElement('div');
+      iz.className = 'insert-zone';
+      iz.innerHTML = `<div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div>`;
+      return iz;
+    }
+
+    function insertHere(btn, type) {
+      const popup = btn.closest('.insert-popup');
+      popup.classList.remove('open');
+      const iz   = btn.closest('.insert-zone');
+      const list = document.getElementById('list');
+      const card = buildCard(type);
+      const newIz = makeInsertZone();
+      list.insertBefore(newIz, iz);
+      list.insertBefore(card, newIz);
+      card.querySelector('input,textarea')?.focus();
+      updateStats();
+    }
+
+    function append(type) {
+      const list  = document.getElementById('list');
+      const addR  = document.getElementById('addRow');
+      const card  = buildCard(type);
+      const iz    = makeInsertZone();
+      list.insertBefore(iz, addR);
+      list.insertBefore(card, iz);
+      card.querySelector('input,textarea')?.focus();
+      addR.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      updateStats();
+    }
+
+    function moveEl(el, dir) {
+      const list  = document.getElementById('list');
+      const cards = [...list.children].filter(c =>
+        c.classList.contains('q-card') || c.classList.contains('section-card')
+      );
+      const idx = cards.indexOf(el);
+      const target = cards[idx + dir];
+      if (!target) return;
+      if (dir === -1) list.insertBefore(el, target);
+      else target.after(el);
+    }
+
+    function removeEl(el) {
+      const prev = el.previousElementSibling;
+      if (prev?.classList.contains('insert-zone')) prev.remove();
+      el.remove();
+      updateStats();
+    }
+
+    function emailTeacher() {
+      const btn = document.getElementById('emailMeBtn');
+      btn.textContent = '✓ Sent to dwayne.swanson@e-cdp.com';
+      btn.style.color = '#16a34a';
+      btn.style.borderColor = '#86efac';
+      btn.style.background = '#f0fdf4';
+      btn.disabled = true;
+    }
+
+    function toggleDraftEmail() {
+      const panel = document.getElementById('draftEmailPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateDraft() {
+      const val = document.getElementById('groupSelect').value;
+      const content = document.getElementById('draftContent');
+      if (!val) { content.style.display = 'none'; return; }
+      const [groupName, code] = val.split('|');
+      const examTitle = 'Finance d\'entreprise — Partiel S2';
+      const examLink  = 'http://localhost:3000/exam-engine.html?id=s4vyr6hw';
+      const draft = `Subject: ${examTitle} — Exam Link & Access Code
+
+Dear students,
+
+Please find below the details for your upcoming exam.
+
+Exam: ${examTitle}
+Group: ${groupName}
+Duration: 45 minutes
+
+Exam link:
+${examLink}
+
+Access code: ${code}
+
+Instructions:
+- Click the link above to access the exam.
+- Enter your name, email address, and the access code above.
+- The exam will start immediately once you confirm.
+- Do not refresh or close the browser during the exam.
+
+Good luck,
+Dwayne Swanson`;
+      document.getElementById('draftText').value = draft;
+      content.style.display = 'block';
+    }
+
+    function copyDraft() {
+      const ta  = document.getElementById('draftText');
+      const btn = document.getElementById('copyDraftBtn');
+      navigator.clipboard.writeText(ta.value).then(() => {
+        btn.textContent = '✓ Copied';
+        setTimeout(() => {
+          btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy email';
+        }, 1500);
+      });
+    }
+
+    function showPublishSuccess() {
+      document.getElementById('publishBtn').style.display = 'none';
+      document.getElementById('publishSuccess').style.display = 'block';
+      document.getElementById('publishSuccess').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function updateStats() {
+      const s = document.querySelectorAll('.section-card').length;
+      const m = document.querySelectorAll('.q-card:not(.open-type)').length;
+      const o = document.querySelectorAll('.q-card.open-type').length;
+      const t = m + o;
+      document.getElementById('sC').textContent = s;
+      document.getElementById('mC').textContent = m;
+      document.getElementById('oC').textContent = o;
+      document.getElementById('tC').textContent = t;
+      document.getElementById('publishHint').textContent =
+        `${s} section${s!==1?'s':''} · ${m} MCQ · ${o} written · ${t} total question${t!==1?'s':''}`;
+    }
+  </script>
+</body>
+</html>

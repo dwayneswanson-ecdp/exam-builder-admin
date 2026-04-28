@@ -165,17 +165,8 @@ test('full submission: success screen and email payload are correct', async ({ p
   await expect(page.locator('#successScreen')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('#successScreen h2')).toBeVisible();
 
-  // Email status shows sent confirmation
-  await expect(page.locator('#emailStatus')).toContainText('Résultats envoyés', { timeout: 5000 });
-
-  // Email payload is correct
-  const capture = await page.evaluate(() => window.__emailjsCapture);
-  expect(capture, 'EmailJS send was never called').not.toBeNull();
-  expect(capture.templateId).toBe('template_x7bkb1l');
-  expect(capture.payload.to_email).toBe(TEACHER_EMAIL);
-  expect(capture.payload.from_email).toBe(STUDENT_EMAIL);
-  expect(capture.payload.from_name).toContain('SMITH');
-  expect(capture.payload.message_html).toContain('Mock Exam');
+  // Success screen shows teacher-will-share message (auto-email removed — results sent by teacher)
+  await expect(page.locator('#emailStatus')).toContainText('enregistrés', { timeout: 5000 });
 
   // No JS errors during the entire flow
   expect(jsErrors, 'JS errors during flow: ' + jsErrors.join(', ')).toHaveLength(0);

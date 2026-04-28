@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submissions — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+    /* Exam hero */
+    .exam-hero { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .exam-hero-left { flex: 1; min-width: 0; }
+    .exam-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .exam-meta { font-size: 0.82rem; color: #94a3b8; }
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+    .stats-row { display: flex; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .stat-pill { background: #f8fafc; padding: 14px 24px; text-align: center; border-right: 1px solid #e2e8f0; }
+    .stat-pill:last-child { border-right: none; }
+    .stat-pill-val { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .stat-pill-val.orange { color: #ea580c; }
+    .stat-pill-val.green  { color: #16a34a; }
+    .stat-pill-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-top: 3px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; font-family: inherit; border: none; border-radius: 7px; padding: 9px 16px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .btn-primary   { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline   { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
+    .btn-outline:hover { border-color: #94a3b8; color: #0f172a; }
+    .btn-ghost-sm  { display: inline-flex; align-items: center; gap: 5px; background: none; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; font-family: inherit; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+    .btn-ghost-sm:hover { border-color: #94a3b8; color: #0f172a; }
+    .btn-scheduled { background: #16a34a; color: #fff; border: none; }
+    .pencil-btn { background: none; border: none; cursor: pointer; padding: 2px; display: inline-flex; align-items: center; color: #94a3b8; transition: color 0.15s; }
+    .pencil-btn:hover { color: #0f172a; }
+
+    /* Send actions panel */
+    .send-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
+    .send-panel-head { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+    .send-panel-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+    .send-format-hint { font-size: 0.75rem; color: #94a3b8; }
+    .send-format-hint a { color: #2563eb; cursor: pointer; }
+    .send-panel-body { padding: 16px 20px; display: flex; align-items: center; gap: 10px; }
+    .schedule-picker { display: flex; align-items: center; gap: 8px; padding-left: 12px; border-left: 1.5px solid #e2e8f0; }
+    .ctrl-select, .ctrl-date {
+      font-size: 0.82rem; font-family: inherit;
+      border: 1.5px solid #e2e8f0; border-radius: 7px;
+      padding: 0 10px; height: 36px; color: #0f172a; outline: none;
+      background: #fff; cursor: pointer; line-height: 36px;
+    }
+    .ctrl-select:focus, .ctrl-date:focus { border-color: #2563eb; }
+
+    /* Student list panel */
+    .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .panel-header { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px; align-items: center; gap: 12px; padding: 10px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .col-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; }
+    .sub-row { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
+    .sub-row:last-child { border-bottom: none; }
+    .sub-row:hover { background: #fafafa; }
+    .sub-row input[type="checkbox"],
+    .panel-header input[type="checkbox"] { accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer; }
+    .sub-name { font-size: 0.88rem; font-weight: 700; color: #2563eb; cursor: pointer; }
+    .sub-name:hover { text-decoration: underline; }
+    .sub-email { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+    .sub-score { font-size: 0.88rem; font-weight: 800; color: #0f172a; text-align: right; }
+    .sub-date { font-size: 0.73rem; color: #94a3b8; }
+    .badge { font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; display: inline-block; }
+    .badge-pending  { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    .badge-sent     { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .badge-sched    { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-bounced  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .row-bounced    { background: #fff8f8; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        My Exams
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+    <span class="header-name">Dwayne Swanson</span>
+  </header>
+
+  <div class="page">
+
+    <!-- Exam hero -->
+    <div class="exam-hero">
+      <div class="exam-hero-left">
+        <div class="exam-title">Finance d'entreprise — Partiel S2</div>
+        <div class="exam-meta">45 min · Finance L3 · Published 15 Apr 2026</div>
+      </div>
+      <div class="hero-right">
+        <div class="stats-row">
+          <div class="stat-pill"><div class="stat-pill-val">7</div><div class="stat-pill-label">Submissions</div></div>
+          <div class="stat-pill"><div class="stat-pill-val orange">3</div><div class="stat-pill-label">Pending</div></div>
+          <div class="stat-pill"><div class="stat-pill-val green">2</div><div class="stat-pill-label">Sent</div></div>
+          <div class="stat-pill"><div class="stat-pill-val" style="color:#dc2626;">1</div><div class="stat-pill-label">Bounced</div></div>
+        </div>
+        <button class="btn-ghost-sm">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF report
+        </button>
+      </div>
+    </div>
+
+    <!-- Send actions -->
+    <div class="send-panel">
+      <div class="send-panel-head">
+        <span class="send-panel-title">Send Results</span>
+        <span class="send-format-hint">Sending: Full results · <a onclick="">Change</a></span>
+      </div>
+      <div class="send-panel-body">
+        <button class="btn btn-primary" id="sendNowBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send now
+        </button>
+        <button class="btn btn-outline" id="scheduleToggle" onclick="toggleSchedule()">Schedule send</button>
+
+        <!-- Schedule picker -->
+        <div class="schedule-picker" id="schedulePicker" style="display:none;">
+          <input type="date" class="ctrl-date" id="schedDate" value="2026-04-28">
+          <select class="ctrl-select" id="schedTime">
+            <option>6:00 AM</option><option>6:30 AM</option><option>7:00 AM</option><option>7:30 AM</option>
+            <option>8:00 AM</option><option>8:30 AM</option><option selected>9:00 AM</option><option>9:30 AM</option>
+            <option>10:00 AM</option><option>10:30 AM</option><option>11:00 AM</option><option>11:30 AM</option>
+            <option>12:00 PM</option><option>12:30 PM</option><option>1:00 PM</option><option>1:30 PM</option>
+            <option>2:00 PM</option><option>2:30 PM</option><option>3:00 PM</option><option>3:30 PM</option>
+            <option>4:00 PM</option><option>4:30 PM</option><option>5:00 PM</option><option>5:30 PM</option>
+            <option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option><option>9:00 PM</option>
+          </select>
+          <button class="btn btn-outline" id="confirmScheduleBtn" onclick="confirmSchedule()">Confirm</button>
+        </div>
+
+        <!-- Scheduled confirmation text -->
+        <div id="scheduleConfirmText" style="display:none;display:none;align-items:center;gap:8px;font-size:0.82rem;color:#166534;font-weight:600;">
+          <span id="scheduleLabel"></span>
+          <button class="pencil-btn" onclick="editSchedule()" title="Edit schedule" style="color:#16a34a;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student list -->
+    <div class="panel">
+      <div class="panel-header">
+        <label style="grid-column:1/3;display:flex;align-items:center;gap:8px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;cursor:pointer;">
+          <input type="checkbox"> Select All
+        </label>
+        <div class="col-label">Status</div>
+        <div class="col-label">Submitted</div>
+        <div class="col-label" style="text-align:right;">Score</div>
+      </div>
+
+      <div class="sub-row">
+        <input type="checkbox">
+        <div><div class="sub-name">BERNARD Lucas</div><div class="sub-email">lucas.bernard@student.escp.fr</div></div>
+        <div><span class="badge badge-pending">Pending</span></div>
+        <div class="sub-date">15 Apr · 14:28</div>
+        <div class="sub-score">9 / 20</div>
+      </div>
+
+      <div class="sub-row" style="opacity:0.55;">
+        <input type="checkbox" disabled>
+        <div><div class="sub-name">DUPONT Marc</div><div class="sub-email">marc.dupont@student.escp.fr</div></div>
+        <div><span class="badge badge-sent">Sent</span></div>
+        <div class="sub-date">14 Apr · 09:44</div>
+        <div class="sub-score">15 / 20</div>
+      </div>
+
+      <div class="sub-row">
+        <input type="checkbox" checked>
+        <div><div class="sub-name">GIRARD Thomas</div><div class="sub-email">thomas.girard@student.escp.fr</div></div>
+        <div><span class="badge badge-pending">Pending</span></div>
+        <div class="sub-date">15 Apr · 13:55</div>
+        <div class="sub-score">17 / 20</div>
+      </div>
+
+      <div class="sub-row row-bounced">
+        <input type="checkbox">
+        <div>
+          <div class="sub-name">LAMBERT Sophie</div>
+          <div class="sub-email" style="color:#fca5a5;">lambert.sophie@student-typo.fr
+            <span style="font-size:0.68rem;color:#991b1b;font-weight:600;margin-left:4px;">· incorrect email — update &amp; resend</span>
+          </div>
+        </div>
+        <div><span class="badge badge-bounced">Bounced</span></div>
+        <div class="sub-date">15 Apr · 14:18</div>
+        <div class="sub-score">10 / 20</div>
+      </div>
+
+      <div class="sub-row">
+        <input type="checkbox">
+        <div><div class="sub-name">LEFEBVRE Anaïs</div><div class="sub-email">anais.lefebvre@student.escp.fr</div></div>
+        <div><span class="badge badge-sched">Sched. 28 Apr 09:00 AM</span></div>
+        <div class="sub-date">15 Apr · 14:21</div>
+        <div class="sub-score">— / 20</div>
+      </div>
+
+      <div class="sub-row" style="opacity:0.55;">
+        <input type="checkbox" disabled>
+        <div><div class="sub-name">MERCIER Elodie</div><div class="sub-email">elodie.mercier@student.escp.fr</div></div>
+        <div><span class="badge badge-sent">Sent</span></div>
+        <div class="sub-date">14 Apr · 10:58</div>
+        <div class="sub-score">11 / 20</div>
+      </div>
+
+      <div class="sub-row">
+        <input type="checkbox" checked>
+        <div><div class="sub-name">ROUSSEAU Camille</div><div class="sub-email">camille.rousseau@student.escp.fr</div></div>
+        <div><span class="badge badge-pending">Pending</span></div>
+        <div class="sub-date">15 Apr · 14:32</div>
+        <div class="sub-score">13 / 20</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let scheduled = false;
+
+    function toggleSchedule() {
+      const picker  = document.getElementById('schedulePicker');
+      const btn     = document.getElementById('scheduleToggle');
+      const confirm = document.getElementById('scheduleConfirmText');
+      const showing = picker.style.display === 'flex';
+      if (showing) {
+        picker.style.display = 'none';
+        btn.className = scheduled ? 'btn btn-scheduled' : 'btn btn-outline';
+        btn.textContent = scheduled ? '✓ Scheduled' : 'Schedule send';
+        if (scheduled) confirm.style.display = 'flex';
+      } else {
+        picker.style.display = 'flex';
+        confirm.style.display = 'none';
+        btn.className = 'btn btn-outline';
+        btn.textContent = 'Cancel';
+      }
+    }
+
+    function confirmSchedule() {
+      const picker  = document.getElementById('schedulePicker');
+      const toggle  = document.getElementById('scheduleToggle');
+      const confirm = document.getElementById('scheduleConfirmText');
+      const date    = document.getElementById('schedDate').value;
+      const time    = document.getElementById('schedTime').value;
+      const d       = new Date(date);
+      const label   = d.toLocaleDateString('en-GB', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+      scheduled = true;
+      picker.style.display = 'none';
+      toggle.className = 'btn btn-scheduled';
+      toggle.textContent = '✓ Scheduled';
+      toggle.onclick = toggleSchedule;
+      document.getElementById('scheduleLabel').textContent = `Exam delivery scheduled for ${label} · ${time}`;
+      confirm.style.display = 'flex';
+    }
+
+    function editSchedule() {
+      document.getElementById('scheduleConfirmText').style.display = 'none';
+      document.getElementById('schedulePicker').style.display = 'flex';
+      document.getElementById('scheduleToggle').className = 'btn btn-outline';
+      document.getElementById('scheduleToggle').textContent = 'Cancel';
+    }
+  </script>
+</body>
+</html>

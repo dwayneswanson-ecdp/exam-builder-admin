@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Report — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; font-size: 13px; }
+
+    /* Toolbar */
+    .toolbar { background: #0f172a; padding: 10px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .toolbar-left { display: flex; align-items: center; gap: 10px; }
+    .toolbar-title { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+    .preview-note { font-size: 0.68rem; color: rgba(255,255,255,0.35); }
+    .toolbar-btns { display: flex; gap: 8px; }
+    .btn-print { display: flex; align-items: center; gap: 5px; background: #fff; color: #0f172a; border: none; border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-pdf { display: flex; align-items: center; gap: 5px; background: #2563eb; color: #fff; border: none; border-radius: 7px; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+    .page-wrap { max-width: 740px; margin: 28px auto; padding: 0 20px 60px; }
+    .report { background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+    /* Header */
+    .report-header { background: #0f172a; padding: 22px 30px; display: flex; align-items: center; justify-content: space-between; }
+    .header-brand { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-bottom: 3px; }
+    .header-inst { font-size: 0.9rem; font-weight: 700; color: #fff; }
+    .report-badge { font-size: 0.58rem; font-weight: 700; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); padding: 3px 9px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* Student + Score */
+    .student-block { padding: 22px 30px 16px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+    .student-name { font-size: 1.3rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .student-email { font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; }
+    .exam-tag { font-size: 0.75rem; font-weight: 500; color: #475569; display: flex; align-items: center; gap: 5px; }
+    .score-block { text-align: right; flex-shrink: 0; }
+    .score-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 3px; }
+    .score-big { font-size: 2.4rem; font-weight: 800; color: #2563eb; line-height: 1; }
+    .score-big span { font-size: 1rem; color: #cbd5e1; font-weight: 500; }
+    .score-detail { font-size: 0.68rem; color: #94a3b8; margin-top: 3px; }
+
+    /* Meta row */
+    .meta-row { display: flex; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+    .meta-item { flex: 1; padding: 11px 18px; border-right: 1px solid #e2e8f0; }
+    .meta-item:last-child { border-right: none; }
+    .meta-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 2px; }
+    .meta-val { font-size: 0.78rem; font-weight: 600; color: #0f172a; }
+
+    /* Section head */
+    .section-head { background: #0f172a; padding: 9px 30px; display: flex; align-items: center; justify-content: space-between; }
+    .section-head-title { font-size: 0.78rem; font-weight: 700; color: #fff; }
+    .section-head-score { font-size: 0.7rem; color: #94a3b8; }
+
+    /* Unified results table */
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: #f8fafc; }
+    th { padding: 7px 14px; text-align: left; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 9px 14px; font-size: 0.78rem; color: #374151; border-bottom: 1px solid #f1f5f9; vertical-align: top; line-height: 1.5; }
+    tr:last-child td { border-bottom: none; }
+    .q-lbl { font-size: 0.58rem; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 2px; }
+    .result-col { text-align: center; width: 48px; font-size: 0.92rem; }
+    .score-col { text-align: right; width: 64px; font-weight: 700; color: #0f172a; font-size: 0.82rem; }
+    .open-marker { font-size: 0.68rem; color: #94a3b8; font-style: italic; }
+
+    /* Teacher comment sub-row */
+    .comment-row td { padding: 0 14px 10px; border-bottom: 1px solid #f1f5f9; }
+    .comment-box { font-size: 0.72rem; color: #475569; font-style: italic; line-height: 1.55; padding: 7px 12px; border-left: 3px solid #e2e8f0; background: #fafafa; border-radius: 0 5px 5px 0; }
+    .comment-lbl { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-bottom: 4px; }
+
+    /* Summary */
+    .summary-row { padding: 14px 30px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 28px; }
+    .sum-stat-lbl { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 2px; }
+    .sum-stat-val { font-size: 0.88rem; font-weight: 800; color: #0f172a; }
+
+    /* Footer */
+    .report-footer { padding: 12px 30px; background: #f1f5f9; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .footer-text { font-size: 0.65rem; color: #94a3b8; }
+    .footer-brand { font-size: 0.65rem; font-weight: 700; color: #cbd5e1; }
+
+    @media print {
+      body { background: #fff; font-size: 11px; }
+      .toolbar { display: none; }
+      .page-wrap { max-width: 100%; margin: 0; padding: 0; }
+      .report { box-shadow: none; border-radius: 0; }
+      .report-header, .section-head, .meta-row, .summary-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <span class="toolbar-title">Student Report — Preview</span>
+      <span class="preview-note">This is how the document will look</span>
+    </div>
+    <div class="toolbar-btns">
+      <button class="btn-print" onclick="window.print()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
+      <button class="btn-pdf" onclick="savePDF()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="page-wrap">
+    <div class="report">
+
+      <div class="report-header">
+        <div>
+          <div class="header-brand">Exam Builder</div>
+          <div class="header-inst">Ascencia Business School</div>
+        </div>
+        <span class="report-badge">Student Report</span>
+      </div>
+
+      <div class="student-block">
+        <div>
+          <div class="student-name">ROUSSEAU Camille</div>
+          <div class="student-email">camille.rousseau@student.escp.fr</div>
+          <div class="exam-tag">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Finance d'entreprise — Partiel S2
+          </div>
+        </div>
+        <div class="score-block">
+          <div class="score-lbl">Total Score</div>
+          <div class="score-big">14.5 <span>/ 20</span></div>
+          <div class="score-detail">13 / 15 MCQ correct · 6.5 / 10 written</div>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <div class="meta-item"><div class="meta-lbl">Date Taken</div><div class="meta-val">15 Apr 2026 · 14:32</div></div>
+        <div class="meta-item"><div class="meta-lbl">Duration</div><div class="meta-val">45 minutes</div></div>
+        <div class="meta-item"><div class="meta-lbl">Group</div><div class="meta-val">Finance L3 — Group 2</div></div>
+        <div class="meta-item"><div class="meta-lbl">Teacher</div><div class="meta-val">Dwayne Swanson</div></div>
+      </div>
+
+      <!-- Section 1 — MCQ -->
+      <div class="section-head">
+        <span class="section-head-title">Section 1 — Questions à choix multiples</span>
+        <span class="section-head-score">13 / 15 correct</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36%;">Question</th>
+            <th style="width:26%;">Your Answer</th>
+            <th style="width:26%;">Correct Answer</th>
+            <th class="result-col">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="q-lbl">Q1</span>Qu'est-ce que le besoin en fonds de roulement (BFR) ?</td>
+            <td>Le besoin de financement du cycle d'exploitation</td>
+            <td>Le besoin de financement du cycle d'exploitation</td>
+            <td class="result-col">✅</td>
+          </tr>
+          <tr>
+            <td><span class="q-lbl">Q2</span>Le ratio de liquidité générale est calculé comme :</td>
+            <td>Dettes / Actif total</td>
+            <td>Actif circulant / Passif circulant</td>
+            <td class="result-col">❌</td>
+          </tr>
+          <tr>
+            <td><span class="q-lbl">Q3</span>Un EBITDA positif indique que :</td>
+            <td>L'entreprise dégage un bénéfice avant amortissements</td>
+            <td>L'entreprise dégage un bénéfice avant amortissements</td>
+            <td class="result-col">✅</td>
+          </tr>
+          <tr>
+            <td><span class="q-lbl">Q4</span>L'effet de levier financier correspond à :</td>
+            <td>L'utilisation de capitaux propres uniquement</td>
+            <td>L'utilisation de la dette pour amplifier les rendements</td>
+            <td class="result-col">❌</td>
+          </tr>
+          <tr>
+            <td><span class="q-lbl">Q5</span>La capacité d'autofinancement (CAF) représente :</td>
+            <td>Les ressources générées par l'activité</td>
+            <td>Les ressources générées par l'activité</td>
+            <td class="result-col">✅</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Section 2 — Written -->
+      <div class="section-head">
+        <span class="section-head-title">Section 2 — Questions rédigées</span>
+        <span class="section-head-score">Teacher graded · 6.5 / 10</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width:36%;">Question</th>
+            <th style="width:48%;">Your Answer</th>
+            <th class="score-col">Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="q-lbl">Q6</span>Expliquez l'impact d'une hausse des taux d'intérêt sur la valorisation d'une entreprise.</td>
+            <td>Une hausse des taux d'intérêt augmente le coût du capital, ce qui réduit la valeur actuelle nette des flux futurs. Cela entraîne généralement une baisse de la valorisation des entreprises, surtout celles à forte croissance dont les flux sont éloignés dans le temps.</td>
+            <td class="score-col">4 / 5</td>
+          </tr>
+          <tr class="comment-row">
+            <td colspan="3" style="padding:0 14px 10px;">
+              <div class="comment-lbl">Teacher comment</div>
+              <div class="comment-box">Good explanation of the core concept. To strengthen your answer, mention the discount rate or WACC mechanism more explicitly next time.</div>
+            </td>
+          </tr>
+          <tr>
+            <td><span class="q-lbl">Q7</span>Définissez la notion de levier financier et ses risques.</td>
+            <td>Le levier financier correspond à l'utilisation de la dette pour amplifier les rendements. Il augmente le potentiel de gain mais aussi le risque de perte, notamment en cas de retournement économique.</td>
+            <td class="score-col">2.5 / 5</td>
+          </tr>
+          <tr class="comment-row">
+            <td colspan="3" style="padding:0 14px 10px;">
+              <div class="comment-lbl">Teacher comment</div>
+              <div class="comment-box">Definition correct but the risks section is too brief. No concrete example or quantification provided — this limited the score.</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="summary-row">
+        <div><div class="sum-stat-lbl">MCQ Score</div><div class="sum-stat-val">13 / 15</div></div>
+        <div><div class="sum-stat-lbl">Written Score</div><div class="sum-stat-val">6.5 / 10</div></div>
+        <div><div class="sum-stat-lbl">Total</div><div class="sum-stat-val">14.5 / 20</div></div>
+      </div>
+
+      <div class="report-footer">
+        <span class="footer-text">Sent by Ascencia Business School via Exam Builder · This is an automated document</span>
+        <span class="footer-brand">Exam Builder</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function savePDF() { window.print(); }
+  </script>
+
+</body>
+</html>

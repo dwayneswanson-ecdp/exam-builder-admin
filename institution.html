@@ -163,7 +163,14 @@
 
     <!-- Institution hero -->
     <div class="inst-hero">
-      <div class="inst-hero-logo" id="instLogo">—</div>
+      <div style="position:relative;flex-shrink:0;">
+        <div class="inst-hero-logo" id="instLogo">—</div>
+        <input type="file" id="heroLogoInput" accept="image/*" style="display:none;" onchange="uploadHeroLogo(event)">
+        <button onclick="document.getElementById('heroLogoInput').click()" title="Upload logo"
+          style="position:absolute;bottom:-6px;right:-6px;width:22px;height:22px;border-radius:50%;background:#2563eb;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </button>
+      </div>
       <div class="inst-hero-info">
         <div class="inst-hero-name" id="instName">Loading…</div>
         <div class="inst-hero-domain" id="instDomain">—</div>
@@ -398,6 +405,8 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'dashboard.html'; return; }
 
+      await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+
       currentUser = session.user;
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
@@ -427,6 +436,7 @@
         sb.from('institution_teachers').select('teacher_id, is_key_contact').eq('institution_id', instId)
       ]);
 
+
       const inst           = instRes.data;
       const adminLinks     = adminLinksRes.data  || [];
       const teacherLinks   = teacherLinksRes.data || [];
@@ -449,7 +459,7 @@
 
       let teachers = [];
       if (allIds.length > 0) {
-        const { data } = await sb.from('teachers').select('*').in('id', allIds);
+        const { data, error } = await sb.from('teachers').select('*').in('id', allIds);
         teachers = data || [];
       }
 
@@ -529,20 +539,15 @@
         const t = teachers.find(t => t.id === link.teacher_id);
         if (!t) return '';
         const initials  = (t.full_name || t.email).split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
-        const tClasses  = classes.filter(c => c.teacher_id === t.id);
-        const classHtml = tClasses.length > 0
-          ? `<div class="class-tags">${tClasses.map(c => `<span class="class-tag">${c.name}</span>`).join('')}</div>`
-          : '';
         return `
-          <div class="member-row">
+          <div class="member-row" onclick="window.location.href='dashboard.html?preview=${t.id}'" style="cursor:pointer;">
             <div class="member-avatar green">${initials}</div>
             <div class="member-info">
               <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-contact-badge">Key Contact</span>' : ''}</div>
               <div class="member-email">${t.email}</div>
               ${link.is_key_contact && t.phone ? `<div class="member-meta">${t.phone}</div>` : ''}
-              ${classHtml}
             </div>
-            <button class="remove-btn" onclick="openRemoveModal('${t.id}', 'teacher', '${(t.full_name || t.email).replace(/'/g,"\\'")}')">
+            <button class="remove-btn" onclick="event.stopPropagation(); openRemoveModal('${t.id}', 'teacher', '${(t.full_name || t.email).replace(/'/g,"\\'")}')">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>`;
@@ -733,6 +738,20 @@
 
       closeRemoveModal();
       await loadPage();
+    }
+
+    async function uploadHeroLogo(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const ext  = file.name.split('.').pop();
+      const path = `${instId}/logo-${Date.now()}.${ext}`;
+      const { error: upErr } = await sb.storage.from('institution-logos').upload(path, file, { upsert: true });
+      if (upErr) { alert('Upload failed: ' + upErr.message); return; }
+      const { data: { publicUrl } } = sb.storage.from('institution-logos').getPublicUrl(path);
+      const { error: dbErr } = await sb.from('institutions').update({ logo_url: publicUrl }).eq('id', instId);
+      if (dbErr) { alert('Save failed: ' + dbErr.message); return; }
+      const logoEl = document.getElementById('instLogo');
+      logoEl.innerHTML = `<img src="${publicUrl}" alt="logo">`;
     }
 
     init();

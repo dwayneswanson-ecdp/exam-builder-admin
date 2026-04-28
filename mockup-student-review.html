@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Review — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+
+    /* ── Header ── */
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.15s; }
+    .back-btn:hover { color: #fff; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    /* ── Layout ── */
+    .page { max-width: 840px; margin: 0 auto; padding: 32px 24px 60px; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; font-family: inherit; border: none; border-radius: 7px; padding: 8px 16px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-green   { background: #16a34a; color: #fff; }
+    .btn-green:hover { background: #15803d; }
+    .btn-ghost   { background: none; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; padding: 5px 11px; }
+    .btn-ghost:hover { border-color: #94a3b8; color: #0f172a; }
+    .btn-ai      { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; font-size: 0.75rem; padding: 5px 11px; font-weight: 600; }
+    .btn-ai:hover { background: #ede9fe; }
+
+    /* ── Student card ── */
+    .student-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .student-name { font-size: 1.3rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 6px; letter-spacing: -0.02em; }
+    .student-meta { font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px; }
+    .contact-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #475569; }
+    .contact-val { font-weight: 500; }
+    .pencil-btn { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 2px; display: inline-flex; align-items: center; transition: color 0.15s; }
+    .pencil-btn:hover { color: #2563eb; }
+    .contact-form { display: none; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+    .contact-form.visible { display: flex; }
+    .contact-input { font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 5px 10px; color: #0f172a; outline: none; transition: border-color 0.15s; }
+    .contact-input:focus { border-color: #2563eb; }
+
+    .score-block { text-align: right; flex-shrink: 0; }
+    .score-big { font-size: 2.2rem; font-weight: 800; color: #2563eb; line-height: 1; }
+    .score-big span { font-size: 1rem; color: #cbd5e1; font-weight: 500; }
+    .score-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-top: 5px; }
+
+    /* ── Section card ── */
+    .section-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+    .section-head { padding: 14px 24px; background: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+    .section-title { font-size: 0.9rem; font-weight: 700; color: #fff; }
+    .section-score { font-size: 0.78rem; color: #94a3b8; font-weight: 500; }
+
+    /* ── MCQ table ── */
+    .mcq-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .mcq-table th { padding: 9px 20px; text-align: left; font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .mcq-table td { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #374151; line-height: 1.5; font-weight: 400; }
+    .mcq-table tr:last-child td { border-bottom: none; }
+    .mcq-table tbody tr:hover td { background: #fafafa; }
+    .q-num { font-size: 0.65rem; color: #cbd5e1; display: block; margin-bottom: 2px; font-weight: 600; }
+    .result-col { text-align: center; font-size: 1.05rem; width: 56px; }
+
+    /* ── Open question ── */
+    .open-q { padding: 24px; border-bottom: 1px solid #f1f5f9; }
+    .open-q:last-child { border-bottom: none; }
+
+    .open-q-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 6px; }
+    .open-q-text { font-size: 0.9rem; font-weight: 600; color: #0f172a; line-height: 1.55; margin-bottom: 14px; }
+
+    .answer-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 6px; }
+    .answer-text { font-size: 0.85rem; color: #374151; line-height: 1.7; padding: 12px 16px; background: #f8fafc; border-radius: 8px; margin-bottom: 20px; }
+
+    .criteria-toggle { font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 14px; }
+    .criteria-toggle:hover { color: #0f172a; }
+    .criteria-block { background: #f8fafc; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.82rem; color: #475569; line-height: 1.7; }
+    .criteria-block ul { padding-left: 16px; }
+    .criteria-block li { margin-bottom: 2px; }
+
+    /* Score + AI row */
+    .score-ai-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    .score-field { display: flex; align-items: center; gap: 8px; }
+    .score-field-label { font-size: 0.78rem; font-weight: 600; color: #475569; }
+    .score-text-input {
+      font-size: 1rem; font-weight: 700; font-family: inherit;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 6px 0; width: 52px; color: #0f172a; outline: none;
+      text-align: center;
+      /* remove spinner */
+      -moz-appearance: textfield;
+    }
+    .score-text-input::-webkit-outer-spin-button,
+    .score-text-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .score-text-input:focus { border-color: #2563eb; }
+    .score-of { font-size: 0.85rem; color: #94a3b8; font-weight: 500; white-space: nowrap; }
+
+    /* AI box */
+    .ai-suggestion { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+    .ai-suggestion-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .ai-suggestion-meta { display: flex; align-items: center; gap: 10px; }
+    .ai-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #7c3aed; }
+    .ai-score-chip { font-size: 0.75rem; font-weight: 700; background: #7c3aed; color: #fff; padding: 2px 9px; border-radius: 999px; }
+    .ai-hint { font-size: 0.72rem; color: #a78bfa; margin-bottom: 10px; font-style: italic; }
+    .ai-text { font-size: 0.82rem; color: #4c1d95; line-height: 1.65; margin-bottom: 12px; }
+    .ai-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .ai-close { background: none; border: none; cursor: pointer; color: #a78bfa; padding: 2px; line-height: 1; }
+    .ai-close:hover { color: #7c3aed; }
+    @keyframes flashUpdate { 0% { background: #dbeafe; } 100% { background: transparent; } }
+    .flash { animation: flashUpdate 0.8s ease-out; }
+
+    .comment-section-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 6px; display: block; }
+    .comment-textarea { width: 100%; font-size: 0.83rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; color: #374151; outline: none; resize: vertical; min-height: 64px; line-height: 1.6; background: #fff; }
+    .comment-textarea:focus { border-color: #2563eb; }
+
+    /* ── Bottom actions ── */
+    .bottom-actions { display: flex; align-items: center; justify-content: space-between; padding: 24px 0 0 0; margin-top: 8px; border-top: 1px solid #e2e8f0; }
+    .bottom-nav { display: flex; gap: 8px; }
+    .bottom-right { display: flex; gap: 8px; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        All submissions
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <!-- Student card -->
+    <div class="student-card">
+      <div style="flex:1;">
+        <div class="student-name">ROUSSEAU Camille</div>
+        <div class="student-meta">Finance d'entreprise — Partiel S2 · 15 Apr 2026 · 14:32</div>
+        <div class="contact-row">
+          <span class="contact-val">camille.rousseau@student.escp.fr</span>
+          <button class="pencil-btn" onclick="this.style.display='none';document.getElementById('contactForm').classList.add('visible')" title="Edit contact">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+        <div class="contact-form" id="contactForm">
+          <input class="contact-input" type="text" value="ROUSSEAU Camille" style="width:165px;" placeholder="Name">
+          <input class="contact-input" type="email" value="camille.rousseau@student.escp.fr" style="width:225px;" placeholder="Email">
+          <button class="btn btn-ghost">Save</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('contactForm').classList.remove('visible')">Cancel</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0;">
+        <div class="score-block">
+          <div class="score-big">14.5 <span>/ 20</span></div>
+          <div class="score-label">Current score</div>
+        </div>
+        <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;width:100%;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF report
+        </button>
+      </div>
+    </div>
+
+    <!-- Section 1 — MCQ -->
+    <div class="section-card">
+      <div class="section-head">
+        <span class="section-title">Section 1 — Finance d'entreprise</span>
+        <span class="section-score">8 / 10 correct</span>
+      </div>
+      <table class="mcq-table">
+        <thead>
+          <tr>
+            <th style="width:38%;">Question</th>
+            <th>Student Response</th>
+            <th>Correct Answer</th>
+            <th class="result-col">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="q-num">Q1</span>Qu'est-ce que le besoin en fonds de roulement (BFR) ?</td>
+            <td>La différence entre actif circulant et passif circulant</td>
+            <td>La différence entre actif circulant et passif circulant</td>
+            <td class="result-col">✅</td>
+          </tr>
+          <tr>
+            <td><span class="q-num">Q2</span>Le ratio de liquidité générale est calculé comme :</td>
+            <td>Dettes / Actif total</td>
+            <td>Actif circulant / Passif circulant</td>
+            <td class="result-col">❌</td>
+          </tr>
+          <tr>
+            <td><span class="q-num">Q3</span>Un EBITDA positif indique que :</td>
+            <td>L'entreprise dégage un bénéfice avant amortissements</td>
+            <td>L'entreprise dégage un bénéfice avant amortissements</td>
+            <td class="result-col">✅</td>
+          </tr>
+          <tr>
+            <td><span class="q-num">Q4</span>L'effet de levier financier correspond à :</td>
+            <td>L'utilisation de capitaux propres uniquement</td>
+            <td>L'utilisation de la dette pour amplifier les rendements</td>
+            <td class="result-col">❌</td>
+          </tr>
+          <tr>
+            <td><span class="q-num">Q5</span>La capacité d'autofinancement (CAF) représente :</td>
+            <td>Les ressources générées par l'activité</td>
+            <td>Les ressources générées par l'activité</td>
+            <td class="result-col">✅</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Section 2 — Open questions -->
+    <div class="section-card">
+      <div class="section-head">
+        <span class="section-title">Section 2 — Questions ouvertes</span>
+        <span class="section-score">Teacher graded · 6.5 / 10</span>
+      </div>
+
+      <!-- Q11 -->
+      <div class="open-q">
+        <div class="open-q-label">Question 11</div>
+        <div class="open-q-text">Expliquez l'impact d'une hausse des taux d'intérêt sur la valorisation d'une entreprise.</div>
+
+        <div class="answer-label">Student's answer</div>
+        <div class="answer-text">Une hausse des taux d'intérêt augmente le coût du capital, ce qui réduit la valeur actuelle nette des flux futurs. Cela entraîne généralement une baisse de la valorisation des entreprises, surtout celles à forte croissance dont les flux sont éloignés dans le temps.</div>
+
+        <div class="criteria-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          Grading criteria
+        </div>
+        <div class="criteria-block" style="display:none;">
+          <ul>
+            <li>Mentions impact on cost of capital / discount rate (2 pts)</li>
+            <li>Links to reduction in present value of future cash flows (2 pts)</li>
+            <li>Specific mention of growth companies or time horizon (1 pt)</li>
+          </ul>
+        </div>
+
+        <div class="score-ai-row">
+          <div class="score-field">
+            <span class="score-field-label">Score</span>
+            <input type="text" class="score-text-input" value="4">
+            <span class="score-of">/ 5</span>
+          </div>
+          <button class="btn btn-ai" onclick="showAI('ai-q11')">✦ AI suggest</button>
+        </div>
+
+        <div class="ai-suggestion" id="ai-q11" style="display:none;">
+          <div class="ai-suggestion-head">
+            <div class="ai-suggestion-meta">
+              <span class="ai-tag">AI Suggestion</span>
+              <span class="ai-score-chip">4 / 5</span>
+            </div>
+            <button class="ai-close" onclick="document.getElementById('ai-q11').style.display='none'" title="Close">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="ai-hint">Suggestion based on your grading criteria — review before accepting.</div>
+          <div class="ai-text">Good answer — correctly links interest rates to cost of capital and present value reduction. Mentions growth companies. Missing: explicit reference to discount rate or WACC mechanism. Minor deduction.</div>
+          <div class="ai-actions">
+            <button class="btn btn-ghost" onclick="applyScore('ai-q11', '4')">Use score (4 / 5)</button>
+            <button class="btn btn-ghost" onclick="applyComment('ai-q11', 'Good explanation, could mention the discount rate more explicitly.')">Use comment</button>
+          </div>
+        </div>
+
+        <span class="comment-section-label" style="margin-top:14px;">Teacher comment</span>
+        <textarea class="comment-textarea" placeholder="Add a comment — visible to the student when results are sent.">Good explanation, could mention the discount rate more explicitly.</textarea>
+      </div>
+
+      <!-- Q12 -->
+      <div class="open-q">
+        <div class="open-q-label">Question 12</div>
+        <div class="open-q-text">Définissez la notion de levier financier et ses risques.</div>
+
+        <div class="answer-label">Student's answer</div>
+        <div class="answer-text">Le levier financier correspond à l'utilisation de la dette pour amplifier les rendements. Il augmente le potentiel de gain mais aussi le risque de perte, notamment en cas de retournement économique.</div>
+
+        <div class="criteria-toggle" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          Grading criteria
+        </div>
+        <div class="criteria-block" style="display:none;">
+          <ul>
+            <li>Correct definition using debt (2 pts)</li>
+            <li>Amplification of returns explained (1 pt)</li>
+            <li>Risk of loss described (1 pt)</li>
+            <li>Example or quantification (1 pt)</li>
+          </ul>
+        </div>
+
+        <div class="score-ai-row">
+          <div class="score-field">
+            <span class="score-field-label">Score</span>
+            <input type="text" class="score-text-input" value="2.5">
+            <span class="score-of">/ 5</span>
+          </div>
+          <button class="btn btn-ai" onclick="showAI('ai-q12')">✦ AI suggest</button>
+        </div>
+
+        <div class="ai-suggestion" id="ai-q12" style="display:none;">
+          <div class="ai-suggestion-head">
+            <div class="ai-suggestion-meta">
+              <span class="ai-tag">AI Suggestion</span>
+              <span class="ai-score-chip">2.5 / 5</span>
+            </div>
+            <button class="ai-close" onclick="document.getElementById('ai-q12').style.display='none'" title="Close">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="ai-hint">Suggestion based on your grading criteria — review before accepting.</div>
+          <div class="ai-text">Definition is correct and amplification of returns is mentioned. However, the risk section is underdeveloped and no concrete example or quantification is provided.</div>
+          <div class="ai-actions">
+            <button class="btn btn-ghost" onclick="applyScore('ai-q12', '2.5')">Use score (2.5 / 5)</button>
+            <button class="btn btn-ghost" onclick="applyComment('ai-q12', 'Definition correct but risks section too brief. No example provided.')">Use comment</button>
+          </div>
+        </div>
+
+        <span class="comment-section-label">Teacher comment</span>
+        <textarea class="comment-textarea" placeholder="Add a comment — visible to the student when results are sent.">Definition correct but risks section too brief. No example provided.</textarea>
+      </div>
+
+    </div>
+    <!-- Bottom actions -->
+    <div class="bottom-actions">
+      <div class="bottom-nav">
+        <button class="btn btn-ghost">← Previous student</button>
+        <button class="btn btn-ghost">Next student →</button>
+      </div>
+      <div class="bottom-right">
+        <button class="btn btn-primary" onclick="window.location.href='mockup-submissions.html'">Save changes</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function showAI(id) {
+      document.getElementById(id).style.display = 'block';
+    }
+    function flash(el) {
+      el.classList.remove('flash');
+      void el.offsetWidth;
+      el.classList.add('flash');
+    }
+    function applyScore(id, score) {
+      const openQ = document.getElementById(id).closest('.open-q');
+      const input = openQ.querySelector('.score-text-input');
+      input.value = score;
+      flash(input);
+    }
+    function applyComment(id, comment) {
+      const openQ = document.getElementById(id).closest('.open-q');
+      const textarea = openQ.querySelector('.comment-textarea');
+      textarea.value = comment;
+      flash(textarea);
+    }
+  </script>
+</body>
+</html>

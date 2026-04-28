@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Review — Exam Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; min-height: 100vh; color: #1e293b; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.15s; }
+    .back-btn:hover { color: #fff; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    .page { max-width: 840px; margin: 0 auto; padding: 32px 24px 60px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; font-family: inherit; border: none; border-radius: 7px; padding: 8px 16px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-ghost { background: none; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; padding: 5px 11px; }
+    .btn-ghost:hover { border-color: #94a3b8; color: #0f172a; }
+    .btn-ai { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; font-size: 0.75rem; padding: 5px 11px; font-weight: 600; }
+    .btn-ai:hover { background: #ede9fe; }
+    .pencil-btn { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 2px; display: inline-flex; align-items: center; transition: color 0.15s; }
+    .pencil-btn:hover { color: #2563eb; }
+
+    /* Student card */
+    .student-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .student-name { font-size: 1.3rem; font-weight: 800; color: #0f172a; line-height: 1; margin-bottom: 6px; letter-spacing: -0.02em; }
+    .student-meta { font-size: 0.8rem; color: #94a3b8; margin-bottom: 10px; }
+    .contact-row { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #475569; }
+    .contact-val { font-weight: 500; }
+    .contact-form { display: none; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+    .contact-form.visible { display: flex; }
+    .contact-input { font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 5px 10px; color: #0f172a; outline: none; transition: border-color 0.15s; }
+    .contact-input:focus { border-color: #2563eb; }
+    .score-block { text-align: right; flex-shrink: 0; }
+    .score-big { font-size: 2.2rem; font-weight: 800; color: #2563eb; line-height: 1; }
+    .score-big span { font-size: 1rem; color: #cbd5e1; font-weight: 500; }
+    .score-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-top: 5px; }
+
+    /* Section cards */
+    .section-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 16px; overflow: hidden; }
+    .section-head { padding: 14px 24px; background: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+    .section-title { font-size: 0.9rem; font-weight: 700; color: #fff; }
+    .section-score { font-size: 0.78rem; color: #94a3b8; font-weight: 500; }
+
+    /* MCQ table */
+    .mcq-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .mcq-table th { padding: 9px 20px; text-align: left; font-size: 0.67rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .mcq-table td { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; vertical-align: top; color: #374151; line-height: 1.5; font-weight: 400; }
+    .mcq-table tr:last-child td { border-bottom: none; }
+    .mcq-table tbody tr:hover td { background: #fafafa; }
+    .q-num { font-size: 0.65rem; color: #cbd5e1; display: block; margin-bottom: 2px; font-weight: 600; }
+    .result-col { text-align: center; font-size: 1.05rem; width: 56px; }
+
+    /* Open questions */
+    .open-q { padding: 24px; border-bottom: 1px solid #f1f5f9; }
+    .open-q:last-child { border-bottom: none; }
+    .open-q-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 6px; }
+    .open-q-text { font-size: 0.9rem; font-weight: 600; color: #0f172a; line-height: 1.55; margin-bottom: 14px; }
+    .answer-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 6px; }
+    .answer-text { font-size: 0.85rem; color: #374151; line-height: 1.7; padding: 12px 16px; background: #f8fafc; border-radius: 8px; margin-bottom: 20px; white-space: pre-wrap; }
+    .criteria-toggle { font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 14px; user-select: none; }
+    .criteria-toggle:hover { color: #0f172a; }
+    .criteria-block { background: #f8fafc; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.82rem; color: #475569; line-height: 1.7; white-space: pre-wrap; }
+    .score-ai-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    .score-field { display: flex; align-items: center; gap: 8px; }
+    .score-field-label { font-size: 0.78rem; font-weight: 600; color: #475569; }
+    .score-text-input {
+      font-size: 1rem; font-weight: 700; font-family: inherit;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      padding: 6px 0; width: 52px; color: #0f172a; outline: none;
+      text-align: center;
+      -moz-appearance: textfield;
+    }
+    .score-text-input::-webkit-outer-spin-button,
+    .score-text-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .score-text-input:focus { border-color: #2563eb; }
+    .score-of { font-size: 0.85rem; color: #94a3b8; font-weight: 500; white-space: nowrap; }
+    .ai-suggestion { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+    .ai-suggestion-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .ai-suggestion-meta { display: flex; align-items: center; gap: 10px; }
+    .ai-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #7c3aed; }
+    .ai-score-chip { font-size: 0.75rem; font-weight: 700; background: #7c3aed; color: #fff; padding: 2px 9px; border-radius: 999px; }
+    .ai-hint { font-size: 0.72rem; color: #a78bfa; margin-bottom: 10px; font-style: italic; }
+    .ai-text { font-size: 0.82rem; color: #4c1d95; line-height: 1.65; margin-bottom: 12px; }
+    .ai-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .ai-close { background: none; border: none; cursor: pointer; color: #a78bfa; padding: 2px; line-height: 1; }
+    .ai-close:hover { color: #7c3aed; }
+    @keyframes flashUpdate { 0% { background: #dbeafe; } 100% { background: transparent; } }
+    .flash { animation: flashUpdate 0.8s ease-out; }
+    .comment-section-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 6px; display: block; }
+    .comment-textarea { width: 100%; font-size: 0.83rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; color: #374151; outline: none; resize: vertical; min-height: 64px; line-height: 1.6; background: #fff; }
+    .comment-textarea:focus { border-color: #2563eb; }
+
+    /* Bottom actions */
+    .bottom-actions { display: flex; align-items: center; justify-content: space-between; padding: 24px 0 0 0; margin-top: 8px; border-top: 1px solid #e2e8f0; }
+    .bottom-nav { display: flex; gap: 8px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.82rem; font-weight: 600; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
+    .toast.show { opacity: 1; }
+
+    .empty-state { padding: 48px 24px; text-align: center; color: #94a3b8; font-size: 0.88rem; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn" id="backBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        All submissions
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+  </header>
+
+  <div class="page" id="pageContent" style="display:none;"></div>
+  <div class="empty-state" id="loadingState">Loading…</div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const params  = new URLSearchParams(window.location.search);
+    const attemptId = params.get('attempt');
+    const examId    = params.get('exam');
+
+    let attempt   = null;
+    let exam      = null;
+    let questions = [];
+    let allAttemptIds = [];  // sorted alphabetically for prev/next nav
+    let currentTeacher = null;
+    let currentInstitution = null;
+
+    function goBack() {
+      window.location.href = `submissions.html?exam=${examId}`;
+    }
+
+    document.getElementById('backBtn').addEventListener('click', goBack);
+
+    async function init() {
+      if (!attemptId || !examId) { goBack(); return; }
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'dashboard.html'; return; }
+      await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+
+      const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
+      if (!teacher) { window.location.href = 'dashboard.html'; return; }
+      currentTeacher = teacher;
+
+      const [attemptRes, examRes, questionsRes, allAttemptsRes, instTeacherRes] = await Promise.all([
+        sb.from('exam_attempts').select('*').eq('id', attemptId).single(),
+        sb.from('exams').select('*').eq('id', examId).single(),
+        sb.from('questions').select('*').eq('exam_id', examId).order('position', { ascending: true }),
+        sb.from('exam_attempts').select('id, student_name').eq('exam_id', examId),
+        sb.from('institution_teachers').select('institution_id').eq('teacher_id', session.user.id).single()
+      ]);
+
+      attempt   = attemptRes.data;
+      exam      = examRes.data;
+      questions = questionsRes.data || [];
+
+      if (!attempt || !exam) { goBack(); return; }
+
+      if (instTeacherRes.data?.institution_id) {
+        const { data: inst } = await sb.from('institutions').select('name').eq('id', instTeacherRes.data.institution_id).single();
+        currentInstitution = inst;
+      }
+
+      // Build sorted nav list (same order as submissions.html)
+      allAttemptIds = (allAttemptsRes.data || [])
+        .sort((a, b) => (a.student_name || '').localeCompare(b.student_name || ''))
+        .map(a => a.id);
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('pageContent').style.display = 'block';
+      render();
+    }
+
+    function formatName(raw) {
+      if (!raw) return '—';
+      const parts = raw.trim().split(/\s+/);
+      if (parts.length < 2) return raw.toUpperCase();
+      const last  = parts[parts.length - 1].toUpperCase();
+      const first = parts.slice(0, -1).join(' ');
+      return `${last} ${first}`;
+    }
+
+    function getOptionText(q, idx) {
+      const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
+      return opts[idx] || '—';
+    }
+
+    function render() {
+      const answers   = attempt.answers_json || {};
+      const openScores   = attempt.open_scores || {};
+      const openComments = attempt.open_comments || {};
+
+      const mcqQuestions  = questions.filter(q => q.type !== 'open');
+      const openQuestions = questions.filter(q => q.type === 'open');
+
+      const mcqCorrect = mcqQuestions.filter((q, i) => {
+        const globalIdx = questions.indexOf(q);
+        const selected  = parseInt(answers['q' + globalIdx], 10);
+        return selected === q.correct_index;
+      }).length;
+
+      // Score display
+      const openScoreSum = Object.values(openScores).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+      const hasOpenScore = Object.keys(openScores).length > 0;
+      const scoreDisplay = hasOpenScore
+        ? (mcqCorrect + openScoreSum).toFixed(1)
+        : mcqCorrect;
+      const scoreMax = questions.length;
+
+      const submittedDate = attempt.submitted_at
+        ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' +
+          new Date(attempt.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '—';
+
+      // Nav state
+      const curIdx  = allAttemptIds.indexOf(attemptId);
+      const prevId  = curIdx > 0 ? allAttemptIds[curIdx - 1] : null;
+      const nextId  = curIdx < allAttemptIds.length - 1 ? allAttemptIds[curIdx + 1] : null;
+
+      // Build MCQ table rows
+      const mcqRows = mcqQuestions.map((q, i) => {
+        const globalIdx   = questions.indexOf(q);
+        const selectedIdx = parseInt(answers['q' + globalIdx], 10);
+        const isCorrect   = selectedIdx === q.correct_index;
+        const studentAns  = isNaN(selectedIdx) ? '—' : getOptionText(q, selectedIdx);
+        const correctAns  = getOptionText(q, q.correct_index);
+        return `<tr>
+          <td><span class="q-num">Q${globalIdx + 1}</span>${escHtml(q.question_text)}</td>
+          <td>${escHtml(studentAns)}</td>
+          <td>${escHtml(correctAns)}</td>
+          <td class="result-col">${isCorrect ? '✅' : '❌'}</td>
+        </tr>`;
+      }).join('');
+
+      // Build open question blocks
+      const openBlocks = openQuestions.map((q, i) => {
+        const globalIdx = questions.indexOf(q);
+        const rawAnswer = answers['q' + globalIdx] || '';
+        const savedScore   = openScores[globalIdx] !== undefined ? openScores[globalIdx] : '';
+        const savedComment = openComments[globalIdx] || '';
+        const maxPts = q.max_points || 5;
+        const criteriaHtml = q.grading_criteria
+          ? `<div class="criteria-toggle" onclick="toggleCriteria(this)">
+               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+               Grading criteria
+             </div>
+             <div class="criteria-block" style="display:none;">${escHtml(q.grading_criteria)}</div>`
+          : '';
+
+        return `<div class="open-q" data-qidx="${globalIdx}">
+          <div class="open-q-label">Question ${globalIdx + 1}</div>
+          <div class="open-q-text">${escHtml(q.question_text)}</div>
+          <div class="answer-label">Student's answer</div>
+          <div class="answer-text">${escHtml(rawAnswer) || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
+          ${criteriaHtml}
+          <div class="score-ai-row">
+            <div class="score-field">
+              <span class="score-field-label">Score</span>
+              <input type="text" class="score-text-input" value="${escHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}">
+              <span class="score-of">/ ${maxPts}</span>
+            </div>
+            <button class="btn btn-ai" onclick="requestAI(this, ${globalIdx})">✦ AI suggest</button>
+          </div>
+          <div class="ai-suggestion" id="ai-q${globalIdx}" style="display:none;"></div>
+          <span class="comment-section-label">Teacher comment</span>
+          <textarea class="comment-textarea" data-qidx="${globalIdx}" placeholder="Add a comment — visible to the student when results are sent.">${escHtml(savedComment)}</textarea>
+        </div>`;
+      }).join('');
+
+      const html = `
+        <!-- Student card -->
+        <div class="student-card">
+          <div style="flex:1;">
+            <div class="student-name" id="displayName">${escHtml(formatName(attempt.student_name))}</div>
+            <div class="student-meta">${escHtml(exam.title)} · ${submittedDate}</div>
+            <div class="contact-row">
+              <span class="contact-val" id="displayEmail">${escHtml(attempt.student_email || '—')}</span>
+              <button class="pencil-btn" onclick="openContactForm()" title="Edit contact">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+            </div>
+            <div class="contact-form" id="contactForm">
+              <input class="contact-input" type="text" id="contactName" value="${escHtml(attempt.student_name || '')}" style="width:165px;" placeholder="Name">
+              <input class="contact-input" type="email" id="contactEmail" value="${escHtml(attempt.student_email || '')}" style="width:225px;" placeholder="Email">
+              <button class="btn btn-ghost" onclick="saveContact()">Save</button>
+              <button class="btn btn-ghost" onclick="closeContactForm()">Cancel</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0;">
+            <div class="score-block">
+              <div class="score-big" id="scoreDisplay">${scoreDisplay} <span>/ ${scoreMax}</span></div>
+              <div class="score-label">Current score</div>
+            </div>
+            <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="generateAndDownload()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download report
+            </button>
+          </div>
+        </div>
+
+        ${mcqQuestions.length > 0 ? `
+        <!-- MCQ section -->
+        <div class="section-card">
+          <div class="section-head">
+            <span class="section-title">Section 1 — ${escHtml(exam.title)}</span>
+            <span class="section-score">${mcqCorrect} / ${mcqQuestions.length} correct</span>
+          </div>
+          <table class="mcq-table">
+            <thead><tr>
+              <th style="width:38%;">Question</th>
+              <th>Student Response</th>
+              <th>Correct Answer</th>
+              <th class="result-col">Result</th>
+            </tr></thead>
+            <tbody>${mcqRows}</tbody>
+          </table>
+        </div>` : ''}
+
+        ${openQuestions.length > 0 ? `
+        <!-- Open questions section -->
+        <div class="section-card">
+          <div class="section-head">
+            <span class="section-title">Section 2 — Open questions</span>
+            <span class="section-score">Teacher graded</span>
+          </div>
+          ${openBlocks}
+        </div>` : ''}
+
+        <!-- Bottom actions -->
+        <div class="bottom-actions">
+          <div class="bottom-nav">
+            <button class="btn btn-ghost" ${prevId ? `onclick="navigate('${prevId}')"` : 'disabled style="opacity:0.4;"'}>← Previous student</button>
+            <button class="btn btn-ghost" ${nextId ? `onclick="navigate('${nextId}')"` : 'disabled style="opacity:0.4;"'}>Next student →</button>
+          </div>
+          <div>
+            <button class="btn btn-primary" id="saveBtn" onclick="saveChanges()">Save changes</button>
+          </div>
+        </div>`;
+
+      document.getElementById('pageContent').innerHTML = html;
+    }
+
+    function escHtml(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function toggleCriteria(btn) {
+      const block = btn.nextElementSibling;
+      const showing = block.style.display !== 'none';
+      block.style.display = showing ? 'none' : 'block';
+    }
+
+    function openContactForm() {
+      document.getElementById('contactForm').classList.add('visible');
+    }
+
+    function closeContactForm() {
+      document.getElementById('contactForm').classList.remove('visible');
+    }
+
+    async function saveContact() {
+      const name  = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const { error } = await sb.from('exam_attempts')
+        .update({ student_name: name, student_email: email })
+        .eq('id', attemptId);
+      if (error) { showToast('Error saving contact.'); return; }
+      attempt.student_name  = name;
+      attempt.student_email = email;
+      document.getElementById('displayName').textContent  = formatName(name);
+      document.getElementById('displayEmail').textContent = email || '—';
+      closeContactForm();
+      showToast('Contact updated.');
+    }
+
+    async function requestAI(btn, qIdx) {
+      const q = questions[qIdx];
+      const answers = attempt.answers_json || {};
+      const studentAnswer = answers['q' + qIdx] || '';
+      if (!studentAnswer) { showToast('No student answer to evaluate.'); return; }
+
+      btn.disabled = true;
+      btn.textContent = '✦ Thinking…';
+
+      const aiBox = document.getElementById('ai-q' + qIdx);
+      const maxPts = q.max_points || 5;
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/grade-open-question`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          },
+          body: JSON.stringify({
+            question: q.question_text,
+            answer: studentAnswer,
+            criteria: q.grading_criteria || '',
+            max_points: maxPts
+          })
+        });
+
+        if (!res.ok) throw new Error('AI grading unavailable');
+        const data = await res.json();
+        const suggestedScore = data.score ?? '—';
+        const rationale      = data.rationale || '';
+        const comment        = data.comment || '';
+
+        aiBox.innerHTML = `
+          <div class="ai-suggestion-head">
+            <div class="ai-suggestion-meta">
+              <span class="ai-tag">AI Suggestion</span>
+              <span class="ai-score-chip">${suggestedScore} / ${maxPts}</span>
+            </div>
+            <button class="ai-close" onclick="this.closest('.ai-suggestion').style.display='none'" title="Close">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="ai-hint">Suggestion based on your grading criteria — review before accepting.</div>
+          <div class="ai-text">${escHtml(rationale)}</div>
+          <div class="ai-actions">
+            <button class="btn btn-ghost" onclick="applyScore(${qIdx}, '${suggestedScore}')">Use score (${suggestedScore} / ${maxPts})</button>
+            <button class="btn btn-ghost" onclick="applyComment(${qIdx}, ${JSON.stringify(comment)})">Use comment</button>
+          </div>`;
+        aiBox.style.display = 'block';
+      } catch (e) {
+        showToast('AI grading not yet available.');
+      }
+
+      btn.disabled = false;
+      btn.textContent = '✦ AI suggest';
+    }
+
+    function flash(el) {
+      el.classList.remove('flash');
+      void el.offsetWidth;
+      el.classList.add('flash');
+    }
+
+    function applyScore(qIdx, score) {
+      const input = document.querySelector(`.score-text-input[data-qidx="${qIdx}"]`);
+      if (input) { input.value = score; flash(input); }
+    }
+
+    function applyComment(qIdx, comment) {
+      const ta = document.querySelector(`.comment-textarea[data-qidx="${qIdx}"]`);
+      if (ta) { ta.value = comment; flash(ta); }
+    }
+
+    async function saveChanges() {
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+
+      const openScores   = {};
+      const openComments = {};
+
+      document.querySelectorAll('.score-text-input').forEach(input => {
+        const idx = parseInt(input.dataset.qidx, 10);
+        const val = input.value.trim();
+        if (val !== '') openScores[idx] = parseFloat(val) || 0;
+      });
+
+      document.querySelectorAll('.comment-textarea').forEach(ta => {
+        const idx = parseInt(ta.dataset.qidx, 10);
+        openComments[idx] = ta.value.trim();
+      });
+
+      const { error } = await sb.from('exam_attempts')
+        .update({ open_scores: openScores, open_comments: openComments })
+        .eq('id', attemptId);
+
+      if (error) {
+        showToast('Error saving: ' + error.message);
+        btn.disabled = false;
+        return;
+      }
+
+      showToast('Saved.');
+      setTimeout(() => { goBack(); }, 800);
+    }
+
+    function navigate(id) {
+      window.location.href = `student-review.html?attempt=${id}&exam=${examId}`;
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function generateAndDownload() {
+      const answers      = attempt.answers_json  || {};
+      const openScores   = attempt.open_scores   || {};
+      const openComments = attempt.open_comments || {};
+
+      // Build segments grouped by section markers
+      const segments = [];
+      let cur = null;
+      for (const q of questions) {
+        if (q.type === 'section') {
+          if (cur) segments.push(cur);
+          cur = { title: q.question_text, questions: [] };
+        } else {
+          if (!cur) cur = { title: null, questions: [] };
+          cur.questions.push(q);
+        }
+      }
+      if (cur) segments.push(cur);
+
+      // Scores per segment
+      let totalCorrect = 0, totalMax = 0;
+      const segData = segments.map(function(seg) {
+        let sc = 0, sm = 0;
+        seg.questions.forEach(function(q) {
+          const gi = questions.indexOf(q);
+          if (q.type === 'open') {
+            const mp = q.max_points || 5;
+            sc += parseFloat(openScores[gi]) || 0;
+            sm += mp;
+          } else {
+            const sel = parseInt(answers['q' + gi], 10);
+            sc += (sel === q.correct_index) ? 1 : 0;
+            sm += 1;
+          }
+        });
+        totalCorrect += sc;
+        totalMax += sm;
+        return { title: seg.title, questions: seg.questions, sc: sc, sm: sm };
+      });
+
+      // Metadata
+      const instName   = (currentInstitution && currentInstitution.name) || 'Exam Builder';
+      const teacherName = currentTeacher ? (currentTeacher.full_name || currentTeacher.email) : '—';
+      const displayName = formatName(attempt.student_name);
+      const submittedAt = attempt.submitted_at ? new Date(attempt.submitted_at) : null;
+      const createdAt   = attempt.created_at   ? new Date(attempt.created_at)   : null;
+
+      let timeStr = '—';
+      if (submittedAt && createdAt) {
+        const mins = Math.round((submittedAt - createdAt) / 60000);
+        timeStr = mins + ' min';
+      }
+
+      const submittedLabel = submittedAt
+        ? submittedAt.toLocaleDateString('fr-FR') + ' ' + submittedAt.toLocaleTimeString('fr-FR')
+        : '—';
+      const startTime = createdAt
+        ? createdAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        : '—';
+      const endTime = submittedAt
+        ? submittedAt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        : '—';
+
+      const pct = totalMax > 0 ? Math.round((totalCorrect / totalMax) * 100) : 0;
+      const scoreColor = pct >= 70 ? '#16a34a' : pct >= 50 ? '#d97706' : '#dc2626';
+
+      // Section progress bars (only for named sections)
+      const namedSegs = segData.filter(function(s) { return s.title; });
+      const sectionBarsHtml = namedSegs.map(function(s) {
+        const p = s.sm > 0 ? Math.round((s.sc / s.sm) * 100) : 0;
+        return '<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">' +
+          '<span style="font-size:13px;color:#475569;min-width:240px;">' + escHtml(s.title) + '</span>' +
+          '<div style="flex:1;background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden;">' +
+            '<div style="width:' + p + '%;height:100%;background:#1e3a5f;border-radius:999px;"></div>' +
+          '</div>' +
+          '<span style="font-size:13px;color:#64748b;min-width:48px;text-align:right;">' +
+            (Number.isInteger(s.sc) ? s.sc : s.sc.toFixed(1)) + ' / ' + s.sm + '</span>' +
+        '</div>';
+      }).join('');
+
+      // Q&A table rows
+      const qaRows = questions.filter(function(q) { return q.type !== 'section'; }).map(function(q) {
+        const gi = questions.indexOf(q);
+        if (q.type === 'open') {
+          const ans    = answers['q' + gi] || '(pas de réponse)';
+          const scored = openScores[gi] !== undefined ? openScores[gi] : '—';
+          const maxPts = q.max_points || 5;
+          const comment = openComments[gi] || '';
+          return '<tr style="border-bottom:1px solid #f1f5f9;">' +
+            '<td style="padding:7px 10px;font-size:12px;color:#374151;">' + escHtml(q.question_text) + '</td>' +
+            '<td style="padding:7px 10px;font-size:12px;color:#374151;white-space:pre-wrap;">' + escHtml(ans) + (comment ? '<div style="margin-top:6px;font-size:11px;color:#94a3b8;font-style:italic;">Commentaire : ' + escHtml(comment) + '</div>' : '') + '</td>' +
+            '<td style="padding:7px 10px;font-size:12px;color:#374151;">' + scored + ' / ' + maxPts + ' pts</td>' +
+            '<td style="padding:7px 10px;font-size:12px;text-align:center;color:#64748b;font-weight:700;">✏</td>' +
+          '</tr>';
+        }
+        const sel  = parseInt(answers['q' + gi], 10);
+        const ok   = sel === q.correct_index;
+        const sAns = isNaN(sel) ? '(pas de réponse)' : getOptionText(q, sel);
+        const cAns = getOptionText(q, q.correct_index);
+        return '<tr style="border-bottom:1px solid #f1f5f9;">' +
+          '<td style="padding:7px 10px;font-size:12px;color:#374151;">' + escHtml(q.question_text) + '</td>' +
+          '<td style="padding:7px 10px;font-size:12px;color:' + (ok ? '#374151' : '#dc2626') + ';">' + escHtml(sAns) + '</td>' +
+          '<td style="padding:7px 10px;font-size:12px;color:#374151;">' + escHtml(cAns) + '</td>' +
+          '<td style="padding:7px 10px;font-size:12px;text-align:center;color:' + (ok ? '#16a34a' : '#dc2626') + ';font-weight:700;">' + (ok ? '✓' : '✗') + '</td>' +
+        '</tr>';
+      }).join('');
+
+      // Section bars block (only if we have named sections)
+      const sectionBlock = namedSegs.length > 0
+        ? '<div class="section-block"><div class="section-title">Résultats par partie</div>' + sectionBarsHtml + '</div>'
+        : '';
+
+      const css = 'body{font-family:"Helvetica Neue",Arial,sans-serif;background:#f8f9fc;color:#1e293b;margin:0;padding:32px;font-size:15px;line-height:1.6;}' +
+        '.container{max-width:800px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,.08);overflow:hidden;}' +
+        '.header{background:#0f172a;padding:28px 32px;}' +
+        '.header-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;}' +
+        '.header-name{font-size:24px;font-weight:700;color:#fff;margin:0 0 4px 0;}' +
+        '.header-meta{font-size:13px;color:#64748b;}' +
+        '.body{padding:28px 32px;}' +
+        '.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}' +
+        '.card{background:#f8f9fc;border-radius:10px;padding:14px 16px;}' +
+        '.card-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;}' +
+        '.card-value{font-size:26px;font-weight:700;}' +
+        '.card-sub{font-size:12px;color:#94a3b8;margin-top:2px;}' +
+        '.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:0 0 14px 0;padding-bottom:8px;border-bottom:1px solid #f1f5f9;}' +
+        '.section-block{margin-bottom:28px;}' +
+        'table{width:100%;border-collapse:collapse;}' +
+        'thead tr{background:#f8f9fc;}' +
+        'th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;}' +
+        '.footer{background:#f8f9fc;border-top:1px solid #e2e8f0;padding:14px 32px;font-size:11px;color:#94a3b8;}' +
+        '.toolbar{background:#0f172a;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}' +
+        '.toolbar-title{font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);}' +
+        '.toolbar-btns{display:flex;gap:8px;}' +
+        '.btn-print{display:flex;align-items:center;gap:5px;background:#fff;color:#0f172a;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}' +
+        '.btn-pdf{display:flex;align-items:center;gap:5px;background:#2563eb;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}' +
+        '@media print{.toolbar{display:none;}body{background:#fff;padding:0;}.container{border-radius:0;box-shadow:none;}.header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.cards{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
+
+      const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">' +
+        '<title>Rapport — ' + escHtml(displayName) + '</title>' +
+        '<style>' + css + '</style></head><body>' +
+        '<div class="toolbar"><span class="toolbar-title">Rapport — ' + escHtml(displayName) + '</span>' +
+        '<div class="toolbar-btns">' +
+          '<button class="btn-print" onclick="window.print()">🖨 Imprimer</button>' +
+          '<button class="btn-pdf" onclick="window.print()">⬇ Enregistrer en PDF</button>' +
+        '</div></div>' +
+        '<div style="max-width:800px;margin:24px auto;padding:0 20px 60px;">' +
+        '<div class="container">' +
+          '<div class="header">' +
+            '<div class="header-label">' + escHtml(instName) + ' · ' + escHtml(exam.title) + '</div>' +
+            '<div class="header-name">' + escHtml(displayName) + '</div>' +
+            '<div class="header-meta">' + escHtml(attempt.student_email || '') + ' &nbsp;·&nbsp; Soumis le ' + submittedLabel + '</div>' +
+          '</div>' +
+          '<div class="body">' +
+            '<div class="cards">' +
+              '<div class="card"><div class="card-label">Score total</div>' +
+                '<div class="card-value" style="color:' + scoreColor + ';">' +
+                  (Number.isInteger(totalCorrect) ? totalCorrect : totalCorrect.toFixed(1)) + ' / ' + totalMax +
+                '</div>' +
+                '<div class="card-sub">' + pct + '%</div></div>' +
+              '<div class="card"><div class="card-label">Temps utilisé</div>' +
+                '<div class="card-value" style="color:#0f172a;">' + timeStr + '</div>' +
+                '<div class="card-sub">sur ' + (exam.duration_mins || '—') + ' min</div></div>' +
+              '<div class="card"><div class="card-label">Correcteur</div>' +
+                '<div class="card-value" style="color:#0f172a;font-size:14px;padding-top:6px;">' + escHtml(teacherName) + '</div>' +
+                '<div class="card-sub">' + escHtml(instName) + '</div></div>' +
+            '</div>' +
+            sectionBlock +
+            '<div class="section-block"><div class="section-title">Détail des réponses</div>' +
+              '<table><thead><tr>' +
+                '<th>Question</th><th>Réponse candidat</th><th>Bonne réponse / Score</th><th style="text-align:center;">Résultat</th>' +
+              '</tr></thead><tbody>' + qaRows + '</tbody></table></div>' +
+            '<div class="section-block"><div class="section-title">Journal de session</div>' +
+              '<table><thead><tr><th>Heure</th><th>Événement</th><th>Détail</th></tr></thead><tbody>' +
+                '<tr style="border-bottom:1px solid #f1f5f9;">' +
+                  '<td style="padding:6px 10px;font-size:11px;color:#64748b;">' + startTime + '</td>' +
+                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">Examen démarré</td>' +
+                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">' + escHtml(exam.title) + ', Candidat : ' + escHtml(displayName) + '</td>' +
+                '</tr>' +
+                '<tr style="border-bottom:1px solid #f1f5f9;">' +
+                  '<td style="padding:6px 10px;font-size:11px;color:#64748b;">' + endTime + '</td>' +
+                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">Examen soumis</td>' +
+                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">Soumission manuelle</td>' +
+                '</tr>' +
+              '</tbody></table></div>' +
+          '</div>' +
+          '<div class="footer">Généré automatiquement · ' + escHtml(exam.title) + ' · ' + escHtml(instName) + '</div>' +
+        '</div></div></body></html>';
+
+      // Build filename: LASTNAME_Firstname_DDmoisAAAA.html
+      const parts = (attempt.student_name || '').trim().split(/\s+/);
+      const fn_last  = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : (attempt.student_name || 'rapport').toUpperCase();
+      const fn_first = parts.length > 1 ? parts.slice(0, -1).join('') : '';
+      const d = submittedAt || new Date();
+      const fn_date = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+        .replace(/\s/g, '').replace(/[^a-zA-Z0-9]/g, '');
+      const filename = fn_last + '_' + fn_first + '_' + fn_date + '.html';
+
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = filename; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    init();
+  </script>
+</body>
+</html>
