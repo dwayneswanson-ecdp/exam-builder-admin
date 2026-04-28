@@ -110,6 +110,9 @@
     .toast.show { opacity: 1; }
 
     .empty-state { padding: 48px 24px; text-align: center; color: #94a3b8; font-size: 0.88rem; }
+    .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
   </style>
 </head>
 <body>
@@ -118,13 +121,14 @@
     <div class="header-left">
       <button class="back-btn" id="backBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        All submissions
+        <span data-i18n="backBtn">All submissions</span>
       </button>
       <div class="header-divider"></div>
       <span class="header-logo">Exam Builder</span>
       <div class="header-divider"></div>
-      <span class="header-badge">Teacher</span>
+      <span class="header-badge" data-i18n="badge">Teacher</span>
     </div>
+    <div id="langToggleMount"></div>
   </header>
 
   <div class="page" id="pageContent" style="display:none;"></div>
@@ -164,6 +168,7 @@
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
+      Lang.init(i18n);
 
       const [attemptRes, examRes, questionsRes, allAttemptsRes, instTeacherRes] = await Promise.all([
         sb.from('exam_attempts').select('*').eq('id', attemptId).single(),
@@ -265,7 +270,7 @@
         const criteriaHtml = q.grading_criteria
           ? `<div class="criteria-toggle" onclick="toggleCriteria(this)">
                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-               Grading criteria
+               ${Lang.t('gradingCriteria')}
              </div>
              <div class="criteria-block" style="display:none;">${escHtml(q.grading_criteria)}</div>`
           : '';
@@ -273,7 +278,7 @@
         return `<div class="open-q" data-qidx="${globalIdx}">
           <div class="open-q-label">Question ${globalIdx + 1}</div>
           <div class="open-q-text">${escHtml(q.question_text)}</div>
-          <div class="answer-label">Student's answer</div>
+          <div class="answer-label">${Lang.t('studentAnswer')}</div>
           <div class="answer-text">${escHtml(rawAnswer) || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
           ${criteriaHtml}
           <div class="score-ai-row">
@@ -282,7 +287,7 @@
               <input type="text" class="score-text-input" value="${escHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}">
               <span class="score-of">/ ${maxPts}</span>
             </div>
-            <button class="btn btn-ai" onclick="requestAI(this, ${globalIdx})">✦ AI suggest</button>
+            <button class="btn btn-ai" onclick="requestAI(this, ${globalIdx})">${Lang.t('aiSuggest')}</button>
           </div>
           <div class="ai-suggestion" id="ai-q${globalIdx}" style="display:none;"></div>
           <span class="comment-section-label">Teacher comment</span>
@@ -316,7 +321,7 @@
             </div>
             <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="generateAndDownload()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              Download report
+              <span data-i18n="downloadBtn">Download report</span>
             </button>
           </div>
         </div>
@@ -356,7 +361,7 @@
             <button class="btn btn-ghost" ${nextId ? `onclick="navigate('${nextId}')"` : 'disabled style="opacity:0.4;"'}>Next student →</button>
           </div>
           <div>
-            <button class="btn btn-primary" id="saveBtn" onclick="saveChanges()">Save changes</button>
+            <button class="btn btn-primary" id="saveBtn" onclick="saveChanges()" data-i18n="saveBtn">Save changes</button>
           </div>
         </div>`;
 
@@ -722,7 +727,26 @@
       URL.revokeObjectURL(url);
     }
 
+    const i18n = {
+      fr: {
+        backBtn:'Toutes les soumissions', badge:'Enseignant',
+        saveBtn:'Enregistrer', downloadBtn:'Télécharger le rapport',
+        aiSuggest:'✦ Suggestion IA', gradingCriteria:'Critères de correction',
+        studentAnswer:'Réponse de l\'étudiant', teacherComment:'Commentaire du professeur',
+        correct:'correct', score:'Score',
+      },
+      en: {
+        backBtn:'All submissions', badge:'Teacher',
+        saveBtn:'Save changes', downloadBtn:'Download report',
+        aiSuggest:'✦ AI suggest', gradingCriteria:'Grading criteria',
+        studentAnswer:'Student\'s answer', teacherComment:'Teacher comment',
+        correct:'correct', score:'Score',
+      }
+    };
+
     init();
   </script>
+  <script src="lang.js"></script>
+  <script>document.addEventListener('langchange', function() { window.location.reload(); });</script>
 </body>
 </html>

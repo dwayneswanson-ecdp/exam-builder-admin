@@ -97,6 +97,9 @@
     /* Toast */
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.82rem; font-weight: 600; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
     .toast.show { opacity: 1; }
+    .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
   </style>
 </head>
 <body>
@@ -105,14 +108,17 @@
     <div class="header-left">
       <button class="back-btn" onclick="history.back()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        My Exams
+        <span data-i18n="backBtn">My Exams</span>
       </button>
       <div class="header-divider"></div>
       <span class="header-logo">Exam Builder</span>
       <div class="header-divider"></div>
-      <span class="header-badge">Teacher</span>
+      <span class="header-badge" data-i18n="badge">Teacher</span>
     </div>
-    <span class="header-name" id="headerName"></span>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div id="langToggleMount"></div>
+      <span class="header-name" id="headerName"></span>
+    </div>
   </header>
 
   <div class="page" id="pageContent" style="display:none;">
@@ -126,9 +132,9 @@
       <div class="hero-right">
         <div class="stats-row">
           <div class="stat-pill"><div class="stat-pill-val" id="statTotal">—</div><div class="stat-pill-label">Submissions</div></div>
-          <div class="stat-pill"><div class="stat-pill-val orange" id="statPending">—</div><div class="stat-pill-label">Pending</div></div>
-          <div class="stat-pill"><div class="stat-pill-val green" id="statSent">—</div><div class="stat-pill-label">Sent</div></div>
-          <div class="stat-pill"><div class="stat-pill-val red" id="statBounced">—</div><div class="stat-pill-label">Bounced</div></div>
+          <div class="stat-pill"><div class="stat-pill-val orange" id="statPending">—</div><div class="stat-pill-label" data-i18n="statPending">Pending</div></div>
+          <div class="stat-pill"><div class="stat-pill-val green" id="statSent">—</div><div class="stat-pill-label" data-i18n="statSent">Sent</div></div>
+          <div class="stat-pill"><div class="stat-pill-val red" id="statBounced">—</div><div class="stat-pill-label" data-i18n="statBounced">Bounced</div></div>
         </div>
         <button class="btn-ghost-sm">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -193,6 +199,21 @@
 
   <script src="lang.js"></script>
   <script>
+    document.addEventListener('langchange', function() { window.location.reload(); });
+
+    const i18n = {
+      fr: {
+        backBtn:'Mes examens', badge:'Enseignant',
+        statPending:'En attente', statSent:'Envoyé', statBounced:'Refusé',
+        badgeSent:'Envoyé', badgePending:'En attente', badgeBounced:'Refusé', badgeScheduled:'Planifié',
+      },
+      en: {
+        backBtn:'My Exams', badge:'Teacher',
+        statPending:'Pending', statSent:'Sent', statBounced:'Bounced',
+        badgeSent:'Sent', badgePending:'Pending', badgeBounced:'Bounced', badgeScheduled:'Scheduled',
+      }
+    };
+
     const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
     const { createClient } = supabase;
@@ -220,6 +241,7 @@
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
       document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
+      Lang.init(i18n);
 
       try { emailjs.init({ publicKey: EMAILJS_KEY }); } catch(e) {}
 
@@ -302,12 +324,12 @@
         let cbAttrs = `class="sub-check" data-idx="${i}" onchange="updateSelectAll()">`;
 
         if (a.bounce_at) {
-          badge = `<span class="badge badge-bounced">Bounced</span>`;
+          badge = `<span class="badge badge-bounced">${Lang.t('badgeBounced')}</span>`;
           rowClass += ' row-bounced';
           emailEl = `<div class="sub-email sub-email-bounced">${a.student_email || ''}
             <span class="bounce-hint">· incorrect email — update &amp; resend</span></div>`;
         } else if (a.results_sent_at) {
-          badge = `<span class="badge badge-sent">Sent</span>`;
+          badge = `<span class="badge badge-sent">${Lang.t('badgeSent')}</span>`;
           rowClass += ' row-sent';
           cbAttrs = `class="sub-check" data-idx="${i}" disabled onchange="updateSelectAll()">`;
         } else if (a.scheduled_send_at) {
@@ -316,7 +338,7 @@
             sd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           badge = `<span class="badge badge-sched">Sched. ${schedLabel}</span>`;
         } else {
-          badge = `<span class="badge badge-pending">Pending</span>`;
+          badge = `<span class="badge badge-pending">${Lang.t('badgePending')}</span>`;
         }
 
         return `

@@ -195,6 +195,9 @@
     .empty-state { background: #fff; border: 2px dashed #e2e8f0; border-radius: 14px; padding: 44px 24px; text-align: center; margin-bottom: 4px; }
     .empty-title { font-size: 0.9rem; font-weight: 700; color: #94a3b8; margin-bottom: 5px; }
     .empty-sub { font-size: 0.78rem; color: #cbd5e1; }
+    .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
   </style>
 </head>
 <body>
@@ -203,14 +206,17 @@
     <div class="header-left">
       <button class="back-btn" onclick="window.location.href='dashboard.html'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Dashboard
+        <span data-i18n="backBtn">Dashboard</span>
       </button>
       <div class="header-divider"></div>
       <span class="header-logo">Exam Builder</span>
       <div class="header-divider"></div>
-      <span class="header-badge">Teacher</span>
+      <span class="header-badge" data-i18n="badge">Teacher</span>
     </div>
-    <span class="header-name" id="headerName"></span>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div id="langToggleMount"></div>
+      <span class="header-name" id="headerName"></span>
+    </div>
   </header>
 
   <div class="page">
@@ -265,7 +271,7 @@
 
       <!-- Add buttons -->
       <div class="add-row" id="addRow">
-        <button class="add-card add-section-card" onclick="append('section')">
+        <button class="add-card add-section-card" onclick="append('section')" data-i18n="addSection">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           Add Section
         </button>
@@ -386,6 +392,7 @@
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
       document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
+      Lang.init(i18n);
 
       try {
         const raw = localStorage.getItem('examOnboarding');
@@ -844,7 +851,14 @@ ${currentTeacher.full_name || currentTeacher.email}`;
       setTimeout(() => t.classList.remove('show'), 3000);
     }
 
+    const i18n = {
+      fr: { backBtn:'Tableau de bord', badge:'Enseignant', addSection:'+ Section', addMCQ:'+ QCM', addWritten:'+ Question rédigée', publishBtn:'Confirmer et publier' },
+      en: { backBtn:'Dashboard', badge:'Teacher', addSection:'+ Section', addMCQ:'+ MCQ', addWritten:'+ Written Question', publishBtn:'Confirm and Publish' }
+    };
+
     init();
   </script>
+  <script src="lang.js"></script>
+  <script>document.addEventListener('langchange', function() { window.location.reload(); });</script>
 </body>
 </html>

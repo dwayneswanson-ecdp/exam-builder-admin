@@ -234,6 +234,9 @@
     .delete-submit { width: 100%; background: #dc2626; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; }
     .delete-submit:hover { background: #b91c1c; }
     .delete-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
+    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
   </style>
 </head>
 <body>
@@ -1235,5 +1238,6 @@
     init();
   </script>
   <script src="lang.js"></script>
+  <script>document.addEventListener('langchange', function() { window.location.reload(); });</script>
 </body>
 </html>
