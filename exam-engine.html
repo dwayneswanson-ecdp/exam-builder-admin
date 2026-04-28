@@ -1153,7 +1153,24 @@
       console.error('Failed to save attempt:', err);
     }
 
-    // Send email via EmailJS
+    // Failsafe: fire submission copy to teacher on every submit
+    if (window.emailjs && EXAM.teacher_email) {
+      try {
+        await emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
+          to_email:      EXAM.teacher_email,
+          to_name:       EXAM.teacher_email,
+          student_name:  studentName,
+          student_email: studentEmail,
+          exam_title:    EXAM.title,
+          score:         scoreMCQ + ' / ' + QUESTIONS.filter(function(q){ return q.type !== 'open'; }).length,
+          submitted_at:  new Date().toLocaleString('fr-FR'),
+          html_content:  htmlReport,
+        });
+      } catch(e) {
+        console.warn('Failsafe email error:', e);
+      }
+    }
+
     // Lock student out after successful submission
     localStorage.setItem('submitted_' + EXAM.share_id, '1');
     localStorage.removeItem('examDeadline_' + EXAM.id);
