@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Builder — Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+    }
+
+    /* Lang globe — light surface, injects own CSS via lang.js
+       but we override colors for white background */
+    .lang-top-right { position: fixed; top: 20px; right: 24px; }
+    #langToggleMount .lang-globe-btn { color: #64748b; }
+    #langToggleMount .lang-globe-btn:hover { color: #0f172a; }
+    #langToggleMount .lang-dropdown {
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 8px 24px rgba(15,23,42,0.1);
+    }
+    #langToggleMount .lang-dropdown button { color: #64748b; }
+    #langToggleMount .lang-dropdown button:hover { background: #f8fafc; color: #0f172a; }
+    #langToggleMount .lang-dropdown button.lang-active { color: #0f172a; }
+
+    .login-wrap {
+      width: 100%;
+      max-width: 380px;
+      padding: 0 24px;
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .brand-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #0f172a;
+    }
+
+    .login-subtitle {
+      text-align: left;
+      font-size: 0.82rem;
+      color: #64748b;
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+    .login-subtitle strong { color: #0f172a; font-weight: 700; }
+
+    /* Floating-label fields */
+    .field { position: relative; margin-bottom: 14px; }
+    .field input {
+      width: 100%; height: 52px;
+      padding: 16px 14px 0;
+      font-size: 0.95rem; font-family: inherit;
+      color: #0f172a; background: #fff;
+      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      outline: none; transition: border-color 0.15s;
+    }
+    .field input:focus { border-color: #0f172a; }
+    .field input.err { border-color: #dc2626; }
+    .field label {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.9rem; color: #94a3b8;
+      pointer-events: none; transition: all 0.15s;
+      background: #fff; padding: 0 2px;
+    }
+    .field input:focus ~ label,
+    .field input:not(:placeholder-shown) ~ label {
+      top: 10px; transform: none;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.04em; color: #64748b;
+    }
+    .field input:focus ~ label { color: #0f172a; }
+    .field input.err ~ label { color: #dc2626; }
+
+    /* Eye toggle */
+    .eye-btn {
+      position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: #94a3b8; padding: 0;
+      display: flex; align-items: center;
+    }
+    .eye-btn:hover { color: #0f172a; }
+
+    /* Error */
+    .field-error {
+      display: none; align-items: center; gap: 5px;
+      font-size: 0.78rem; color: #dc2626;
+      margin-top: -6px; margin-bottom: 10px;
+    }
+    .field-error.visible { display: flex; }
+
+    /* Forgot */
+    .forgot { margin-bottom: 20px; margin-top: -4px; }
+    .forgot a {
+      font-size: 0.8rem; color: #64748b;
+      text-decoration: none; font-weight: 500;
+    }
+    .forgot a:hover { color: #0f172a; }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%; height: 50px;
+      background: #0f172a; color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 0.95rem; font-weight: 700;
+      font-family: inherit; cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 20px; letter-spacing: 0.01em;
+    }
+    .btn-submit:hover { background: #1e293b; }
+    .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* Divider */
+    .divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .divider-line { flex: 1; height: 1px; background: #f1f5f9; }
+    .divider-text { font-size: 0.75rem; color: #cbd5e1; font-weight: 500; }
+
+    /* Sign up row */
+    .signup-row {
+      text-align: center; font-size: 0.82rem;
+      color: #64748b; white-space: nowrap;
+    }
+    .signup-row a { color: #0f172a; font-weight: 600; text-decoration: none; }
+    .signup-row a:hover { text-decoration: underline; }
+
+    /* Reset confirmation */
+    .reset-confirm {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+    .reset-confirm-icon {
+      width: 44px; height: 44px;
+      background: #f0fdf4; border-radius: 999px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .reset-confirm-title {
+      font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;
+    }
+    .reset-confirm-sub {
+      font-size: 0.82rem; color: #64748b; line-height: 1.6;
+    }
+    .reset-back {
+      display: inline-block; margin-top: 18px;
+      font-size: 0.8rem; font-weight: 600;
+      color: #64748b; text-decoration: none; cursor: pointer;
+    }
+    .reset-back:hover { color: #0f172a; }
+  </style>
+</head>
+<body>
+
+  <!-- Language toggle — top right -->
+  <div class="lang-top-right">
+    <div id="langToggleMount"></div>
+  </div>
+
+  <div class="login-wrap">
+
+    <div class="brand">
+      <div class="brand-name">Exam Builder</div>
+    </div>
+
+    <!-- Login form -->
+    <div id="loginForm">
+      <p class="login-subtitle" id="loginSubtitle"></p>
+
+      <form onsubmit="signIn(); return false;" autocomplete="on">
+
+        <div class="field">
+          <input type="email" id="loginEmail" placeholder=" " autocomplete="email">
+          <label for="loginEmail" id="labelEmail"></label>
+        </div>
+
+        <div class="field">
+          <input type="password" id="loginPassword" placeholder=" " autocomplete="current-password" style="padding-right:42px;">
+          <label for="loginPassword" id="labelPassword"></label>
+          <button type="button" class="eye-btn" onclick="togglePwd()" tabindex="-1">
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="field-error" id="loginError">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="#dc2626">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12" stroke="#fff" stroke-width="2"/>
+            <line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff" stroke-width="2"/>
+          </svg>
+          <span id="loginErrorText"></span>
+        </div>
+
+        <div class="forgot">
+          <a href="#" onclick="showReset(); return false;" id="linkReset"></a>
+        </div>
+
+        <button class="btn-submit" type="submit" id="loginBtn"></button>
+
+      </form>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-text" id="dividerOr"></span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="signup-row" id="signupRow"></div>
+    </div>
+
+    <!-- Reset password form -->
+    <div id="resetForm" style="display:none;">
+      <p class="login-subtitle" id="resetSubtitle"></p>
+
+      <div class="field">
+        <input type="email" id="resetEmail" placeholder=" " autocomplete="email">
+        <label for="resetEmail" id="labelResetEmail"></label>
+      </div>
+
+      <div class="field-error" id="resetError">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="#dc2626">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12" stroke="#fff" stroke-width="2"/>
+          <line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff" stroke-width="2"/>
+        </svg>
+        <span id="resetErrorText"></span>
+      </div>
+
+      <button class="btn-submit" id="resetBtn" onclick="sendReset()"></button>
+      <div style="text-align:center;">
+        <a class="reset-back" onclick="showLogin(); return false;" id="linkBackLogin"></a>
+      </div>
+    </div>
+
+    <!-- Reset sent confirmation -->
+    <div class="reset-confirm" id="resetConfirm">
+      <div class="reset-confirm-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="reset-confirm-title" id="confirmTitle"></div>
+      <div class="reset-confirm-sub" id="confirmSub"></div>
+      <a class="reset-back" onclick="showLogin(); return false;" id="confirmBackLink"></a>
+    </div>
+
+  </div>
+
+  <script src="lang.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const { createClient } = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const i18n = {
+      fr: {
+        title:        'Exam Builder — Connexion',
+        subPre:       'Se connecter à ',
+        subPost:      ' pour continuer',
+        email:        'Adresse e-mail',
+        password:     'Mot de passe',
+        reset:        'Mot de passe oublié ?',
+        submit:       'Continuer',
+        errorWrong:   'Email ou mot de passe incorrect',
+        errorFill:    'Veuillez remplir tous les champs.',
+        orText:       'ou',
+        noAccount:    'Pas encore de compte ?',
+        contact:      'Contacter votre établissement',
+        resetSubtitle:'Réinitialiser votre mot de passe',
+        resetEmail:   'Adresse e-mail',
+        resetBtn:     'Envoyer le lien',
+        backLogin:    '← Retour à la connexion',
+        confirmTitle: 'E-mail envoyé',
+        confirmSub:   'Vérifiez votre boîte mail et cliquez sur le lien pour réinitialiser votre mot de passe.',
+        confirmBack:  '← Retour à la connexion',
+        signingIn:    'Connexion en cours…',
+        sending:      'Envoi en cours…',
+      },
+      en: {
+        title:        'Exam Builder — Login',
+        subPre:       'Log in to ',
+        subPost:      ' to continue',
+        email:        'Email address',
+        password:     'Password',
+        reset:        'Reset password',
+        submit:       'Continue',
+        errorWrong:   'Wrong email or password',
+        errorFill:    'Please fill in all fields.',
+        orText:       'or',
+        noAccount:    "Don't have an account?",
+        contact:      'Contact your institution',
+        resetSubtitle:'Reset your password',
+        resetEmail:   'Email address',
+        resetBtn:     'Send reset link',
+        backLogin:    '← Back to login',
+        confirmTitle: 'Email sent',
+        confirmSub:   'Check your inbox and click the link to reset your password.',
+        confirmBack:  '← Back to login',
+        signingIn:    'Signing in…',
+        sending:      'Sending…',
+      }
+    };
+
+    Lang.init(i18n);
+    document.addEventListener('langchange', function() { applyStrings(); });
+
+    function t(k) { return Lang.t(k); }
+
+    function applyStrings() {
+      document.title = t('title');
+      document.getElementById('loginSubtitle').innerHTML  = t('subPre') + '<strong>Exam Builder</strong>' + t('subPost');
+      document.getElementById('labelEmail').textContent   = t('email');
+      document.getElementById('labelPassword').textContent = t('password');
+      document.getElementById('linkReset').textContent    = t('reset');
+      document.getElementById('loginBtn').textContent     = t('submit');
+      document.getElementById('dividerOr').textContent    = t('orText');
+      document.getElementById('signupRow').innerHTML      = t('noAccount') + ' <a href="#">' + t('contact') + '</a>';
+      document.getElementById('resetSubtitle').textContent = t('resetSubtitle');
+      document.getElementById('labelResetEmail').textContent = t('resetEmail');
+      document.getElementById('resetBtn').textContent    = t('resetBtn');
+      document.getElementById('linkBackLogin').textContent = t('backLogin');
+      document.getElementById('confirmTitle').textContent = t('confirmTitle');
+      document.getElementById('confirmSub').textContent   = t('confirmSub');
+      document.getElementById('confirmBackLink').textContent = t('confirmBack');
+    }
+    applyStrings();
+
+    // ── Auth ──────────────────────────────────────────────────────
+
+    async function boot() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) { window.location.href = 'dashboard.html'; }
+    }
+    boot();
+
+    async function signIn() {
+      const email    = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn      = document.getElementById('loginBtn');
+      const errEl    = document.getElementById('loginError');
+
+      if (!email || !password) { showLoginError(t('errorFill')); return; }
+
+      btn.disabled = true;
+      btn.textContent = t('signingIn');
+      errEl.classList.remove('visible');
+      document.getElementById('loginEmail').classList.remove('err');
+      document.getElementById('loginPassword').classList.remove('err');
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) {
+        showLoginError(t('errorWrong'));
+        document.getElementById('loginPassword').classList.add('err');
+        btn.disabled = false;
+        btn.textContent = t('submit');
+        return;
+      }
+      window.location.href = 'dashboard.html';
+    }
+
+    function showLoginError(msg) {
+      document.getElementById('loginErrorText').textContent = msg;
+      document.getElementById('loginError').classList.add('visible');
+    }
+
+    async function sendReset() {
+      const email = document.getElementById('resetEmail').value.trim();
+      const btn   = document.getElementById('resetBtn');
+      const errEl = document.getElementById('resetError');
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = t('sending');
+      errEl.classList.remove('visible');
+
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/dashboard.html'
+      });
+
+      if (error) {
+        document.getElementById('resetErrorText').textContent = error.message;
+        errEl.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = t('resetBtn');
+        return;
+      }
+
+      document.getElementById('resetForm').style.display   = 'none';
+      document.getElementById('resetConfirm').style.display = 'block';
+    }
+
+    function showReset() {
+      document.getElementById('loginForm').style.display  = 'none';
+      document.getElementById('resetForm').style.display  = 'block';
+      document.getElementById('loginError').classList.remove('visible');
+      const emailVal = document.getElementById('loginEmail').value;
+      if (emailVal) document.getElementById('resetEmail').value = emailVal;
+    }
+
+    function showLogin() {
+      document.getElementById('loginForm').style.display   = 'block';
+      document.getElementById('resetForm').style.display   = 'none';
+      document.getElementById('resetConfirm').style.display = 'none';
+      document.getElementById('resetError').classList.remove('visible');
+      document.getElementById('resetBtn').disabled = false;
+      document.getElementById('resetBtn').textContent = t('resetBtn');
+    }
+
+    function togglePwd() {
+      const inp  = document.getElementById('loginPassword');
+      const icon = document.getElementById('eyeIcon');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        inp.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.getElementById('loginForm').style.display !== 'none') signIn();
+    });
+  </script>
+</body>
+</html>
