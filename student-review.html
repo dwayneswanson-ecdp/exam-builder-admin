@@ -181,6 +181,8 @@
       attempt   = attemptRes.data;
       exam      = examRes.data;
       questions = questionsRes.data || [];
+      // Sections are visual dividers — exclude from answer index so it matches exam-engine
+      window.answerableQs = questions.filter(q => q.type !== 'section');
 
       if (!attempt || !exam) { goBack(); return; }
 
@@ -218,11 +220,12 @@
       const openScores   = attempt.open_scores || {};
       const openComments = attempt.open_comments || {};
 
-      const mcqQuestions  = questions.filter(q => q.type !== 'open');
-      const openQuestions = questions.filter(q => q.type === 'open');
+      const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
+      const mcqQuestions  = aqs.filter(q => q.type === 'mcq');
+      const openQuestions = aqs.filter(q => q.type === 'open');
 
-      const mcqCorrect = mcqQuestions.filter((q, i) => {
-        const globalIdx = questions.indexOf(q);
+      const mcqCorrect = mcqQuestions.filter((q) => {
+        const globalIdx = aqs.indexOf(q);
         const selected  = parseInt(answers['q' + globalIdx], 10);
         return selected === q.correct_index;
       }).length;
@@ -233,7 +236,7 @@
       const scoreDisplay = hasOpenScore
         ? (mcqCorrect + openScoreSum).toFixed(1)
         : mcqCorrect;
-      const scoreMax = questions.length;
+      const scoreMax = aqs.length;
 
       const submittedDate = attempt.submitted_at
         ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' +
@@ -247,7 +250,7 @@
 
       // Build MCQ table rows
       const mcqRows = mcqQuestions.map((q, i) => {
-        const globalIdx   = questions.indexOf(q);
+        const globalIdx   = aqs.indexOf(q);
         const selectedIdx = parseInt(answers['q' + globalIdx], 10);
         const isCorrect   = selectedIdx === q.correct_index;
         const studentAns  = isNaN(selectedIdx) ? '—' : getOptionText(q, selectedIdx);
@@ -262,7 +265,7 @@
 
       // Build open question blocks
       const openBlocks = openQuestions.map((q, i) => {
-        const globalIdx = questions.indexOf(q);
+        const globalIdx = aqs.indexOf(q);
         const rawAnswer = answers['q' + globalIdx] || '';
         const savedScore   = openScores[globalIdx] !== undefined ? openScores[globalIdx] : '';
         const savedComment = openComments[globalIdx] || '';
@@ -546,8 +549,9 @@
       let totalCorrect = 0, totalMax = 0;
       const segData = segments.map(function(seg) {
         let sc = 0, sm = 0;
+        const aqs2 = window.answerableQs || questions.filter(q => q.type !== 'section');
         seg.questions.forEach(function(q) {
-          const gi = questions.indexOf(q);
+          const gi = aqs2.indexOf(q);
           if (q.type === 'open') {
             const mp = q.max_points || 5;
             sc += parseFloat(openScores[gi]) || 0;
@@ -604,8 +608,8 @@
       }).join('');
 
       // Q&A table rows
-      const qaRows = questions.filter(function(q) { return q.type !== 'section'; }).map(function(q) {
-        const gi = questions.indexOf(q);
+      const qaRows = (window.answerableQs || questions.filter(function(q) { return q.type !== 'section'; })).map(function(q) {
+        const gi = (window.answerableQs || questions.filter(function(q2) { return q2.type !== 'section'; })).indexOf(q);
         if (q.type === 'open') {
           const ans    = answers['q' + gi] || '(pas de réponse)';
           const scored = openScores[gi] !== undefined ? openScores[gi] : '—';
