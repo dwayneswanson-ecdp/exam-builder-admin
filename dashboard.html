@@ -238,6 +238,14 @@
     .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
     .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
     .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
+  @media (max-width: 640px) {
+    .header { padding: 0 16px; height: auto; min-height: 56px; flex-wrap: wrap; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
+    .page { padding: 20px 16px; }
+    .stats-bar { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .inst-row { flex-wrap: wrap; gap: 10px; }
+    .inst-logo { width: 36px; height: 36px; }
+    .modal-box { padding: 24px 20px; margin: 16px; max-width: calc(100vw - 32px); }
+  }
   </style>
 </head>
 <body>
@@ -917,11 +925,18 @@
         attempts = data || [];
       }
 
-      // Submission count per exam (for display)
+      // Submission stats per exam (total / sent / pending)
       const subCountMap = {};
+      const subStatsMap = {};
       if (examIds.length) {
-        const { data: countRows } = await sb.from('exam_attempts').select('exam_id').in('exam_id', examIds);
-        (countRows || []).forEach(r => { subCountMap[r.exam_id] = (subCountMap[r.exam_id] || 0) + 1; });
+        const { data: countRows } = await sb.from('exam_attempts').select('exam_id, results_sent_at, bounce_at').in('exam_id', examIds);
+        (countRows || []).forEach(r => {
+          subCountMap[r.exam_id] = (subCountMap[r.exam_id] || 0) + 1;
+          if (!subStatsMap[r.exam_id]) subStatsMap[r.exam_id] = { total: 0, sent: 0, bounced: 0 };
+          subStatsMap[r.exam_id].total++;
+          if (r.results_sent_at) subStatsMap[r.exam_id].sent++;
+          if (r.bounce_at) subStatsMap[r.exam_id].bounced++;
+        });
       }
 
       // Stats
@@ -938,17 +953,24 @@
             <div class="empty-sub" style="font-size:0.78rem;color:#94a3b8;margin-top:4px;">Click "New Exam" above to create your first exam.</div>
           </div>`
         : exams.map(exam => {
-            const subs    = subCountMap[exam.id] || 0;
-            const pending = pendingCount > 0;
+            const stats   = subStatsMap[exam.id] || { total: 0, sent: 0, bounced: 0 };
+            const pending = stats.total - stats.sent - stats.bounced;
             const date    = new Date(exam.created_at).toLocaleDateString(Lang.get() === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
+            const statChips = stats.total === 0
+              ? `<span style="font-size:0.72rem;color:#94a3b8;">No submissions</span>`
+              : [
+                  `<span style="font-size:0.72rem;font-weight:600;color:#475569;">${stats.total} submitted</span>`,
+                  pending > 0 ? `<span style="font-size:0.72rem;font-weight:700;color:#ea580c;background:#fff7ed;border:1px solid #fed7aa;padding:1px 7px;border-radius:999px;">${pending} pending</span>` : '',
+                  stats.sent > 0 ? `<span style="font-size:0.72rem;font-weight:700;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;padding:1px 7px;border-radius:999px;">${stats.sent} sent</span>` : '',
+                ].filter(Boolean).join(' ');
             return `
               <div class="member-row" style="cursor:pointer;" onclick="window.location.href='submissions.html?exam=${exam.id}'">
-                <div class="member-info">
+                <div class="member-info" style="min-width:0;">
                   <div class="member-name">${exam.title || 'Untitled'}</div>
                   <div class="member-sub">${exam.duration_mins} min · ${date}</div>
+                  <div style="margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${statChips}</div>
                 </div>
-                <div style="font-size:0.78rem;font-weight:600;color:#475569;flex-shrink:0;">${subs} sub.</div>
-                <div class="inst-status"><div class="dot"></div>${Lang.t('teacherPublished')}</div>
+                <div class="inst-status" style="flex-shrink:0;"><div class="dot"></div>${Lang.t('teacherPublished')}</div>
               </div>`;
           }).join('');
 

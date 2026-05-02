@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Exam Builder</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#0f172a;border-radius:12px 12px 0 0;padding:28px 40px;text-align:left;">
+              <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.9);">Exam Builder</span>
+            </td>
+          </tr>
+
+          <!-- Green accent bar -->
+          <tr>
+            <td style="background:#16a34a;padding:14px 40px;">
+              <span style="font-size:12px;font-weight:700;color:#fff;letter-spacing:0.06em;text-transform:uppercase;">New Account</span>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#ffffff;padding:40px 40px 32px 40px;">
+              <h1 style="margin:0 0 8px 0;font-size:22px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">Welcome, {{first_name}}!</h1>
+              <p style="margin:0 0 28px 0;font-size:14px;color:#64748b;">You have been added as a teacher at <strong style="color:#0f172a;">{{institution_name}}</strong>.</p>
+
+              <p style="margin:0 0 16px 0;font-size:15px;color:#475569;line-height:1.6;">
+                Your account is ready. Use the credentials below to sign in for the first time.
+              </p>
+
+              <!-- Credentials box -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:24px 28px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding-bottom:14px;border-bottom:1px solid #e2e8f0;">
+                          <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;">Email</p>
+                          <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a;">{{email}}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top:14px;">
+                          <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;">Temporary Password</p>
+                          <p style="margin:0;font-size:18px;font-weight:800;color:#0f172a;letter-spacing:0.08em;font-family:monospace;">{{temp_password}}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="background:#2563eb;border-radius:8px;">
+                    <a href="{{login_url}}" style="display:inline-block;padding:13px 28px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Sign in to your dashboard →</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 8px 0;font-size:13px;color:#94a3b8;line-height:1.6;">
+                You will be prompted to change your password after your first login. Keep this email safe until then.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8fafc;border-top:1px solid #e2e8f0;border-radius:0 0 12px 12px;padding:20px 40px;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#94a3b8;">Sent by {{institution_name}} via <strong>Exam Builder</strong> · <a href="{{login_url}}" style="color:#2563eb;text-decoration:none;">{{login_url}}</a></p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

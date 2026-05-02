@@ -199,6 +199,16 @@
     .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
     .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
     .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
+  @media (max-width: 640px) {
+    .header { padding: 0 16px; }
+    .page { padding: 20px 16px 80px; }
+    .steps { flex-wrap: wrap; }
+    .step { font-size: 0.7rem; padding: 8px 10px; }
+    .section-head { flex-wrap: wrap; gap: 6px; }
+    .q-head { flex-wrap: wrap; gap: 6px; }
+    .add-row { flex-wrap: wrap; gap: 8px; }
+    .add-card { flex: 1; min-width: 80px; justify-content: center; }
+  }
   </style>
 </head>
 <body>

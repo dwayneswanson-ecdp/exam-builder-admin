@@ -129,6 +129,17 @@
     .btn-ghost:hover { border-color: #94a3b8; }
 
     .error-msg { font-size: 0.78rem; color: #dc2626; font-weight: 600; margin-top: 12px; text-align: right; display: none; }
+  @media (max-width: 640px) {
+    .header { padding: 0 16px; }
+    .page { padding: 24px 16px 60px; }
+    .form-card { padding: 20px 16px; }
+    .field-row { flex-direction: column; gap: 12px; }
+    .method-options, .report-options { grid-template-columns: 1fr; }
+    .steps { flex-wrap: wrap; gap: 6px; }
+    .step-connector { display: none; }
+    .cta-row { flex-direction: column-reverse; }
+    .btn { width: 100%; justify-content: center; }
+  }
   </style>
 </head>
 <body>

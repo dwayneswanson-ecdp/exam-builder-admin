@@ -114,6 +114,18 @@
     .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
     .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
     .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
+  @media (max-width: 640px) {
+    .header { padding: 0 16px; }
+    .page { padding: 20px 16px 60px; }
+    .student-card { flex-direction: column; gap: 16px; }
+    .score-block { align-self: flex-start; }
+    .mcq-table { font-size: 0.75rem; }
+    .mcq-table th, .mcq-table td { padding: 8px 12px; }
+    .result-col { width: 36px; }
+    .open-q { padding: 16px; }
+    .score-ai-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .section-head { padding: 12px 16px; }
+  }
   </style>
 </head>
 <body>
@@ -288,14 +300,14 @@
           <div class="score-ai-row">
             <div class="score-field">
               <span class="score-field-label">Score</span>
-              <input type="text" class="score-text-input" value="${escHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}" oninput="updateScoreChip()">
+              <input type="text" class="score-text-input" value="${escHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}" oninput="updateScoreChip();markUnsaved()">
               <span class="score-of">/ ${maxPts}</span>
             </div>
             <button class="btn btn-ai" onclick="requestAI(this, ${globalIdx})">${Lang.t('aiSuggest')}</button>
           </div>
           <div class="ai-suggestion" id="ai-q${globalIdx}" style="display:none;"></div>
           <span class="comment-section-label">Teacher comment</span>
-          <textarea class="comment-textarea" data-qidx="${globalIdx}" placeholder="Add a comment — visible to the student when results are sent.">${escHtml(savedComment)}</textarea>
+          <textarea class="comment-textarea" data-qidx="${globalIdx}" oninput="markUnsaved()" placeholder="Add a comment — visible to the student when results are sent.">${escHtml(savedComment)}</textarea>
         </div>`;
       }).join('');
 
@@ -366,6 +378,7 @@
           </div>
           <div>
             <button class="btn btn-primary" id="saveBtn" onclick="saveChanges()" data-i18n="saveBtn">Save changes</button>
+            <span id="autoSaveChip" style="font-size:0.72rem;color:#16a34a;font-weight:600;opacity:0;transition:opacity 0.4s;">✓ Auto-saved</span>
           </div>
         </div>`;
 
@@ -492,17 +505,36 @@
       chip.innerHTML = `${Number.isInteger(combined) ? combined : combined.toFixed(1)} <span>/ ${scoreMax}</span>`;
     }
 
+    let _unsaved = false;
+    let _autoSaveTimer = null;
+
+    function markUnsaved() {
+      _unsaved = true;
+      const btn = document.getElementById('saveBtn');
+      if (btn && !btn.disabled) btn.style.background = '#1d4ed8';
+      scheduleAutoSave();
+    }
+
+    function scheduleAutoSave() {
+      clearTimeout(_autoSaveTimer);
+      _autoSaveTimer = setTimeout(() => { saveChanges(true); }, 2500);
+    }
+
+    window.addEventListener('beforeunload', e => {
+      if (_unsaved) { e.preventDefault(); e.returnValue = ''; }
+    });
+
     function applyScore(qIdx, score) {
       const input = document.querySelector(`.score-text-input[data-qidx="${qIdx}"]`);
-      if (input) { input.value = score; flash(input); updateScoreChip(); }
+      if (input) { input.value = score; flash(input); updateScoreChip(); markUnsaved(); }
     }
 
     function applyComment(qIdx, comment) {
       const ta = document.querySelector(`.comment-textarea[data-qidx="${qIdx}"]`);
-      if (ta) { ta.value = comment; flash(ta); }
+      if (ta) { ta.value = comment; flash(ta); markUnsaved(); }
     }
 
-    async function saveChanges() {
+    async function saveChanges(silent) {
       const btn = document.getElementById('saveBtn');
       btn.disabled = true;
 
@@ -525,13 +557,22 @@
         .eq('id', attemptId);
 
       if (error) {
-        showToast('Error saving: ' + error.message);
+        showToast('Error saving: ' + error.message, 5500);
         btn.disabled = false;
         return;
       }
 
-      showToast('Saved.');
-      setTimeout(() => { goBack(); }, 800);
+      _unsaved = false;
+      if (btn) { btn.disabled = false; btn.style.background = ''; }
+
+      if (silent) {
+        // Auto-save: show subtle indicator, don't navigate
+        const chip = document.getElementById('autoSaveChip');
+        if (chip) { chip.style.opacity = '1'; setTimeout(() => { chip.style.opacity = '0'; }, 1500); }
+      } else {
+        showToast('Saved.');
+        setTimeout(() => { goBack(); }, 800);
+      }
     }
 
     function navigate(id) {

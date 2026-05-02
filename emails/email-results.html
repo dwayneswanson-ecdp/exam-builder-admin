@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Results</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:40px 0;">
+    <tr>
+      <td align="center">
+        <table width="620" cellpadding="0" cellspacing="0" style="max-width:620px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:#0f172a;border-radius:12px 12px 0 0;padding:24px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td>
+                    <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.9);">Exam Builder</span>
+                  </td>
+                  <td align="right">
+                    <table cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td valign="middle" style="padding-right:10px;">
+                          <img src="{{institution_logo_url}}" alt="{{institution_name}}" style="height:32px;width:auto;object-fit:contain;display:block;border-radius:4px;">
+                        </td>
+                        <td valign="middle">
+                          <span style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);">{{institution_name}}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="background:#ffffff;padding:36px 40px 32px 40px;">
+
+              <!-- Title -->
+              <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;">Exam Results</p>
+              <h1 style="margin:0 0 6px 0;font-size:20px;font-weight:800;color:#0f172a;letter-spacing:-0.02em;">{{exam_title}}</h1>
+              <p style="margin:0 0 28px 0;font-size:14px;color:#64748b;">Dear <strong style="color:#0f172a;">{{student_name}}</strong> — your results are now available below.</p>
+
+              <!-- Meta row -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:24px;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding-bottom:10px;border-bottom:1px solid #e2e8f0;">
+                          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Class</span>
+                          <span style="float:right;font-size:13px;font-weight:600;color:#0f172a;">{{class_name}}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;">
+                          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Teacher</span>
+                          <span style="float:right;font-size:13px;font-weight:600;color:#0f172a;">{{teacher_name}}</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding-top:10px;">
+                          <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#94a3b8;">Exam Date</span>
+                          <span style="float:right;font-size:13px;font-weight:600;color:#0f172a;">{{date_taken}}</span>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Score card -->
+              <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>
+                          <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#3b82f6;">Total Score</p>
+                          <p style="margin:0;font-size:32px;font-weight:800;color:#1d4ed8;">{{score_converted}} <span style="font-size:16px;color:#93c5fd;font-weight:600;">/ {{score_coefficient}}</span></p>
+                          <p style="margin:4px 0 0 0;font-size:11px;color:#93c5fd;">({{score_obtained}} / {{score_total}} questions correct)</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Divider -->
+              <hr style="border:none;border-top:2px solid #e2e8f0;margin:0 0 24px 0;">
+
+              <!-- Section breakdown — generated server-side and injected as {{sections_html}} -->
+              <!--
+                Each section block looks like this:
+
+                <h3 style="color:#0f172a;font-size:14px;font-weight:700;margin:20px 0 8px 0;">
+                  Section Title — 12 / 15
+                </h3>
+                <table style="border-collapse:collapse;width:100%;margin-bottom:20px;font-size:12px;">
+                  <thead>
+                    <tr style="background:#0f172a;color:#fff;text-align:left;">
+                      <th style="padding:7px 10px;border:1px solid #1e293b;">Question</th>
+                      <th style="padding:7px 10px;border:1px solid #1e293b;">Your Answer</th>
+                      <th style="padding:7px 10px;border:1px solid #1e293b;">Correct Answer</th>
+                      <th style="padding:7px 10px;border:1px solid #1e293b;">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;">Question text here</td>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;">Student answer</td>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;">Correct answer</td>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#166534;">✅</td>
+                    </tr>
+                    <tr style="background:#fff5f5;">
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;">Question text here</td>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;">Student answer</td>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;">Correct answer</td>
+                      <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#991b1b;">❌</td>
+                    </tr>
+                  </tbody>
+                </table>
+              -->
+
+              <!-- LIVE EXAMPLE for mockup preview -->
+              <h3 style="color:#0f172a;font-size:14px;font-weight:700;margin:20px 0 8px 0;padding:10px 14px;background:#f8fafc;border-left:3px solid #2563eb;border-radius:0 6px 6px 0;">Section 1 — Culture Générale &nbsp;<span style="font-weight:500;color:#64748b;">12 / 15</span></h3>
+              <table style="border-collapse:collapse;width:100%;margin-bottom:20px;font-size:12px;">
+                <thead>
+                  <tr style="background:#0f172a;color:#fff;text-align:left;">
+                    <th style="padding:7px 10px;border:1px solid #1e293b;width:40%;">Question</th>
+                    <th style="padding:7px 10px;border:1px solid #1e293b;">Your Answer</th>
+                    <th style="padding:7px 10px;border:1px solid #1e293b;">Correct Answer</th>
+                    <th style="padding:7px 10px;border:1px solid #1e293b;width:10%;">Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="background:#f0fdf4;">
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Quelle est la capitale de l'Espagne ?</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Madrid</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Madrid</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#166534;text-align:center;">✅</td>
+                  </tr>
+                  <tr style="background:#fff5f5;">
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Les JO 2024 ont eu lieu à :</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Tokyo</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Paris</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#991b1b;text-align:center;">❌</td>
+                  </tr>
+                  <tr style="background:#f0fdf4;">
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">L'Union européenne compte actuellement :</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">27 pays</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">27 pays</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#166534;text-align:center;">✅</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h3 style="color:#0f172a;font-size:14px;font-weight:700;margin:20px 0 8px 0;padding:10px 14px;background:#f8fafc;border-left:3px solid #2563eb;border-radius:0 6px 6px 0;">Section 2 — Commerce &amp; Négociation &nbsp;<span style="font-weight:500;color:#64748b;">11 / 14</span></h3>
+              <table style="border-collapse:collapse;width:100%;margin-bottom:20px;font-size:12px;">
+                <thead>
+                  <tr style="background:#0f172a;color:#fff;text-align:left;">
+                    <th style="padding:7px 10px;border:1px solid #1e293b;width:40%;">Question</th>
+                    <th style="padding:7px 10px;border:1px solid #1e293b;">Your Answer</th>
+                    <th style="padding:7px 10px;border:1px solid #1e293b;">Correct Answer</th>
+                    <th style="padding:7px 10px;border:1px solid #1e293b;width:10%;">Result</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="background:#f0fdf4;">
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">L'objectif principal d'un commercial est de :</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Vendre et fidéliser</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Vendre et fidéliser</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#166534;text-align:center;">✅</td>
+                  </tr>
+                  <tr style="background:#fff5f5;">
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Que signifie « TVA » ?</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Taux Variable Annuel</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;">Taxe sur Valeur Ajoutée</td>
+                    <td style="padding:6px 10px;border:1px solid #e2e8f0;font-weight:700;color:#991b1b;text-align:center;">❌</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p style="margin:24px 0 0 0;font-size:12px;color:#94a3b8;line-height:1.6;">
+                Questions not answered are shown as "No answer". For any questions about your results, contact your teacher directly.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background:#f8fafc;border-top:1px solid #e2e8f0;border-radius:0 0 12px 12px;padding:18px 40px;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#94a3b8;">Sent by <strong>{{institution_name}}</strong> via Exam Builder · This is an automated message</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
