@@ -149,7 +149,10 @@
 
   <div class="toast" id="toast"></div>
 
+  <script src="lang.js"></script>
   <script>
+    document.addEventListener('langchange', function() { window.location.reload(); });
+
     const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
     const { createClient } = supabase;
@@ -724,8 +727,7 @@
         '.btn-pdf{display:flex;align-items:center;gap:5px;background:#2563eb;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}' +
         '@media print{.toolbar{display:none;}body{background:#fff;padding:0;}.container{border-radius:0;box-shadow:none;}.header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.cards{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
 
-      const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-  <link rel="icon" type="image/svg+xml" href="favicon.svg">' +
+      const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">' +
         '<title>Rapport — ' + escHtml(displayName) + '</title>' +
         '<style>' + css + '</style></head><body>' +
         '<div class="toolbar"><span class="toolbar-title">Rapport — ' + escHtml(displayName) + '</span>' +
@@ -811,7 +813,7 @@
 
     init();
   </script>
-  <script src="lang.js"></script>
-  <script>document.addEventListener('langchange', function() { window.location.reload(); });</script>
+</body>
+</html>
 </body>
 </html>
