@@ -478,7 +478,10 @@
 
       // Fetch questions ordered by position
       const qs = await sbFetch(`questions?exam_id=eq.${EXAM.id}&order=position.asc&select=*`);
-      QUESTIONS = qs || [];
+      const allItems = qs || [];
+      // Sections are visual dividers — keep them for rendering but separate from answerable questions
+      window.ALL_ITEMS  = allItems;
+      QUESTIONS = allItems.filter(q => q.type !== 'section');
 
       if (QUESTIONS.length === 0) {
         showError('Cette épreuve ne contient pas encore de questions.');
@@ -765,7 +768,31 @@
     const container = document.getElementById('questionsContainer');
     container.innerHTML = '';
 
-    QUESTIONS.forEach((q, idx) => {
+    let questionCounter = 0; // counts only answerable questions
+
+    (window.ALL_ITEMS || QUESTIONS).forEach((item) => {
+      // Render section as a visual heading divider
+      if (item.type === 'section') {
+        const sec = document.createElement('div');
+        sec.className = 'section-divider';
+        sec.style.cssText = 'margin:28px 0 4px 0;padding:14px 20px 10px;background:#f1f5f9;border-radius:10px;border-left:4px solid #2563eb;';
+        const title = document.createElement('div');
+        title.style.cssText = 'font-size:1rem;font-weight:700;color:#0f172a;letter-spacing:-0.01em;';
+        title.textContent = item.question_text || item.title || '';
+        sec.appendChild(title);
+        if (item.option_a) { // instructions stored in option_a for sections
+          const instr = document.createElement('div');
+          instr.style.cssText = 'font-size:0.82rem;color:#475569;margin-top:4px;';
+          instr.textContent = item.option_a;
+          sec.appendChild(instr);
+        }
+        container.appendChild(sec);
+        return; // skip q-card rendering for sections
+      }
+
+      const idx = questionCounter++;
+      const q   = item;
+
       const div = document.createElement('div');
       div.className = 'q-card';
       div.dataset.idx = idx;
@@ -1098,7 +1125,7 @@
       <td style="padding:6px 8px;border:1px solid #ddd;">${e.detail}</td>
     </tr>`).join('');
 
-    const mcqCount  = QUESTIONS.filter(q => q.type !== 'open').length;
+    const mcqCount  = QUESTIONS.filter(q => q.type === 'mcq').length;
     const openCount = QUESTIONS.filter(q => q.type === 'open').length;
 
     const htmlReport = `
@@ -1163,7 +1190,7 @@
           student_name:  studentName,
           student_email: studentEmail,
           exam_title:    EXAM.title,
-          score:         scoreMCQ + ' / ' + QUESTIONS.filter(function(q){ return q.type !== 'open'; }).length,
+          score:         scoreMCQ + ' / ' + QUESTIONS.filter(function(q){ return q.type === 'mcq'; }).length,
           submitted_at:  new Date().toLocaleString('fr-FR'),
           html_content:  htmlReport,
         });
