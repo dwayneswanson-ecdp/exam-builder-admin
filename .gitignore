@@ -1,4 +1,7 @@
 
+# Secrets
+.mcp.json
+
 # Playwright
 node_modules/
 /test-results/

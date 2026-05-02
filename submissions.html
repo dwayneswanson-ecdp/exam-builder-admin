@@ -17,7 +17,7 @@
     .back-btn:hover { color: #fff; }
     .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
     .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
     .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
 
     .page { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
@@ -94,12 +94,58 @@
     .badge-bounced  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .empty-state { padding: 48px 20px; text-align: center; color: #94a3b8; font-size: 0.88rem; }
 
+    /* Exam access card */
+    .exam-access { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 28px; margin-bottom: 14px; }
+    .access-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .access-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+    .access-actions { display: flex; gap: 8px; }
+    .access-rows { display: flex; flex-direction: column; gap: 12px; }
+    .access-row { display: flex; align-items: flex-start; gap: 14px; }
+    .access-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; width: 90px; flex-shrink: 0; padding-top: 9px; }
+    .access-value { flex: 1; display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px; padding: 8px 12px; }
+    .access-value-text { font-size: 0.82rem; font-weight: 600; color: #0f172a; font-family: 'Courier New', monospace; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .access-value-text.url { font-family: inherit; font-weight: 400; color: #475569; font-size: 0.78rem; }
+    .copy-btn { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; color: #64748b; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-family: inherit; flex-shrink: 0; transition: all 0.15s; }
+    .copy-btn:hover { background: #e2e8f0; color: #0f172a; }
+    .groups-list { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+    .group-row { display: flex; align-items: center; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; }
+    .group-check { accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
+    .group-name-lbl { font-size: 0.78rem; font-weight: 600; color: #475569; flex-shrink: 0; min-width: 68px; }
+    .group-code-lbl { font-size: 0.82rem; font-weight: 700; color: #0f172a; font-family: 'Courier New', monospace; flex: 1; letter-spacing: 0.03em; }
+    .group-icon-btn { display: flex; align-items: center; color: #94a3b8; cursor: pointer; padding: 3px 5px; border: none; background: none; border-radius: 4px; transition: all 0.12s; }
+    .group-icon-btn:hover { color: #2563eb; background: #eff6ff; }
+    .group-icon-btn.del:hover { color: #dc2626; background: #fef2f2; }
+    .add-group-row { display: flex; align-items: center; gap: 8px; margin-top: 9px; }
+    .add-group-input { flex: 1; font-size: 0.82rem; font-family: inherit; border: 1.5px dashed #e2e8f0; border-radius: 7px; padding: 7px 12px; color: #0f172a; outline: none; background: #fff; }
+    .add-group-input:focus { border-color: #2563eb; border-style: solid; }
+    .add-group-input::placeholder { color: #cbd5e1; }
+    .btn-add-group { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 700; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 7px; padding: 7px 12px; cursor: pointer; font-family: inherit; white-space: nowrap; }
+    .btn-add-group:hover { background: #dbeafe; }
+    .draft-panel { margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 16px; display: none; }
+    .draft-panel.open { display: block; }
+    .draft-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 10px; }
+    .draft-body { font-size: 0.82rem; color: #374151; line-height: 1.75; white-space: pre-wrap; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 10px; font-family: inherit; }
+    .draft-actions { display: flex; gap: 8px; }
+    .btn-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .btn-blue:hover { background: #dbeafe; }
+
     /* Toast */
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.82rem; font-weight: 600; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
     .toast.show { opacity: 1; }
     .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
     .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
     .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
+
+    /* Group tabs */
+    .group-tabs-bar { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:10px 16px; margin-bottom:14px; flex-wrap:wrap; }
+    .group-tabs-label { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#94a3b8; margin-right:6px; flex-shrink:0; }
+    .group-tab { display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:600; font-family:inherit; border:1.5px solid #e2e8f0; border-radius:8px; padding:6px 14px; cursor:pointer; background:#fff; color:#475569; transition:all 0.12s; }
+    .group-tab:hover { border-color:#2563eb; color:#2563eb; background:#f8fafc; }
+    .group-tab.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .tab-count { font-size:0.68rem; font-weight:700; background:#f1f5f9; color:#94a3b8; border-radius:999px; padding:1px 6px; min-width:20px; text-align:center; }
+    .group-tab.active .tab-count { background:rgba(255,255,255,0.25); color:#fff; }
+    .group-section-header { display:flex; align-items:center; gap:10px; padding:8px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; border-top:1px solid #e2e8f0; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#64748b; }
+    .group-dot { width:8px; height:8px; border-radius:999px; flex-shrink:0; }
   </style>
 </head>
 <body>
@@ -143,11 +189,88 @@
       </div>
     </div>
 
+    <!-- Exam Access card -->
+    <div class="exam-access" id="examAccessCard" style="display:none;">
+      <div class="access-head">
+        <span class="access-title">Exam Access</span>
+        <div class="access-actions">
+          <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;" id="previewBtn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Preview exam
+          </button>
+          <button class="btn btn-blue" style="font-size:0.75rem;padding:6px 12px;" onclick="toggleAccessDraft()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Draft student email
+          </button>
+        </div>
+      </div>
+
+      <div class="access-rows">
+        <!-- Exam link -->
+        <div class="access-row">
+          <span class="access-label">Exam link</span>
+          <div class="access-value">
+            <span class="access-value-text url" id="accessLinkText"></span>
+            <button class="copy-btn" id="copyLinkBtn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Single access code (shown when no groups) -->
+        <div class="access-row" id="singleCodeRow" style="display:none;">
+          <span class="access-label">Access code</span>
+          <div class="access-value" style="max-width:240px;">
+            <span class="access-value-text" id="singleCodeText"></span>
+            <button class="copy-btn" id="copySingleBtn">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+        </div>
+
+        <!-- Group codes (shown when groups exist) -->
+        <div class="access-row" id="groupCodesRow" style="display:none;">
+          <span class="access-label" style="padding-top:9px;">Groups</span>
+          <div style="flex:1;">
+            <div class="groups-list" id="groupsList"></div>
+            <div class="add-group-row">
+              <input class="add-group-input" type="text" id="newGroupName" placeholder="New group name…">
+              <button class="btn-add-group" onclick="addGroupRow()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add group
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Draft email -->
+      <div class="draft-panel" id="accessDraftPanel">
+        <div class="draft-section-label">Draft — Student email</div>
+        <div class="draft-body" id="accessDraftBody"></div>
+        <div class="draft-actions">
+          <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;" onclick="copyAccessDraft()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            Copy to clipboard
+          </button>
+          <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;" onclick="toggleAccessDraft()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Group tabs (hidden when exam has no groups) -->
+    <div class="group-tabs-bar" id="groupTabsBar" style="display:none;">
+      <span class="group-tabs-label">Group</span>
+      <div id="groupTabsList" style="display:contents;"></div>
+    </div>
+
     <!-- Send panel -->
     <div class="send-panel">
       <div class="send-panel-head">
         <span class="send-panel-title">Send Results</span>
-        <span class="send-format-hint">Sending: Full results · <a>Change</a></span>
+        <span class="send-panel-scope" id="sendScope" style="display:none;font-size:0.75rem;color:#2563eb;font-weight:600;background:#eff6ff;border:1px solid #bfdbfe;padding:2px 10px;border-radius:999px;"></span>
       </div>
       <div class="send-panel-body">
         <button class="btn btn-primary" id="sendNowBtn" onclick="sendSelected()">
@@ -223,6 +346,10 @@
     const EMAILJS_TEMPLATE = 'template_x7bkb1l';
     const EMAILJS_KEY      = 'Bb0oPYBiZGQcyIz5r';
 
+    function escHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
     const examId = new URLSearchParams(window.location.search).get('exam');
     let attempts = [];
     let currentTeacher   = null;
@@ -230,6 +357,7 @@
     let currentInstitution = null;
     let mcqTotal         = 0;
     let scheduledState   = false;
+    let activeGroup      = 'all'; // 'all' or a group name string
 
     async function init() {
       if (!examId) { window.location.href = 'dashboard.html'; return; }
@@ -282,15 +410,61 @@
         : '—';
       document.getElementById('examMeta').textContent = `${exam.duration_mins} min · Published ${date}`;
 
+      buildGroupTabs();
       updateStats();
       renderList();
     }
 
+    const GROUP_COLORS = ['#2563eb','#7c3aed','#0891b2','#d97706','#16a34a','#dc2626'];
+
+    function buildGroupTabs() {
+      const exam = currentExam;
+      const groups = exam.groups ? exam.groups.split(',').map(g => g.trim()).filter(Boolean) : [];
+      if (groups.length === 0) return;
+
+      const bar  = document.getElementById('groupTabsBar');
+      const list = document.getElementById('groupTabsList');
+      bar.style.display = 'flex';
+
+      const allTab = `<button class="group-tab active" data-group="all" onclick="selectGroup(this,'all')">All <span class="tab-count" id="count-all">${attempts.length}</span></button>`;
+      const groupTabs = groups.map((g, i) => {
+        const count = attempts.filter(a => a.group_name === g).length;
+        const color = GROUP_COLORS[i % GROUP_COLORS.length];
+        return `<button class="group-tab" data-group="${escHtml(g)}" data-color="${color}" onclick="selectGroup(this,'${escHtml(g)}')">${escHtml(g)} <span class="tab-count" id="count-${escHtml(g)}">${count}</span></button>`;
+      }).join('');
+
+      list.innerHTML = allTab + groupTabs;
+    }
+
+    function selectGroup(btn, group) {
+      document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      activeGroup = group;
+
+      const scopeEl = document.getElementById('sendScope');
+      if (group === 'all') {
+        scopeEl.style.display = 'none';
+      } else {
+        const pending = visibleAttempts().filter(a => !a.results_sent_at && !a.bounce_at).length;
+        scopeEl.style.display = '';
+        scopeEl.textContent = `${group} · ${pending} pending`;
+      }
+
+      updateStats();
+      renderList();
+    }
+
+    function visibleAttempts() {
+      if (activeGroup === 'all') return attempts;
+      return attempts.filter(a => a.group_name === activeGroup);
+    }
+
     function updateStats() {
-      const sent    = attempts.filter(a => a.results_sent_at).length;
-      const bounced = attempts.filter(a => a.bounce_at).length;
-      const pending = attempts.length - sent - bounced;
-      document.getElementById('statTotal').textContent   = attempts.length;
+      const vis     = visibleAttempts();
+      const sent    = vis.filter(a => a.results_sent_at).length;
+      const bounced = vis.filter(a => a.bounce_at).length;
+      const pending = vis.length - sent - bounced;
+      document.getElementById('statTotal').textContent   = vis.length;
       document.getElementById('statPending').textContent = Math.max(0, pending);
       document.getElementById('statSent').textContent    = sent;
       document.getElementById('statBounced').textContent = bounced;
@@ -306,12 +480,41 @@
     }
 
     function renderList() {
-      const el = document.getElementById('subList');
-      if (attempts.length === 0) {
-        el.innerHTML = '<div class="empty-state">No submissions yet for this exam.</div>';
+      const el  = document.getElementById('subList');
+      const vis = visibleAttempts();
+      if (vis.length === 0) {
+        el.innerHTML = '<div class="empty-state">No submissions yet' + (activeGroup !== 'all' ? ' for this group.' : ' for this exam.') + '</div>';
         return;
       }
-      el.innerHTML = attempts.map((a, i) => {
+
+      // In "All" view with groups defined, render section headers between groups
+      const exam   = currentExam;
+      const groups = exam && exam.groups ? exam.groups.split(',').map(g => g.trim()).filter(Boolean) : [];
+      const useGroupHeaders = activeGroup === 'all' && groups.length > 0;
+
+      if (useGroupHeaders) {
+        let html = '';
+        groups.forEach((g, gi) => {
+          const grpAttempts = attempts.filter(a => a.group_name === g);
+          if (grpAttempts.length === 0) return;
+          const color = GROUP_COLORS[gi % GROUP_COLORS.length];
+          html += `<div class="group-section-header"><span class="group-dot" style="background:${color};"></span>${escHtml(g)} — ${grpAttempts.length} student${grpAttempts.length !== 1 ? 's' : ''}</div>`;
+          grpAttempts.forEach((a, i) => { html += renderRow(a, attempts.indexOf(a)); });
+        });
+        // Unassigned (no group_name)
+        const unassigned = attempts.filter(a => !a.group_name);
+        if (unassigned.length > 0) {
+          html += `<div class="group-section-header"><span class="group-dot" style="background:#94a3b8;"></span>Unassigned — ${unassigned.length} student${unassigned.length !== 1 ? 's' : ''}</div>`;
+          unassigned.forEach(a => { html += renderRow(a, attempts.indexOf(a)); });
+        }
+        el.innerHTML = html;
+        return;
+      }
+
+      el.innerHTML = vis.map((a) => renderRow(a, attempts.indexOf(a))).join('');
+    }
+
+    function renderRow(a, i) {
         const date = a.submitted_at
           ? new Date(a.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' · ' +
             new Date(a.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -352,7 +555,6 @@
             <div class="sub-date">${date}</div>
             <div class="sub-score">${scoreText}</div>
           </div>`;
-      }).join('');
     }
 
     function openReview(attemptId) {
@@ -463,7 +665,7 @@
           to_name:            a.student_name  || '',
           student_name:       a.student_name  || '',
           exam_title:         currentExam.title,
-          class_name:         currentExam.groups || '—',
+          class_name:         (activeGroup !== 'all' ? activeGroup : currentExam.groups) || '—',
           teacher_name:       currentTeacher.full_name || currentTeacher.email,
           date_taken:         dateTaken,
           score_obtained:     scoreObtained,
@@ -505,6 +707,166 @@
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3000);
     }
+
+    // ── Exam Access card ─────────────────────────────────────────
+
+    function buildExamLink() {
+      const base = window.location.protocol === 'file:'
+        ? 'http://localhost:3000'
+        : window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '') || '');
+      return base + '/exam-engine.html?id=' + (currentExam.share_id || '');
+    }
+
+    function renderAccessCard() {
+      const exam = currentExam;
+      if (!exam) return;
+
+      document.getElementById('examAccessCard').style.display = 'block';
+
+      const link = buildExamLink();
+      document.getElementById('accessLinkText').textContent = link;
+      document.getElementById('copyLinkBtn').onclick = () => copyAccessText(link, document.getElementById('copyLinkBtn'));
+
+      document.getElementById('previewBtn').onclick = () => window.open(link, '_blank');
+
+      const groups = exam.groups ? exam.groups.split(',').map(g => g.trim()).filter(Boolean) : [];
+      let codes = {};
+      try { codes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+
+      if (groups.length > 0) {
+        document.getElementById('groupCodesRow').style.display = 'flex';
+        document.getElementById('singleCodeRow').style.display = 'none';
+        renderGroupRows(groups, codes);
+      } else {
+        document.getElementById('singleCodeRow').style.display = 'flex';
+        document.getElementById('groupCodesRow').style.display = 'none';
+        document.getElementById('singleCodeText').textContent = exam.access_code || '—';
+        document.getElementById('copySingleBtn').onclick = () => copyAccessText(exam.access_code, document.getElementById('copySingleBtn'));
+      }
+    }
+
+    function renderGroupRows(groups, codes) {
+      const list = document.getElementById('groupsList');
+      list.innerHTML = groups.map(function(g) {
+        const code = codes[g] || '';
+        return `<div class="group-row" data-group="${escHtml(g)}" data-code="${escHtml(code)}">
+          <input type="checkbox" class="group-check" checked onchange="rebuildDraft()">
+          <span class="group-name-lbl">${escHtml(g)}</span>
+          <span class="group-code-lbl">${escHtml(code)}</span>
+          <button class="group-icon-btn" title="Copy code" onclick="copyAccessText('${escHtml(code)}', this)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+          <button class="group-icon-btn del" title="Remove group" onclick="removeGroupRow(this)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>`;
+      }).join('');
+    }
+
+    function addGroupRow() {
+      const input = document.getElementById('newGroupName');
+      const name  = input.value.trim();
+      if (!name) return;
+      const year  = new Date().getFullYear();
+      const code  = name.toUpperCase().replace(/\s+/g, '').replace(/[^A-Z0-9]/g, '').slice(0, 6) + '-' + year;
+      const row   = document.createElement('div');
+      row.className = 'group-row';
+      row.dataset.group = name;
+      row.dataset.code  = code;
+      row.innerHTML = `
+        <input type="checkbox" class="group-check" checked onchange="rebuildDraft()">
+        <span class="group-name-lbl">${escHtml(name)}</span>
+        <span class="group-code-lbl">${escHtml(code)}</span>
+        <button class="group-icon-btn" title="Copy code" onclick="copyAccessText('${escHtml(code)}', this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+        <button class="group-icon-btn del" title="Remove group" onclick="removeGroupRow(this)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`;
+      document.getElementById('groupsList').appendChild(row);
+      input.value = '';
+      saveGroupsToDb();
+      rebuildDraft();
+    }
+
+    function removeGroupRow(btn) {
+      btn.closest('.group-row').remove();
+      saveGroupsToDb();
+      rebuildDraft();
+    }
+
+    async function saveGroupsToDb() {
+      const rows = Array.from(document.querySelectorAll('.group-row'));
+      const groups = rows.map(r => r.dataset.group);
+      const codes  = {};
+      rows.forEach(r => { codes[r.dataset.group] = r.dataset.code; });
+      await sb.from('exams').update({
+        groups:      groups.join(', '),
+        group_codes: JSON.stringify(codes)
+      }).eq('id', currentExam.id);
+      currentExam.groups      = groups.join(', ');
+      currentExam.group_codes = JSON.stringify(codes);
+    }
+
+    function getCheckedGroups() {
+      return Array.from(document.querySelectorAll('.group-row')).filter(r => r.querySelector('.group-check').checked)
+        .map(r => ({ name: r.dataset.group, code: r.dataset.code }));
+    }
+
+    function buildDraftText() {
+      const link   = buildExamLink();
+      const teacher = currentTeacher ? (currentTeacher.full_name || currentTeacher.email) : '—';
+      const groups  = getCheckedGroups();
+      const groupSection = groups.length > 0
+        ? "\nCodes d'accès par groupe :\n" + groups.map(g => '  • ' + g.name + ' → ' + g.code).join('\n') + '\n'
+        : '';
+      const codeNote = groups.length > 0
+        ? 'et le code correspondant à votre groupe.'
+        : 'et le code d\'accès.';
+      return 'Objet : Votre examen — ' + (currentExam.title || '') + '\n\n' +
+        'Bonjour,\n\n' +
+        'Vous êtes inscrit à l\'examen suivant :\n\n' +
+        '  📋 Examen : ' + (currentExam.title || '') + '\n' +
+        '  ⏱ Durée : ' + (currentExam.duration_mins || '—') + ' minutes\n' +
+        '  🔗 Lien : ' + link + '\n' +
+        groupSection +
+        '\nConnectez-vous avec votre nom, prénom, adresse e-mail ' + codeNote + '\n\n' +
+        'Bonne chance,\n' + teacher;
+    }
+
+    function rebuildDraft() {
+      const panel = document.getElementById('accessDraftPanel');
+      if (panel.classList.contains('open')) {
+        document.getElementById('accessDraftBody').textContent = buildDraftText();
+      }
+    }
+
+    function toggleAccessDraft() {
+      const panel = document.getElementById('accessDraftPanel');
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) {
+        document.getElementById('accessDraftBody').textContent = buildDraftText();
+      }
+    }
+
+    function copyAccessDraft() {
+      const text = document.getElementById('accessDraftBody').textContent;
+      navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+    }
+
+    function copyAccessText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent.trim();
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = orig || '✓'; }, 1500);
+      });
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.activeElement === document.getElementById('newGroupName')) addGroupRow();
+    });
+
+    // ── End Exam Access card ──────────────────────────────────────
 
     function generateExamReport() {
       if (!currentExam || !attempts.length) return;

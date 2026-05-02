@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mockup — Submissions with Group Tabs</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; padding: 6px 0; }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+    .exam-hero { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .exam-hero-left { flex: 1; min-width: 0; }
+    .exam-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .exam-meta { font-size: 0.82rem; color: #94a3b8; }
+    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+    .stats-row { display: flex; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+    .stat-pill { background: #f8fafc; padding: 14px 24px; text-align: center; border-right: 1px solid #e2e8f0; }
+    .stat-pill:last-child { border-right: none; }
+    .stat-pill-val { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
+    .stat-pill-val.orange { color: #ea580c; }
+    .stat-pill-val.green  { color: #16a34a; }
+    .stat-pill-val.red    { color: #dc2626; }
+    .stat-pill-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-top: 3px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; font-family: inherit; border: none; border-radius: 7px; padding: 9px 16px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-outline { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
+    .btn-ghost-sm { display: inline-flex; align-items: center; gap: 5px; background: none; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; font-family: inherit; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
+
+    /* ── Group tabs ── */
+    .group-tabs-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .group-tabs-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #94a3b8;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+    .group-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: inherit;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 14px;
+      cursor: pointer;
+      background: #fff;
+      color: #475569;
+      transition: all 0.12s;
+    }
+    .group-tab:hover { border-color: #2563eb; color: #2563eb; background: #f8fafc; }
+    .group-tab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .tab-count {
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: #94a3b8;
+      border-radius: 999px;
+      padding: 1px 6px;
+      min-width: 20px;
+      text-align: center;
+    }
+    .group-tab.active .tab-count { background: rgba(255,255,255,0.25); color: #fff; }
+
+    /* Send panel */
+    .send-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+    .send-panel-head { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
+    .send-panel-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
+    .send-panel-scope { font-size: 0.75rem; color: #2563eb; font-weight: 600; background: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 10px; border-radius: 999px; }
+    .send-panel-body { padding: 16px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    /* Student list */
+    .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .panel-header { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px; align-items: center; gap: 12px; padding: 10px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .col-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; }
+    .select-all-label { grid-column: 1 / 3; display: flex; align-items: center; gap: 8px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; cursor: pointer; }
+    .sub-row { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
+    .sub-row:last-child { border-bottom: none; }
+    .sub-row:hover { background: #fafafa; }
+    .sub-row input[type="checkbox"],
+    .panel-header input[type="checkbox"] { accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer; }
+    .row-sent { opacity: 0.55; }
+    .sub-name { font-size: 0.88rem; font-weight: 700; color: #2563eb; cursor: pointer; }
+    .sub-name:hover { text-decoration: underline; }
+    .sub-email { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+    .sub-score { font-size: 0.88rem; font-weight: 800; color: #0f172a; text-align: right; }
+    .sub-date { font-size: 0.73rem; color: #94a3b8; }
+    .badge { font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; display: inline-block; }
+    .badge-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    .badge-sent    { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+
+    /* Group section divider (used in "All" view) */
+    .group-section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #64748b;
+    }
+    .group-section-header:first-child { border-top: none; }
+    .group-dot { width: 8px; height: 8px; border-radius: 999px; flex-shrink: 0; }
+
+    .mockup-banner {
+      background: #0f172a;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-align: center;
+      padding: 7px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .mockup-banner strong { color: #fff; }
+  </style>
+</head>
+<body>
+
+  <div class="mockup-banner"><strong>MOCKUP ONLY</strong> — submissions.html · group tabs · static demo</div>
+
+  <header class="header">
+    <div class="header-left">
+      <button class="back-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        My Exams
+      </button>
+      <div class="header-divider"></div>
+      <span class="header-logo">Exam Builder</span>
+      <div class="header-divider"></div>
+      <span class="header-badge">Teacher</span>
+    </div>
+    <span class="header-name">Dwayne Swanson</span>
+  </header>
+
+  <div class="page">
+
+    <!-- Exam hero -->
+    <div class="exam-hero">
+      <div class="exam-hero-left">
+        <div class="exam-title">Concours Parcoursup — Bachelor Visé Gestion</div>
+        <div class="exam-meta">90 min · Published 12 Apr 2026</div>
+      </div>
+      <div class="hero-right">
+        <div class="stats-row">
+          <div class="stat-pill">
+            <div class="stat-pill-val" id="statTotal">9</div>
+            <div class="stat-pill-label">Submissions</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-val orange" id="statPending">6</div>
+            <div class="stat-pill-label">Pending</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-val green" id="statSent">3</div>
+            <div class="stat-pill-label">Sent</div>
+          </div>
+          <div class="stat-pill">
+            <div class="stat-pill-val red">0</div>
+            <div class="stat-pill-label">Bounced</div>
+          </div>
+        </div>
+        <button class="btn-ghost-sm">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download PDF report
+        </button>
+      </div>
+    </div>
+
+    <!-- Group tabs -->
+    <div class="group-tabs-bar">
+      <span class="group-tabs-label">Group</span>
+      <button class="group-tab" onclick="switchTab(this,'all')" id="tab-all">
+        All <span class="tab-count">28</span>
+      </button>
+      <button class="group-tab active" onclick="switchTab(this,'g1')" id="tab-g1">
+        M2 MDO G1 <span class="tab-count">9</span>
+      </button>
+      <button class="group-tab" onclick="switchTab(this,'g2')" id="tab-g2">
+        M2 MDO G2 <span class="tab-count">11</span>
+      </button>
+      <button class="group-tab" onclick="switchTab(this,'g3')" id="tab-g3">
+        M2 MDO G3 <span class="tab-count">8</span>
+      </button>
+    </div>
+
+    <!-- Send panel — scope label updates with active tab -->
+    <div class="send-panel">
+      <div class="send-panel-head">
+        <span class="send-panel-title">Send Results</span>
+        <span class="send-panel-scope" id="sendScope">M2 MDO G1 · 6 pending</span>
+      </div>
+      <div class="send-panel-body">
+        <button class="btn btn-primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send now
+        </button>
+        <button class="btn btn-outline">Schedule send</button>
+      </div>
+    </div>
+
+    <!-- Student list -->
+    <div class="panel">
+      <div class="panel-header">
+        <label class="select-all-label">
+          <input type="checkbox"> Select All
+        </label>
+        <div class="col-label">Status</div>
+        <div class="col-label">Submitted</div>
+        <div class="col-label" style="text-align:right;">Score</div>
+      </div>
+
+      <!-- G1 view (default) -->
+      <div id="rows-g1">
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">BERNARD Sophie</div><div class="sub-email">s.bernard@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 10:14</div><div class="sub-score">14 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">DUPONT Marc</div><div class="sub-email">m.dupont@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:31</div><div class="sub-score">11 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">GARCIA Elena</div><div class="sub-email">e.garcia@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 09:58</div><div class="sub-score">— / 20</div></div>
+        <div class="sub-row row-sent"><input type="checkbox" disabled style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">LEROY Antoine</div><div class="sub-email">a.leroy@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 10:02</div><div class="sub-score">17 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">MARTIN Julie</div><div class="sub-email">j.martin@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:44</div><div class="sub-score">9 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">MOREAU Camille</div><div class="sub-email">c.moreau@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 11:05</div><div class="sub-score">13 / 20</div></div>
+        <div class="sub-row row-sent"><input type="checkbox" disabled style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">PETIT Thomas</div><div class="sub-email">t.petit@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 09:50</div><div class="sub-score">16 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">ROBERT Léa</div><div class="sub-email">l.robert@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:22</div><div class="sub-score">12 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">SIMON Hugo</div><div class="sub-email">h.simon@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:38</div><div class="sub-score">8 / 20</div></div>
+      </div>
+
+      <!-- G2 view -->
+      <div id="rows-g2" style="display:none;">
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">BLANC Nathalie</div><div class="sub-email">n.blanc@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 09:45</div><div class="sub-score">15 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">CHEVALIER Pierre</div><div class="sub-email">p.chevalier@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:10</div><div class="sub-score">10 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">FONTAINE Louise</div><div class="sub-email">l.fontaine@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 11:00</div><div class="sub-score">— / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">GIRARD Pauline</div><div class="sub-email">p.girard@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:50</div><div class="sub-score">12 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">LAMBERT Kevin</div><div class="sub-email">k.lambert@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:18</div><div class="sub-score">— / 20</div></div>
+      </div>
+
+      <!-- G3 view -->
+      <div id="rows-g3" style="display:none;">
+        <div class="sub-row row-sent"><input type="checkbox" disabled style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">ANDRIEU Claire</div><div class="sub-email">c.andrieu@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 09:55</div><div class="sub-score">18 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">FAURE Nicolas</div><div class="sub-email">n.faure@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:25</div><div class="sub-score">7 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">HENRY Isabelle</div><div class="sub-email">i.henry@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:40</div><div class="sub-score">— / 20</div></div>
+      </div>
+
+      <!-- All view: groups as labelled sections -->
+      <div id="rows-all" style="display:none;">
+        <div class="group-section-header"><span class="group-dot" style="background:#2563eb;"></span>M2 MDO G1 — 9 students</div>
+        <div class="sub-row row-sent"><input type="checkbox" disabled style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">BERNARD Sophie</div><div class="sub-email">s.bernard@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 10:14</div><div class="sub-score">14 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">DUPONT Marc</div><div class="sub-email">m.dupont@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:31</div><div class="sub-score">11 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">MARTIN Julie</div><div class="sub-email">j.martin@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:44</div><div class="sub-score">9 / 20</div></div>
+
+        <div class="group-section-header"><span class="group-dot" style="background:#7c3aed;"></span>M2 MDO G2 — 11 students</div>
+        <div class="sub-row row-sent"><input type="checkbox" disabled style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">BLANC Nathalie</div><div class="sub-email">n.blanc@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 09:45</div><div class="sub-score">15 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">CHEVALIER Pierre</div><div class="sub-email">p.chevalier@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:10</div><div class="sub-score">10 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">FONTAINE Louise</div><div class="sub-email">l.fontaine@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 11:00</div><div class="sub-score">— / 20</div></div>
+
+        <div class="group-section-header"><span class="group-dot" style="background:#0891b2;"></span>M2 MDO G3 — 8 students</div>
+        <div class="sub-row row-sent"><input type="checkbox" disabled style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">ANDRIEU Claire</div><div class="sub-email">c.andrieu@etudiant.fr</div></div><div><span class="badge badge-sent">Sent</span></div><div class="sub-date">28 Apr · 09:55</div><div class="sub-score">18 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">FAURE Nicolas</div><div class="sub-email">n.faure@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:25</div><div class="sub-score">7 / 20</div></div>
+        <div class="sub-row"><input type="checkbox" style="width:15px;height:15px;accent-color:#2563eb;"><div><div class="sub-name">HENRY Isabelle</div><div class="sub-email">i.henry@etudiant.fr</div></div><div><span class="badge badge-pending">Pending</span></div><div class="sub-date">28 Apr · 10:40</div><div class="sub-score">— / 20</div></div>
+      </div>
+
+    </div><!-- /panel -->
+
+  </div><!-- /page -->
+
+  <script>
+    const tabConfig = {
+      all: { scope: 'All groups · 14 pending', total: 28, pending: 14, sent: 14 },
+      g1:  { scope: 'M2 MDO G1 · 6 pending',  total: 9,  pending: 6,  sent: 3  },
+      g2:  { scope: 'M2 MDO G2 · 8 pending',  total: 11, pending: 8,  sent: 3  },
+      g3:  { scope: 'M2 MDO G3 · 5 pending',  total: 8,  pending: 5,  sent: 3  },
+    };
+
+    function switchTab(btn, key) {
+      document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      ['all','g1','g2','g3'].forEach(k => {
+        document.getElementById('rows-' + k).style.display = k === key ? 'block' : 'none';
+      });
+      const cfg = tabConfig[key];
+      document.getElementById('sendScope').textContent   = cfg.scope;
+      document.getElementById('statTotal').textContent   = cfg.total;
+      document.getElementById('statPending').textContent = cfg.pending;
+      document.getElementById('statSent').textContent    = cfg.sent;
+    }
+  </script>
+
+</body>
+</html>

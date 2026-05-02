@@ -17,7 +17,7 @@
     .back-btn:hover { color: #fff; }
     .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
     .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-    .header-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
     .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
 
     .page { max-width: 680px; margin: 0 auto; padding: 28px 24px 80px; }
@@ -577,12 +577,14 @@
     // ── Attachments ──────────────────────────────────────────────
     function showFile(input, type) {
       if (!input.files[0]) return;
-      const name  = input.files[0].name;
+      const file  = input.files[0];
       const icons = { image: '🖼', pdf: '📄', audio: '🔊' };
       const preview = input.closest('.attach-section').querySelector('.attach-preview');
       const pill = document.createElement('span');
       pill.className = 'attach-file';
-      pill.innerHTML = `${icons[type] || '📎'} ${name} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
+      pill.dataset.mediaType = type;
+      pill._attachedFile = file; // store File object for upload on publish
+      pill.innerHTML = `${icons[type] || '📎'} ${file.name} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
       preview.appendChild(pill);
       input.value = '';
     }
@@ -599,12 +601,18 @@
     }
 
     function confirmVideo(btn) {
-      const input  = btn.previousElementSibling;
-      const url    = input.value.trim();
+      const input = btn.previousElementSibling;
+      const url   = input.value.trim();
       if (!url) return;
+      try { new URL(url); } catch(e) { input.style.borderColor = '#dc2626'; input.title = 'Enter a valid URL (https://…)'; return; }
+      if (!/^https?:\/\//i.test(url)) { input.style.borderColor = '#dc2626'; input.title = 'URL must start with https://'; return; }
+      input.style.borderColor = '';
+      input.title = '';
       const preview = btn.closest('.attach-section').querySelector('.attach-preview');
       const pill = document.createElement('span');
       pill.className = 'attach-file';
+      pill.dataset.mediaType = 'video';
+      pill.dataset.mediaUrl  = url;
       pill.innerHTML = `▶ ${url.length > 40 ? url.slice(0,40) + '…' : url} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
       preview.appendChild(pill);
       btn.closest('.video-link-row').remove();
@@ -623,16 +631,21 @@
           });
         } else {
           const isMCQ = !el.classList.contains('open-type');
+          const attachPill = el.querySelector('.attach-preview .attach-file');
+          const attachFile = attachPill?._attachedFile || null;
+          const attachType = attachPill?.dataset.mediaType || null;
+          const attachUrl  = attachPill?.dataset.mediaUrl  || null;
           if (isMCQ) {
             const opts    = [...el.querySelectorAll('.opt-input')].map(i => i.value.trim());
             const correct = [...el.querySelectorAll('.opt-radio')].findIndex(r => r.checked);
-            items.push({ type: 'mcq', text: el.querySelector('.q-input').value.trim(), options: opts, correct: correct >= 0 ? correct : 0 });
+            items.push({ type: 'mcq', text: el.querySelector('.q-input').value.trim(), options: opts, correct: correct >= 0 ? correct : 0, attachFile, attachType, attachUrl });
           } else {
             items.push({
               type:             'open',
               text:             el.querySelector('.q-input').value.trim(),
               grading_criteria: el.querySelector('.crit-ta')?.value.trim() || null,
-              max_points:       parseInt(el.querySelector('.pts-inp')?.value) || 5
+              max_points:       parseInt(el.querySelector('.pts-inp')?.value) || 5,
+              attachFile, attachType, attachUrl
             });
           }
         }
@@ -675,6 +688,15 @@
           accessCode = generateCode();
         }
 
+        const rubricExpectations = document.getElementById('rubricExpectations')?.value.trim() || '';
+        const scaleRows = [...document.querySelectorAll('.scale-row')].map(r => ({
+          score: r.querySelector('.scale-score')?.value.trim(),
+          desc:  r.querySelector('.scale-desc')?.value.trim()
+        })).filter(r => r.score || r.desc);
+        const rubric = (rubricExpectations || scaleRows.length)
+          ? { expectations: rubricExpectations, scale: scaleRows }
+          : null;
+
         const { data: examRows, error: examErr } = await sb.from('exams').insert({
           teacher_id:    currentTeacher.id,
           teacher_email: currentTeacher.email,
@@ -686,7 +708,8 @@
           lang:          onboardingData?.lang || 'fr',
           groups:        groups.map(g => g.name).join(', '),
           group_codes:   JSON.stringify(groupCodes),
-          instructions:  onboardingData?.instructions || null
+          instructions:  onboardingData?.instructions || null,
+          rubric:        rubric
         }).select();
 
         if (examErr) throw examErr;
@@ -697,6 +720,29 @@
 
         for (let i = 0; i < items.length; i++) {
           const q = items[i];
+
+          // Upload file attachment if present
+          let mediaSrc  = null;
+          let mediaType = q.attachType || null;
+          let mediaName = null;
+          if (q.attachFile) {
+            const ext  = q.attachFile.name.split('.').pop();
+            const path = `${examId}/${i + 1}-${Date.now()}.${ext}`;
+            const { data: upData, error: upErr } = await sb.storage
+              .from('exam-attachments')
+              .upload(path, q.attachFile, { upsert: true });
+            if (!upErr) {
+              const { data: urlData } = sb.storage.from('exam-attachments').getPublicUrl(path);
+              mediaSrc  = urlData.publicUrl;
+              mediaName = q.attachFile.name;
+            } else {
+              console.warn('Attachment upload error:', upErr);
+            }
+          } else if (q.attachUrl) {
+            mediaSrc  = q.attachUrl;
+            mediaType = 'video';
+          }
+
           const row = {
             exam_id:       examId,
             position:      i + 1,
@@ -708,7 +754,10 @@
             option_d:      q.options?.[3] || null,
             correct_index: q.type === 'mcq' ? q.correct : null,
             grading_criteria: q.grading_criteria || null,
-            max_points:    q.max_points || (q.type === 'open' ? 5 : null)
+            max_points:    q.type === 'section' ? (q.points || null) : (q.max_points || (q.type === 'open' ? 5 : null)),
+            media_src:     mediaSrc,
+            media_type:    mediaType,
+            media_name:    mediaName
           };
           const { error: qErr } = await sb.from('questions').insert(row);
           if (qErr) console.warn('Question insert error:', qErr);
