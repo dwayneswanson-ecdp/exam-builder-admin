@@ -709,7 +709,7 @@
       btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Generating…';
 
       const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif;font-size:15px;color:#1e293b;line-height:1.6;';
+      container.style.cssText = 'position:absolute;left:0;top:0;width:794px;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif;font-size:15px;color:#1e293b;line-height:1.6;opacity:0.01;pointer-events:none;z-index:-1;';
       container.innerHTML =
         '<div style="background:#0f172a;padding:28px 32px;">' +
           '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">' + escHtml(instName) + ' · ' + escHtml(exam.title) + '</div>' +

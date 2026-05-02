@@ -1000,7 +1000,7 @@
       var avgColor = parseFloat(avg) >= mcqTotal * 0.7 ? '#16a34a' : parseFloat(avg) >= mcqTotal * 0.5 ? '#d97706' : '#dc2626';
 
       const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif;font-size:14px;color:#1e293b;';
+      container.style.cssText = 'position:absolute;left:0;top:0;width:794px;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif;font-size:14px;color:#1e293b;opacity:0.01;pointer-events:none;z-index:-1;';
       container.innerHTML =
         '<div style="background:#0f172a;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;">' +
           '<div>' +
