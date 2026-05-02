@@ -2,6 +2,12 @@
 # Secrets
 .mcp.json
 
+# OS
+.DS_Store
+
+# Local tools
+supabase-mcp/
+
 # Playwright
 node_modules/
 /test-results/
