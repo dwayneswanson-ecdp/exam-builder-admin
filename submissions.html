@@ -356,6 +356,7 @@
     let currentExam      = null;
     let currentInstitution = null;
     let mcqTotal         = 0;
+    let openMaxTotal     = 0;
     let scheduledState   = false;
     let activeGroup      = 'all'; // 'all' or a group name string
 
@@ -381,7 +382,7 @@
       const [examRes, attemptsRes, questionsRes, institutionTeacherRes] = await Promise.all([
         sb.from('exams').select('*').eq('id', examId).single(),
         sb.from('exam_attempts').select('*').eq('exam_id', examId),
-        sb.from('questions').select('id').eq('exam_id', examId).neq('type', 'open'),
+        sb.from('questions').select('id, type, max_points').eq('exam_id', examId).neq('type', 'section'),
         sb.from('institution_teachers').select('institution_id').eq('teacher_id', currentTeacher.id).single()
       ]);
 
@@ -389,7 +390,9 @@
       if (!exam) { window.location.href = 'dashboard.html'; return; }
       currentExam = exam;
       attempts    = attemptsRes.data || [];
-      mcqTotal    = (questionsRes.data || []).length;
+      const allQs  = questionsRes.data || [];
+      mcqTotal     = allQs.filter(q => q.type === 'mcq').length;
+      openMaxTotal = allQs.filter(q => q.type === 'open').reduce((s, q) => s + (q.max_points || 5), 0);
 
       // Fetch institution for email branding
       if (institutionTeacherRes.data?.institution_id) {
@@ -520,7 +523,13 @@
           ? new Date(a.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ' · ' +
             new Date(a.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           : '—';
-        const scoreText = (a.score_mcq !== null && a.score_mcq !== undefined) ? `${a.score_mcq} / 20` : '— / 20';
+        const openSum   = Object.values(a.open_scores || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+        const combined  = (a.score_mcq || 0) + openSum;
+        const totalMax  = mcqTotal + openMaxTotal;
+        const hasScore  = a.score_mcq !== null && a.score_mcq !== undefined;
+        const scoreText = hasScore
+          ? `${Number.isInteger(combined) ? combined : combined.toFixed(1)} / ${totalMax}`
+          : `— / ${totalMax}`;
 
         let badge = '';
         let rowClass = 'sub-row';
