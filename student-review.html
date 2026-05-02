@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Review — Exam Builder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,7 +19,7 @@
     .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
     .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
 
-    .page { max-width: 840px; margin: 0 auto; padding: 32px 24px 60px; }
+    .page { max-width: 960px; margin: 0 auto; padding: 32px 24px 60px; }
 
     .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 600; font-family: inherit; border: none; border-radius: 7px; padding: 8px 16px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
     .btn-primary { background: #2563eb; color: #fff; }
@@ -287,7 +288,7 @@
           <div class="score-ai-row">
             <div class="score-field">
               <span class="score-field-label">Score</span>
-              <input type="text" class="score-text-input" value="${escHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}">
+              <input type="text" class="score-text-input" value="${escHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}" oninput="updateScoreChip()">
               <span class="score-of">/ ${maxPts}</span>
             </div>
             <button class="btn btn-ai" onclick="requestAI(this, ${globalIdx})">${Lang.t('aiSuggest')}</button>
@@ -319,7 +320,7 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0;">
             <div class="score-block">
-              <div class="score-big" id="scoreDisplay">${scoreDisplay} <span>/ ${scoreMax}</span></div>
+              <div class="score-big" id="scoreDisplay" data-mcq="${mcqCorrect}" data-max="${scoreMax}">${scoreDisplay} <span>/ ${scoreMax}</span></div>
               <div class="score-label">Current score</div>
             </div>
             <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="generateAndDownload()">
@@ -467,7 +468,7 @@
         aiBox.style.display = 'block';
       } catch (e) {
         console.error('AI grading error:', e);
-        showToast('AI grading error: ' + (e.message || 'unknown'));
+        showToast('AI grading error: ' + (e.message || 'unknown'), 5500);
       }
 
       btn.disabled = false;
@@ -480,9 +481,20 @@
       el.classList.add('flash');
     }
 
+    function updateScoreChip() {
+      const chip = document.getElementById('scoreDisplay');
+      if (!chip) return;
+      const mcqCorrect = parseInt(chip.dataset.mcq || '0', 10);
+      const openSum = [...document.querySelectorAll('.score-text-input')]
+        .reduce((s, inp) => s + (parseFloat(inp.value) || 0), 0);
+      const combined = mcqCorrect + openSum;
+      const scoreMax = parseInt(chip.dataset.max || '0', 10);
+      chip.innerHTML = `${Number.isInteger(combined) ? combined : combined.toFixed(1)} <span>/ ${scoreMax}</span>`;
+    }
+
     function applyScore(qIdx, score) {
       const input = document.querySelector(`.score-text-input[data-qidx="${qIdx}"]`);
-      if (input) { input.value = score; flash(input); }
+      if (input) { input.value = score; flash(input); updateScoreChip(); }
     }
 
     function applyComment(qIdx, comment) {
@@ -526,11 +538,11 @@
       window.location.href = `student-review.html?attempt=${id}&exam=${examId}`;
     }
 
-    function showToast(msg) {
+    function showToast(msg, duration) {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3000);
+      setTimeout(() => t.classList.remove('show'), duration || 4000);
     }
 
     function generateAndDownload() {
@@ -671,7 +683,8 @@
         '.btn-pdf{display:flex;align-items:center;gap:5px;background:#2563eb;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}' +
         '@media print{.toolbar{display:none;}body{background:#fff;padding:0;}.container{border-radius:0;box-shadow:none;}.header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.cards{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
 
-      const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">' +
+      const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">' +
         '<title>Rapport — ' + escHtml(displayName) + '</title>' +
         '<style>' + css + '</style></head><body>' +
         '<div class="toolbar"><span class="toolbar-title">Rapport — ' + escHtml(displayName) + '</span>' +

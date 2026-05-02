@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Exam Builder — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -160,7 +161,7 @@
     .member-row { padding: 14px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 1px dashed #e2e8f0; }
     .member-row:last-child { border-bottom: none; }
     .member-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .member-avatar.purple { background: #7c3aed; }
+    .member-avatar.purple { background: #0891b2; }
     .member-avatar.green  { background: #16a34a; }
     .member-avatar.orange { background: #ea580c; }
     .member-info { flex: 1; min-width: 0; }
@@ -171,7 +172,7 @@
     .key-badge   { font-size: 0.62rem; font-weight: 700; background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
     .section-link { font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; text-decoration: none; }
     .section-link:hover { text-decoration: underline; }
-    .stat-value.purple { color: #7c3aed; }
+    .stat-value.purple { color: #0891b2; }
 
     /* ── Empty state ── */
     .empty-state { padding: 48px 24px; text-align: center; }
@@ -709,7 +710,9 @@
       document.getElementById('headerAvatar').textContent    = initials;
       document.getElementById('headerName').textContent      = teacher.full_name || teacher.email;
       document.getElementById('headerRoleLabel').textContent = teacher.role.replace('_', ' ');
-      document.getElementById('headerBadge').textContent     = teacher.role === 'super_admin' ? 'Super Admin' : teacher.role === 'admin' ? 'Admin' : 'Teacher';
+      const badge = document.getElementById('headerBadge');
+      badge.textContent = teacher.role === 'super_admin' ? 'Super Admin' : teacher.role === 'admin' ? 'Admin' : 'Teacher';
+      if (teacher.role === 'super_admin' || teacher.role === 'admin') badge.style.background = '#0891b2';
 
       // Show dashboard
       document.getElementById('loginScreen').style.display  = 'none';
@@ -929,7 +932,11 @@
       // Render exam list
       const examListEl = document.getElementById('teacherExamList');
       examListEl.innerHTML = exams.length === 0
-        ? `<div class="empty-state"><div class="empty-title">${Lang.t('teacherNoExams')}</div></div>`
+        ? `<div class="empty-state">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            <div class="empty-title">${Lang.t('teacherNoExams')}</div>
+            <div class="empty-sub" style="font-size:0.78rem;color:#94a3b8;margin-top:4px;">Click "New Exam" above to create your first exam.</div>
+          </div>`
         : exams.map(exam => {
             const subs    = subCountMap[exam.id] || 0;
             const pending = pendingCount > 0;
@@ -948,7 +955,11 @@
       // Render submissions
       const subListEl = document.getElementById('teacherSubList');
       subListEl.innerHTML = attempts.length === 0
-        ? `<div class="empty-state"><div class="empty-title">${Lang.t('teacherNoSubs')}</div></div>`
+        ? `<div class="empty-state">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+            <div class="empty-title">${Lang.t('teacherNoSubs')}</div>
+            <div class="empty-sub" style="font-size:0.78rem;color:#94a3b8;margin-top:4px;">Student submissions will appear here once they complete an exam.</div>
+          </div>`
         : attempts.map(att => {
             const exam    = exams.find(e => e.id === att.exam_id);
             const mcqMax  = exam ? exam.duration_mins : null;

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Exam — Build Manually</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,7 +21,7 @@
     .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
     .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
 
-    .page { max-width: 680px; margin: 0 auto; padding: 28px 24px 80px; }
+    .page { max-width: 640px; margin: 0 auto; padding: 28px 24px 80px; }
 
     .exam-summary { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .exam-summary-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; margin-bottom: 3px; }
@@ -232,8 +233,9 @@
 
     <!-- Steps -->
     <div class="steps">
-      <div class="step active" id="step1"><div class="step-num">1</div> Build Questions</div>
-      <div class="step" id="step2"><div class="step-num">2</div> Publish</div>
+      <div class="step done"><div class="step-num">✓</div> Configure</div>
+      <div class="step active" id="step1"><div class="step-num">2</div> Build Questions</div>
+      <div class="step" id="step2"><div class="step-num">3</div> Publish</div>
     </div>
 
     <!-- Global grading rubric -->
@@ -262,8 +264,9 @@
     <!-- Question list -->
     <div id="list">
       <div class="empty-state" id="emptyState">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:14px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
         <div class="empty-title">Start building your exam</div>
-        <div class="empty-sub">Add a section to group your questions, or jump straight to adding questions.</div>
+        <div class="empty-sub">Add a section to group your questions, or jump straight to adding questions below.</div>
       </div>
 
       <!-- Insert zone at bottom of list -->
@@ -893,11 +896,11 @@ ${currentTeacher.full_name || currentTeacher.email}`;
       });
     }
 
-    function showToast(msg) {
+    function showToast(msg, duration) {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3000);
+      setTimeout(() => t.classList.remove('show'), duration || 4000);
     }
 
     const i18n = {

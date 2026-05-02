@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Exam Submissions — Exam Builder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -487,7 +488,12 @@
       const el  = document.getElementById('subList');
       const vis = visibleAttempts();
       if (vis.length === 0) {
-        el.innerHTML = '<div class="empty-state">No submissions yet' + (activeGroup !== 'all' ? ' for this group.' : ' for this exam.') + '</div>';
+        const groupMsg = activeGroup !== 'all' ? ' for this group' : '';
+        el.innerHTML = `<div class="empty-state">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:12px;"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+          <div style="font-weight:700;color:#475569;margin-bottom:4px;">No submissions yet${groupMsg}</div>
+          <div style="font-size:0.78rem;color:#94a3b8;">When students submit their exam, they'll appear here.</div>
+        </div>`;
         return;
       }
 
@@ -703,19 +709,19 @@
       renderList();
 
       if (failed > 0 && sent > 0) {
-        showToast(`${sent} sent, ${failed} failed — check student emails.`);
+        showToast(`${sent} sent, ${failed} failed — check student emails.`, 5500);
       } else if (failed > 0) {
-        showToast(`Failed to send ${failed} email${failed > 1 ? 's' : ''} — check student emails.`);
+        showToast(`Failed to send ${failed} email${failed > 1 ? 's' : ''} — check student emails.`, 5500);
       } else {
         showToast(`${sent} result${sent > 1 ? 's' : ''} sent.`);
       }
     }
 
-    function showToast(msg) {
+    function showToast(msg, duration) {
       const t = document.getElementById('toast');
       t.textContent = msg;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 3000);
+      setTimeout(() => t.classList.remove('show'), duration || 4000);
     }
 
     // ── Exam Access card ─────────────────────────────────────────
@@ -960,7 +966,8 @@
 
       var avgColor = parseFloat(avg) >= mcqTotal * 0.7 ? '#16a34a' : parseFloat(avg) >= mcqTotal * 0.5 ? '#d97706' : '#dc2626';
 
-      var html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">' +
+      var html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">' +
         '<title>Rapport examen — ' + currentExam.title + '</title>' +
         '<style>' + css + '</style></head><body>' +
         '<div class="toolbar"><span class="toolbar-title">Rapport examen — ' + currentExam.title + '</span>' +

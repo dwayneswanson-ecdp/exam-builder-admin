@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Exam — Exam Builder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,7 +20,7 @@
     .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
     .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
 
-    .page { max-width: 660px; margin: 0 auto; padding: 44px 24px 80px; }
+    .page { max-width: 640px; margin: 0 auto; padding: 44px 24px 80px; }
     .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 6px; }
     .page-sub { font-size: 0.87rem; color: #94a3b8; margin-bottom: 32px; }
 
@@ -102,6 +103,16 @@
     .badge-ready { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
     .badge-soon  { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
 
+    /* Step indicator */
+    .steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+    .step-item { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
+    .step-item.active { color: #0f172a; }
+    .step-item.done { color: #16a34a; }
+    .step-num { width: 24px; height: 24px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-item.active .step-num { background: #2563eb; color: #fff; }
+    .step-item.done .step-num { background: #16a34a; color: #fff; }
+    .step-connector { flex: 1; height: 1px; background: #e2e8f0; margin: 0 10px; min-width: 24px; }
+
     /* Teacher row */
     .teacher-row { display: flex; align-items: center; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
     .teacher-avatar { width: 38px; height: 38px; background: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: #fff; flex-shrink: 0; }
@@ -137,6 +148,22 @@
   </header>
 
   <div class="page">
+    <div class="steps">
+      <div class="step-item active">
+        <div class="step-num">1</div>
+        <span>Configure</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <span>Build questions</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <span>Publish</span>
+      </div>
+    </div>
     <div class="page-title">New Exam</div>
     <div class="page-sub">Configure your exam before building the questions.</div>
 

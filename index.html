@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Exam Builder — Importer un examen</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -31,7 +32,7 @@
     .site-back-btn:hover { color: #fff; }
     .site-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
     .site-hdivider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-    .site-badge { font-size: 0.62rem; font-weight: 700; background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .site-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
     .site-username { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
 
     /* AI chip */
@@ -409,6 +410,7 @@
 
   <!-- Steps -->
   <div class="steps">
+    <div class="step done"><div class="step-num">✓</div><span>Configure</span></div>
     <div class="step active" id="step1"><div class="step-num">1</div><span data-i18n="step1"></span></div>
     <div class="step" id="step2"><div class="step-num">2</div><span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;margin:0 2px;">AI</span><span data-i18n="step2"></span></div>
     <div class="step" id="step3"><div class="step-num">3</div><span data-i18n="step3"></span></div>
@@ -1905,7 +1907,8 @@
         <td style="padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:#374151;line-height:1.6;">${r}</td>
       </tr>`).join('');
 
-    const body = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,sans-serif;">
+    const body = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg"></head><body style="margin:0;padding:0;background:#f1f5f9;font-family:Arial,sans-serif;">
 <table cellpadding="0" cellspacing="0" width="100%" style="background:#f1f5f9;padding:24px 0;">
 <tr><td align="center">
 <table cellpadding="0" cellspacing="0" width="600" style="max-width:600px;">
