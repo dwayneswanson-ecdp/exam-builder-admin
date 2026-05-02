@@ -7,6 +7,7 @@
   <title>Student Review — Exam Builder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #f8fafc; min-height: 100vh; color: #1e293b; }
@@ -338,7 +339,7 @@
               <div class="score-big" id="scoreDisplay" data-mcq="${mcqCorrect}" data-max="${scoreMax}">${scoreDisplay} <span>/ ${scoreMax}</span></div>
               <div class="score-label">Current score</div>
             </div>
-            <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="generateAndDownload()">
+            <button class="btn btn-ghost" id="downloadReportBtn" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="generateAndDownload()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               <span data-i18n="downloadBtn">Download report</span>
             </button>
@@ -702,97 +703,89 @@
         ? '<div class="section-block"><div class="section-title">Résultats par partie</div>' + sectionBarsHtml + '</div>'
         : '';
 
-      const css = 'body{font-family:"Helvetica Neue",Arial,sans-serif;background:#f8f9fc;color:#1e293b;margin:0;padding:32px;font-size:15px;line-height:1.6;}' +
-        '.container{max-width:800px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,.08);overflow:hidden;}' +
-        '.header{background:#0f172a;padding:28px 32px;}' +
-        '.header-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;}' +
-        '.header-name{font-size:24px;font-weight:700;color:#fff;margin:0 0 4px 0;}' +
-        '.header-meta{font-size:13px;color:#64748b;}' +
-        '.body{padding:28px 32px;}' +
-        '.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}' +
-        '.card{background:#f8f9fc;border-radius:10px;padding:14px 16px;}' +
-        '.card-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;}' +
-        '.card-value{font-size:26px;font-weight:700;}' +
-        '.card-sub{font-size:12px;color:#94a3b8;margin-top:2px;}' +
-        '.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:0 0 14px 0;padding-bottom:8px;border-bottom:1px solid #f1f5f9;}' +
-        '.section-block{margin-bottom:28px;}' +
-        'table{width:100%;border-collapse:collapse;}' +
-        'thead tr{background:#f8f9fc;}' +
-        'th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;}' +
-        '.footer{background:#f8f9fc;border-top:1px solid #e2e8f0;padding:14px 32px;font-size:11px;color:#94a3b8;}' +
-        '.toolbar{background:#0f172a;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}' +
-        '.toolbar-title{font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);}' +
-        '.toolbar-btns{display:flex;gap:8px;}' +
-        '.btn-print{display:flex;align-items:center;gap:5px;background:#fff;color:#0f172a;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}' +
-        '.btn-pdf{display:flex;align-items:center;gap:5px;background:#2563eb;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}' +
-        '@media print{.toolbar{display:none;}body{background:#fff;padding:0;}.container{border-radius:0;box-shadow:none;}.header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.cards{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
+      const btn = document.getElementById('downloadReportBtn');
+      const origHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Generating…';
 
-      const html = '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><link rel="icon" type="image/svg+xml" href="favicon.svg">' +
-        '<title>Rapport — ' + escHtml(displayName) + '</title>' +
-        '<style>' + css + '</style></head><body>' +
-        '<div class="toolbar"><span class="toolbar-title">Rapport — ' + escHtml(displayName) + '</span>' +
-        '<div class="toolbar-btns">' +
-          '<button class="btn-print" onclick="window.print()">🖨 Imprimer</button>' +
-          '<button class="btn-pdf" onclick="window.print()">⬇ Enregistrer en PDF</button>' +
-        '</div></div>' +
-        '<div style="max-width:800px;margin:24px auto;padding:0 20px 60px;">' +
-        '<div class="container">' +
-          '<div class="header">' +
-            '<div class="header-label">' + escHtml(instName) + ' · ' + escHtml(exam.title) + '</div>' +
-            '<div class="header-name">' + escHtml(displayName) + '</div>' +
-            '<div class="header-meta">' + escHtml(attempt.student_email || '') + ' &nbsp;·&nbsp; Soumis le ' + submittedLabel + '</div>' +
-          '</div>' +
-          '<div class="body">' +
-            '<div class="cards">' +
-              '<div class="card"><div class="card-label">Score total</div>' +
-                '<div class="card-value" style="color:' + scoreColor + ';">' +
-                  (Number.isInteger(totalCorrect) ? totalCorrect : totalCorrect.toFixed(1)) + ' / ' + totalMax +
-                '</div>' +
-                '<div class="card-sub">' + pct + '%</div></div>' +
-              '<div class="card"><div class="card-label">Temps utilisé</div>' +
-                '<div class="card-value" style="color:#0f172a;">' + timeStr + '</div>' +
-                '<div class="card-sub">sur ' + (exam.duration_mins || '—') + ' min</div></div>' +
-              '<div class="card"><div class="card-label">Correcteur</div>' +
-                '<div class="card-value" style="color:#0f172a;font-size:14px;padding-top:6px;">' + escHtml(teacherName) + '</div>' +
-                '<div class="card-sub">' + escHtml(instName) + '</div></div>' +
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;background:#fff;font-family:"Helvetica Neue",Arial,sans-serif;font-size:15px;color:#1e293b;line-height:1.6;';
+      container.innerHTML =
+        '<div style="background:#0f172a;padding:28px 32px;">' +
+          '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">' + escHtml(instName) + ' · ' + escHtml(exam.title) + '</div>' +
+          '<div style="font-size:24px;font-weight:700;color:#fff;margin:0 0 4px 0;">' + escHtml(displayName) + '</div>' +
+          '<div style="font-size:13px;color:#64748b;">' + escHtml(attempt.student_email || '') + ' · Soumis le ' + submittedLabel + '</div>' +
+        '</div>' +
+        '<div style="padding:28px 32px;">' +
+          '<div style="display:flex;gap:12px;margin-bottom:28px;">' +
+            '<div style="flex:1;background:#f8f9fc;border-radius:10px;padding:14px 16px;">' +
+              '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">Score total</div>' +
+              '<div style="font-size:26px;font-weight:700;color:' + scoreColor + ';">' + (Number.isInteger(totalCorrect) ? totalCorrect : totalCorrect.toFixed(1)) + ' / ' + totalMax + '</div>' +
+              '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">' + pct + '%</div>' +
             '</div>' +
-            sectionBlock +
-            '<div class="section-block"><div class="section-title">Détail des réponses</div>' +
-              '<table><thead><tr>' +
-                '<th>Question</th><th>Réponse candidat</th><th>Bonne réponse / Score</th><th style="text-align:center;">Résultat</th>' +
-              '</tr></thead><tbody>' + qaRows + '</tbody></table></div>' +
-            '<div class="section-block"><div class="section-title">Journal de session</div>' +
-              '<table><thead><tr><th>Heure</th><th>Événement</th><th>Détail</th></tr></thead><tbody>' +
-                '<tr style="border-bottom:1px solid #f1f5f9;">' +
-                  '<td style="padding:6px 10px;font-size:11px;color:#64748b;">' + startTime + '</td>' +
-                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">Examen démarré</td>' +
-                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">' + escHtml(exam.title) + ', Candidat : ' + escHtml(displayName) + '</td>' +
-                '</tr>' +
-                '<tr style="border-bottom:1px solid #f1f5f9;">' +
-                  '<td style="padding:6px 10px;font-size:11px;color:#64748b;">' + endTime + '</td>' +
-                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">Examen soumis</td>' +
-                  '<td style="padding:6px 10px;font-size:11px;color:#374151;">Soumission manuelle</td>' +
-                '</tr>' +
-              '</tbody></table></div>' +
+            '<div style="flex:1;background:#f8f9fc;border-radius:10px;padding:14px 16px;">' +
+              '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">Temps utilisé</div>' +
+              '<div style="font-size:26px;font-weight:700;color:#0f172a;">' + timeStr + '</div>' +
+              '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">sur ' + (exam.duration_mins || '—') + ' min</div>' +
+            '</div>' +
+            '<div style="flex:1;background:#f8f9fc;border-radius:10px;padding:14px 16px;">' +
+              '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;">Correcteur</div>' +
+              '<div style="font-size:14px;font-weight:700;color:#0f172a;padding-top:6px;">' + escHtml(teacherName) + '</div>' +
+              '<div style="font-size:12px;color:#94a3b8;margin-top:2px;">' + escHtml(instName) + '</div>' +
+            '</div>' +
           '</div>' +
-          '<div class="footer">Généré automatiquement · ' + escHtml(exam.title) + ' · ' + escHtml(instName) + '</div>' +
-        '</div></div></body></html>';
+          sectionBlock +
+          '<div style="margin-bottom:28px;">' +
+            '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:0 0 14px 0;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">Détail des réponses</div>' +
+            '<table style="width:100%;border-collapse:collapse;">' +
+              '<thead><tr style="background:#f8f9fc;">' +
+                '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Question</th>' +
+                '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Réponse candidat</th>' +
+                '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Bonne réponse / Score</th>' +
+                '<th style="padding:8px 10px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Résultat</th>' +
+              '</tr></thead>' +
+              '<tbody>' + qaRows + '</tbody>' +
+            '</table>' +
+          '</div>' +
+          '<div style="margin-bottom:28px;">' +
+            '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin:0 0 14px 0;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">Journal de session</div>' +
+            '<table style="width:100%;border-collapse:collapse;">' +
+              '<thead><tr style="background:#f8f9fc;">' +
+                '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Heure</th>' +
+                '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Événement</th>' +
+                '<th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Détail</th>' +
+              '</tr></thead>' +
+              '<tbody>' +
+                '<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 10px;font-size:11px;color:#64748b;">' + startTime + '</td><td style="padding:6px 10px;font-size:11px;color:#374151;">Examen démarré</td><td style="padding:6px 10px;font-size:11px;color:#374151;">' + escHtml(exam.title) + ', Candidat : ' + escHtml(displayName) + '</td></tr>' +
+                '<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:6px 10px;font-size:11px;color:#64748b;">' + endTime + '</td><td style="padding:6px 10px;font-size:11px;color:#374151;">Examen soumis</td><td style="padding:6px 10px;font-size:11px;color:#374151;">Soumission manuelle</td></tr>' +
+              '</tbody>' +
+            '</table>' +
+          '</div>' +
+        '</div>' +
+        '<div style="background:#f8f9fc;border-top:1px solid #e2e8f0;padding:14px 32px;font-size:11px;color:#94a3b8;">Généré automatiquement · ' + escHtml(exam.title) + ' · ' + escHtml(instName) + '</div>';
 
-      // Build filename: LASTNAME_Firstname_DDmoisAAAA.html
+      document.body.appendChild(container);
+
       const parts = (attempt.student_name || '').trim().split(/\s+/);
       const fn_last  = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : (attempt.student_name || 'rapport').toUpperCase();
       const fn_first = parts.length > 1 ? parts.slice(0, -1).join('') : '';
       const d = submittedAt || new Date();
       const fn_date = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
         .replace(/\s/g, '').replace(/[^a-zA-Z0-9]/g, '');
-      const filename = fn_last + '_' + fn_first + '_' + fn_date + '.html';
+      const filename = fn_last + '_' + fn_first + '_' + fn_date + '.pdf';
 
-      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href = url; a.download = filename; a.click();
-      URL.revokeObjectURL(url);
+      html2pdf().set({
+        margin: 0,
+        filename: filename,
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(container).save().then(function() {
+        document.body.removeChild(container);
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      });
     }
+
 
     const i18n = {
       fr: {
