@@ -410,7 +410,9 @@
     }
 
     async function requestAI(btn, qIdx) {
-      const q = questions[qIdx];
+      const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
+      const q = aqs[qIdx];
+      if (!q) { showToast('Question not found.'); return; }
       const answers = attempt.answers_json || {};
       const studentAnswer = answers['q' + qIdx] || '';
       if (!studentAnswer) { showToast('No student answer to evaluate.'); return; }
@@ -436,7 +438,10 @@
           })
         });
 
-        if (!res.ok) throw new Error('AI grading unavailable');
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `HTTP ${res.status}`);
+        }
         const data = await res.json();
         const suggestedScore = data.score ?? '—';
         const rationale      = data.rationale || '';
@@ -460,7 +465,8 @@
           </div>`;
         aiBox.style.display = 'block';
       } catch (e) {
-        showToast('AI grading not yet available.');
+        console.error('AI grading error:', e);
+        showToast('AI grading error: ' + (e.message || 'unknown'));
       }
 
       btn.disabled = false;
