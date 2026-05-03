@@ -752,10 +752,9 @@
         const mh = menu.offsetHeight;
         const spaceBelow = window.innerHeight - r.bottom;
         if (spaceBelow < mh + 8) {
-          // Not enough room below — open upward
-          menu.style.top  = (r.top - mh - 4 + window.scrollY) + 'px';
+          menu.style.top = (r.top - mh - 4) + 'px';
         } else {
-          menu.style.top  = (r.bottom + 4 + window.scrollY) + 'px';
+          menu.style.top = (r.bottom + 4) + 'px';
         }
         menu.style.left = Math.max(8, r.right - menu.offsetWidth) + 'px';
       }
