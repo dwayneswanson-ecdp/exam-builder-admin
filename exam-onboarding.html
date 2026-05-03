@@ -8,138 +8,174 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .header-left { display: flex; align-items: center; gap: 16px; }
-    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; transition: color 0.15s; }
-    .back-btn:hover { color: #fff; }
-    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
-    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
-    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
-    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
-
-    .page { max-width: 640px; margin: 0 auto; padding: 44px 24px 80px; }
-    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 6px; }
-    .page-sub { font-size: 0.87rem; color: #94a3b8; margin-bottom: 32px; }
-
-    .form-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px; margin-bottom: 14px; }
-    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .card-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
-
-    .field { margin-bottom: 18px; }
-    .field:last-child { margin-bottom: 0; }
-    .field-label { font-size: 0.78rem; font-weight: 700; color: #374151; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
-    .req { color: #dc2626; }
-    .field-hint { font-size: 0.72rem; color: #94a3b8; margin-top: 5px; line-height: 1.5; }
-    .field-input {
-      width: 100%; font-size: 0.88rem; font-family: inherit;
-      border: 1.5px solid #e2e8f0; border-radius: 8px;
-      padding: 9px 13px; color: #0f172a; outline: none;
-      transition: border-color 0.15s; background: #fff;
+    :root {
+      --black:    #0a0a0a;
+      --navy:     #0f172a;
+      --ink:      #1e293b;
+      --slate:    #475569;
+      --muted:    #94a3b8;
+      --line:     #e2e8f0;
+      --surface:  #f8fafc;
+      --white:    #ffffff;
+      --blue:     #2563eb;
+      --green:    #16a34a;
+      --amber:    #d97706;
+      --red:      #dc2626;
+      --purple:   #7c3aed;
+      --transition: 180ms ease;
     }
-    .field-input:focus { border-color: #2563eb; }
-    .field-input::placeholder { color: #cbd5e1; }
-    textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
-    .field-row { display: flex; gap: 12px; }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── Header ── */
+    .header { background: var(--navy); padding: 0 40px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; background: none; border: none; cursor: pointer; font-family: inherit; transition: color var(--transition); }
+    .back-btn:hover { color: var(--white); }
+    .header-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
+    .header-name { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+
+    /* ── Page ── */
+    .page { max-width: 720px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    /* ── Step indicator ── */
+    .step-track { display: flex; align-items: center; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+    .step-item { display: flex; align-items: center; gap: 10px; }
+    .step-num { width: 26px; height: 26px; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; color: var(--muted); flex-shrink: 0; transition: all var(--transition); }
+    .step-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; transition: color var(--transition); }
+    .step-item.active .step-num { background: var(--black); border-color: var(--black); color: var(--white); }
+    .step-item.active .step-label { color: var(--black); }
+    .step-item.done .step-num { background: var(--green); border-color: var(--green); color: var(--white); }
+    .step-item.done .step-label { color: var(--green); }
+    .step-connector { flex: 1; height: 1px; background: var(--line); margin: 0 16px; min-width: 24px; transition: background var(--transition); }
+    .step-connector.done { background: var(--green); }
+
+    /* ── Page heading ── */
+    .page-heading { margin-bottom: 28px; }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; margin-bottom: 4px; }
+    .page-sub { font-size: 0.78rem; color: var(--muted); }
+
+    /* ── Form card ── */
+    .form-card { background: var(--white); border: 1px solid var(--line); margin-bottom: 28px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: var(--navy); gap: 16px; }
+    .card-header-left { display: flex; align-items: center; gap: 14px; }
+    .card-num { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); flex-shrink: 0; }
+    .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); }
+    .card-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+    .card-body { padding: 24px; }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--slate); margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
+    .req { color: var(--red); }
+    .field-hint { font-size: 0.7rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    .field-input { width: 100%; font-size: 0.88rem; font-family: inherit; border: 1px solid var(--line); padding: 10px 14px; color: var(--black); outline: none; transition: border-color var(--transition); background: var(--white); }
+    .field-input:focus { border-color: var(--blue); }
+    .field-input::placeholder { color: #cbd5e1; }
+    textarea.field-input { resize: vertical; min-height: 80px; line-height: 1.65; }
+    .field-row { display: flex; gap: 16px; }
     .field-row .field { flex: 1; margin-bottom: 0; }
 
-    .lang-toggle { display: flex; border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
-    .lang-opt { flex: 1; padding: 8px; text-align: center; font-size: 0.82rem; font-weight: 700; cursor: pointer; border: none; font-family: inherit; background: #fff; color: #94a3b8; transition: all 0.15s; }
-    .lang-opt.active { background: #0f172a; color: #fff; }
+    /* ── Language toggle ── */
+    .lang-toggle { display: flex; border: 1px solid var(--line); overflow: hidden; }
+    .lang-opt { flex: 1; padding: 10px; text-align: center; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; background: var(--white); color: var(--muted); transition: all var(--transition); }
+    .lang-opt.active { background: var(--black); color: var(--white); }
 
-    /* Groups */
-    .col-labels { display: flex; gap: 8px; margin-bottom: 8px; padding: 0 2px; }
-    .col-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #cbd5e1; }
-    .group-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .group-row:last-of-type { margin-bottom: 0; }
-    .group-name-input {
-      flex: 1; font-size: 0.85rem; font-family: inherit;
-      border: 1.5px solid #e2e8f0; border-radius: 8px;
-      padding: 8px 12px; color: #0f172a; outline: none; transition: border-color 0.15s;
-    }
-    .group-name-input:focus { border-color: #2563eb; }
-    .group-code-input {
-      width: 100px; font-size: 0.88rem; font-weight: 700; font-family: 'Courier New', monospace;
-      letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
-      border: 1.5px solid #e2e8f0; border-radius: 8px;
-      padding: 8px 10px; color: #0f172a; outline: none; transition: border-color 0.15s;
-    }
-    .group-code-input:focus { border-color: #2563eb; }
-    .gen-btn { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 11px; font-size: 0.73rem; font-weight: 700; color: #475569; cursor: pointer; font-family: inherit; white-space: nowrap; transition: all 0.15s; }
-    .gen-btn:hover { border-color: #94a3b8; color: #0f172a; }
-    .remove-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 4px; display: flex; align-items: center; border-radius: 6px; transition: color 0.15s; flex-shrink: 0; }
-    .remove-btn:hover { color: #dc2626; }
-    .add-group-btn { display: inline-flex; align-items: center; gap: 5px; background: none; border: 1.5px dashed #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; font-weight: 700; color: #94a3b8; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-    .add-group-btn:hover { border-color: #2563eb; color: #2563eb; }
+    /* ── Groups ── */
+    .col-labels { display: flex; gap: 8px; margin-bottom: 8px; }
+    .col-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--line); }
+    .group-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .group-name-input { flex: 1; font-size: 0.85rem; font-family: inherit; border: 1px solid var(--line); padding: 9px 12px; color: var(--black); outline: none; transition: border-color var(--transition); }
+    .group-name-input:focus { border-color: var(--blue); }
+    .remove-btn { background: none; border: none; cursor: pointer; color: var(--line); padding: 4px; display: flex; align-items: center; flex-shrink: 0; transition: color var(--transition); }
+    .remove-btn:hover { color: var(--red); }
+    .add-group-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .add-group-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.9); }
 
-    /* Info note */
-    .info-note { background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 12px 14px; font-size: 0.78rem; color: #4c1d95; line-height: 1.7; display: flex; gap: 10px; }
-    .info-note svg { flex-shrink: 0; margin-top: 2px; color: #7c3aed; }
-    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: #7c3aed; color: #fff; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; margin-left: 5px; flex-shrink: 0; }
+    /* ── Score input ── */
+    .score-input-wrap { display: flex; align-items: center; gap: 12px; }
+    .score-input { font-size: 1.1rem; font-weight: 700; font-family: inherit; border: 1px solid var(--line); padding: 8px 0; width: 60px; color: var(--black); outline: none; text-align: center; transition: border-color var(--transition); }
+    .score-input:focus { border-color: var(--blue); }
+    .score-input-label { font-size: 0.78rem; color: var(--slate); }
 
-    /* Report options */
-    .report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .report-option { border: 2px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; cursor: pointer; text-align: left; background: #fff; font-family: inherit; transition: all 0.15s; }
-    .report-option:hover { border-color: #93c5fd; }
-    .report-option.selected { border-color: #2563eb; background: #eff6ff; }
-    .report-option-title { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
-    .report-option-desc { font-size: 0.72rem; color: #64748b; line-height: 1.5; }
+    /* ── Report options ── */
+    .report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .report-option { border: 1px solid var(--line); padding: 16px; cursor: pointer; text-align: left; background: var(--white); font-family: inherit; transition: all var(--transition); }
+    .report-option:hover { border-color: var(--blue); }
+    .report-option.selected { border-color: var(--blue); background: #eff6ff; }
+    .report-option-title { font-size: 0.78rem; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+    .report-option-desc { font-size: 0.7rem; color: var(--slate); line-height: 1.55; }
 
-    /* Method options */
-    .method-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .method-option { border: 2px solid #e2e8f0; border-radius: 10px; padding: 18px 16px; cursor: pointer; text-align: left; background: #fff; font-family: inherit; transition: all 0.15s; }
-    .method-option:hover { border-color: #c4b5fd; }
-    .method-option.manual:hover { border-color: #93c5fd; }
-    .method-option.selected { border-color: #7c3aed; background: #faf5ff; }
-    .method-option.selected .method-label { color: #4c1d95; }
-    .method-option.manual.selected { border-color: #2563eb; background: #eff6ff; }
-    .method-option.manual.selected .method-label { color: #1d4ed8; }
-    .method-label { font-size: 0.85rem; font-weight: 800; color: #0f172a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
-    .method-desc { font-size: 0.72rem; color: #64748b; line-height: 1.55; }
-    .method-badge { display: inline-block; font-size: 0.62rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; margin-top: 10px; }
-    .badge-ready { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-    .badge-soon  { background: #f1f5f9; color: #94a3b8; border: 1px solid #e2e8f0; }
+    /* ── AI info note ── */
+    .info-note { background: #faf5ff; border: 1px solid #e9d5ff; padding: 14px 16px; font-size: 0.78rem; color: #4c1d95; line-height: 1.7; display: flex; gap: 12px; }
+    .info-note svg { flex-shrink: 0; margin-top: 2px; color: var(--purple); }
+    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: var(--purple); color: #fff; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.06em; width: 18px; height: 18px; vertical-align: middle; margin-left: 4px; flex-shrink: 0; }
 
-    /* Step indicator */
-    .steps { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
-    .step-item { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 600; color: #94a3b8; }
-    .step-item.active { color: #0f172a; }
-    .step-item.done { color: #16a34a; }
-    .step-num { width: 24px; height: 24px; border-radius: 50%; background: #e2e8f0; color: #94a3b8; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .step-item.active .step-num { background: #2563eb; color: #fff; }
-    .step-item.done .step-num { background: #16a34a; color: #fff; }
-    .step-connector { flex: 1; height: 1px; background: #e2e8f0; margin: 0 10px; min-width: 24px; }
-
-    /* Teacher row */
-    .teacher-row { display: flex; align-items: center; gap: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; }
-    .teacher-avatar { width: 38px; height: 38px; background: #0f172a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; color: #fff; flex-shrink: 0; }
-    .teacher-name { font-size: 0.88rem; font-weight: 700; color: #0f172a; }
-    .teacher-email { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
-
-    /* CTA */
-    .cta-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-    .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.88rem; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; padding: 11px 22px; cursor: pointer; transition: all 0.15s; }
-    .btn-primary { background: #2563eb; color: #fff; }
-    .btn-primary:hover { background: #1d4ed8; }
+    /* ── CTA row ── */
+    .cta-row { display: flex; justify-content: space-between; align-items: center; padding: 28px 0 0; margin-top: 4px; border-top: 1px solid var(--line); }
+    .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-family: inherit; border: 1px solid transparent; padding: 11px 22px; cursor: pointer; transition: all var(--transition); }
+    .btn-primary { background: var(--black); color: var(--white); border-color: var(--black); }
+    .btn-primary:hover { background: var(--navy); border-color: var(--navy); }
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-ghost { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
-    .btn-ghost:hover { border-color: #94a3b8; }
+    .btn-ghost { background: var(--white); color: var(--slate); border: 1px solid var(--line); }
+    .btn-ghost:hover { border-color: var(--slate); color: var(--black); }
+    .error-msg { font-size: 0.75rem; color: var(--red); font-weight: 600; margin-top: 14px; display: none; }
 
-    .error-msg { font-size: 0.78rem; color: #dc2626; font-weight: 600; margin-top: 12px; text-align: right; display: none; }
-  @media (max-width: 640px) {
-    .header { padding: 0 16px; }
-    .page { padding: 24px 16px 60px; }
-    .form-card { padding: 20px 16px; }
-    .field-row { flex-direction: column; gap: 12px; }
-    .method-options, .report-options { grid-template-columns: 1fr; }
-    .steps { flex-wrap: wrap; gap: 6px; }
-    .step-connector { display: none; }
-    .cta-row { flex-direction: column-reverse; }
-    .btn { width: 100%; justify-content: center; }
-  }
+    /* ── Step 2: Config summary ── */
+    .config-summary { padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .config-summary-text { font-size: 0.82rem; color: var(--slate); line-height: 1.6; }
+    .config-summary-text strong { color: var(--black); font-weight: 600; }
+    .config-edit-btn { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; transition: color var(--transition); flex-shrink: 0; }
+    .config-edit-btn:hover { color: var(--blue); }
+
+    /* ── Step 2: Method cards ── */
+    .method-heading { margin-bottom: 20px; }
+    .method-heading-title { font-size: 1.2rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; margin-bottom: 4px; }
+    .method-heading-sub { font-size: 0.78rem; color: var(--muted); }
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+    .method-card { border: 1.5px solid var(--line); padding: 28px 24px; cursor: pointer; text-align: left; background: var(--white); font-family: inherit; transition: all var(--transition); display: flex; flex-direction: column; }
+    .method-card:hover { border-color: var(--muted); }
+    .method-card.selected-manual { border-color: var(--blue); background: #eff6ff; }
+    .method-card.selected-ai { border-color: var(--purple); background: #faf5ff; }
+    .method-card-icon { width: 36px; height: 36px; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; flex-shrink: 0; }
+    .method-card.selected-manual .method-card-icon { border-color: var(--blue); background: #eff6ff; }
+    .method-card.selected-ai .method-card-icon { border-color: var(--purple); background: #faf5ff; }
+    .method-card-label { font-size: 0.88rem; font-weight: 700; color: var(--black); margin-bottom: 6px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+    .method-card.selected-manual .method-card-label { color: var(--blue); }
+    .method-card.selected-ai .method-card-label { color: var(--purple); }
+    .method-card-desc { font-size: 0.75rem; color: var(--slate); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+    .method-card-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .method-card.selected-manual .method-card-footer { border-top-color: #bfdbfe; }
+    .method-card.selected-ai .method-card-footer { border-top-color: #ddd6fe; }
+    .method-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--line); color: var(--muted); }
+    .method-badge.available { border-color: var(--green); color: var(--green); }
+    .method-select-indicator { width: 18px; height: 18px; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; }
+    .method-card.selected-manual .method-select-indicator { border-color: var(--blue); background: var(--blue); }
+    .method-card.selected-ai .method-select-indicator { border-color: var(--purple); background: var(--purple); }
+    .method-select-indicator svg { display: none; }
+    .method-card.selected-manual .method-select-indicator svg,
+    .method-card.selected-ai .method-select-indicator svg { display: block; }
+
+    /* ── Lang pill (header) ── */
+    .lang-pill { display:flex; border:1px solid rgba(255,255,255,0.15); overflow:hidden; }
+    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.65rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; font-family:inherit; transition:all var(--transition); }
+    .lang-pill button.active { background:rgba(255,255,255,0.12); color:var(--white); }
+
+    @media (max-width: 640px) {
+      .header { padding: 0 20px; }
+      .page { padding: 24px 20px 60px; }
+      .field-row { flex-direction: column; gap: 12px; }
+      .method-grid, .report-options { grid-template-columns: 1fr; }
+      .step-connector { min-width: 12px; margin: 0 8px; }
+      .step-label { display: none; }
+      .cta-row { flex-direction: column-reverse; gap: 10px; }
+      .btn { width: 100%; justify-content: center; }
+    }
   </style>
 </head>
 <body>
@@ -148,7 +184,7 @@
     <div class="header-left">
       <button class="back-btn" onclick="window.location.href='dashboard.html'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Dashboard
+        My Exams
       </button>
       <div class="header-divider"></div>
       <span class="header-logo">Exam Builder</span>
@@ -159,160 +195,215 @@
   </header>
 
   <div class="page">
-    <div class="steps">
-      <div class="step-item active">
+
+    <!-- Step indicator -->
+    <div class="step-track">
+      <div class="step-item active" id="si1">
         <div class="step-num">1</div>
-        <span>Configure</span>
+        <span class="step-label">Configure</span>
       </div>
-      <div class="step-connector"></div>
-      <div class="step-item">
+      <div class="step-connector" id="sc1"></div>
+      <div class="step-item" id="si2">
         <div class="step-num">2</div>
-        <span>Build questions</span>
+        <span class="step-label">Choose method</span>
       </div>
       <div class="step-connector"></div>
       <div class="step-item">
         <div class="step-num">3</div>
-        <span>Publish</span>
+        <span class="step-label">Build questions</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item">
+        <div class="step-num">4</div>
+        <span class="step-label">Publish</span>
       </div>
     </div>
-    <div class="page-title">New Exam</div>
-    <div class="page-sub">Configure your exam before building the questions.</div>
 
-    <!-- 1. Exam Details -->
-    <div class="form-card">
-      <div class="card-header">
-        <div class="card-title">Exam Details</div>
+    <!-- ══════════════════════════════
+         STEP 1 — CONFIGURE
+    ══════════════════════════════ -->
+    <div id="step1">
+
+      <div class="page-heading">
+        <div class="page-title">Configure your exam</div>
+        <div class="page-sub">These settings apply to both manual and AI-generated exams.</div>
       </div>
 
-      <div class="field">
-        <label class="field-label">Exam Title <span class="req">*</span></label>
-        <input class="field-input" type="text" id="examTitle" placeholder="e.g. Finance d'entreprise — Partiel S2">
-      </div>
-
-      <div class="field-row" style="margin-bottom:18px;">
-        <div class="field">
-          <label class="field-label">Duration <span class="req">*</span></label>
-          <input class="field-input" type="number" id="examDuration" placeholder="45" min="5" max="300">
-          <div class="field-hint">Minutes</div>
+      <!-- 01 — Exam Details -->
+      <div class="form-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="card-num">01</span>
+            <div class="card-divider"></div>
+            <div class="card-title">Exam Details</div>
+          </div>
         </div>
-        <div class="field">
-          <label class="field-label">Exam Language <span class="req">*</span></label>
-          <div class="lang-toggle">
-            <button class="lang-opt active" id="langFR" onclick="setLang('fr')">Français</button>
-            <button class="lang-opt" id="langEN" onclick="setLang('en')">English</button>
+        <div class="card-body">
+          <div class="field">
+            <label class="field-label">Exam Title <span class="req">*</span></label>
+            <input class="field-input" type="text" id="examTitle" placeholder="e.g. Finance d'entreprise — Partiel S2">
+          </div>
+          <div class="field-row" style="margin-bottom:20px;">
+            <div class="field">
+              <label class="field-label">Duration <span class="req">*</span></label>
+              <input class="field-input" type="number" id="examDuration" placeholder="45" min="5" max="300">
+              <div class="field-hint">Minutes</div>
+            </div>
+            <div class="field">
+              <label class="field-label">Language <span class="req">*</span></label>
+              <div class="lang-toggle">
+                <button class="lang-opt active" id="langFR" onclick="setLang('fr')">Français</button>
+                <button class="lang-opt" id="langEN" onclick="setLang('en')">English</button>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Student Instructions <span style="font-weight:500;color:var(--muted);font-size:0.68rem;text-transform:none;letter-spacing:0;">(optional)</span></label>
+            <textarea class="field-input" id="examInstructions" placeholder="Instructions shown to students before the exam starts. e.g. No notes, calculators permitted, answer all questions."></textarea>
           </div>
         </div>
       </div>
 
-      <div class="field" style="margin-bottom:0;">
-        <label class="field-label">Student Instructions <span style="font-weight:500;color:#94a3b8;font-size:0.72rem;">(optional)</span></label>
-        <textarea class="field-input" id="examInstructions" placeholder="Instructions shown to students before the exam starts. e.g. No notes, calculators permitted, answer all questions."></textarea>
-      </div>
-    </div>
-
-    <!-- 2. Groups & Access Codes -->
-    <div class="form-card">
-      <div class="card-header">
-        <div class="card-title">Groups &amp; Access Codes</div>
-        <button class="add-group-btn" onclick="addGroup()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Add Group
-        </button>
-      </div>
-
-      <div class="col-labels">
-        <div class="col-label" style="flex:1;">Group Name</div>
-        <div class="col-label" style="width:100px;text-align:center;">Access Code</div>
-        <div style="width:80px;"></div>
-        <div style="width:24px;"></div>
-      </div>
-
-      <div id="groupList"></div>
-      <div class="field-hint" style="margin-top:12px;">Each group gets a unique code. Students select their group when entering the exam.</div>
-    </div>
-
-    <!-- 3. Grading & Results -->
-    <div class="form-card">
-      <div class="card-header">
-        <div class="card-title">Grading &amp; Results</div>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Score Scale <span class="req">*</span></label>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <input class="field-input" type="number" id="examCoefficient" value="20" min="1" max="100" style="width:80px;text-align:center;font-weight:700;font-size:1rem;">
-          <span style="font-size:0.82rem;color:#64748b;">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="field-label">Results Report Sent to Students</label>
-        <div class="report-options">
-          <button class="report-option selected" id="reportFull" onclick="setReport('full')">
-            <div class="report-option-title">Full Report</div>
-            <div class="report-option-desc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
-          </button>
-          <button class="report-option" id="reportScore" onclick="setReport('score')">
-            <div class="report-option-title">Score Only</div>
-            <div class="report-option-desc">Final score only — no breakdown or answers shared.</div>
+      <!-- 02 — Student Groups -->
+      <div class="form-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="card-num">02</span>
+            <div class="card-divider"></div>
+            <div class="card-title">Student Groups</div>
+          </div>
+          <button class="add-group-btn" onclick="addGroup()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Group
           </button>
         </div>
-      </div>
-
-      <div class="field" style="margin-bottom:0;">
-        <div class="info-note">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>
-            <strong>MCQ questions are graded automatically.</strong> <span class="ai-chip">AI</span><br>
-            <span style="color:#475569;font-size:0.78rem;">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
-          </span>
+        <div class="card-body">
+          <div class="col-labels">
+            <div class="col-label" style="flex:1;">Group Name</div>
+            <div style="width:24px;"></div>
+          </div>
+          <div id="groupList"></div>
+          <div class="field-hint" style="margin-top:12px;">Access codes are generated automatically after the exam is created — visible in your submissions dashboard.</div>
         </div>
       </div>
-    </div>
 
-    <!-- 4. Question Builder -->
-    <div class="form-card">
-      <div class="card-header">
-        <div class="card-title">Question Builder</div>
-      </div>
-      <div class="method-options">
-        <button class="method-option selected" id="methodAI" onclick="setMethod('ai')">
-          <div class="method-label">AI Extraction <span class="ai-chip">AI</span></div>
-          <div class="method-desc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically.</div>
-          <div class="method-badge badge-ready">Available</div>
-        </button>
-        <button class="method-option manual" id="methodManual" onclick="setMethod('manual')">
-          <div class="method-label">Build Manually</div>
-          <div class="method-desc">Add questions one by one directly inside the platform.</div>
-          <div class="method-badge badge-ready">Available</div>
-        </button>
-      </div>
-    </div>
-
-    <!-- 5. Exam Owner -->
-    <div class="form-card">
-      <div class="card-header">
-        <div class="card-title">Exam Owner</div>
-      </div>
-      <div class="teacher-row">
-        <div class="teacher-avatar" id="teacherAvatar">—</div>
-        <div>
-          <div class="teacher-name" id="teacherName">—</div>
-          <div class="teacher-email" id="teacherEmail">—</div>
+      <!-- 03 — Grading & Results -->
+      <div class="form-card">
+        <div class="card-header">
+          <div class="card-header-left">
+            <span class="card-num">03</span>
+            <div class="card-divider"></div>
+            <div class="card-title">Grading &amp; Results</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="field">
+            <label class="field-label">Score Scale <span class="req">*</span></label>
+            <div class="score-input-wrap">
+              <input class="score-input" type="number" id="examCoefficient" value="20" min="1" max="100">
+              <span class="score-input-label">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Results Report Sent to Students</label>
+            <div class="report-options">
+              <button class="report-option selected" id="reportFull" onclick="setReport('full')">
+                <div class="report-option-title">Full Report</div>
+                <div class="report-option-desc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
+              </button>
+              <button class="report-option" id="reportScore" onclick="setReport('score')">
+                <div class="report-option-title">Score Only</div>
+                <div class="report-option-desc">Final score only — no breakdown or answers shared.</div>
+              </button>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <div class="info-note">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>
+                <strong>MCQ questions are graded automatically.</strong> <span class="ai-chip">AI</span><br>
+                <span style="color:#475569;font-size:0.75rem;">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="field-hint" style="margin-top:10px;">Submissions are linked to this account. A failsafe copy of each result is sent to this email.</div>
+
+      <div class="error-msg" id="errorMsg">Please fill in all required fields (title, duration, at least one group).</div>
+
+      <div class="cta-row">
+        <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'">Cancel</button>
+        <button class="btn btn-primary" onclick="validateStep1()">
+          Continue
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
     </div>
 
-    <div class="error-msg" id="errorMsg">Please fill in all required fields (title, duration, at least one group with a code).</div>
+    <!-- ══════════════════════════════
+         STEP 2 — CHOOSE METHOD
+    ══════════════════════════════ -->
+    <div id="step2" style="display:none;">
 
-    <div class="cta-row">
-      <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'">Cancel</button>
-      <button class="btn btn-primary" id="continueBtn" onclick="proceed()">
-        Continue
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
+      <!-- Config summary -->
+      <div class="config-summary">
+        <div class="config-summary-text" id="configSummaryText"></div>
+        <button class="config-edit-btn" onclick="goToStep1()">Edit ↗</button>
+      </div>
+
+      <div class="method-heading">
+        <div class="method-heading-title">How do you want to build the questions?</div>
+        <div class="method-heading-sub">Choose a method — your configuration applies to both.</div>
+      </div>
+
+      <div class="method-grid">
+
+        <!-- Manual -->
+        <button class="method-card" id="cardManual" onclick="selectMethod('manual')">
+          <div class="method-card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </div>
+          <div class="method-card-label">Build manually</div>
+          <div class="method-card-desc">Write questions one by one directly inside the platform. Full control over wording, options, and scoring criteria.</div>
+          <div class="method-card-footer">
+            <span class="method-badge available">Available</span>
+            <div class="method-select-indicator">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </button>
+
+        <!-- AI -->
+        <button class="method-card selected-ai" id="cardAI" onclick="selectMethod('ai')">
+          <div class="method-card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <div class="method-card-label">
+            AI extraction
+            <span class="ai-chip">AI</span>
+          </div>
+          <div class="method-card-desc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.</div>
+          <div class="method-card-footer">
+            <span class="method-badge available">Available</span>
+            <div class="method-select-indicator">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+        </button>
+
+      </div>
+
+      <div class="cta-row">
+        <button class="btn btn-ghost" onclick="goToStep1()">← Back</button>
+        <button class="btn btn-primary" id="continueBtn" onclick="proceed()">
+          <span id="proceedLabel">Start with AI extraction</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
     </div>
+
   </div>
 
   <script>
@@ -335,11 +426,7 @@
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
 
-      document.getElementById('headerName').textContent  = teacher.full_name || teacher.email;
-      document.getElementById('teacherName').textContent  = teacher.full_name || teacher.email;
-      document.getElementById('teacherEmail').textContent = teacher.email;
-      const initials = (teacher.full_name || teacher.email).split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-      document.getElementById('teacherAvatar').textContent = initials;
+      document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
 
       addGroup();
     }
@@ -352,22 +439,15 @@
     }
 
     function addGroup() {
-      const code  = genCode();
       const count = document.querySelectorAll('.group-row').length + 1;
       const row   = document.createElement('div');
       row.className = 'group-row';
       row.innerHTML = `
         <input class="group-name-input" type="text" placeholder="Group name" value="Group ${count}">
-        <input class="group-code-input" type="text" value="${code}" maxlength="10">
-        <button class="gen-btn" onclick="regenCode(this)">↻ Generate</button>
         <button class="remove-btn" onclick="removeGroup(this)" title="Remove">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>`;
       document.getElementById('groupList').appendChild(row);
-    }
-
-    function regenCode(btn) {
-      btn.previousElementSibling.value = genCode();
     }
 
     function removeGroup(btn) {
@@ -382,35 +462,75 @@
       document.getElementById('langEN').classList.toggle('active', lang === 'en');
     }
 
-    function setMethod(method) {
-      selectedMethod = method;
-      document.getElementById('methodAI').classList.toggle('selected', method === 'ai');
-      document.getElementById('methodManual').classList.toggle('selected', method === 'manual');
-    }
-
     function setReport(report) {
       selectedReport = report;
       document.getElementById('reportFull').classList.toggle('selected', report === 'full');
       document.getElementById('reportScore').classList.toggle('selected', report === 'score');
     }
 
-    function proceed() {
-      const title       = document.getElementById('examTitle').value.trim();
-      const duration    = document.getElementById('examDuration').value.trim();
-      const coefficient = document.getElementById('examCoefficient').value.trim() || '20';
-      const instructions = document.getElementById('examInstructions').value.trim();
-      const errEl       = document.getElementById('errorMsg');
+    // ── Step navigation ────────────────────────────────────────────
 
-      const groups = [...document.querySelectorAll('.group-row')].map(row => ({
-        name: row.querySelector('.group-name-input').value.trim(),
-        code: row.querySelector('.group-code-input').value.trim().toUpperCase()
-      })).filter(g => g.name && g.code);
+    function validateStep1() {
+      const title    = document.getElementById('examTitle').value.trim();
+      const duration = document.getElementById('examDuration').value.trim();
+      const groups   = [...document.querySelectorAll('.group-name-input')]
+        .map(i => i.value.trim()).filter(Boolean);
+      const errEl    = document.getElementById('errorMsg');
 
       if (!title || !duration || groups.length === 0) {
         errEl.style.display = 'block';
         return;
       }
       errEl.style.display = 'none';
+      goToStep2();
+    }
+
+    function goToStep2() {
+      const title      = document.getElementById('examTitle').value.trim();
+      const duration   = document.getElementById('examDuration').value.trim();
+      const coeff      = document.getElementById('examCoefficient').value.trim() || '20';
+      const lang       = selectedLang === 'fr' ? 'Français' : 'English';
+      const groupCount = document.querySelectorAll('.group-row').length;
+
+      document.getElementById('configSummaryText').innerHTML =
+        `<strong>${title}</strong> · ${duration} min · ${lang} · ${groupCount} group${groupCount !== 1 ? 's' : ''} · scored out of ${coeff}`;
+
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'block';
+      document.getElementById('si1').className = 'step-item done';
+      document.getElementById('si2').className = 'step-item active';
+      document.getElementById('sc1').classList.add('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function goToStep1() {
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step1').style.display = 'block';
+      document.getElementById('si1').className = 'step-item active';
+      document.getElementById('si2').className = 'step-item';
+      document.getElementById('sc1').classList.remove('done');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function selectMethod(method) {
+      selectedMethod = method;
+      document.getElementById('cardManual').className = method === 'manual' ? 'method-card selected-manual' : 'method-card';
+      document.getElementById('cardAI').className     = method === 'ai'     ? 'method-card selected-ai'     : 'method-card';
+      document.getElementById('proceedLabel').textContent = method === 'ai' ? 'Start with AI extraction' : 'Start building manually';
+    }
+
+    // ── Proceed (saves config, routes to builder) ──────────────────
+
+    function proceed() {
+      const title        = document.getElementById('examTitle').value.trim();
+      const duration     = document.getElementById('examDuration').value.trim();
+      const coefficient  = document.getElementById('examCoefficient').value.trim() || '20';
+      const instructions = document.getElementById('examInstructions').value.trim();
+
+      const groups = [...document.querySelectorAll('.group-row')].map(row => ({
+        name: row.querySelector('.group-name-input').value.trim(),
+        code: genCode()
+      })).filter(g => g.name);
 
       localStorage.setItem('examOnboarding', JSON.stringify({
         title,
