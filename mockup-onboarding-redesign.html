@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding Redesign — Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:    #0a0a0a;
+      --navy:     #0f172a;
+      --ink:      #1e293b;
+      --slate:    #475569;
+      --muted:    #94a3b8;
+      --line:     #e2e8f0;
+      --surface:  #f8fafc;
+      --white:    #ffffff;
+      --blue:     #2563eb;
+      --green:    #16a34a;
+      --amber:    #d97706;
+      --red:      #dc2626;
+      --purple:   #7c3aed;
+      --transition: 180ms ease;
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── Mockup banner ── */
+    .mockup-banner { background: var(--navy); color: rgba(255,255,255,0.5); text-align: center; font-size: 0.62rem; font-weight: 700; padding: 7px; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    /* ── Header ── */
+    .header { background: var(--navy); padding: 0 40px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; background: none; border: none; cursor: pointer; font-family: inherit; transition: color var(--transition); }
+    .back-btn:hover { color: var(--white); }
+    .header-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
+    .header-name { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+
+    /* ── Page wrapper ── */
+    .page { max-width: 720px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    /* ── Step indicator ── */
+    .step-track {
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--line);
+    }
+    .step-item { display: flex; align-items: center; gap: 10px; }
+    .step-num {
+      width: 26px; height: 26px;
+      border: 1.5px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: all var(--transition);
+    }
+    .step-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; transition: color var(--transition); }
+    .step-item.active .step-num { background: var(--black); border-color: var(--black); color: var(--white); }
+    .step-item.active .step-label { color: var(--black); }
+    .step-item.done .step-num { background: var(--green); border-color: var(--green); color: var(--white); }
+    .step-item.done .step-label { color: var(--green); }
+    .step-connector { flex: 1; height: 1px; background: var(--line); margin: 0 16px; min-width: 32px; }
+    .step-connector.done { background: var(--green); }
+
+    /* ── Page heading ── */
+    .page-heading { margin-bottom: 28px; }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; margin-bottom: 4px; }
+    .page-sub { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.01em; }
+
+    /* ── Form card ── */
+    .form-card { background: var(--white); border: 1px solid var(--line); margin-bottom: 1px; }
+    .form-card:last-of-type { margin-bottom: 0; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid var(--line); background: var(--surface); }
+    .card-title { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    .card-body { padding: 24px; }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 20px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--slate); margin-bottom: 7px; display: flex; align-items: center; gap: 5px; }
+    .req { color: var(--red); }
+    .field-hint { font-size: 0.7rem; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+    .field-input {
+      width: 100%; font-size: 0.88rem; font-family: inherit;
+      border: 1px solid var(--line);
+      padding: 10px 14px; color: var(--black); outline: none;
+      transition: border-color var(--transition); background: var(--white);
+    }
+    .field-input:focus { border-color: var(--blue); }
+    .field-input::placeholder { color: #cbd5e1; }
+    textarea.field-input { resize: vertical; min-height: 80px; line-height: 1.65; }
+
+    .field-row { display: flex; gap: 16px; }
+    .field-row .field { flex: 1; margin-bottom: 0; }
+
+    /* ── Language toggle ── */
+    .lang-toggle { display: flex; border: 1px solid var(--line); overflow: hidden; }
+    .lang-opt { flex: 1; padding: 10px; text-align: center; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; background: var(--white); color: var(--muted); transition: all var(--transition); }
+    .lang-opt.active { background: var(--black); color: var(--white); }
+
+    /* ── Groups ── */
+    .col-labels { display: flex; gap: 8px; margin-bottom: 8px; }
+    .col-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--line); }
+    .group-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .group-name-input {
+      flex: 1; font-size: 0.85rem; font-family: inherit;
+      border: 1px solid var(--line); padding: 8px 12px; color: var(--black); outline: none;
+      transition: border-color var(--transition);
+    }
+    .group-name-input:focus { border-color: var(--blue); }
+    .group-code-input {
+      width: 100px; font-size: 0.85rem; font-weight: 700; font-family: 'Courier New', monospace;
+      letter-spacing: 0.1em; text-transform: uppercase; text-align: center;
+      border: 1px solid var(--line); padding: 8px 10px; color: var(--black); outline: none;
+      transition: border-color var(--transition);
+    }
+    .group-code-input:focus { border-color: var(--blue); }
+    .gen-btn { background: var(--surface); border: 1px solid var(--line); padding: 8px 11px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate); cursor: pointer; font-family: inherit; white-space: nowrap; transition: all var(--transition); }
+    .gen-btn:hover { border-color: var(--slate); color: var(--black); }
+    .remove-btn { background: none; border: none; cursor: pointer; color: var(--line); padding: 4px; display: flex; align-items: center; flex-shrink: 0; transition: color var(--transition); }
+    .remove-btn:hover { color: var(--red); }
+    .add-group-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px dashed var(--line); padding: 7px 14px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .add-group-btn:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* ── Report options ── */
+    .report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .report-option { border: 1px solid var(--line); padding: 16px; cursor: pointer; text-align: left; background: var(--white); font-family: inherit; transition: all var(--transition); }
+    .report-option:hover { border-color: var(--blue); }
+    .report-option.selected { border-color: var(--blue); background: #eff6ff; }
+    .report-option-title { font-size: 0.78rem; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+    .report-option-desc { font-size: 0.7rem; color: var(--slate); line-height: 1.55; }
+
+    /* ── AI info note ── */
+    .info-note { background: #faf5ff; border: 1px solid #e9d5ff; padding: 14px 16px; font-size: 0.78rem; color: #4c1d95; line-height: 1.7; display: flex; gap: 12px; }
+    .info-note svg { flex-shrink: 0; margin-top: 2px; color: var(--purple); }
+    .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: var(--purple); color: #fff; font-size: 0.55rem; font-weight: 800; letter-spacing: 0.06em; width: 18px; height: 18px; vertical-align: middle; margin-left: 4px; flex-shrink: 0; }
+
+    /* ── Teacher row ── */
+    .teacher-row { display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--line); padding: 16px 18px; }
+    .teacher-avatar { width: 36px; height: 36px; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #fff; flex-shrink: 0; letter-spacing: 0.04em; }
+    .teacher-name { font-size: 0.85rem; font-weight: 600; color: var(--black); }
+    .teacher-email { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Score input ── */
+    .score-input-wrap { display: flex; align-items: center; gap: 12px; }
+    .score-input { font-size: 1.1rem; font-weight: 700; font-family: inherit; border: 1px solid var(--line); padding: 8px 0; width: 60px; color: var(--black); outline: none; text-align: center; transition: border-color var(--transition); }
+    .score-input:focus { border-color: var(--blue); }
+    .score-input-label { font-size: 0.78rem; color: var(--slate); }
+
+    /* ── CTA row ── */
+    .cta-row { display: flex; justify-content: space-between; align-items: center; padding: 28px 0 0; margin-top: 4px; border-top: 1px solid var(--line); }
+    .cta-right { display: flex; gap: 10px; align-items: center; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-family: inherit; border: 1px solid transparent; padding: 11px 22px; cursor: pointer; transition: all var(--transition); }
+    .btn-primary { background: var(--black); color: var(--white); border-color: var(--black); }
+    .btn-primary:hover { background: var(--navy); border-color: var(--navy); }
+    .btn-ghost { background: var(--white); color: var(--slate); border: 1px solid var(--line); }
+    .btn-ghost:hover { border-color: var(--slate); color: var(--black); }
+    .error-msg { font-size: 0.75rem; color: var(--red); font-weight: 600; display: none; }
+
+    /* ── Config summary (shown on step 2) ── */
+    .config-summary { border: 1px solid var(--line); background: var(--surface); padding: 16px 20px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .config-summary-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .config-chip { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate); background: var(--white); border: 1px solid var(--line); padding: 4px 10px; }
+    .config-edit-btn { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; transition: color var(--transition); }
+    .config-edit-btn:hover { color: var(--black); }
+
+    /* ── Method cards (step 2) ── */
+    .method-heading { margin-bottom: 20px; }
+    .method-heading-title { font-size: 1.2rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; margin-bottom: 4px; }
+    .method-heading-sub { font-size: 0.78rem; color: var(--muted); }
+
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+
+    .method-card {
+      border: 1.5px solid var(--line);
+      padding: 28px 24px;
+      cursor: pointer;
+      text-align: left;
+      background: var(--white);
+      font-family: inherit;
+      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      position: relative;
+    }
+    .method-card:hover { border-color: var(--muted); }
+    .method-card.selected-manual { border-color: var(--blue); background: #eff6ff; }
+    .method-card.selected-ai { border-color: var(--purple); background: #faf5ff; }
+
+    .method-card-icon {
+      width: 36px; height: 36px;
+      border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+      flex-shrink: 0;
+    }
+    .method-card.selected-manual .method-card-icon { border-color: var(--blue); background: #eff6ff; }
+    .method-card.selected-ai .method-card-icon { border-color: var(--purple); background: #faf5ff; }
+
+    .method-card-label {
+      font-size: 0.88rem; font-weight: 700; color: var(--black);
+      margin-bottom: 6px; letter-spacing: -0.01em;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .method-card.selected-manual .method-card-label { color: var(--blue); }
+    .method-card.selected-ai .method-card-label { color: var(--purple); }
+
+    .method-card-desc { font-size: 0.75rem; color: var(--slate); line-height: 1.6; margin-bottom: 20px; flex: 1; }
+
+    .method-card-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+    .method-card.selected-manual .method-card-footer { border-top-color: #bfdbfe; }
+    .method-card.selected-ai .method-card-footer { border-top-color: #ddd6fe; }
+
+    .method-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border: 1px solid var(--line); color: var(--muted); }
+    .method-badge.available { border-color: var(--green); color: var(--green); }
+
+    .method-select-indicator {
+      width: 18px; height: 18px;
+      border: 1.5px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .method-card.selected-manual .method-select-indicator { border-color: var(--blue); background: var(--blue); }
+    .method-card.selected-ai .method-select-indicator { border-color: var(--purple); background: var(--purple); }
+    .method-select-indicator svg { display: none; }
+    .method-card.selected-manual .method-select-indicator svg,
+    .method-card.selected-ai .method-select-indicator svg { display: block; }
+
+    /* Step panels */
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Demo switcher */
+    .demo-controls { position: fixed; bottom: 24px; right: 24px; display: flex; gap: 8px; z-index: 999; }
+    .demo-btn { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 14px; border: 1px solid var(--line); background: var(--white); color: var(--slate); cursor: pointer; font-family: inherit; transition: all var(--transition); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .demo-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
+  </style>
+</head>
+<body>
+
+<div class="mockup-banner">Design direction mockup — not functional · For review only</div>
+
+<header class="header">
+  <div class="header-left">
+    <button class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      My Exams
+    </button>
+    <div class="header-divider"></div>
+    <span class="header-logo">Exam Builder</span>
+    <div class="header-divider"></div>
+    <span class="header-badge">Teacher</span>
+  </div>
+  <span class="header-name">Dwayne Swanson</span>
+</header>
+
+<div class="page">
+
+  <!-- Step indicator -->
+  <div class="step-track" id="stepTrack">
+    <div class="step-item active" id="si1">
+      <div class="step-num">1</div>
+      <span class="step-label">Configure</span>
+    </div>
+    <div class="step-connector" id="sc1"></div>
+    <div class="step-item" id="si2">
+      <div class="step-num">2</div>
+      <span class="step-label">Choose method</span>
+    </div>
+    <div class="step-connector" id="sc2"></div>
+    <div class="step-item" id="si3">
+      <div class="step-num">3</div>
+      <span class="step-label">Build questions</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item" id="si4">
+      <div class="step-num">4</div>
+      <span class="step-label">Publish</span>
+    </div>
+  </div>
+
+  <!-- ── STEP 1: CONFIGURE ── -->
+  <div class="step-panel active" id="step1">
+
+    <div class="page-heading">
+      <div class="page-title">Configure your exam</div>
+      <div class="page-sub">These settings apply to both manual and AI-generated exams.</div>
+    </div>
+
+    <!-- Exam Details -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Exam Details</div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">Exam Title <span class="req">*</span></label>
+          <input class="field-input" type="text" value="Finance d'entreprise — Partiel S2" placeholder="e.g. Finance d'entreprise — Partiel S2">
+        </div>
+        <div class="field-row" style="margin-bottom:20px;">
+          <div class="field">
+            <label class="field-label">Duration <span class="req">*</span></label>
+            <input class="field-input" type="number" value="60" placeholder="45">
+            <div class="field-hint">Minutes</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Language <span class="req">*</span></label>
+            <div class="lang-toggle">
+              <button class="lang-opt active">Français</button>
+              <button class="lang-opt">English</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Student Instructions <span style="font-weight:500;color:var(--muted);font-size:0.68rem;text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <textarea class="field-input" placeholder="Instructions shown to students before the exam starts."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Groups & Access Codes -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Groups &amp; Access Codes</div>
+        <button class="add-group-btn">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Group
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="col-labels">
+          <div class="col-label" style="flex:1;">Group Name</div>
+          <div class="col-label" style="width:100px;text-align:center;">Access Code</div>
+          <div style="width:90px;"></div>
+          <div style="width:24px;"></div>
+        </div>
+        <div class="group-row">
+          <input class="group-name-input" type="text" value="Group A">
+          <input class="group-code-input" type="text" value="ECO-2026">
+          <button class="gen-btn">↻ Generate</button>
+          <button class="remove-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="group-row">
+          <input class="group-name-input" type="text" value="Group B">
+          <input class="group-code-input" type="text" value="FIN-2026">
+          <button class="gen-btn">↻ Generate</button>
+          <button class="remove-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="field-hint" style="margin-top:12px;">Each group gets a unique access code. Students select their group when entering the exam.</div>
+      </div>
+    </div>
+
+    <!-- Grading & Results -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Grading &amp; Results</div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <label class="field-label">Score Scale <span class="req">*</span></label>
+          <div class="score-input-wrap">
+            <input class="score-input" type="number" value="20">
+            <span class="score-input-label">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Results Sent to Students</label>
+          <div class="report-options">
+            <button class="report-option selected">
+              <div class="report-option-title">Full Report</div>
+              <div class="report-option-desc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
+            </button>
+            <button class="report-option">
+              <div class="report-option-title">Score Only</div>
+              <div class="report-option-desc">Final score only — no breakdown or answers shared.</div>
+            </button>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <div class="info-note">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>
+              <strong>MCQ questions are graded automatically.</strong> <span class="ai-chip">AI</span><br>
+              <span style="color:#475569;font-size:0.75rem;">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exam Owner -->
+    <div class="form-card">
+      <div class="card-header">
+        <div class="card-title">Exam Owner</div>
+      </div>
+      <div class="card-body">
+        <div class="teacher-row">
+          <div class="teacher-avatar">DS</div>
+          <div>
+            <div class="teacher-name">Dwayne Swanson</div>
+            <div class="teacher-email">dwayne@institution.edu</div>
+          </div>
+        </div>
+        <div class="field-hint" style="margin-top:10px;">Submissions are linked to this account. A failsafe copy of each result is sent to this email.</div>
+      </div>
+    </div>
+
+    <div class="error-msg" id="errorMsg1">Please fill in all required fields (title, duration, at least one group with a code).</div>
+
+    <div class="cta-row">
+      <button class="btn btn-ghost">Cancel</button>
+      <div class="cta-right">
+        <button class="btn btn-primary" onclick="goToStep2()">
+          Continue
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── STEP 2: CHOOSE METHOD ── -->
+  <div class="step-panel" id="step2">
+
+    <!-- Config summary banner -->
+    <div class="config-summary">
+      <div class="config-summary-chips">
+        <span class="config-chip">Finance d'entreprise — Partiel S2</span>
+        <span class="config-chip">60 min</span>
+        <span class="config-chip">Français</span>
+        <span class="config-chip">2 groups</span>
+        <span class="config-chip">/ 20</span>
+      </div>
+      <button class="config-edit-btn" onclick="goToStep1()">← Edit config</button>
+    </div>
+
+    <div class="method-heading">
+      <div class="method-heading-title">How do you want to build the questions?</div>
+      <div class="method-heading-sub">Choose a method — your configuration applies to both.</div>
+    </div>
+
+    <div class="method-grid">
+
+      <!-- Manual -->
+      <button class="method-card" id="cardManual" onclick="selectMethod('manual')">
+        <div class="method-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <div class="method-card-label">Build manually</div>
+        <div class="method-card-desc">Write questions one by one directly inside the platform. Full control over wording, options, and scoring criteria.</div>
+        <div class="method-card-footer">
+          <span class="method-badge available">Available</span>
+          <div class="method-select-indicator">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </button>
+
+      <!-- AI -->
+      <button class="method-card selected-ai" id="cardAI" onclick="selectMethod('ai')">
+        <div class="method-card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div class="method-card-label">
+          AI extraction
+          <span class="ai-chip">AI</span>
+        </div>
+        <div class="method-card-desc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.</div>
+        <div class="method-card-footer">
+          <span class="method-badge available">Available</span>
+          <div class="method-select-indicator">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+      </button>
+
+    </div>
+
+    <div class="cta-row">
+      <button class="btn btn-ghost" onclick="goToStep1()">← Back</button>
+      <div class="cta-right">
+        <button class="btn btn-primary" id="proceedBtn">
+          <span id="proceedLabel">Start with AI extraction</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Demo controls -->
+<div class="demo-controls">
+  <button class="demo-btn active" id="demoBtn1" onclick="goToStep1Demo()">Step 1 — Configure</button>
+  <button class="demo-btn" id="demoBtn2" onclick="goToStep2Demo()">Step 2 — Choose method</button>
+</div>
+
+<script>
+  let selectedMethod = 'ai';
+
+  function goToStep2() {
+    document.getElementById('step1').classList.remove('active');
+    document.getElementById('step2').classList.add('active');
+    document.getElementById('si1').className = 'step-item done';
+    document.getElementById('si2').className = 'step-item active';
+    document.getElementById('sc1').classList.add('done');
+    document.getElementById('demoBtn1').classList.remove('active');
+    document.getElementById('demoBtn2').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToStep1() {
+    document.getElementById('step2').classList.remove('active');
+    document.getElementById('step1').classList.add('active');
+    document.getElementById('si1').className = 'step-item active';
+    document.getElementById('si2').className = 'step-item';
+    document.getElementById('sc1').classList.remove('done');
+    document.getElementById('demoBtn2').classList.remove('active');
+    document.getElementById('demoBtn1').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToStep1Demo() { goToStep1(); }
+  function goToStep2Demo() { goToStep2(); }
+
+  function selectMethod(method) {
+    selectedMethod = method;
+    document.getElementById('cardManual').className = method === 'manual' ? 'method-card selected-manual' : 'method-card';
+    document.getElementById('cardAI').className = method === 'ai' ? 'method-card selected-ai' : 'method-card';
+    document.getElementById('proceedLabel').textContent = method === 'ai' ? 'Start with AI extraction' : 'Start building manually';
+  }
+</script>
+
+</body>
+</html>
