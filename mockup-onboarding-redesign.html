@@ -77,14 +77,12 @@
     /* ── Form card ── */
     .form-card { background: var(--white); border: 1px solid var(--line); margin-bottom: 28px; }
     .form-card:last-of-type { margin-bottom: 0; }
-    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--white); gap: 16px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; background: var(--navy); gap: 16px; }
     .card-header-left { display: flex; align-items: center; gap: 16px; }
-    .card-num { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: var(--line); flex-shrink: 0; min-width: 20px; }
-    .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--black); }
-    .card-title.blue   { color: var(--blue); }
-    .card-title.green  { color: var(--green); }
-    .card-title.amber  { color: var(--amber); }
-    .card-divider { width: 1px; height: 14px; background: var(--line); flex-shrink: 0; }
+    .card-num { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); flex-shrink: 0; min-width: 20px; }
+    .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); }
+
+    .card-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
     .card-body { padding: 24px; }
 
     /* ── Fields ── */
@@ -124,8 +122,8 @@
     /* group-code and gen-btn removed — codes auto-generated after creation */
     .remove-btn { background: none; border: none; cursor: pointer; color: var(--line); padding: 4px; display: flex; align-items: center; flex-shrink: 0; transition: color var(--transition); }
     .remove-btn:hover { color: var(--red); }
-    .add-group-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px dashed var(--line); padding: 7px 14px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; font-family: inherit; transition: all var(--transition); }
-    .add-group-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .add-group-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .add-group-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.9); }
 
     /* ── Report options ── */
     .report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -298,7 +296,7 @@
         <div class="card-header-left">
           <span class="card-num">01</span>
           <div class="card-divider"></div>
-          <div class="card-title blue">Exam Details</div>
+          <div class="card-title">Exam Details</div>
         </div>
       </div>
       <div class="card-body">
@@ -333,7 +331,7 @@
         <div class="card-header-left">
           <span class="card-num">02</span>
           <div class="card-divider"></div>
-          <div class="card-title green">Student Groups</div>
+          <div class="card-title">Student Groups</div>
         </div>
         <button class="add-group-btn">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -367,7 +365,7 @@
         <div class="card-header-left">
           <span class="card-num">03</span>
           <div class="card-divider"></div>
-          <div class="card-title amber">Grading &amp; Results</div>
+          <div class="card-title">Grading &amp; Results</div>
         </div>
       </div>
       <div class="card-body">
