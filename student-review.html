@@ -254,7 +254,7 @@
       const scoreDisplay = hasOpenScore
         ? (mcqCorrect + openScoreSum).toFixed(1)
         : mcqCorrect;
-      const scoreMax = aqs.length;
+      const scoreMax = mcqQuestions.length + openQuestions.reduce((s, q) => s + (q.max_points || 5), 0);
 
       const submittedDate = attempt.submitted_at
         ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' +
@@ -481,7 +481,7 @@
           <div class="ai-text">${escHtml(rationale)}</div>
           <div class="ai-actions">
             <button class="btn btn-ghost" onclick="applyScore(${qIdx}, '${suggestedScore}')">Use score (${suggestedScore} / ${maxPts})</button>
-            <button class="btn btn-ghost" onclick="applyComment(${qIdx}, ${JSON.stringify(comment)})">Use comment</button>
+            <button class="btn btn-ghost" onclick="applyComment(${qIdx}, ${JSON.stringify(comment).replace(/"/g, '&quot;')})">Use comment</button>
           </div>`;
         aiBox.style.display = 'block';
       } catch (e) {
