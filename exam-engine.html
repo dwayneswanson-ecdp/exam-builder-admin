@@ -462,13 +462,29 @@
       localStorage.removeItem(TERMINATED_KEY);
     }
 
-    if (localStorage.getItem(TERMINATED_KEY) === '1') {
-      showTerminated(); return;
-    }
-
-    // Check if student already submitted this exam
-    if (localStorage.getItem('submitted_' + shareId) === '1') {
-      showSubmittedScreen(); return;
+    // Retake bypass: teacher issued a one-time token — skip localStorage blocks
+    const retakeToken = params.get('retake');
+    if (retakeToken) {
+      const rows = await sbFetch(`exam_attempts?retake_token=eq.${retakeToken}&select=id`).catch(() => null);
+      if (rows && rows.length > 0) {
+        // Valid token — clear local blocks so student can start fresh
+        localStorage.removeItem(TERMINATED_KEY);
+        localStorage.removeItem('submitted_' + shareId);
+        // Invalidate token immediately so it can only be used once
+        await sbFetch(`exam_attempts?id=eq.${rows[0].id}`, { method: 'PATCH', body: { retake_token: null } }).catch(() => {});
+        // Continue to exam normally (skip the checks below)
+      } else {
+        showError('Ce lien de reprise est invalide ou a déjà été utilisé. Contactez votre enseignant.');
+        return;
+      }
+    } else {
+      if (localStorage.getItem(TERMINATED_KEY) === '1') {
+        showTerminated(); return;
+      }
+      // Check if student already submitted this exam
+      if (localStorage.getItem('submitted_' + shareId) === '1') {
+        showSubmittedScreen(); return;
+      }
     }
 
     try {
