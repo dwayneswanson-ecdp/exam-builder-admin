@@ -595,43 +595,27 @@
       const answers      = attempt.answers_json  || {};
       const openScores   = attempt.open_scores   || {};
       const openComments = attempt.open_comments || {};
-      const aqs = window.answerableQs || questions.filter(function(q){return q.type!=='section';});
+      const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
 
-      // Score totals
-      let totalCorrect = 0, totalMax = 0;
-      aqs.forEach(function(q) {
-        const gi = aqs.indexOf(q);
-        if (q.type === 'open') {
-          totalCorrect += parseFloat(openScores[gi]) || 0;
-          totalMax += q.max_points || 5;
-        } else {
-          const sel = parseInt(answers['q'+gi],10);
-          totalCorrect += (sel === q.correct_index) ? 1 : 0;
-          totalMax += 1;
-        }
-      });
-
-      // Section bars data
+      // Build segments for section bars
       const segments = [];
       let cur = null;
       for (const q of questions) {
-        if (q.type === 'section') {
-          if (cur) segments.push(cur);
-          cur = {title:q.question_text, questions:[]};
-        } else {
-          if (!cur) cur = {title:null, questions:[]};
-          cur.questions.push(q);
-        }
+        if (q.type === 'section') { if (cur) segments.push(cur); cur = {title:q.question_text,questions:[]}; }
+        else { if (!cur) cur = {title:null,questions:[]}; cur.questions.push(q); }
       }
       if (cur) segments.push(cur);
-      const segData = segments.filter(function(s){return s.title;}).map(function(seg) {
+
+      let totalCorrect=0, totalMax=0;
+      const segData = segments.map(seg => {
         let sc=0, sm=0;
-        seg.questions.forEach(function(q) {
+        seg.questions.forEach(q => {
           const gi = aqs.indexOf(q);
           if (q.type==='open') { sc+=parseFloat(openScores[gi])||0; sm+=q.max_points||5; }
           else { sc+=(parseInt(answers['q'+gi],10)===q.correct_index)?1:0; sm+=1; }
         });
-        return {title:seg.title, sc:sc, sm:sm};
+        totalCorrect+=sc; totalMax+=sm;
+        return {title:seg.title, questions:seg.questions, sc, sm};
       });
 
       const instName    = (currentInstitution && currentInstitution.name) || 'Exam Builder';
@@ -639,144 +623,134 @@
       const displayName = formatName(attempt.student_name);
       const submittedAt = attempt.submitted_at ? new Date(attempt.submitted_at) : null;
       const createdAt   = attempt.created_at   ? new Date(attempt.created_at)   : null;
-      const timeStr = (submittedAt && createdAt)
-        ? Math.round((submittedAt-createdAt)/60000)+' min' : '—';
+      const timeStr = (submittedAt&&createdAt) ? Math.round((submittedAt-createdAt)/60000)+' min' : '—';
       const submittedLabel = submittedAt
         ? submittedAt.toLocaleDateString('fr-FR')+' '+submittedAt.toLocaleTimeString('fr-FR') : '—';
       const startTime = createdAt
         ? createdAt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
       const endTime = submittedAt
         ? submittedAt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-      const pct = totalMax > 0 ? Math.round((totalCorrect/totalMax)*100) : 0;
-      const scoreRgb = pct>=70 ? [22,163,74] : pct>=50 ? [217,119,6] : [220,38,38];
+      const pct = totalMax>0 ? Math.round((totalCorrect/totalMax)*100) : 0;
+      const scoreColor = pct>=70 ? '#16a34a' : pct>=50 ? '#d97706' : '#dc2626';
+
+      // Section bars HTML
+      const namedSegs = segData.filter(s => s.title);
+      const sectionBarsHtml = namedSegs.map(s => {
+        const p = s.sm>0 ? Math.round((s.sc/s.sm)*100) : 0;
+        const scStr = (Number.isInteger(s.sc)?s.sc:s.sc.toFixed(1))+' / '+s.sm;
+        return `<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+          <span style="font-size:13px;color:#475569;min-width:220px;flex-shrink:0;">${escHtml(s.title)}</span>
+          <div style="flex:1;background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden;">
+            <div style="width:${p}%;height:100%;background:#1e3a5f;border-radius:999px;"></div>
+          </div>
+          <span style="font-size:13px;color:#64748b;min-width:48px;text-align:right;">${scStr}</span>
+        </div>`;
+      }).join('');
+      const sectionBlock = namedSegs.length>0
+        ? `<div class="section-block"><div class="sec-ttl">Résultats par partie</div>${sectionBarsHtml}</div>` : '';
+
+      // Q&A rows
+      const qaRows = aqs.map(q => {
+        const gi = aqs.indexOf(q);
+        if (q.type==='open') {
+          const ans = answers['q'+gi]||'(pas de réponse)';
+          const sc  = openScores[gi]!==undefined ? openScores[gi] : '—';
+          const cmt = openComments[gi]||'';
+          return `<tr>
+            <td>${escHtml(q.question_text)}</td>
+            <td style="white-space:pre-wrap;">${escHtml(ans)}${cmt?'<div style="margin-top:5px;font-size:11px;color:#94a3b8;font-style:italic;">'+escHtml(cmt)+'</div>':''}</td>
+            <td>${sc} / ${q.max_points||5} pts</td>
+            <td style="text-align:center;color:#64748b;font-weight:700;">✏</td></tr>`;
+        }
+        const sel = parseInt(answers['q'+gi],10);
+        const ok  = sel===q.correct_index;
+        const sAns = isNaN(sel)?'(pas de réponse)':getOptionText(q,sel);
+        const cAns = getOptionText(q,q.correct_index);
+        return `<tr>
+          <td>${escHtml(q.question_text)}</td>
+          <td style="color:${ok?'#374151':'#dc2626'};">${escHtml(sAns)}</td>
+          <td>${escHtml(cAns)}</td>
+          <td style="text-align:center;font-weight:700;color:${ok?'#16a34a':'#dc2626'};">${ok?'✓':'✗'}</td></tr>`;
+      }).join('');
 
       const btn = document.getElementById('downloadReportBtn');
       const origHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Generating…';
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Opening…';
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({unit:'mm', format:'a4', orientation:'portrait'});
-      const W = 210, margin = 14, cw = W-margin*2;
+      const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport — ${displayName}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Helvetica Neue",Arial,sans-serif;background:#f8f9fc;color:#1e293b;padding:32px;font-size:15px;line-height:1.6;}
+  .wrap{max-width:800px;margin:0 auto;}
+  .card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,.08);overflow:hidden;}
+  .hd{background:#0f172a;padding:28px 32px;}
+  .hd-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;}
+  .hd-name{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px;}
+  .hd-meta{font-size:13px;color:#64748b;}
+  .body{padding:28px 32px;}
+  .cards{display:flex;gap:12px;margin-bottom:28px;}
+  .sc{flex:1;background:#f8f9fc;border-radius:10px;padding:14px 16px;}
+  .sc-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;}
+  .sc-val{font-size:26px;font-weight:700;}
+  .sc-sub{font-size:12px;color:#94a3b8;margin-top:2px;}
+  .section-block{margin-bottom:28px;}
+  .sec-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#f8f9fc;}
+  th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;}
+  td{padding:7px 10px;font-size:12px;border-bottom:1px solid #f1f5f9;color:#374151;vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  .footer{background:#f8f9fc;border-top:1px solid #e2e8f0;padding:14px 32px;font-size:11px;color:#94a3b8;}
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body{background:#fff;padding:16px;}
+    .card{box-shadow:none;border-radius:8px;}
+  }
+</style>
+</head><body>
+<div class="wrap"><div class="card">
+  <div class="hd">
+    <div class="hd-lbl">${escHtml(instName)} · ${escHtml(exam.title)}</div>
+    <div class="hd-name">${escHtml(displayName)}</div>
+    <div class="hd-meta">${escHtml(attempt.student_email||'')} · Soumis le ${submittedLabel}</div>
+  </div>
+  <div class="body">
+    <div class="cards">
+      <div class="sc"><div class="sc-lbl">Score total</div>
+        <div class="sc-val" style="color:${scoreColor};">${Number.isInteger(totalCorrect)?totalCorrect:totalCorrect.toFixed(1)} / ${totalMax}</div>
+        <div class="sc-sub">${pct}%</div></div>
+      <div class="sc"><div class="sc-lbl">Temps utilisé</div>
+        <div class="sc-val" style="color:#0f172a;">${timeStr}</div>
+        <div class="sc-sub">sur ${exam.duration_mins||'—'} min</div></div>
+      <div class="sc"><div class="sc-lbl">Correcteur</div>
+        <div class="sc-val" style="color:#0f172a;font-size:14px;padding-top:6px;">${escHtml(teacherName)}</div>
+        <div class="sc-sub">${escHtml(instName)}</div></div>
+    </div>
+    ${sectionBlock}
+    <div class="section-block">
+      <div class="sec-ttl">Détail des réponses</div>
+      <table><thead><tr>
+        <th>Question</th><th>Réponse candidat</th><th>Bonne réponse / Score</th><th style="text-align:center;">Résultat</th>
+      </tr></thead><tbody>${qaRows}</tbody></table>
+    </div>
+    <div class="section-block">
+      <div class="sec-ttl">Journal de session</div>
+      <table><thead><tr><th>Heure</th><th>Événement</th><th>Détail</th></tr></thead>
+      <tbody>
+        <tr><td>${startTime}</td><td>Examen démarré</td><td>${escHtml(exam.title)}, Candidat : ${escHtml(displayName)}</td></tr>
+        <tr><td>${endTime}</td><td>Examen soumis</td><td>Soumission manuelle</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+  <div class="footer">Généré automatiquement · ${escHtml(exam.title)} · ${escHtml(instName)}</div>
+</div></div>
+<script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};</script>
+</body></html>`;
 
-      // Header
-      doc.setFillColor(15,23,42);
-      doc.rect(0, 0, W, 40, 'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(148,163,184);
-      doc.text((instName+' · '+exam.title).toUpperCase(), margin, 11);
-      doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(255,255,255);
-      doc.text(displayName, margin, 24);
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(100,116,139);
-      doc.text((attempt.student_email||'')+' · Soumis le '+submittedLabel, margin, 33);
-
-      // Score cards (3)
-      var cards = [
-        {label:'SCORE TOTAL', val:(Number.isInteger(totalCorrect)?totalCorrect:totalCorrect.toFixed(1))+' / '+totalMax, sub:pct+'%', rgb:scoreRgb},
-        {label:'TEMPS UTILISE', val:timeStr, sub:'sur '+(exam.duration_mins||'—')+' min', rgb:[15,23,42]},
-        {label:'CORRECTEUR', val:teacherName.length>14 ? teacherName.substring(0,14)+'.' : teacherName, sub:instName.length>18?instName.substring(0,18)+'...':instName, rgb:[15,23,42]},
-      ];
-      var cardW3 = (cw-8)/3, cx3 = margin;
-      cards.forEach(function(c) {
-        doc.setFillColor(248,249,252); doc.roundedRect(cx3,46,cardW3,22,2,2,'F');
-        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184);
-        doc.text(c.label, cx3+cardW3/2, 53, {align:'center'});
-        doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor.apply(doc, c.rgb);
-        doc.text(c.val, cx3+cardW3/2, 62, {align:'center'});
-        doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(148,163,184);
-        doc.text(c.sub, cx3+cardW3/2, 67, {align:'center'});
-        cx3 += cardW3+4;
-      });
-
-      var curY = 76;
-
-      // Section bars
-      if (segData.length > 0) {
-        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(148,163,184);
-        doc.text('RESULTATS PAR PARTIE', margin, curY+4);
-        doc.setDrawColor(241,245,249); doc.line(margin, curY+6, W-margin, curY+6);
-        curY += 10;
-        segData.forEach(function(s) {
-          const p = s.sm>0 ? Math.round((s.sc/s.sm)*100) : 0;
-          const barW = cw-50;
-          doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(71,85,105);
-          doc.text(s.title.length>38?s.title.substring(0,38)+'...':s.title, margin, curY+4);
-          doc.setFillColor(226,232,240); doc.roundedRect(margin, curY+6, barW, 4, 1,1,'F');
-          doc.setFillColor(30,58,95); doc.roundedRect(margin, curY+6, Math.max(barW*(p/100),1), 4, 1,1,'F');
-          const scStr = (Number.isInteger(s.sc)?s.sc:s.sc.toFixed(1))+' / '+s.sm;
-          doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(15,23,42);
-          doc.text(scStr, W-margin, curY+9, {align:'right'});
-          curY += 14;
-        });
-        curY += 4;
-      }
-
-      // Q&A table
-      const qaRows = aqs.map(function(q) {
-        const gi = aqs.indexOf(q);
-        if (q.type==='open') {
-          const ans = answers['q'+gi]||'(pas de reponse)';
-          const sc  = openScores[gi]!==undefined ? openScores[gi] : '—';
-          const cmt = openComments[gi]||'';
-          return [q.question_text, ans+(cmt?' ['+cmt+']':''), sc+' / '+(q.max_points||5)+' pts', 'Ouvert'];
-        }
-        const sel = parseInt(answers['q'+gi],10);
-        const ok  = sel===q.correct_index;
-        const sAns = isNaN(sel) ? '(pas de reponse)' : getOptionText(q,sel);
-        const cAns = getOptionText(q,q.correct_index);
-        return [q.question_text, sAns, cAns, ok?'OK':'Faux'];
-      });
-
-      doc.autoTable({
-        startY: curY,
-        margin: {left:margin, right:margin},
-        head: [['Question','Reponse candidat','Bonne reponse / Score','Resultat']],
-        body: qaRows.map(function(r) {
-          const isOk = r[3]==='OK';
-          const isOpen = r[3]==='Ouvert';
-          return [
-            {content:r[0]},
-            {content:r[1]},
-            {content:r[2]},
-            {content:r[3], styles:{
-              fontStyle:'bold',
-              textColor: isOpen ? [100,116,139] : isOk ? [22,163,74] : [220,38,38],
-              halign:'center'
-            }}
-          ];
-        }),
-        headStyles:  {fillColor:[241,245,249],textColor:[148,163,184],fontSize:7.5,fontStyle:'bold',cellPadding:3},
-        bodyStyles:  {fontSize:8.5,textColor:[55,65,81],cellPadding:3},
-        alternateRowStyles: {fillColor:[250,250,252]},
-        columnStyles: {0:{cellWidth:52}, 1:{cellWidth:52}, 2:{cellWidth:52}, 3:{cellWidth:18}},
-      });
-
-      // Session log
-      doc.autoTable({
-        startY: doc.lastAutoTable.finalY+8,
-        margin: {left:margin, right:margin},
-        head: [['Heure','Evenement','Detail']],
-        body: [
-          [startTime, 'Examen demarre', exam.title+' · '+displayName],
-          [endTime,   'Examen soumis',  'Soumission manuelle'],
-        ],
-        headStyles:  {fillColor:[241,245,249],textColor:[148,163,184],fontSize:7.5,fontStyle:'bold',cellPadding:3},
-        bodyStyles:  {fontSize:8.5,textColor:[55,65,81],cellPadding:3},
-      });
-
-      // Footer
-      doc.setFillColor(248,249,252);
-      doc.rect(0, 285, W, 12, 'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(148,163,184);
-      doc.text('Genere automatiquement · '+exam.title+' · '+instName, W/2, 292, {align:'center'});
-
-      const parts = (attempt.student_name||'').trim().split(/\s+/);
-      const fn_last  = parts.length>1 ? parts[parts.length-1].toUpperCase() : (attempt.student_name||'rapport').toUpperCase();
-      const fn_first = parts.length>1 ? parts.slice(0,-1).join('') : '';
-      const d = submittedAt||new Date();
-      const fn_date = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'})
-        .replace(/\s/g,'').replace(/[^a-zA-Z0-9]/g,'');
-      doc.save(fn_last+'_'+fn_first+'_'+fn_date+'.pdf');
-
+      const win = window.open('', '_blank');
+      if (win) { win.document.write(html); win.document.close(); }
       btn.disabled = false;
       btn.innerHTML = origHtml;
     }

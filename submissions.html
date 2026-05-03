@@ -951,133 +951,117 @@
       const btn = document.getElementById('downloadReportBtn');
       const origHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Generating…';
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Opening…';
 
       const instName    = (currentInstitution && currentInstitution.name) || 'Exam Builder';
       const teacherName = currentTeacher ? (currentTeacher.full_name || currentTeacher.email) : '—';
-      const sent        = attempts.filter(function(a){ return a.results_sent_at; }).length;
-      const bounced     = attempts.filter(function(a){ return a.bounce_at; }).length;
+      const sent        = attempts.filter(a => a.results_sent_at).length;
+      const bounced     = attempts.filter(a => a.bounce_at).length;
       const pending     = attempts.length - sent - bounced;
 
-      var scores = attempts.map(function(a) {
-        return (parseFloat(a.score_mcq) || 0) +
-          Object.values(a.open_scores || {}).reduce(function(s,v){ return s+(parseFloat(v)||0); }, 0);
-      });
-      var validScores = scores.filter(function(s){ return s > 0; });
-      var avg = validScores.length ? (validScores.reduce(function(s,v){ return s+v;},0)/validScores.length).toFixed(1) : '—';
-      var highest = validScores.length ? Math.max.apply(null, validScores) : '—';
-      var lowest  = validScores.length ? Math.min.apply(null, validScores) : '—';
-      var passing = validScores.filter(function(s){ return mcqTotal > 0 ? s >= mcqTotal*0.5 : false; }).length;
-      var passRate = validScores.length ? Math.round((passing/validScores.length)*100)+'%' : '—';
-      var pubDate = currentExam.created_at
-        ? new Date(currentExam.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})
-        : '—';
-      var generatedAt = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      const scores = attempts.map(a =>
+        (parseFloat(a.score_mcq) || 0) +
+        Object.values(a.open_scores || {}).reduce((s,v) => s+(parseFloat(v)||0), 0)
+      );
+      const validScores = scores.filter(s => s > 0);
+      const avg     = validScores.length ? (validScores.reduce((s,v)=>s+v,0)/validScores.length).toFixed(1) : '—';
+      const highest = validScores.length ? Math.max(...validScores) : '—';
+      const lowest  = validScores.length ? Math.min(...validScores) : '—';
+      const passing = validScores.filter(s => mcqTotal > 0 ? s >= mcqTotal*0.5 : false).length;
+      const passRate = validScores.length ? Math.round((passing/validScores.length)*100)+'%' : '—';
+      const pubDate  = currentExam.created_at
+        ? new Date(currentExam.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '—';
+      const generatedAt = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+      const avgColor = parseFloat(avg)/mcqTotal >= 0.7 ? '#16a34a' : parseFloat(avg)/mcqTotal >= 0.5 ? '#d97706' : '#dc2626';
 
-      var avgPct = parseFloat(avg) / mcqTotal;
-      var avgRgb = avgPct >= 0.7 ? [22,163,74] : avgPct >= 0.5 ? [217,119,6] : [220,38,38];
+      const studentRows = attempts.map((a,i) => {
+        const score = scores[i];
+        const scoreStr = score > 0 ? (Number.isInteger(score)?score:score.toFixed(1))+' / '+mcqTotal : '— / '+mcqTotal;
+        const sub = a.submitted_at
+          ? new Date(a.submitted_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' · '+
+            new Date(a.submitted_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+        const status = a.bounce_at ? 'Refusé' : (a.results_sent_at ? 'Envoyé' : 'En attente');
+        const statusColor = a.bounce_at ? '#dc2626' : (a.results_sent_at ? '#16a34a' : '#d97706');
+        const np = (a.student_name||'').trim().split(/\s+/);
+        const disp = np.length>1 ? np[np.length-1].toUpperCase()+' '+np.slice(0,-1).join(' ') : (a.student_name||'').toUpperCase();
+        return `<tr>
+          <td><div style="font-weight:700;color:#0f172a;">${disp}</div><div style="font-size:11px;color:#94a3b8;">${a.student_email||''}</div></td>
+          <td style="color:#475569;">${sub}</td>
+          <td><span style="font-size:11px;font-weight:700;color:${statusColor};">${status}</span></td>
+          <td style="text-align:right;font-weight:700;color:#0f172a;">${scoreStr}</td>
+        </tr>`;
+      }).join('');
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      const W = 210, margin = 14, cw = W - margin*2;
+      const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport — ${currentExam.title}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:"Helvetica Neue",Arial,sans-serif;background:#f8f9fc;color:#1e293b;padding:32px;}
+  .wrap{max-width:800px;margin:0 auto;}
+  .card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,.08);overflow:hidden;margin-bottom:0;}
+  .hd{background:#0f172a;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;}
+  .hd-left .lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:4px;}
+  .hd-left .ttl{font-size:20px;font-weight:700;color:#fff;}
+  .badge{font-size:10px;font-weight:700;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);padding:3px 10px;border-radius:999px;letter-spacing:.06em;text-transform:uppercase;}
+  .body{padding:24px 32px;}
+  .meta{font-size:12px;color:#94a3b8;margin-bottom:20px;}
+  .cards{display:flex;gap:10px;margin-bottom:24px;}
+  .sc{flex:1;background:#f8f9fc;border-radius:10px;padding:12px 14px;text-align:center;}
+  .sc-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:4px;}
+  .sc-val{font-size:22px;font-weight:700;}
+  .sec-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:12px;}
+  table{width:100%;border-collapse:collapse;}
+  thead tr{background:#f8f9fc;}
+  th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;}
+  td{padding:8px 10px;font-size:12px;border-bottom:1px solid #f1f5f9;}
+  tr:last-child td{border-bottom:none;}
+  .summary{display:flex;gap:24px;padding:14px 0;border-top:1px solid #e2e8f0;margin-top:16px;}
+  .sum-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:2px;}
+  .sum-val{font-size:16px;font-weight:800;color:#0f172a;}
+  .footer{background:#f8f9fc;border-top:1px solid #e2e8f0;padding:12px 32px;font-size:11px;color:#94a3b8;}
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body{background:#fff;padding:16px;}
+    .card{box-shadow:none;border-radius:8px;}
+  }
+</style>
+</head><body>
+<div class="wrap"><div class="card">
+  <div class="hd">
+    <div class="hd-left">
+      <div class="lbl">${instName}</div>
+      <div class="ttl">${currentExam.title}</div>
+    </div>
+    <span class="badge">Résultats examen</span>
+  </div>
+  <div class="body">
+    <div class="meta">${currentExam.duration_mins||'—'} min · Publié le ${pubDate} · Rapport généré par ${teacherName} · ${generatedAt}</div>
+    <div class="cards">
+      <div class="sc"><div class="sc-lbl">Soumissions</div><div class="sc-val" style="color:#0f172a;">${attempts.length}</div></div>
+      <div class="sc"><div class="sc-lbl">Moyenne</div><div class="sc-val" style="color:${avgColor};">${avg}</div></div>
+      <div class="sc"><div class="sc-lbl">Envoyés</div><div class="sc-val" style="color:#16a34a;">${sent}</div></div>
+      <div class="sc"><div class="sc-lbl">En attente</div><div class="sc-val" style="color:#d97706;">${pending}</div></div>
+      <div class="sc"><div class="sc-lbl">Refusés</div><div class="sc-val" style="color:#dc2626;">${bounced}</div></div>
+    </div>
+    <div class="sec-ttl">Résultats par étudiant — ordre alphabétique</div>
+    <table>
+      <thead><tr><th>Étudiant</th><th>Soumis</th><th>Statut</th><th style="text-align:right;">Score</th></tr></thead>
+      <tbody>${studentRows}</tbody>
+    </table>
+    <div class="summary">
+      <div><div class="sum-lbl">Score le plus haut</div><div class="sum-val">${highest} / ${mcqTotal}</div></div>
+      <div><div class="sum-lbl">Score le plus bas</div><div class="sum-val">${lowest} / ${mcqTotal}</div></div>
+      <div><div class="sum-lbl">Moyenne</div><div class="sum-val">${avg} / ${mcqTotal}</div></div>
+      <div><div class="sum-lbl">Taux de réussite (≥50%)</div><div class="sum-val">${passRate}</div></div>
+    </div>
+  </div>
+  <div class="footer">Généré automatiquement · ${currentExam.title} · ${instName}</div>
+</div></div>
+<script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};</script>
+</body></html>`;
 
-      // Header
-      doc.setFillColor(15,23,42);
-      doc.rect(0, 0, W, 36, 'F');
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(7.5);
-      doc.setTextColor(148,163,184);
-      doc.text(instName.toUpperCase(), margin, 12);
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(15);
-      doc.setTextColor(255,255,255);
-      doc.text(currentExam.title, margin, 24);
-      doc.setFillColor(50,65,85);
-      doc.roundedRect(W-margin-36, 12, 36, 8, 2, 2, 'F');
-      doc.setFont('helvetica','bold');
-      doc.setFontSize(6.5);
-      doc.setTextColor(148,163,184);
-      doc.text('RESULTATS EXAMEN', W-margin-18, 17.2, {align:'center'});
-
-      // Meta
-      doc.setFont('helvetica','normal');
-      doc.setFontSize(8);
-      doc.setTextColor(100,116,139);
-      doc.text((currentExam.duration_mins||'—')+' min · Publie le '+pubDate+' · '+teacherName+' · '+generatedAt, margin, 45);
-
-      // Stat cards
-      var cards = [
-        {label:'SOUMISSIONS', val:String(attempts.length), rgb:[15,23,42]},
-        {label:'MOYENNE',     val:String(avg),              rgb:avgRgb},
-        {label:'ENVOYES',     val:String(sent),             rgb:[22,163,74]},
-        {label:'EN ATTENTE',  val:String(pending),          rgb:[217,119,6]},
-        {label:'REFUSES',     val:String(bounced),          rgb:[220,38,38]},
-      ];
-      var cardW = (cw-8)/5, cx2 = margin;
-      cards.forEach(function(c) {
-        doc.setFillColor(248,249,252);
-        doc.roundedRect(cx2, 50, cardW, 20, 2, 2, 'F');
-        doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(148,163,184);
-        doc.text(c.label, cx2+cardW/2, 57, {align:'center'});
-        doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor.apply(doc, c.rgb);
-        doc.text(c.val, cx2+cardW/2, 66, {align:'center'});
-        cx2 += cardW+2;
-      });
-
-      // Table
-      doc.autoTable({
-        startY: 76,
-        margin: {left:margin, right:margin},
-        head: [['Etudiant','Soumis','Statut','Score']],
-        body: attempts.map(function(a,i) {
-          var score = scores[i];
-          var scoreStr = score > 0 ? (Number.isInteger(score)?score:score.toFixed(1))+' / '+mcqTotal : '— / '+mcqTotal;
-          var status = a.bounce_at ? 'Refuse' : (a.results_sent_at ? 'Envoye' : 'En attente');
-          var sub = a.submitted_at
-            ? new Date(a.submitted_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'})+' '+
-              new Date(a.submitted_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
-            : '—';
-          var np = (a.student_name||'').trim().split(/\s+/);
-          var disp = np.length>1 ? np[np.length-1].toUpperCase()+' '+np.slice(0,-1).join(' ') : (a.student_name||'').toUpperCase();
-          var statusColor = a.bounce_at ? [220,38,38] : (a.results_sent_at ? [22,163,74] : [217,119,6]);
-          return [{content:disp}, {content:sub}, {content:status, styles:{textColor:statusColor, fontStyle:'bold'}}, {content:scoreStr, styles:{halign:'right', fontStyle:'bold', textColor:[15,23,42]}}];
-        }),
-        headStyles:  {fillColor:[241,245,249], textColor:[148,163,184], fontSize:8, fontStyle:'bold', cellPadding:4},
-        bodyStyles:  {fontSize:9, textColor:[71,85,105], cellPadding:4},
-        alternateRowStyles: {fillColor:[250,250,252]},
-        columnStyles: {0:{fontStyle:'bold',textColor:[15,23,42]}},
-      });
-
-      // Summary bar
-      var sy = doc.lastAutoTable.finalY + 6;
-      doc.setFillColor(248,249,252);
-      doc.rect(margin, sy, cw, 18, 'F');
-      var sumItems = [
-        {label:'SCORE MAX',   val:String(highest)+' / '+mcqTotal},
-        {label:'SCORE MIN',   val:String(lowest)+' / '+mcqTotal},
-        {label:'MOYENNE',     val:String(avg)+' / '+mcqTotal},
-        {label:'TAUX >=50%',  val:passRate},
-      ];
-      var sw = cw/4;
-      sumItems.forEach(function(item,i) {
-        var sx = margin + i*sw + sw/2;
-        doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(148,163,184);
-        doc.text(item.label, sx, sy+5, {align:'center'});
-        doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(15,23,42);
-        doc.text(item.val, sx, sy+13, {align:'center'});
-      });
-
-      // Footer
-      doc.setFillColor(248,249,252);
-      doc.rect(0, 285, W, 12, 'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(148,163,184);
-      doc.text('Genere automatiquement · '+currentExam.title+' · '+instName, W/2, 292, {align:'center'});
-
-      var parts = (currentExam.title||'rapport').replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
-      var d = new Date();
-      var filename = 'rapport_'+parts+'_'+d.toLocaleDateString('fr-FR').replace(/\//g,'')+'.pdf';
-      doc.save(filename);
-
+      const win = window.open('', '_blank');
+      if (win) { win.document.write(html); win.document.close(); }
       btn.disabled = false;
       btn.innerHTML = origHtml;
     }
