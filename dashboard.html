@@ -8,244 +8,249 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:    #0a0a0a;
+      --navy:     #0f172a;
+      --ink:      #1e293b;
+      --slate:    #475569;
+      --muted:    #94a3b8;
+      --line:     #e2e8f0;
+      --surface:  #f8fafc;
+      --white:    #ffffff;
+      --blue:     #2563eb;
+      --green:    #16a34a;
+      --amber:    #d97706;
+      --red:      #dc2626;
+      --radius:   0px;
+      --transition: 180ms ease;
+    }
+
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
     /* ── Login ── */
-    #loginScreen {
+    #loginScreen, #resetScreen {
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 24px;
+      background: var(--surface);
     }
     .login-card {
-      background: #fff;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
+      background: var(--white);
+      border: 1px solid var(--line);
       padding: 40px;
       width: 100%;
       max-width: 400px;
     }
-    .login-logo {
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: #94a3b8;
-      margin-bottom: 8px;
-    }
-    .login-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.02em;
-      margin-bottom: 4px;
-    }
-    .login-sub {
-      font-size: 0.85rem;
-      color: #64748b;
-      margin-bottom: 28px;
-    }
+    .login-logo { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .login-title { font-size: 1.4rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; margin-bottom: 4px; }
+    .login-sub { font-size: 0.82rem; color: var(--slate); margin-bottom: 28px; }
     .field { margin-bottom: 16px; }
-    .field label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #475569;
-      margin-bottom: 6px;
-    }
-    .field input {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      color: #0f172a;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .field input:focus { border-color: #2563eb; }
-    .login-btn {
-      width: 100%;
-      background: #0f172a;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.15s;
-      margin-top: 4px;
-    }
-    .login-btn:hover { background: #1e293b; }
+    .field label { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--slate); margin-bottom: 6px; }
+    .field input { width: 100%; padding: 10px 14px; border: 1px solid var(--line); font-size: 0.9rem; font-family: inherit; color: var(--black); outline: none; transition: border-color var(--transition); }
+    .field input:focus { border-color: var(--blue); }
+    .login-btn { width: 100%; background: var(--black); color: var(--white); border: 1px solid var(--black); padding: 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-family: inherit; cursor: pointer; transition: background var(--transition); margin-top: 4px; }
+    .login-btn:hover { background: var(--navy); border-color: var(--navy); }
     .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-    .login-error {
-      font-size: 0.8rem;
-      color: #dc2626;
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-top: 12px;
-      display: none;
-    }
+    .login-error { font-size: 0.8rem; color: var(--red); background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; margin-top: 12px; display: none; }
 
     /* ── Header ── */
     .header {
-      background: #0f172a;
-      padding: 0 32px;
-      height: 60px;
+      background: var(--navy);
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 0 40px;
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .header-logo { display: flex; align-items: center; gap: 10px; }
-    .header-logo span { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
-    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .header-left { display: flex; align-items: center; gap: 32px; }
+    .header-logo { display: flex; align-items: center; gap: 0; }
+    .header-logo span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-left: 12px; border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
     .header-right { display: flex; align-items: center; gap: 16px; }
     .header-user { display: flex; align-items: center; gap: 10px; }
-    .header-avatar { width: 32px; height: 32px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.85); }
-    .header-role { font-size: 0.68rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; }
-    .logout-btn { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.4); background: none; border: 1px solid rgba(255,255,255,0.1); padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
-    .logout-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+    .header-avatar { width: 28px; height: 28px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .header-name { font-size: 0.75rem; font-weight: 500; color: rgba(255,255,255,0.65); }
+    .header-role { display: none; }
+    .logout-btn { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); background: none; border: 1px solid rgba(255,255,255,0.12); padding: 5px 12px; cursor: pointer; transition: all var(--transition); font-family: inherit; }
+    .logout-btn:hover { color: var(--white); border-color: rgba(255,255,255,0.35); }
 
     /* ── Page ── */
-    .page { max-width: 1100px; margin: 0 auto; padding: 36px 24px; }
-    .page-title { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
-    .page-sub { font-size: 0.88rem; color: #64748b; margin-bottom: 32px; }
+    .page { max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px; }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; margin-bottom: 4px; }
+    .page-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 40px; }
 
-    /* ── Stats ── */
-    .stats-bar { display: flex; gap: 16px; margin-bottom: 32px; }
-    .stat-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; flex: 1; }
-    .stat-label { font-size: 0.72rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
-    .stat-value { font-size: 1.6rem; font-weight: 800; color: #0f172a; }
-    .stat-value.blue { color: #2563eb; }
-    .stat-value.green { color: #16a34a; }
+    /* ── Page title row ── */
+    .page-title-row { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+
+    /* ── Stats / Overview strip ── */
+    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); margin-bottom: 40px; }
+    .stats-bar.three-col { grid-template-columns: repeat(3, 1fr); }
+    .stat-card { padding: 20px 24px; border-right: 1px solid var(--line); }
+    .stat-card:last-child { border-right: none; }
+    .stat-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; line-height: 1; }
+    .stat-value.blue   { color: var(--blue); }
+    .stat-value.green  { color: var(--green); }
+    .stat-value.purple { color: #0891b2; }
+    .stat-value.amber  { color: var(--amber); }
 
     /* ── Section header ── */
     .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-    .section-title { font-size: 1rem; font-weight: 700; color: #0f172a; }
-    .add-btn { display: flex; align-items: center; gap: 6px; background: #0f172a; color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: background 0.15s; }
-    .add-btn:hover { background: #1e293b; }
+    .section-title { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    .add-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--black); color: var(--white); border: 1px solid var(--black); padding: 10px 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; font-family: inherit; transition: background var(--transition); }
+    .add-btn:hover { background: var(--blue); border-color: var(--blue); }
+    .section-link { font-size: 0.72rem; font-weight: 500; color: var(--slate); cursor: pointer; text-decoration: none; letter-spacing: 0.04em; }
+    .section-link:hover { color: var(--black); }
 
     /* ── Institution list ── */
-    .institution-list { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-    .institution-row { padding: 18px 24px; display: flex; align-items: center; gap: 20px; border-bottom: 1px dashed #e2e8f0; transition: background 0.15s; cursor: pointer; }
+    .institution-list { border: 1px solid var(--line); }
+    .institution-row { padding: 18px 24px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--line); transition: background var(--transition); cursor: pointer; }
     .institution-row:last-child { border-bottom: none; }
-    .institution-row:hover { background: #f8f9fc; }
-    .inst-logo { width: 52px; height: 52px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: #f1f5f9; border: 1px solid #e2e8f0; }
+    .institution-row:hover { background: var(--surface); }
+    .inst-logo { width: 44px; height: 44px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--navy); border: none; }
     .inst-logo img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
-    .inst-logo.no-logo { background: #f1f5f9; border: 1.5px dashed #cbd5e1; color: #94a3b8; font-size: 11px; font-weight: 700; text-align: center; }
+    .inst-logo.no-logo { background: var(--surface); border: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 700; text-align: center; }
     .inst-info { flex: 1; min-width: 0; }
-    .inst-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 3px; }
-    .inst-domain { font-size: 0.78rem; color: #94a3b8; font-family: monospace; }
+    .inst-name { font-size: 0.88rem; font-weight: 600; color: var(--black); margin-bottom: 3px; }
+    .inst-domain { font-size: 0.72rem; color: var(--muted); font-family: monospace; }
     .inst-meta { display: flex; align-items: center; gap: 24px; flex-shrink: 0; }
     .inst-meta-item { text-align: center; }
-    .inst-meta-val { font-size: 1.1rem; font-weight: 800; color: #0f172a; }
-    .inst-meta-lbl { font-size: 0.68rem; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
-    .inst-status { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: #16a34a; background: #f0fdf4; border: 1px solid #86efac; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
-    .inst-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; }
-    .inst-arrow { color: #cbd5e1; flex-shrink: 0; }
+    .inst-meta-val { font-size: 1.1rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; }
+    .inst-meta-lbl { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .inst-status { display: flex; align-items: center; gap: 5px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); border: 1px solid var(--green); padding: 3px 9px; flex-shrink: 0; }
+    .inst-status .dot { width: 5px; height: 5px; background: var(--green); flex-shrink: 0; }
 
-    /* ── Admin view ── */
-    .section { margin-bottom: 28px; }
-    .member-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-    .member-row { padding: 14px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 1px dashed #e2e8f0; }
+    /* ── Admin/teacher member panels ── */
+    .section { margin-bottom: 32px; }
+    .member-panel { border: 1px solid var(--line); overflow: hidden; }
+    .member-row { padding: 14px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--line); transition: background var(--transition); }
     .member-row:last-child { border-bottom: none; }
-    .member-avatar { width: 36px; height: 36px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .member-row:hover { background: var(--surface); }
+    .member-avatar { width: 32px; height: 32px; background: var(--navy); color: var(--white); font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0.04em; }
     .member-avatar.purple { background: #0891b2; }
-    .member-avatar.green  { background: #16a34a; }
+    .member-avatar.green  { background: var(--green); }
     .member-avatar.orange { background: #ea580c; }
     .member-info { flex: 1; min-width: 0; }
-    .member-name { font-size: 0.88rem; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
-    .member-sub  { font-size: 0.73rem; color: #94a3b8; }
+    .member-name { font-size: 0.85rem; font-weight: 600; color: var(--black); margin-bottom: 2px; }
+    .member-sub  { font-size: 0.72rem; color: var(--muted); }
     .member-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-    .member-tag  { font-size: 0.65rem; font-weight: 600; background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 1px 7px; border-radius: 999px; }
-    .key-badge   { font-size: 0.62rem; font-weight: 700; background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: middle; }
-    .section-link { font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; text-decoration: none; }
-    .section-link:hover { text-decoration: underline; }
-    .stat-value.purple { color: #0891b2; }
+    .member-tag  { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: none; color: var(--blue); border: 1px solid #bfdbfe; padding: 2px 7px; }
+    .key-badge   { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; padding: 2px 7px; margin-left: 6px; vertical-align: middle; }
+
+    /* ── Exam list (teacher view) ── */
+    .exam-list { border: 1px solid var(--line); }
+    .exam-row-header { display: grid; grid-template-columns: 1fr 120px 120px 120px 120px 44px; align-items: center; padding: 9px 24px; gap: 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+    .row-col-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+    .exam-row { display: grid; grid-template-columns: 1fr 120px 120px 120px 120px 44px; align-items: center; padding: 18px 24px; border-bottom: 1px solid var(--line); transition: background var(--transition); cursor: pointer; gap: 16px; }
+    .exam-row:last-child { border-bottom: none; }
+    .exam-row:hover { background: var(--surface); }
+    .exam-row:hover .exam-name { color: var(--blue); }
+    .exam-name { font-size: 0.88rem; font-weight: 600; color: var(--black); margin-bottom: 3px; letter-spacing: -0.01em; transition: color var(--transition); }
+    .exam-info { font-size: 0.7rem; color: var(--muted); }
+    .exam-tags { display: flex; gap: 6px; margin-top: 5px; }
+    .tag { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 7px; border: 1px solid var(--line); color: var(--slate); }
+    .tag.published { border-color: var(--green); color: var(--green); }
+    .tag.draft     { border-color: var(--muted); color: var(--muted); }
+    .stat-col { display: flex; flex-direction: column; gap: 1px; }
+    .stat-number { font-size: 1.1rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; line-height: 1; }
+    .stat-number.amber { color: var(--amber); }
+    .stat-number.green { color: var(--green); }
+    .stat-number.muted { color: var(--muted); }
+    .stat-sub { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+    .date-col { font-size: 0.75rem; color: var(--slate); }
+    .action-col { display: flex; justify-content: flex-end; }
+    .row-action-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: none; background: none; cursor: pointer; color: var(--muted); transition: color var(--transition), background var(--transition); }
+    .row-action-btn:hover { color: var(--slate); background: var(--line); }
+
+    /* ── Institution badge bar (teacher view) ── */
+    .inst-bar { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border: 1px solid var(--line); margin-bottom: 40px; background: var(--surface); }
+    .inst-logo-box { width: 36px; height: 36px; background: var(--navy); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .inst-logo-box span { font-size: 0.58rem; font-weight: 800; letter-spacing: 0.1em; color: rgba(255,255,255,0.8); text-transform: uppercase; }
+    .inst-role { margin-left: auto; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); border: 1px solid var(--line); padding: 3px 9px; }
 
     /* ── Empty state ── */
     .empty-state { padding: 48px 24px; text-align: center; }
-    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .empty-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
-    .empty-sub { font-size: 0.82rem; color: #94a3b8; }
+    .empty-icon { font-size: 2rem; margin-bottom: 12px; }
+    .empty-title { font-size: 0.88rem; font-weight: 600; color: var(--black); margin-bottom: 6px; }
+    .empty-sub { font-size: 0.78rem; color: var(--muted); }
 
     /* ── Loading skeleton ── */
-    .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; border-radius: 6px; }
+    .skeleton { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .skeleton-row { padding: 18px 24px; display: flex; align-items: center; gap: 20px; border-bottom: 1px dashed #e2e8f0; }
-    .skeleton-logo { width: 52px; height: 52px; border-radius: 10px; flex-shrink: 0; }
+    .skeleton-row { padding: 18px 24px; display: flex; align-items: center; gap: 20px; border-bottom: 1px solid var(--line); }
+    .skeleton-logo { width: 44px; height: 44px; flex-shrink: 0; }
     .skeleton-text { flex: 1; }
-    .skeleton-line { height: 14px; margin-bottom: 8px; }
+    .skeleton-line { height: 13px; margin-bottom: 8px; }
     .skeleton-line.short { width: 40%; }
 
     /* ── Modal ── */
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
-    .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,0.55); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal { background: var(--white); border: 1px solid var(--line); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
     .modal-header { padding: 24px 28px 0; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .modal-title { font-size: 1rem; font-weight: 700; color: #0f172a; }
-    .modal-close { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 4px; border-radius: 6px; transition: color 0.15s; }
-    .modal-close:hover { color: #0f172a; }
+    .modal-title { font-size: 0.95rem; font-weight: 700; color: var(--black); }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--muted); padding: 4px; transition: color var(--transition); }
+    .modal-close:hover { color: var(--black); }
     .modal-body { padding: 0 28px 28px; }
 
     /* ── Logo upload ── */
     .logo-upload-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
-    .logo-thumb { width: 64px; height: 64px; border-radius: 10px; border: 1.5px solid #e2e8f0; background: #f8f9fc; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; overflow: hidden; }
+    .logo-thumb { width: 60px; height: 60px; border: 1px solid var(--line); background: var(--surface); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; }
     .logo-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
     .logo-upload-info { flex: 1; }
-    .logo-upload-name { font-size: 0.82rem; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
-    .logo-upload-sub { font-size: 0.72rem; color: #94a3b8; margin-bottom: 8px; }
-    .logo-upload-btn { display: inline-flex; align-items: center; gap: 6px; background: #f1f5f9; border: 1.5px solid #e2e8f0; color: #0f172a; padding: 7px 14px; border-radius: 7px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-    .logo-upload-btn:hover { background: #e2e8f0; }
+    .logo-upload-name { font-size: 0.82rem; font-weight: 600; color: var(--black); margin-bottom: 4px; }
+    .logo-upload-sub { font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
+    .logo-upload-btn { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); color: var(--black); padding: 6px 12px; font-size: 0.72rem; font-weight: 600; cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .logo-upload-btn:hover { background: var(--line); }
     .logo-upload-status { font-size: 0.72rem; margin-top: 4px; }
 
     /* ── Modal fields ── */
-    .modal-section-label { font-size: 0.68rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #f1f5f9; }
+    .modal-section-label { font-size: 0.62rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
     .modal-field { margin-bottom: 14px; }
-    .modal-field label { display: block; font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 5px; }
-    .modal-field input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.15s; }
-    .modal-field input:focus { border-color: #2563eb; }
+    .modal-field label { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: var(--slate); margin-bottom: 5px; }
+    .modal-field input { width: 100%; padding: 9px 12px; border: 1px solid var(--line); font-size: 0.88rem; font-family: inherit; color: var(--black); outline: none; transition: border-color var(--transition); }
+    .modal-field input:focus { border-color: var(--blue); }
     .modal-row { display: flex; gap: 12px; }
     .modal-row .modal-field { flex: 1; }
-    .modal-submit { width: 100%; background: #0f172a; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
-    .modal-submit:hover { background: #1e293b; }
+    .modal-submit { width: 100%; background: var(--black); color: var(--white); border: 1px solid var(--black); padding: 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-family: inherit; cursor: pointer; transition: background var(--transition); margin-top: 8px; }
+    .modal-submit:hover { background: var(--blue); border-color: var(--blue); }
     .modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-    .modal-error { font-size: 0.8rem; color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; margin-top: 10px; display: none; }
-    .modal-success { font-size: 0.8rem; color: #16a34a; background: #f0fdf4; border: 1px solid #86efac; border-radius: 6px; padding: 8px 12px; margin-top: 10px; display: none; }
+    .modal-error { font-size: 0.8rem; color: var(--red); background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; margin-top: 10px; display: none; }
+    .modal-success { font-size: 0.8rem; color: var(--green); background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px 12px; margin-top: 10px; display: none; }
 
     /* ── Delete button + modal ── */
-    .delete-btn { background: none; border: none; cursor: pointer; color: #cbd5e1; padding: 6px; border-radius: 6px; transition: color 0.15s, background 0.15s; flex-shrink: 0; }
-    .delete-btn:hover { color: #dc2626; background: #fef2f2; }
-    .delete-warning { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
-    .delete-warning-title { font-size: 0.88rem; font-weight: 700; color: #dc2626; margin-bottom: 6px; }
-    .delete-warning-text { font-size: 0.82rem; color: #7f1d1d; line-height: 1.6; }
-    .delete-confirm-label { font-size: 0.78rem; font-weight: 600; color: #475569; margin-bottom: 6px; display: block; }
-    .delete-confirm-input { width: 100%; padding: 9px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 0.88rem; font-family: inherit; color: #0f172a; outline: none; transition: border-color 0.15s; margin-bottom: 12px; }
-    .delete-confirm-input:focus { border-color: #dc2626; }
-    .delete-submit { width: 100%; background: #dc2626; color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: background 0.15s; }
-    .delete-submit:hover { background: #b91c1c; }
+    .delete-btn { background: none; border: none; cursor: pointer; color: var(--line); padding: 6px; transition: color var(--transition), background var(--transition); flex-shrink: 0; }
+    .delete-btn:hover { color: var(--red); background: #fef2f2; }
+    .delete-warning { background: #fef2f2; border: 1px solid #fecaca; padding: 16px; margin-bottom: 20px; }
+    .delete-warning-title { font-size: 0.82rem; font-weight: 700; color: var(--red); margin-bottom: 6px; }
+    .delete-warning-text { font-size: 0.8rem; color: #7f1d1d; line-height: 1.6; }
+    .delete-confirm-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate); margin-bottom: 6px; display: block; }
+    .delete-confirm-input { width: 100%; padding: 9px 12px; border: 1px solid var(--line); font-size: 0.88rem; font-family: inherit; color: var(--black); outline: none; transition: border-color var(--transition); margin-bottom: 12px; }
+    .delete-confirm-input:focus { border-color: var(--red); }
+    .delete-submit { width: 100%; background: var(--red); color: var(--white); border: 1px solid var(--red); padding: 12px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-family: inherit; cursor: pointer; transition: background var(--transition); }
+    .delete-submit:hover { background: #b91c1c; border-color: #b91c1c; }
     .delete-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-    .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
-    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
-    .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
-  @media (max-width: 640px) {
-    .header { padding: 0 16px; height: auto; min-height: 56px; flex-wrap: wrap; gap: 8px; padding-top: 10px; padding-bottom: 10px; }
-    .page { padding: 20px 16px; }
-    .stats-bar { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .inst-row { flex-wrap: wrap; gap: 10px; }
-    .inst-logo { width: 36px; height: 36px; }
-    .modal-box { padding: 24px 20px; margin: 16px; max-width: calc(100vw - 32px); }
-  }
+
+    /* ── Language pill ── */
+    .lang-pill { display:flex; border:1px solid rgba(255,255,255,0.15); overflow:hidden; }
+    .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.65rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; font-family:inherit; transition:all var(--transition); }
+    .lang-pill button.active { background:rgba(255,255,255,0.12); color:var(--white); }
+
+    @media (max-width: 640px) {
+      .header { padding: 0 20px; }
+      .page { padding: 24px 20px 60px; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .exam-row, .exam-row-header { grid-template-columns: 1fr 80px 44px; }
+      .exam-row > *:nth-child(3), .exam-row > *:nth-child(4), .exam-row > *:nth-child(5),
+      .exam-row-header > *:nth-child(3), .exam-row-header > *:nth-child(4), .exam-row-header > *:nth-child(5) { display: none; }
+    }
   </style>
 </head>
 <body>
@@ -299,18 +304,18 @@
 
     <!-- Header -->
     <header class="header">
-      <div class="header-logo">
-        <span>Exam Builder</span>
-        <span class="header-badge" id="headerBadge">Loading…</span>
+      <div class="header-left">
+        <div class="header-logo">
+          <span>Exam Builder</span>
+          <span class="header-badge" id="headerBadge">Loading…</span>
+        </div>
       </div>
       <div class="header-right">
         <div id="langToggleMount"></div>
         <div class="header-user">
+          <div class="header-name" id="headerName">—</div>
           <div class="header-avatar" id="headerAvatar">—</div>
-          <div>
-            <div class="header-name" id="headerName">—</div>
-            <div class="header-role" id="headerRoleLabel">—</div>
-          </div>
+          <div class="header-role" id="headerRoleLabel" style="display:none;">—</div>
         </div>
         <button class="logout-btn" id="dashLogoutBtn" onclick="signOut()">Sign out</button>
       </div>
@@ -326,7 +331,7 @@
         <div class="stats-bar">
           <div class="stat-card">
             <div class="stat-label" data-i18n="statInstitutions">Institutions</div>
-            <div class="stat-value blue" id="statInstitutions">—</div>
+            <div class="stat-value accent" id="statInstitutions">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-label" data-i18n="statAdminsLabel">Admins</div>
@@ -346,7 +351,7 @@
         <div class="section-header">
           <div class="section-title" data-i18n="sectionTitle">All Institutions</div>
           <button class="add-btn" onclick="openModal()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             <span data-i18n="addInstitution">Add Institution</span>
           </button>
         </div>
@@ -374,7 +379,7 @@
       <h1 class="page-title" id="adminInstName">—</h1>
       <p class="page-sub" data-i18n="adminPageSub">Institution overview</p>
 
-      <div class="stats-bar">
+      <div class="stats-bar three-col">
         <div class="stat-card"><div class="stat-label" data-i18n="statTeachersLabel">Teachers</div><div class="stat-value purple" id="adminStatTeachers">—</div></div>
         <div class="stat-card"><div class="stat-label" data-i18n="statExamsLabel">Exams Published</div><div class="stat-value blue" id="adminStatExams">—</div></div>
         <div class="stat-card"><div class="stat-label" data-i18n="statSubmissionsLabel">Submissions</div><div class="stat-value" id="adminStatSubmissions">—</div></div>
@@ -406,30 +411,41 @@
   <div id="teacherView" style="display:none;">
     <div class="page">
 
-      <!-- Institution identity row -->
-      <div id="teacherInstBadge" style="display:flex;align-items:center;gap:14px;margin-bottom:28px;"></div>
       <!-- Page title + action -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
-        <h1 class="page-title" style="margin:0;" data-i18n="teacherPageTitle">My Exams</h1>
-        <a href="exam-onboarding.html" style="display:flex;align-items:center;gap:7px;background:#2563eb;color:#fff;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:0.85rem;font-weight:700;white-space:nowrap;font-family:inherit;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-title" data-i18n="teacherPageTitle">My Exams</h1>
+          <div id="teacherInstBadge" style="font-size:0.78rem;color:var(--muted);margin-top:5px;"></div>
+        </div>
+        <a href="exam-onboarding.html" class="add-btn" style="text-decoration:none;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span data-i18n="teacherNewExam">New Exam</span>
         </a>
       </div>
 
-      <div class="stats-bar">
-        <div class="stat-card"><div class="stat-label" data-i18n="statExamsLabel">Exams Published</div><div class="stat-value blue" id="teacherStatExams">—</div></div>
+      <!-- Overview strip -->
+      <div class="stats-bar three-col">
+        <div class="stat-card"><div class="stat-label" data-i18n="statExamsLabel">Exams</div><div class="stat-value blue" id="teacherStatExams">—</div></div>
         <div class="stat-card"><div class="stat-label" data-i18n="statSubmissionsLabel">Submissions</div><div class="stat-value" id="teacherStatSubs">—</div></div>
-        <div class="stat-card"><div class="stat-label" data-i18n="teacherStatPendingLabel">Pending Review</div><div class="stat-value" style="color:#ea580c;" id="teacherStatPending">—</div></div>
+        <div class="stat-card"><div class="stat-label" data-i18n="teacherStatPendingLabel">Pending Review</div><div class="stat-value amber" id="teacherStatPending">—</div></div>
       </div>
 
       <!-- Exams list -->
       <div class="section">
         <div class="section-header">
-          <div class="section-title" data-i18n="teacherSectionExams">Published Exams</div>
-          <a class="section-link" href="index.html" data-i18n="teacherViewAll">View all →</a>
+          <div class="section-title" data-i18n="teacherSectionExams">All Exams</div>
         </div>
-        <div class="member-panel" id="teacherExamList"></div>
+        <div class="exam-list">
+          <div class="exam-row-header">
+            <div class="row-col-label">Exam</div>
+            <div class="row-col-label">Submissions</div>
+            <div class="row-col-label">Pending</div>
+            <div class="row-col-label">Sent</div>
+            <div class="row-col-label">Created</div>
+            <div></div>
+          </div>
+          <div id="teacherExamList"></div>
+        </div>
       </div>
 
       <!-- Recent submissions -->
@@ -889,16 +905,13 @@
       const classes = classRes.data || [];
       const exams   = examsRes.data || [];
 
-      // Institution badge
+      // Institution badge (shown as page subtitle)
       const badgeEl = document.getElementById('teacherInstBadge');
       const instLink = Array.isArray(instLinkRes.data) ? instLinkRes.data[0] : instLinkRes.data;
       if (instLink?.institution_id) {
         const { data: inst } = await sb.from('institutions').select('name, logo_url').eq('id', instLink.institution_id).single();
         if (inst) {
-          const logoHtml = inst.logo_url
-            ? `<img src="${inst.logo_url}" style="height:72px;max-width:200px;object-fit:contain;" alt="${inst.name}">`
-            : `<div style="height:72px;padding:0 16px;border-radius:10px;background:#e2e8f0;color:#475569;font-size:0.85rem;font-weight:700;display:flex;align-items:center;justify-content:center;letter-spacing:0.04em;">${inst.name.substring(0,4).toUpperCase()}</div>`;
-          badgeEl.innerHTML = `${logoHtml}<span style="font-size:1.25rem;font-weight:700;color:#0f172a;">${inst.name}</span>`;
+          badgeEl.textContent = inst.name;
         }
       }
 
@@ -948,29 +961,34 @@
       const examListEl = document.getElementById('teacherExamList');
       examListEl.innerHTML = exams.length === 0
         ? `<div class="empty-state">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             <div class="empty-title">${Lang.t('teacherNoExams')}</div>
-            <div class="empty-sub" style="font-size:0.78rem;color:#94a3b8;margin-top:4px;">Click "New Exam" above to create your first exam.</div>
+            <div class="empty-sub" style="margin-top:4px;">Click "New Exam" above to create your first exam.</div>
           </div>`
         : exams.map(exam => {
             const stats   = subStatsMap[exam.id] || { total: 0, sent: 0, bounced: 0 };
             const pending = stats.total - stats.sent - stats.bounced;
+            const isDraft = !exam.share_id && !exam.access_code;
             const date    = new Date(exam.created_at).toLocaleDateString(Lang.get() === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
-            const statChips = stats.total === 0
-              ? `<span style="font-size:0.72rem;color:#94a3b8;">No submissions</span>`
-              : [
-                  `<span style="font-size:0.72rem;font-weight:600;color:#475569;">${stats.total} submitted</span>`,
-                  pending > 0 ? `<span style="font-size:0.72rem;font-weight:700;color:#ea580c;background:#fff7ed;border:1px solid #fed7aa;padding:1px 7px;border-radius:999px;">${pending} pending</span>` : '',
-                  stats.sent > 0 ? `<span style="font-size:0.72rem;font-weight:700;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;padding:1px 7px;border-radius:999px;">${stats.sent} sent</span>` : '',
-                ].filter(Boolean).join(' ');
+            const totalNum  = stats.total > 0 ? `<span class="stat-number">${stats.total}</span><span class="stat-sub">students</span>` : `<span class="stat-number muted">—</span>`;
+            const pendNum   = stats.total > 0 ? `<span class="stat-number ${pending > 0 ? 'amber' : ''}">${pending}</span><span class="stat-sub">pending</span>` : `<span class="stat-number muted">—</span>`;
+            const sentNum   = stats.total > 0 ? `<span class="stat-number ${stats.sent > 0 ? 'green' : ''}">${stats.sent}</span><span class="stat-sub">sent</span>` : `<span class="stat-number muted">—</span>`;
             return `
-              <div class="member-row" style="cursor:pointer;" onclick="window.location.href='submissions.html?exam=${exam.id}'">
-                <div class="member-info" style="min-width:0;">
-                  <div class="member-name">${exam.title || 'Untitled'}</div>
-                  <div class="member-sub">${exam.duration_mins} min · ${date}</div>
-                  <div style="margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${statChips}</div>
+              <div class="exam-row" onclick="window.location.href='submissions.html?exam=${exam.id}'">
+                <div>
+                  <div class="exam-name">${exam.title || 'Untitled'}</div>
+                  <div class="exam-info">${exam.duration_mins} min</div>
+                  <div class="exam-tags"><span class="tag ${isDraft ? 'draft' : 'published'}">${isDraft ? (Lang.get() === 'fr' ? 'Brouillon' : 'Draft') : Lang.t('teacherPublished')}</span></div>
                 </div>
-                <div class="inst-status" style="flex-shrink:0;"><div class="dot"></div>${Lang.t('teacherPublished')}</div>
+                <div class="stat-col">${totalNum}</div>
+                <div class="stat-col">${pendNum}</div>
+                <div class="stat-col">${sentNum}</div>
+                <div class="date-col">${date}</div>
+                <div class="action-col">
+                  <button class="row-action-btn" onclick="event.stopPropagation();window.location.href='submissions.html?exam=${exam.id}'">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                  </button>
+                </div>
               </div>`;
           }).join('');
 
