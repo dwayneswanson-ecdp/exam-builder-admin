@@ -654,6 +654,8 @@
 
       document.getElementById('pageContent').style.display = 'block';
       await loadPage();
+      const startTab = new URLSearchParams(window.location.search).get('tab');
+      if (startTab) switchTab(startTab);
     }
 
     async function loadPage() {
