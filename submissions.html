@@ -25,20 +25,48 @@
 
     .page { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
 
-    /* Exam hero */
-    .exam-hero { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .page { max-width: 960px; margin: 0 auto; padding: 28px 24px 110px; }
+
+    /* Hero */
+    .exam-hero { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 24px; margin-bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .exam-hero-left { flex: 1; min-width: 0; }
-    .exam-title { font-size: 1.3rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
-    .exam-meta { font-size: 0.82rem; color: #94a3b8; }
-    .hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
-    .stats-row { display: flex; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
-    .stat-pill { background: #f8fafc; padding: 14px 24px; text-align: center; border-right: 1px solid #e2e8f0; }
-    .stat-pill:last-child { border-right: none; }
-    .stat-pill-val { font-size: 1.4rem; font-weight: 800; color: #0f172a; }
-    .stat-pill-val.orange { color: #ea580c; }
+    .exam-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 2px; }
+    .exam-group-scope { font-size: 0.88rem; font-weight: 700; color: #2563eb; display: none; margin-bottom: 2px; }
+    .exam-group-scope.visible { display: block; }
+    .exam-meta { font-size: 0.78rem; color: #94a3b8; }
+    .hero-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .stats-row { display: flex; gap: 8px; }
+    .stat-pill { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; text-align: center; min-width: 70px; }
+    .stat-pill-val { font-size: 1.1rem; font-weight: 800; color: #0f172a; line-height: 1; }
+    .stat-pill-val.orange { color: #d97706; }
     .stat-pill-val.green  { color: #16a34a; }
     .stat-pill-val.red    { color: #dc2626; }
-    .stat-pill-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-top: 3px; }
+    .stat-pill-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-top: 3px; }
+
+    /* Hero overflow menu — matches row kebab style */
+    .hero-overflow-wrap { position: relative; }
+    .hero-overflow-btn { display:flex; align-items:center; justify-content:center; width:30px; height:30px; border:none; border-radius:7px; background:none; cursor:pointer; color:#94a3b8; transition:all 0.12s; }
+    .hero-overflow-btn:hover { background:#f1f5f9; color:#475569; }
+    .hero-overflow-menu { display:none; position:fixed; z-index:9000; background:#fff; border:1px solid #e2e8f0; border-radius:10px; box-shadow:0 8px 28px rgba(15,23,42,.13); min-width:210px; padding:4px 0; }
+    .hero-overflow-menu.open { display:block; }
+    .hero-menu-item { display:flex; align-items:center; gap:10px; width:100%; padding:9px 14px; font-size:0.82rem; font-weight:500; color:#374151; background:none; border:none; cursor:pointer; font-family:inherit; text-align:left; white-space:nowrap; }
+    .hero-menu-item:hover { background:#f8fafc; color:#0f172a; }
+    .hero-menu-item.danger { color:#dc2626; }
+    .hero-menu-item.danger:hover { background:#fef2f2; }
+    .hero-menu-item .scope-tag { font-size:0.68rem; font-weight:700; color:#2563eb; margin-left:auto; }
+    .hero-menu-divider { height:1px; background:#f1f5f9; margin:3px 0; }
+
+    /* Task frame (collapsible) */
+    .task-frame { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .task-frame-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; cursor: pointer; user-select: none; transition: background 0.1s; }
+    .task-frame-head:hover { background: #fafafa; }
+    .task-frame-q { font-size: 0.88rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+    .task-frame-q .tf-dot { width: 8px; height: 8px; border-radius: 999px; background: #2563eb; flex-shrink: 0; }
+    .task-frame-hint { font-size: 0.73rem; color: #94a3b8; font-weight: 400; margin-left: 18px; margin-top: 2px; }
+    .task-frame-chevron { color: #94a3b8; transition: transform 0.2s; flex-shrink: 0; }
+    .task-frame-chevron.open { transform: rotate(180deg); }
+    .task-frame-body { border-top: 1px solid #f1f5f9; padding: 20px 22px; background: #fafafa; display: none; }
+    .task-frame-body.open { display: block; }
 
     /* Buttons */
     .btn { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; font-family: inherit; border: none; border-radius: 7px; padding: 9px 16px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
@@ -47,32 +75,28 @@
     .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-outline   { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; }
     .btn-outline:hover { border-color: #94a3b8; color: #0f172a; }
-    .btn-ghost-sm  { display: inline-flex; align-items: center; gap: 5px; background: none; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; font-weight: 600; font-family: inherit; padding: 6px 12px; border-radius: 7px; cursor: pointer; }
-    .btn-ghost-sm:hover { border-color: #94a3b8; color: #0f172a; }
+    .btn-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .btn-blue:hover { background: #dbeafe; }
+    .btn-ghost  { background: none; color: #64748b; border: 1px solid #e2e8f0; font-size: 0.75rem; padding: 6px 12px; }
+    .btn-ghost:hover { border-color: #94a3b8; color: #0f172a; }
     .btn-scheduled { background: #16a34a; color: #fff; border: none; }
     .btn-scheduled:hover { background: #15803d; }
     .pencil-btn { background: none; border: none; cursor: pointer; padding: 2px; display: inline-flex; align-items: center; color: #16a34a; transition: color 0.15s; }
     .pencil-btn:hover { color: #15803d; }
 
-    /* Send panel */
-    .send-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; margin-bottom: 20px; overflow: hidden; }
-    .send-panel-head { padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
-    .send-panel-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
-    .send-format-hint { font-size: 0.75rem; color: #94a3b8; }
-    .send-format-hint a { color: #2563eb; cursor: pointer; }
-    .send-panel-body { padding: 16px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .schedule-picker { display: flex; align-items: center; gap: 8px; padding-left: 12px; border-left: 1.5px solid #e2e8f0; }
-    .ctrl-select, .ctrl-date {
-      font-size: 0.82rem; font-family: inherit;
-      border: 1.5px solid #e2e8f0; border-radius: 7px;
-      padding: 0 10px; height: 36px; color: #0f172a; outline: none;
-      background: #fff; cursor: pointer;
-    }
+    /* Schedule controls (in sticky footer) */
+    .ctrl-select, .ctrl-date { font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 7px; padding: 0 10px; height: 36px; color: #0f172a; outline: none; background: #fff; cursor: pointer; }
     .ctrl-select:focus, .ctrl-date:focus { border-color: #2563eb; }
-    .schedule-confirm { display: none; align-items: center; gap: 8px; font-size: 0.82rem; color: #166534; font-weight: 600; padding-left: 12px; border-left: 1.5px solid #e2e8f0; }
+    .schedule-picker { display: flex; align-items: center; gap: 8px; }
+    .schedule-confirm { display: none; align-items: center; gap: 8px; font-size: 0.82rem; color: #166534; font-weight: 600; }
 
     /* Student list panel */
     .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .panel-search-row { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .panel-search-row input { flex:1; font-size:0.82rem; font-family:inherit; border:1.5px solid #e2e8f0; border-radius:8px; padding:7px 12px 7px 32px; outline:none; background:#fff; transition:border-color 0.15s; }
+    .panel-search-row input:focus { border-color:#2563eb; }
+    .panel-search-wrap { flex:1; position:relative; }
+    .panel-search-wrap svg { position:absolute; left:10px; top:50%; transform:translateY(-50%); pointer-events:none; }
     .panel-header { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px 44px; align-items: center; gap: 12px; padding: 10px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
     .col-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; }
     .select-all-label { grid-column: 1 / 3; display: flex; align-items: center; gap: 8px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; cursor: pointer; }
@@ -101,8 +125,6 @@
     .modal-input:focus { border-color:#dc2626; }
     .btn-cancel { background:none; color:#64748b; border:1px solid #e2e8f0; border-radius:7px; padding:8px 18px; font-size:0.82rem; font-weight:600; cursor:pointer; font-family:inherit; }
     .btn-cancel:hover { border-color:#94a3b8; color:#0f172a; }
-    .delete-exam-btn { display:flex; align-items:center; gap:5px; font-size:0.72rem; font-weight:600; color:#94a3b8; background:none; border:none; cursor:pointer; font-family:inherit; padding:4px 0; transition:color 0.15s; }
-    .delete-exam-btn:hover { color:#dc2626; }
     .sub-row:last-child { border-bottom: none; }
     .sub-row:not(.row-sent):hover { background: #fafafa; }
     .sub-row input[type="checkbox"],
@@ -123,21 +145,17 @@
     .badge-bounced  { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     .empty-state { padding: 48px 20px; text-align: center; color: #94a3b8; font-size: 0.88rem; }
 
-    /* Exam access card */
-    .exam-access { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 28px; margin-bottom: 14px; }
-    .access-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-    .access-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; }
-    .access-actions { display: flex; gap: 8px; }
+    /* Access card internals */
     .access-rows { display: flex; flex-direction: column; gap: 12px; }
     .access-row { display: flex; align-items: flex-start; gap: 14px; }
     .access-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; width: 90px; flex-shrink: 0; padding-top: 9px; }
-    .access-value { flex: 1; display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px; padding: 8px 12px; }
+    .access-value { flex: 1; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 8px 12px; }
     .access-value-text { font-size: 0.82rem; font-weight: 600; color: #0f172a; font-family: 'Courier New', monospace; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .access-value-text.url { font-family: inherit; font-weight: 400; color: #475569; font-size: 0.78rem; }
     .copy-btn { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; color: #64748b; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-family: inherit; flex-shrink: 0; transition: all 0.15s; }
     .copy-btn:hover { background: #e2e8f0; color: #0f172a; }
     .groups-list { display: flex; flex-direction: column; gap: 7px; flex: 1; }
-    .group-row { display: flex; align-items: center; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; }
+    .group-row { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; }
     .group-check { accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
     .group-name-lbl { font-size: 0.78rem; font-weight: 600; color: #475569; flex-shrink: 0; min-width: 68px; }
     .group-code-lbl { font-size: 0.82rem; font-weight: 700; color: #0f172a; font-family: 'Courier New', monospace; flex: 1; letter-spacing: 0.03em; }
@@ -153,20 +171,19 @@
     .draft-panel { margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 16px; display: none; }
     .draft-panel.open { display: block; }
     .draft-section-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-bottom: 10px; }
-    .draft-body { font-size: 0.82rem; color: #374151; line-height: 1.75; white-space: pre-wrap; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 10px; font-family: inherit; }
+    .draft-body { font-size: 0.82rem; color: #374151; line-height: 1.75; white-space: pre-wrap; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 10px; font-family: inherit; }
     .draft-actions { display: flex; gap: 8px; }
-    .btn-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-    .btn-blue:hover { background: #dbeafe; }
+    .access-footer { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #e2e8f0; }
 
     /* Toast */
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.82rem; font-weight: 600; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
+    .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #0f172a; color: #fff; font-size: 0.82rem; font-weight: 600; padding: 10px 20px; border-radius: 8px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; }
     .toast.show { opacity: 1; }
     .lang-pill { display:flex; border:1.5px solid rgba(255,255,255,0.15); border-radius:999px; overflow:hidden; }
     .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.72rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.15s; }
     .lang-pill button.active { background:rgba(255,255,255,0.15); color:#fff; }
 
     /* Group tabs */
-    .group-tabs-bar { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:10px 16px; margin-bottom:14px; flex-wrap:wrap; }
+    .group-tabs-bar { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:10px 16px; flex-wrap:wrap; }
     .group-tabs-label { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#94a3b8; margin-right:6px; flex-shrink:0; }
     .group-tab { display:inline-flex; align-items:center; gap:6px; font-size:0.78rem; font-weight:600; font-family:inherit; border:1.5px solid #e2e8f0; border-radius:8px; padding:6px 14px; cursor:pointer; background:#fff; color:#475569; transition:all 0.12s; }
     .group-tab:hover { border-color:#2563eb; color:#2563eb; background:#f8fafc; }
@@ -175,23 +192,33 @@
     .group-tab.active .tab-count { background:rgba(255,255,255,0.25); color:#fff; }
     .group-section-header { display:flex; align-items:center; gap:10px; padding:8px 20px; background:#f8fafc; border-bottom:1px solid #e2e8f0; border-top:1px solid #e2e8f0; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:#64748b; }
     .group-dot { width:8px; height:8px; border-radius:999px; flex-shrink:0; }
-  @media (max-width: 640px) {
-    .header { padding: 0 16px; }
-    .page { padding: 20px 16px; }
-    .exam-hero { flex-direction: column; gap: 16px; }
-    .hero-right { align-items: flex-start; width: 100%; }
-    .stats-row { width: 100%; }
-    .stat-pill { flex: 1; padding: 10px 8px; }
-    .stat-pill-val { font-size: 1.1rem; }
-    .panel-header { grid-template-columns: 28px 1fr 90px; }
-    .panel-header .col-label:nth-child(3), .panel-header .col-label:nth-child(4) { display: none; }
-    .sub-row { grid-template-columns: 28px 1fr 90px; }
-    .sub-row .sub-date, .sub-row .sub-score { display: none; }
-    .group-tabs-bar { gap: 4px; }
-    .group-tab { font-size: 0.72rem; padding: 5px 10px; }
-    .send-panel-body { flex-direction: column; align-items: flex-start; }
-    .schedule-picker { border-left: none; padding-left: 0; flex-wrap: wrap; }
-  }
+
+    /* Sticky footer */
+    .sticky-footer { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #e2e8f0; z-index:200; box-shadow:0 -4px 20px rgba(15,23,42,.07); }
+    .sticky-footer-inner { max-width:960px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .footer-left { flex:1; min-width:0; }
+    .footer-q { font-size:0.9rem; font-weight:700; color:#0f172a; }
+    .footer-hint { font-size:0.75rem; color:#94a3b8; margin-top:2px; }
+    .footer-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+    @media (max-width: 640px) {
+      .header { padding: 0 16px; }
+      .page { padding: 16px 16px 110px; }
+      .exam-hero { flex-direction: column; gap: 12px; align-items: flex-start; }
+      .hero-right { width: 100%; justify-content: space-between; }
+      .stats-row { flex: 1; }
+      .stat-pill { flex: 1; padding: 8px 6px; }
+      .stat-pill-val { font-size: 1rem; }
+      .panel-header { grid-template-columns: 28px 1fr 90px 44px; }
+      .panel-header .col-label:nth-child(3), .panel-header .col-label:nth-child(4) { display: none; }
+      .sub-row { grid-template-columns: 28px 1fr 90px 44px; }
+      .sub-row .sub-date, .sub-row .sub-score { display: none; }
+      .group-tabs-bar { gap: 4px; }
+      .group-tab { font-size: 0.72rem; padding: 5px 10px; }
+      .sticky-footer-inner { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .footer-actions { width: 100%; justify-content: flex-end; }
+    }
+  </style>
   </style>
 </head>
 <body>
@@ -215,164 +242,136 @@
 
   <div class="page" id="pageContent" style="display:none;">
 
-    <!-- Exam hero -->
+    <!-- 1. HERO -->
     <div class="exam-hero">
       <div class="exam-hero-left">
         <div class="exam-title" id="examTitle">—</div>
+        <div class="exam-group-scope" id="examGroupScope"></div>
         <div class="exam-meta" id="examMeta">—</div>
       </div>
       <div class="hero-right">
         <div class="stats-row">
-          <div class="stat-pill"><div class="stat-pill-val" id="statTotal">—</div><div class="stat-pill-label">Submissions</div></div>
+          <div class="stat-pill"><div class="stat-pill-val" id="statTotal">—</div><div class="stat-pill-label">Submitted</div></div>
           <div class="stat-pill"><div class="stat-pill-val orange" id="statPending">—</div><div class="stat-pill-label" data-i18n="statPending">Pending</div></div>
           <div class="stat-pill"><div class="stat-pill-val green" id="statSent">—</div><div class="stat-pill-label" data-i18n="statSent">Sent</div></div>
           <div class="stat-pill"><div class="stat-pill-val red" id="statBounced">—</div><div class="stat-pill-label" data-i18n="statBounced">Bounced</div></div>
         </div>
-        <button class="btn-ghost-sm" id="downloadReportBtn" onclick="generateExamReport()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download PDF report
-        </button>
-        <button class="delete-exam-btn" onclick="openDeleteExamModal()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
-          Delete exam
-        </button>
+        <div class="hero-overflow-wrap">
+          <button class="hero-overflow-btn" onclick="toggleHeroMenu(event)" title="More options">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+          </button>
+          <div class="hero-overflow-menu" id="heroOverflowMenu">
+            <button class="hero-menu-item" id="downloadReportBtn" onclick="generateExamReport();closeHeroMenu()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download PDF report
+              <span class="scope-tag" id="pdfScopeTag">All</span>
+            </button>
+            <div class="hero-menu-divider"></div>
+            <button class="hero-menu-item danger" onclick="openDeleteExamModal();closeHeroMenu()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              Delete exam
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Exam Access card -->
-    <div class="exam-access" id="examAccessCard" style="display:none;">
-      <div class="access-head">
-        <span class="access-title">Exam Access</span>
-        <div class="access-actions">
-          <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;" id="previewBtn">
+    <!-- 2. TASK FRAME — Exam access (collapsible) -->
+    <div class="task-frame" id="examAccessCard" style="display:none;">
+      <div class="task-frame-head" onclick="toggleAccessCard(this)">
+        <div>
+          <div class="task-frame-q">
+            <span class="tf-dot"></span>
+            Ready to send exam access to your students?
+          </div>
+          <div class="task-frame-hint">Exam link · access codes · draft student email</div>
+        </div>
+        <svg class="task-frame-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="task-frame-body" id="accessCardBody">
+        <div class="access-rows">
+          <div class="access-row">
+            <span class="access-label">Exam link</span>
+            <div class="access-value">
+              <span class="access-value-text url" id="accessLinkText"></span>
+              <button class="copy-btn" id="copyLinkBtn">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+          </div>
+          <div class="access-row" id="singleCodeRow" style="display:none;">
+            <span class="access-label">Access code</span>
+            <div class="access-value" style="max-width:240px;">
+              <span class="access-value-text" id="singleCodeText"></span>
+              <button class="copy-btn" id="copySingleBtn">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                Copy
+              </button>
+            </div>
+          </div>
+          <div class="access-row" id="groupCodesRow" style="display:none;">
+            <span class="access-label" style="padding-top:9px;">Groups</span>
+            <div style="flex:1;">
+              <div class="groups-list" id="groupsList"></div>
+              <div class="add-group-row">
+                <input class="add-group-input" type="text" id="newGroupName" placeholder="New group name…">
+                <button class="btn-add-group" onclick="addGroupRow()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Add group
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="access-footer">
+          <button class="btn btn-ghost" id="previewBtn">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             Preview exam
           </button>
-          <button class="btn btn-blue" style="font-size:0.75rem;padding:6px 12px;" onclick="toggleAccessDraft()">
+          <button class="btn btn-blue" onclick="toggleAccessDraft()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             Draft student email
           </button>
         </div>
-      </div>
-
-      <div class="access-rows">
-        <!-- Exam link -->
-        <div class="access-row">
-          <span class="access-label">Exam link</span>
-          <div class="access-value">
-            <span class="access-value-text url" id="accessLinkText"></span>
-            <button class="copy-btn" id="copyLinkBtn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copy
+        <div class="draft-panel" id="accessDraftPanel">
+          <div class="draft-section-label">Draft — Student email</div>
+          <div class="draft-body" id="accessDraftBody"></div>
+          <div class="draft-actions">
+            <button class="btn btn-ghost" onclick="copyAccessDraft()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              Copy to clipboard
             </button>
+            <button class="btn btn-ghost" onclick="toggleAccessDraft()">Close</button>
           </div>
-        </div>
-
-        <!-- Single access code (shown when no groups) -->
-        <div class="access-row" id="singleCodeRow" style="display:none;">
-          <span class="access-label">Access code</span>
-          <div class="access-value" style="max-width:240px;">
-            <span class="access-value-text" id="singleCodeText"></span>
-            <button class="copy-btn" id="copySingleBtn">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copy
-            </button>
-          </div>
-        </div>
-
-        <!-- Group codes (shown when groups exist) -->
-        <div class="access-row" id="groupCodesRow" style="display:none;">
-          <span class="access-label" style="padding-top:9px;">Groups</span>
-          <div style="flex:1;">
-            <div class="groups-list" id="groupsList"></div>
-            <div class="add-group-row">
-              <input class="add-group-input" type="text" id="newGroupName" placeholder="New group name…">
-              <button class="btn-add-group" onclick="addGroupRow()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add group
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Draft email -->
-      <div class="draft-panel" id="accessDraftPanel">
-        <div class="draft-section-label">Draft — Student email</div>
-        <div class="draft-body" id="accessDraftBody"></div>
-        <div class="draft-actions">
-          <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;" onclick="copyAccessDraft()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy to clipboard
-          </button>
-          <button class="btn btn-ghost" style="font-size:0.75rem;padding:6px 12px;" onclick="toggleAccessDraft()">Close</button>
         </div>
       </div>
     </div>
 
-    <!-- Group tabs (hidden when exam has no groups) -->
+    <!-- 3. GROUP TABS -->
     <div class="group-tabs-bar" id="groupTabsBar" style="display:none;">
       <span class="group-tabs-label">Group</span>
       <div id="groupTabsList" style="display:contents;"></div>
     </div>
 
-    <!-- Send panel -->
-    <div class="send-panel">
-      <div class="send-panel-head">
-        <span class="send-panel-title">Send Results</span>
-        <span class="send-panel-scope" id="sendScope" style="display:none;font-size:0.75rem;color:#2563eb;font-weight:600;background:#eff6ff;border:1px solid #bfdbfe;padding:2px 10px;border-radius:999px;"></span>
-      </div>
-      <div class="send-panel-body">
-        <button class="btn btn-primary" id="sendNowBtn" onclick="sendSelected()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          Send now
-        </button>
-        <button class="btn btn-outline" id="scheduleToggle" onclick="toggleSchedule()">Schedule send</button>
-
-        <div class="schedule-picker" id="schedulePicker" style="display:none;">
-          <input type="date" class="ctrl-date" id="schedDate">
-          <select class="ctrl-select" id="schedTime">
-            <option>6:00 AM</option><option>6:30 AM</option><option>7:00 AM</option><option>7:30 AM</option>
-            <option>8:00 AM</option><option>8:30 AM</option><option selected>9:00 AM</option><option>9:30 AM</option>
-            <option>10:00 AM</option><option>10:30 AM</option><option>11:00 AM</option><option>11:30 AM</option>
-            <option>12:00 PM</option><option>12:30 PM</option><option>1:00 PM</option><option>1:30 PM</option>
-            <option>2:00 PM</option><option>2:30 PM</option><option>3:00 PM</option><option>3:30 PM</option>
-            <option>4:00 PM</option><option>4:30 PM</option><option>5:00 PM</option><option>5:30 PM</option>
-            <option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option><option>9:00 PM</option>
-          </select>
-          <button class="btn btn-outline" onclick="confirmSchedule()">Confirm</button>
-        </div>
-
-        <div class="schedule-confirm" id="scheduleConfirm">
-          <span id="scheduleLabel"></span>
-          <button class="pencil-btn" onclick="editSchedule()" title="Edit schedule">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Search + sort bar -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <div style="flex:1;position:relative;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="studentSearch" type="text" placeholder="Search student…" oninput="renderList()"
-          style="width:100%;font-size:0.82rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 12px 8px 32px;outline:none;transition:border-color 0.15s;background:#fff;"
-          onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
-      </div>
-      <select id="sortSelect" onchange="renderList()"
-        style="font-size:0.78rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 10px;outline:none;background:#fff;color:#475569;cursor:pointer;">
-        <option value="name">Name A→Z</option>
-        <option value="name-desc">Name Z→A</option>
-        <option value="date">Latest first</option>
-        <option value="date-asc">Oldest first</option>
-        <option value="score">Score ↓</option>
-        <option value="score-asc">Score ↑</option>
-      </select>
-    </div>
-
-    <!-- Student list -->
+    <!-- 4. STUDENT LIST with search+sort inside panel -->
     <div class="panel">
+      <div class="panel-search-row">
+        <div class="panel-search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="studentSearch" type="text" placeholder="Search student…" oninput="renderList()"
+            onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'">
+        </div>
+        <select id="sortSelect" onchange="renderList()"
+          style="font-size:0.78rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:8px;padding:7px 10px;outline:none;background:#fff;color:#475569;cursor:pointer;">
+          <option value="name">Name A→Z</option>
+          <option value="name-desc">Name Z→A</option>
+          <option value="date">Latest first</option>
+          <option value="date-asc">Oldest first</option>
+          <option value="score">Score ↓</option>
+          <option value="score-asc">Score ↑</option>
+        </select>
+      </div>
       <div class="panel-header">
         <label class="select-all-label">
           <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
@@ -386,6 +385,47 @@
       <div id="subList"><div class="empty-state">Loading submissions…</div></div>
     </div>
 
+    <!-- Hidden schedule elements (used by JS) -->
+    <div style="display:none;">
+      <span id="sendScope"></span>
+    </div>
+
+  </div>
+
+  <!-- 5. STICKY FOOTER — Send results -->
+  <div class="sticky-footer" id="stickyFooter" style="display:none;">
+    <div class="sticky-footer-inner">
+      <div class="footer-left">
+        <div class="footer-q">Ready to send results to your students?</div>
+        <div class="footer-hint" id="footerHint">Select students above, then send</div>
+      </div>
+      <div class="footer-actions">
+        <div class="schedule-confirm" id="scheduleConfirm">
+          <span id="scheduleLabel"></span>
+          <button class="pencil-btn" onclick="editSchedule()" title="Edit schedule">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+        <div class="schedule-picker" id="schedulePicker" style="display:none;">
+          <input type="date" class="ctrl-date" id="schedDate">
+          <select class="ctrl-select" id="schedTime">
+            <option>6:00 AM</option><option>6:30 AM</option><option>7:00 AM</option><option>7:30 AM</option>
+            <option>8:00 AM</option><option>8:30 AM</option><option selected>9:00 AM</option><option>9:30 AM</option>
+            <option>10:00 AM</option><option>10:30 AM</option><option>11:00 AM</option><option>11:30 AM</option>
+            <option>12:00 PM</option><option>12:30 PM</option><option>1:00 PM</option><option>1:30 PM</option>
+            <option>2:00 PM</option><option>2:30 PM</option><option>3:00 PM</option><option>3:30 PM</option>
+            <option>4:00 PM</option><option>4:30 PM</option><option>5:00 PM</option><option>5:30 PM</option>
+            <option>6:00 PM</option><option>7:00 PM</option><option>8:00 PM</option><option>9:00 PM</option>
+          </select>
+          <button class="btn btn-outline" onclick="confirmSchedule()">Confirm</button>
+        </div>
+        <button class="btn btn-outline" id="scheduleToggle" onclick="toggleSchedule()">Schedule send</button>
+        <button class="btn btn-primary" id="sendNowBtn" onclick="sendSelected()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send now
+        </button>
+      </div>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -528,6 +568,7 @@
       updateStats();
       renderList();
       renderAccessCard();
+      document.getElementById('stickyFooter').style.display = 'block';
     }
 
     const GROUP_COLORS = ['#2563eb','#7c3aed','#0891b2','#d97706','#16a34a','#dc2626'];
@@ -556,14 +597,19 @@
       btn.classList.add('active');
       activeGroup = group;
 
-      const scopeEl = document.getElementById('sendScope');
+      // Update hero group scope text
+      const scopeEl = document.getElementById('examGroupScope');
       if (group === 'all') {
-        scopeEl.style.display = 'none';
+        scopeEl.classList.remove('visible');
+        scopeEl.textContent = '';
       } else {
-        const pending = visibleAttempts().filter(a => !a.results_sent_at && !a.bounce_at).length;
-        scopeEl.style.display = '';
-        scopeEl.textContent = `${group} · ${pending} pending`;
+        scopeEl.textContent = group;
+        scopeEl.classList.add('visible');
       }
+
+      // Update PDF scope tag in hero overflow menu
+      const pdfTag = document.getElementById('pdfScopeTag');
+      if (pdfTag) pdfTag.textContent = group === 'all' ? 'All' : group;
 
       updateStats();
       renderList();
@@ -601,11 +647,25 @@
       const vis     = visibleAttempts();
       const sent    = vis.filter(a => a.results_sent_at).length;
       const bounced = vis.filter(a => a.bounce_at).length;
-      const pending = vis.length - sent - bounced;
+      const pending = Math.max(0, vis.length - sent - bounced);
       document.getElementById('statTotal').textContent   = vis.length;
-      document.getElementById('statPending').textContent = Math.max(0, pending);
+      document.getElementById('statPending').textContent = pending;
       document.getElementById('statSent').textContent    = sent;
       document.getElementById('statBounced').textContent = bounced;
+
+      // Update sticky footer hint
+      const hint = document.getElementById('footerHint');
+      if (hint) {
+        if (activeGroup === 'all') {
+          hint.textContent = pending > 0
+            ? `${pending} pending across all groups · select students above, then send`
+            : `All results sent`;
+        } else {
+          hint.textContent = pending > 0
+            ? `${pending} pending in ${activeGroup} · select students above, then send`
+            : `All results sent for ${activeGroup}`;
+        }
+      }
     }
 
     function formatName(raw) {
@@ -775,9 +835,6 @@
       navigator.clipboard.writeText(link).then(() => showToast('Retake link copied to clipboard'));
     }
 
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.row-actions')) closeAllMenus();
-    });
 
     function toggleSelectAll(checked) {
       document.querySelectorAll('.sub-check:not([disabled])').forEach(cb => cb.checked = checked);
@@ -926,6 +983,45 @@
       setTimeout(() => t.classList.remove('show'), duration || 4000);
     }
 
+    // ── UI helpers ──────────────────────────────────────────────────
+
+    function toggleAccessCard(head) {
+      const body    = document.getElementById('accessCardBody');
+      const chevron = head.querySelector('.task-frame-chevron');
+      const isOpen  = body.classList.contains('open');
+      body.classList.toggle('open', !isOpen);
+      chevron.classList.toggle('open', !isOpen);
+    }
+
+    function toggleHeroMenu(e) {
+      e.stopPropagation();
+      const btn  = e.currentTarget;
+      const menu = document.getElementById('heroOverflowMenu');
+      const isOpen = menu.classList.contains('open');
+      closeHeroMenu();
+      if (!isOpen) {
+        const r = btn.getBoundingClientRect();
+        menu.style.top  = (r.bottom + 4) + 'px';
+        menu.style.left = Math.max(8, r.right - menu.offsetWidth || 200) + 'px';
+        menu.classList.add('open');
+        // Adjust left after render
+        requestAnimationFrame(() => {
+          const mr = menu.getBoundingClientRect();
+          if (mr.right > window.innerWidth - 8)
+            menu.style.left = (window.innerWidth - mr.width - 8) + 'px';
+        });
+      }
+    }
+
+    function closeHeroMenu() {
+      document.getElementById('heroOverflowMenu').classList.remove('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.hero-overflow-wrap')) closeHeroMenu();
+      if (!e.target.closest('.row-actions')) closeAllMenus();
+    });
+
     // ── Resend exam / Delete submission / Delete exam ─────────────
 
     const EMAILJS_RETAKE_TEMPLATE = 'template_retake00'; // ← replace with your retake template ID
@@ -1050,6 +1146,8 @@
       if (!exam) return;
 
       document.getElementById('examAccessCard').style.display = 'block';
+      // Start collapsed — teacher opens when they need the link
+      document.getElementById('accessCardBody').classList.remove('open');
 
       const link = buildExamLink();
       document.getElementById('accessLinkText').textContent = link;
@@ -1204,13 +1302,18 @@
       btn.disabled = true;
       btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Opening…';
 
+      // Scope report to active group
+      const reportAttempts = activeGroup === 'all'
+        ? attempts
+        : attempts.filter(a => a.group_name === activeGroup);
+
       const instName    = (currentInstitution && currentInstitution.name) || 'Exam Builder';
       const teacherName = currentTeacher ? (currentTeacher.full_name || currentTeacher.email) : '—';
-      const sent        = attempts.filter(a => a.results_sent_at).length;
-      const bounced     = attempts.filter(a => a.bounce_at).length;
-      const pending     = attempts.length - sent - bounced;
+      const sent        = reportAttempts.filter(a => a.results_sent_at).length;
+      const bounced     = reportAttempts.filter(a => a.bounce_at).length;
+      const pending     = reportAttempts.length - sent - bounced;
 
-      const scores = attempts.map(a =>
+      const scores = reportAttempts.map(a =>
         (parseFloat(a.score_mcq) || 0) +
         Object.values(a.open_scores || {}).reduce((s,v) => s+(parseFloat(v)||0), 0)
       );
@@ -1224,8 +1327,9 @@
         ? new Date(currentExam.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '—';
       const generatedAt = new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
       const avgColor = parseFloat(avg)/mcqTotal >= 0.7 ? '#16a34a' : parseFloat(avg)/mcqTotal >= 0.5 ? '#d97706' : '#dc2626';
+      const reportTitle = activeGroup === 'all' ? currentExam.title : currentExam.title + ' — ' + activeGroup;
 
-      const studentRows = attempts.map((a,i) => {
+      const studentRows = reportAttempts.map((a,i) => {
         const score = scores[i];
         const scoreStr = score > 0 ? (Number.isInteger(score)?score:score.toFixed(1))+' / '+mcqTotal : '— / '+mcqTotal;
         const sub = a.submitted_at
@@ -1281,14 +1385,14 @@
   <div class="hd">
     <div class="hd-left">
       <div class="lbl">${instName}</div>
-      <div class="ttl">${currentExam.title}</div>
+      <div class="ttl">${reportTitle}</div>
     </div>
     <span class="badge">Résultats examen</span>
   </div>
   <div class="body">
     <div class="meta">${currentExam.duration_mins||'—'} min · Publié le ${pubDate} · Rapport généré par ${teacherName} · ${generatedAt}</div>
     <div class="cards">
-      <div class="sc"><div class="sc-lbl">Soumissions</div><div class="sc-val" style="color:#0f172a;">${attempts.length}</div></div>
+      <div class="sc"><div class="sc-lbl">Soumissions</div><div class="sc-val" style="color:#0f172a;">${reportAttempts.length}</div></div>
       <div class="sc"><div class="sc-lbl">Moyenne</div><div class="sc-val" style="color:${avgColor};">${avg}</div></div>
       <div class="sc"><div class="sc-lbl">Envoyés</div><div class="sc-val" style="color:#16a34a;">${sent}</div></div>
       <div class="sc"><div class="sc-lbl">En attente</div><div class="sc-val" style="color:#d97706;">${pending}</div></div>
@@ -1306,7 +1410,7 @@
       <div><div class="sum-lbl">Taux de réussite (≥50%)</div><div class="sum-val">${passRate}</div></div>
     </div>
   </div>
-  <div class="footer">Généré automatiquement · ${currentExam.title} · ${instName}</div>
+  <div class="footer">Généré automatiquement · ${reportTitle} · ${instName}</div>
 </div></div>
 <script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script>
 </body></html>`;
