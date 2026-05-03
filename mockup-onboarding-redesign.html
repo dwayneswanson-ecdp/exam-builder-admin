@@ -81,6 +81,9 @@
     .card-header-left { display: flex; align-items: center; gap: 16px; }
     .card-num { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: var(--line); flex-shrink: 0; min-width: 20px; }
     .card-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--black); }
+    .card-title.blue   { color: var(--blue); }
+    .card-title.green  { color: var(--green); }
+    .card-title.amber  { color: var(--amber); }
     .card-divider { width: 1px; height: 14px; background: var(--line); flex-shrink: 0; }
     .card-body { padding: 24px; }
 
@@ -160,11 +163,11 @@
     .error-msg { font-size: 0.75rem; color: var(--red); font-weight: 600; display: none; }
 
     /* ── Config summary (shown on step 2) ── */
-    .config-summary { border: 1px solid var(--line); background: var(--surface); padding: 16px 20px; margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .config-summary-chips { display: flex; gap: 8px; flex-wrap: wrap; }
-    .config-chip { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate); background: var(--white); border: 1px solid var(--line); padding: 4px 10px; }
-    .config-edit-btn { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; transition: color var(--transition); }
-    .config-edit-btn:hover { color: var(--black); }
+    .config-summary { padding-bottom: 24px; margin-bottom: 24px; border-bottom: 1px solid var(--line); display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+    .config-summary-text { font-size: 0.82rem; color: var(--slate); line-height: 1.6; }
+    .config-summary-text strong { color: var(--black); font-weight: 600; }
+    .config-edit-btn { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; transition: color var(--transition); flex-shrink: 0; }
+    .config-edit-btn:hover { color: var(--blue); }
 
     /* ── Method cards (step 2) ── */
     .method-heading { margin-bottom: 20px; }
@@ -295,7 +298,7 @@
         <div class="card-header-left">
           <span class="card-num">01</span>
           <div class="card-divider"></div>
-          <div class="card-title">Exam Details</div>
+          <div class="card-title blue">Exam Details</div>
         </div>
       </div>
       <div class="card-body">
@@ -330,7 +333,7 @@
         <div class="card-header-left">
           <span class="card-num">02</span>
           <div class="card-divider"></div>
-          <div class="card-title">Student Groups</div>
+          <div class="card-title green">Student Groups</div>
         </div>
         <button class="add-group-btn">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -364,7 +367,7 @@
         <div class="card-header-left">
           <span class="card-num">03</span>
           <div class="card-divider"></div>
-          <div class="card-title">Grading &amp; Results</div>
+          <div class="card-title amber">Grading &amp; Results</div>
         </div>
       </div>
       <div class="card-body">
@@ -400,27 +403,6 @@
       </div>
     </div>
 
-    <!-- Exam Owner -->
-    <div class="form-card">
-      <div class="card-header">
-        <div class="card-header-left">
-          <span class="card-num">04</span>
-          <div class="card-divider"></div>
-          <div class="card-title">Exam Owner</div>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="teacher-row">
-          <div class="teacher-avatar">DS</div>
-          <div>
-            <div class="teacher-name">Dwayne Swanson</div>
-            <div class="teacher-email">dwayne@institution.edu</div>
-          </div>
-        </div>
-        <div class="field-hint" style="margin-top:10px;">Submissions are linked to this account. A failsafe copy of each result is sent to this email.</div>
-      </div>
-    </div>
-
     <div class="error-msg" id="errorMsg1">Please fill in all required fields (title, duration, at least one group with a code).</div>
 
     <div class="cta-row">
@@ -438,16 +420,12 @@
   <!-- ── STEP 2: CHOOSE METHOD ── -->
   <div class="step-panel" id="step2">
 
-    <!-- Config summary banner -->
+    <!-- Config summary text -->
     <div class="config-summary">
-      <div class="config-summary-chips">
-        <span class="config-chip">Finance d'entreprise — Partiel S2</span>
-        <span class="config-chip">60 min</span>
-        <span class="config-chip">Français</span>
-        <span class="config-chip">2 groups</span>
-        <span class="config-chip">/ 20</span>
+      <div class="config-summary-text">
+        <strong>Finance d'entreprise — Partiel S2</strong> · 60 min · Français · 2 groups · scored out of 20
       </div>
-      <button class="config-edit-btn" onclick="goToStep1()">← Edit config</button>
+      <button class="config-edit-btn" onclick="goToStep1()">Edit ↗</button>
     </div>
 
     <div class="method-heading">
