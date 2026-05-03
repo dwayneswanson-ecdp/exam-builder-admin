@@ -161,6 +161,20 @@
     .method-card.selected-manual .method-select-indicator svg,
     .method-card.selected-ai .method-select-indicator svg { display: block; }
 
+    /* ── Default rules preview ── */
+    .default-rules-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 0.68rem; font-weight: 600; color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; margin-top: 8px; transition: color var(--transition); letter-spacing: 0.02em; }
+    .default-rules-toggle:hover { color: var(--slate); }
+    .default-rules-toggle svg { transition: transform 0.2s; }
+    .default-rules-toggle.open svg { transform: rotate(180deg); }
+    .default-rules-list { display: none; margin-top: 10px; border: 1px solid var(--line); background: var(--surface); padding: 14px 16px; }
+    .default-rules-list.open { display: block; }
+    .default-rules-heading { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 10px; }
+    .default-rules-list ul { list-style: none; padding: 0; }
+    .default-rules-list li { font-size: 0.75rem; color: var(--slate); line-height: 1.6; padding: 4px 0; border-bottom: 1px solid var(--line); display: flex; gap: 8px; }
+    .default-rules-list li:last-child { border-bottom: none; }
+    .default-rules-list li::before { content: "—"; color: var(--line); flex-shrink: 0; }
+    .default-rules-note { font-size: 0.7rem; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-style: italic; }
+
     /* ── Lang pill (header) ── */
     .lang-pill { display:flex; border:1px solid rgba(255,255,255,0.15); overflow:hidden; }
     .lang-pill button { padding:4px 10px; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:0.65rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; font-family:inherit; transition:all var(--transition); }
@@ -258,8 +272,24 @@
             </div>
           </div>
           <div class="field">
-            <label class="field-label">Student Instructions <span style="font-weight:500;color:var(--muted);font-size:0.68rem;text-transform:none;letter-spacing:0;">(optional)</span></label>
-            <textarea class="field-input" id="examInstructions" placeholder="Instructions shown to students before the exam starts. e.g. No notes, calculators permitted, answer all questions."></textarea>
+            <label class="field-label">Additional Student Instructions <span style="font-weight:500;color:var(--muted);font-size:0.68rem;text-transform:none;letter-spacing:0;">(optional)</span></label>
+            <textarea class="field-input" id="examInstructions" placeholder="e.g. No notes permitted · Calculators allowed · Answer all questions"></textarea>
+            <div class="field-hint">Shown to students on the confirmation screen, after the default exam rules.</div>
+            <button type="button" class="default-rules-toggle" id="defaultRulesToggle" onclick="toggleDefaultRules()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              See what students already see by default
+            </button>
+            <div class="default-rules-list" id="defaultRulesList">
+              <div class="default-rules-heading">Default rules — always shown to every student</div>
+              <ul>
+                <li>The exam runs in <strong>full-screen mode</strong>.</li>
+                <li>If you leave the window or switch applications, a <strong>warning message</strong> will appear.</li>
+                <li>You have <strong>15 seconds</strong> to return, otherwise the exam is terminated and must be restarted.</li>
+                <li>After <strong>3 technical events</strong>, the exam is <strong>submitted automatically</strong>.</li>
+                <li>All events are recorded in a <strong>session log</strong> attached to your submission.</li>
+              </ul>
+              <div class="default-rules-note">Your instructions appear below these on the student's screen.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -448,6 +478,13 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>`;
       document.getElementById('groupList').appendChild(row);
+    }
+
+    function toggleDefaultRules() {
+      const btn  = document.getElementById('defaultRulesToggle');
+      const list = document.getElementById('defaultRulesList');
+      const open = list.classList.toggle('open');
+      btn.classList.toggle('open', open);
     }
 
     function removeGroup(btn) {
