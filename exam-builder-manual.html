@@ -145,16 +145,7 @@
     .video-confirm-btn { font-size: 0.75rem; font-weight: 700; background: var(--surface); border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; font-family: inherit; color: var(--slate); }
 
     /* ── Insert zone ── */
-    .insert-zone { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
-    .insert-line { flex: 1; height: 1px; background: var(--line); }
-    .insert-plus { width: 24px; height: 24px; border: 1px solid var(--line); background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); font-size: 1.1rem; font-weight: 300; flex-shrink: 0; transition: all var(--transition); position: relative; line-height: 1; }
-    .insert-plus:hover { border-color: var(--blue); color: var(--blue); background: #eff6ff; }
-    .insert-popup { display: none; position: absolute; top: 28px; left: 50%; transform: translateX(-50%); background: var(--white); border: 1px solid var(--line); padding: 6px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); z-index: 20; white-space: nowrap; }
-    .insert-popup.open { display: flex; gap: 4px; }
-    .ins-btn { font-size: 0.72rem; font-weight: 700; padding: 5px 10px; border: 1px solid var(--line); background: var(--surface); color: var(--slate); cursor: pointer; font-family: inherit; transition: all var(--transition); }
-    .ins-btn:hover { border-color: var(--blue); color: var(--blue); background: #eff6ff; }
-    .ins-btn.open-t { border-color: #e9d5ff; background: #faf5ff; color: var(--purple); }
-    .ins-btn.open-t:hover { border-color: #c4b5fd; background: #ede9fe; }
+
 
     /* ── Add buttons ── */
     .add-row { display: flex; gap: 10px; margin-top: 4px; }
@@ -165,6 +156,13 @@
     .add-mcq-card:hover { background: #dbeafe; border-color: var(--blue); }
     .add-open-card { background: #faf5ff; border-color: #e9d5ff; color: var(--purple); }
     .add-open-card:hover { background: #ede9fe; border-color: #c4b5fd; }
+
+    /* ── List + drag ── */
+    #list { display: flex; flex-direction: column; gap: 8px; }
+    .drag-handle { cursor: grab; padding: 4px; color: var(--muted); display: flex; align-items: center; flex-shrink: 0; }
+    .drag-handle:active { cursor: grabbing; }
+    .q-card.dragging, .section-card.dragging { opacity: 0.4; }
+    .q-card.drag-over, .section-card.drag-over { outline: 2px solid var(--blue); outline-offset: -2px; }
 
     /* ── Bottom card ── */
     .bottom-card { background: var(--white); border: 1px solid var(--line); overflow: hidden; margin-top: 16px; }
@@ -318,9 +316,6 @@
         <div class="empty-sub">Add a section to group your questions, or jump straight to adding questions below.</div>
       </div>
 
-      <!-- Insert zone at bottom of list -->
-      <div class="insert-zone" id="bottomInsert"><div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div></div>
-
       <!-- Add buttons -->
       <div class="add-row" id="addRow">
         <button class="add-card add-section-card" onclick="append('section')" data-i18n="addSection">
@@ -431,12 +426,6 @@
     let publishedGroups = [];
     let qCounter = 0;
 
-    document.addEventListener('click', e => {
-      if (!e.target.closest('.insert-plus')) {
-        document.querySelectorAll('.insert-popup.open').forEach(p => p.classList.remove('open'));
-      }
-    });
-
     async function init() {
       try { emailjs.init({ publicKey: EMAILJS_KEY }); } catch(e) {}
 
@@ -494,12 +483,7 @@
     }
 
     // ── Card builders ────────────────────────────────────────────
-    function makeInsertZone() {
-      const iz = document.createElement('div');
-      iz.className = 'insert-zone';
-      iz.innerHTML = `<div class="insert-line"></div><div class="insert-plus" onclick="toggleInsert(this)" title="Insert here">+<div class="insert-popup"><button class="ins-btn" onclick="insertHere(this,'section')">+ Section</button><button class="ins-btn" onclick="insertHere(this,'mcq')">+ MCQ</button><button class="ins-btn open-t" onclick="insertHere(this,'open')">+ Written</button></div></div><div class="insert-line"></div>`;
-      return iz;
-    }
+    // makeInsertZone removed — drag to reorder replaces insert zones
 
     function attachBlockHtml() {
       return `<div class="attach-section">
@@ -534,8 +518,9 @@
             <span class="section-lbl">Section</span>
             <input class="section-title-input" type="text" placeholder="Section title…">
             <div class="s-acts">
-              <button class="s-btn" onclick="moveEl(this.closest('.section-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
-              <button class="s-btn" onclick="moveEl(this.closest('.section-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
+              <span class="drag-handle" title="Drag to reorder">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="2" rx="1" fill="rgba(255,255,255,0.4)"/><rect x="2" y="6" width="10" height="2" rx="1" fill="rgba(255,255,255,0.4)"/><rect x="2" y="10" width="10" height="2" rx="1" fill="rgba(255,255,255,0.4)"/></svg>
+              </span>
               <button class="s-btn del" onclick="removeEl(this.closest('.section-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
           </div>
@@ -557,6 +542,9 @@
 `;
         el.innerHTML = `
           <div class="q-head">
+            <span class="drag-handle" title="Drag to reorder">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="2" rx="1" fill="#94a3b8"/><rect x="2" y="6" width="10" height="2" rx="1" fill="#94a3b8"/><rect x="2" y="10" width="10" height="2" rx="1" fill="#94a3b8"/></svg>
+            </span>
             <span class="q-num">Q${qCounter}</span>
             <span class="q-badge ${isMCQ ? 'badge-mcq">MCQ' : 'badge-open">Written'}</span>
             <div class="q-acts">
@@ -564,9 +552,7 @@
                 <input type="number" class="q-pts-input pts-inp" min="1" max="100" value="${isMCQ ? 1 : 5}">
                 <span class="q-pts-label">pts</span>
               </div>
-              <button class="q-btn" onclick="moveEl(this.closest('.q-card'),-1)" title="Move up"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg></button>
-              <button class="q-btn" onclick="moveEl(this.closest('.q-card'),1)" title="Move down"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></button>
-              <button class="q-btn del" onclick="removeEl(this.closest('.q-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/></svg></button>
+              <button class="q-btn del" onclick="removeEl(this.closest('.q-card'))" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/></svg> Delete</button>
             </div>
           </div>
           <div class="q-body">
@@ -578,55 +564,49 @@
     }
 
     // ── List manipulation ────────────────────────────────────────
-    function toggleInsert(btn) {
-      const popup  = btn.querySelector('.insert-popup');
-      const wasOpen = popup.classList.contains('open');
-      document.querySelectorAll('.insert-popup.open').forEach(p => p.classList.remove('open'));
-      if (!wasOpen) popup.classList.add('open');
-    }
-
-    function insertHere(btn, type) {
-      btn.closest('.insert-popup').classList.remove('open');
-      const iz   = btn.closest('.insert-zone');
-      const list = document.getElementById('list');
-      const card = buildCard(type);
-      const newIz = makeInsertZone();
-      list.insertBefore(newIz, iz);
-      list.insertBefore(card, newIz);
-      card.querySelector('input,textarea')?.focus();
-      updateStats();
-    }
-
     function append(type) {
-      const list  = document.getElementById('list');
-      const addR  = document.getElementById('addRow');
-      const botIz = document.getElementById('bottomInsert');
-      const card  = buildCard(type);
-      const iz    = makeInsertZone();
-      list.insertBefore(iz, botIz);
-      list.insertBefore(card, iz);
+      const list = document.getElementById('list');
+      const addR = document.getElementById('addRow');
+      const card = buildCard(type);
+      addDragToCard(card);
+      list.insertBefore(card, addR);
       card.querySelector('input,textarea')?.focus();
       addR.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       updateStats();
     }
 
-    function moveEl(el, dir) {
-      const list  = document.getElementById('list');
-      const cards = [...list.children].filter(c =>
-        c.classList.contains('q-card') || c.classList.contains('section-card')
-      );
-      const idx    = cards.indexOf(el);
-      const target = cards[idx + dir];
-      if (!target) return;
-      if (dir === -1) list.insertBefore(el, target);
-      else target.after(el);
-    }
-
     function removeEl(el) {
-      const prev = el.previousElementSibling;
-      if (prev?.classList.contains('insert-zone')) prev.remove();
       el.remove();
       updateStats();
+    }
+
+    function addDragToCard(el) {
+      el.draggable = true;
+      el.addEventListener('dragstart', e => {
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      el.addEventListener('dragend', () => el.classList.remove('dragging'));
+      el.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const dragging = document.querySelector('#list .dragging');
+        if (dragging && dragging !== el) {
+          const list = document.getElementById('list');
+          const items = [...list.children].filter(c =>
+            c.classList.contains('q-card') || c.classList.contains('section-card'));
+          const fromIdx = items.indexOf(dragging);
+          const toIdx   = items.indexOf(el);
+          if (fromIdx < toIdx) el.after(dragging);
+          else list.insertBefore(dragging, el);
+        }
+      });
     }
 
     function updateStats() {
