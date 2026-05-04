@@ -12,226 +12,164 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     html, body {
-      translate: none !important;
-      -webkit-user-select: none;
-      user-select: none;
-      margin: 0; padding: 0;
-      overscroll-behavior: none;
+      translate: none !important; -webkit-user-select: none; user-select: none;
+      margin: 0; padding: 0; overscroll-behavior: none;
     }
     * { translate: none !important; box-sizing: border-box; }
+    :root {
+      --black: #0a0a0a; --navy: #0f172a; --ink: #1e293b; --slate: #475569;
+      --muted: #94a3b8; --line: #e2e8f0; --surface: #f8fafc; --white: #ffffff;
+      --blue: #2563eb; --green: #16a34a; --amber: #d97706; --red: #dc2626;
+      --purple: #7c3aed; --transition: 180ms ease;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.7; padding-top: 56px; -webkit-font-smoothing: antialiased; }
 
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #f8f9fc;
-      color: #1e293b;
-      font-size: 16px;
-      line-height: 1.7;
-      padding-top: 80px;
-    }
+    /* ── Header ── */
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--navy); padding: 0 40px; height: 56px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    header h1 { margin: 0; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #timer { display: none; font-weight: 700; font-size: 0.88rem; padding: 6px 16px; background: rgba(255,255,255,0.1); color: #fff; white-space: nowrap; border: 1px solid rgba(255,255,255,0.15); letter-spacing: 0.04em; transition: all 0.3s; }
+    #timer.urgent { background: var(--red); border-color: var(--red); }
 
-    /* ── HEADER ── */
-    header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(20px);
-      padding: 14px 32px;
-      border-bottom: 1px solid #e2e8f0;
-      box-shadow: 0 2px 12px rgba(15,23,42,0.04);
-    }
-    header h1 {
-      margin: 0; font-size: 1.1rem; font-weight: 700;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    #timer {
-      display: none; font-weight: 700; font-size: 0.95rem;
-      padding: 8px 18px; border-radius: 999px;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      color: #fff; white-space: nowrap;
-      box-shadow: 0 3px 10px rgba(37,99,235,0.25);
-      transition: all 0.3s;
-    }
+    /* ── Layout ── */
+    main { max-width: 720px; margin: 32px auto 80px; padding: 0 24px; }
 
-    /* ── MAIN CONTAINER ── */
-    main { max-width: 800px; margin: 28px auto 60px; padding: 0 16px; }
+    /* ── Cards ── */
+    .card { background: var(--white); border: 1px solid var(--line); padding: 36px; margin-bottom: 24px; }
+    .card h2 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 700; color: var(--black); }
+    .card p { color: var(--slate); font-size: 0.95rem; margin: 0 0 16px; }
 
-    /* ── CARDS ── */
-    .card {
-      background: #fff; border-radius: 16px; padding: 36px;
-      box-shadow: 0 4px 24px rgba(15,23,42,0.07);
-      border: 1px solid #e2e8f0; margin-bottom: 24px;
-    }
-    .card h2 { margin: 0 0 8px; font-size: 1.6rem; font-weight: 700; color: #0f172a; text-align: center; }
-    .card p { color: #64748b; font-size: 0.95rem; margin: 0 0 16px; text-align: center; }
+    /* ── Form ── */
+    label { display: block; font-weight: 600; font-size: 0.88rem; color: var(--black); margin: 16px 0 6px; letter-spacing: 0.02em; }
+    input[type="text"], input[type="email"], select, textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); font-size: 0.95rem; font-family: inherit; background: var(--white); color: var(--ink); transition: border-color var(--transition); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
+    textarea { min-height: 180px; resize: vertical; -webkit-user-select: text; user-select: text; }
 
-    /* ── FORM FIELDS ── */
-    label { display: block; font-weight: 600; font-size: 0.9rem; color: #0f172a; margin: 16px 0 6px; }
-    input[type="text"], input[type="email"], select, textarea {
-      width: 100%; padding: 12px 14px; border: 2px solid #e2e8f0; border-radius: 10px;
-      font-size: 0.95rem; font-family: inherit; background: #fff; color: #1e293b;
-      transition: border-color 0.2s;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none; border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-    }
-    textarea {
-      min-height: 180px; resize: vertical;
-      -webkit-user-select: text; user-select: text;
-    }
-
-    /* ── BUTTONS ── */
-    button {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      color: #fff; border: none; padding: 13px 28px; border-radius: 999px;
-      cursor: pointer; font-size: 0.95rem; font-weight: 600; font-family: inherit;
-      box-shadow: 0 3px 12px rgba(37,99,235,0.25); transition: all 0.2s;
-    }
-    button:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(37,99,235,0.35); }
-    button.btn-light {
-      background: #f1f5f9; color: #2563eb;
-      border: 2px solid #e2e8f0; box-shadow: none;
-    }
-    button.btn-light:hover { background: #e2e8f0; }
+    /* ── Buttons ── */
+    button { background: var(--blue); color: #fff; border: none; padding: 13px 28px; cursor: pointer; font-size: 0.9rem; font-weight: 700; font-family: inherit; letter-spacing: 0.03em; transition: background var(--transition); }
+    button:hover { background: #1d4ed8; }
+    button.btn-light { background: var(--surface); color: var(--blue); border: 1.5px solid var(--line); }
+    button.btn-light:hover { background: var(--line); }
     .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
     .btn-row.center { justify-content: center; }
     .btn-row.right { justify-content: flex-end; }
     .btn-row.between { justify-content: space-between; }
 
-    /* ── LOADING ── */
-    #loadingScreen {
-      text-align: center; padding: 80px 20px; color: #64748b;
-    }
-    .spinner {
-      width: 40px; height: 40px; border: 3px solid #e2e8f0;
-      border-top-color: #2563eb; border-radius: 50%;
-      animation: spin 0.8s linear infinite; margin: 0 auto 20px;
-    }
+    /* ── Loading ── */
+    #loadingScreen { text-align: center; padding: 80px 20px; color: var(--muted); }
+    .spinner { width: 36px; height: 36px; border: 3px solid var(--line); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── ERROR ── */
+    /* ── Error ── */
     #errorScreen { text-align: center; padding: 80px 20px; }
-    #errorScreen h2 { color: #dc2626; }
+    #errorScreen h2 { color: var(--red); }
 
-    /* ── QUESTION CARDS ── */
-    .q-card {
-      background: #fff; border: 2px solid #e2e8f0; border-radius: 14px;
-      padding: 24px; margin-bottom: 20px; transition: border-color 0.2s;
-    }
+    /* ── Login card ── */
+    .login-eyebrow { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; }
+    .login-title { font-size: 1.4rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; margin-bottom: 4px; }
+    .login-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 28px; }
+    .name-row { display: flex; gap: 10px; margin-bottom: 0; }
+    .name-row input { flex: 1; }
+
+    /* ── Confirm screen ── */
+    .confirm-heading-eyebrow { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-bottom: 6px; }
+    .confirm-heading { font-size: 1.3rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; margin-bottom: 24px; }
+
+    /* Penalty callout */
+    .penalty-callout { border: 1.5px solid #fca5a5; background: #fff5f5; padding: 18px 20px; margin-bottom: 16px; }
+    .penalty-callout-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .penalty-callout-header svg { flex-shrink: 0; color: var(--red); }
+    .penalty-callout-title { font-size: 0.88rem; font-weight: 700; color: #991b1b; }
+    .penalty-callout ul { margin: 0; padding-left: 18px; font-size: 0.85rem; color: #7f1d1d; line-height: 1.8; }
+    .penalty-callout ul li + li { margin-top: 2px; }
+
+    /* Rules block */
+    .rules-block { border: 1px solid var(--line); background: var(--surface); padding: 16px 20px; margin-bottom: 20px; }
+    .rules-block-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; }
+    .rules-block ul { margin: 0; padding-left: 18px; font-size: 0.85rem; color: var(--slate); line-height: 1.8; }
+    .rules-block ul li + li { margin-top: 2px; }
+
+    /* Identity verification */
+    .confirm-verify-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; }
+    .confirm-item { background: var(--surface); padding: 12px 16px; border: 1px solid var(--line); margin-bottom: 8px; }
+    .confirm-item-label { font-size: 0.68rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+    .confirm-item-val { font-size: 0.95rem; font-weight: 600; color: var(--black); }
+
+    /* Acknowledge checkbox */
+    .confirm-acknowledge { display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; border: 1.5px solid var(--line); background: var(--white); margin: 20px 0; cursor: pointer; transition: border-color var(--transition); }
+    .confirm-acknowledge:has(input:checked) { border-color: var(--green); background: #f0fdf4; }
+    .confirm-acknowledge input[type="checkbox"] { margin-top: 2px; width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--green); cursor: pointer; }
+    .confirm-acknowledge-text { font-size: 0.85rem; color: var(--ink); line-height: 1.5; }
+
+    /* ── Question cards ── */
+    .q-card { background: var(--white); border: 1.5px solid var(--line); padding: 24px; margin-bottom: 16px; transition: border-color var(--transition); }
     .q-card.answered { border-color: #86efac; background: #f0fdf4; }
-    .q-num {
-      font-size: 0.75rem; font-weight: 700; color: #fff;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      display: inline-block; padding: 4px 12px; border-radius: 999px;
-      margin-bottom: 12px; letter-spacing: 0.05em; text-transform: uppercase;
-    }
-    .q-text { font-size: 0.95rem; font-weight: 600; color: #0f172a; margin-bottom: 14px; line-height: 1.6; }
+    .q-num { font-size: 0.65rem; font-weight: 700; color: var(--white); background: var(--navy); display: inline-block; padding: 3px 10px; margin-bottom: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+    .q-text { font-size: 0.95rem; font-weight: 600; color: var(--black); margin-bottom: 14px; line-height: 1.6; }
 
     /* MCQ options */
     .q-options { display: flex; flex-direction: column; gap: 8px; }
-    .q-option {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 11px 14px; border: 2px solid #e2e8f0; border-radius: 10px;
-      cursor: pointer; transition: all 0.15s; font-size: 0.9rem; color: #374151; line-height: 1.5;
-    }
+    .q-option { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; border: 1.5px solid var(--line); cursor: pointer; transition: all var(--transition); font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
     .q-option:hover { border-color: #93c5fd; background: #eff6ff; }
-    .q-option.selected { border-color: #2563eb; background: #eff6ff; }
-    .q-option input[type="radio"] { margin-top: 2px; flex-shrink: 0; accent-color: #2563eb; width: 15px; height: 15px; }
+    .q-option.selected { border-color: var(--blue); background: #eff6ff; }
+    .q-option input[type="radio"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--blue); width: 15px; height: 15px; }
 
     /* Open question */
-    .q-open-note {
-      font-size: 0.82rem; color: #7c3aed; font-weight: 600;
-      background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px;
-      padding: 8px 12px; margin-bottom: 10px;
-    }
+    .q-open-note { font-size: 0.82rem; color: var(--purple); font-weight: 600; background: #faf5ff; border: 1px solid #e9d5ff; padding: 8px 12px; margin-bottom: 10px; }
     .word-count-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.82rem; }
-    .wc-hint { padding: 3px 10px; border-radius: 999px; font-weight: 600; }
-    .hint-neutral { background: #f1f5f9; color: #64748b; }
+    .wc-hint { padding: 3px 10px; font-weight: 600; }
+    .hint-neutral { background: #f1f5f9; color: var(--slate); }
     .hint-ok { background: #dcfce7; color: #166534; }
 
     /* Media */
-    .q-media { margin-bottom: 14px; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
-    .q-media img { width: 100%; display: block; max-height: 320px; object-fit: contain; background: #f8f9fc; }
+    .q-media { margin-bottom: 14px; border: 1px solid var(--line); overflow: hidden; }
+    .q-media img { width: 100%; display: block; max-height: 320px; object-fit: contain; background: var(--surface); }
     .q-media audio { width: 100%; display: block; padding: 8px; }
     .q-media video { width: 100%; display: block; }
     .q-media iframe { width: 100%; height: 260px; border: none; display: block; }
 
-    /* ── PROGRESS ── */
-    .progress-bar-wrap {
-      background: #e2e8f0; border-radius: 999px; height: 6px; margin-bottom: 24px;
-    }
-    .progress-bar-fill {
-      background: linear-gradient(90deg, #2563eb, #1d4ed8);
-      height: 100%; border-radius: 999px; transition: width 0.3s;
-    }
-    .progress-label { font-size: 0.82rem; color: #64748b; margin-bottom: 6px; font-weight: 500; }
+    /* ── Progress ── */
+    .progress-bar-wrap { background: var(--line); height: 4px; margin-bottom: 24px; }
+    .progress-bar-fill { background: var(--blue); height: 100%; transition: width 0.3s; }
+    .progress-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
 
-    /* ── QUESTION NAVIGATOR ── */
-    .q-nav { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; padding:16px 0 8px; }
-    .q-dot { width:30px; height:30px; border-radius:50%; border:2px solid #e2e8f0; background:#fff; color:#94a3b8; font-size:0.68rem; font-weight:700; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.15s; flex-shrink:0; }
-    .q-dot:hover { border-color:#2563eb; color:#2563eb; }
-    .q-dot.dot-answered { background:#16a34a; border-color:#16a34a; color:#fff; }
-    .q-dot.dot-open { background:#7c3aed; border-color:#7c3aed; color:#fff; }
-    .q-dot.dot-open.dot-answered { background:#16a34a; border-color:#16a34a; }
+    /* ── Question navigator ── */
+    .q-nav { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 16px 0 8px; }
+    .q-dot { width: 30px; height: 30px; border: 1.5px solid var(--line); background: var(--white); color: var(--muted); font-size: 0.68rem; font-weight: 700; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition); flex-shrink: 0; }
+    .q-dot:hover { border-color: var(--blue); color: var(--blue); }
+    .q-dot.dot-answered { background: var(--green); border-color: var(--green); color: #fff; }
+    .q-dot.dot-open { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .q-dot.dot-open.dot-answered { background: var(--green); border-color: var(--green); }
 
-    /* ── ANTI-CHEAT OVERLAY ── */
+    /* ── Anti-cheat overlay ── */
     body.overlay-active { overflow: hidden; }
     body.overlay-active header, body.overlay-active main { filter: blur(8px); pointer-events: none; }
+    #exitOverlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,0.9); backdrop-filter: blur(12px); z-index: 2000; align-items: center; justify-content: center; }
+    #exitOverlay > div { background: var(--white); max-width: 440px; width: 92%; padding: 28px; border-left: 4px solid var(--red); }
+    #exitOverlay h2 { margin: 0 0 10px; font-size: 1.25rem; color: var(--black); font-weight: 700; }
+    #exitOverlayStrike { font-size: 1.1rem; font-weight: 800; color: var(--red); margin-bottom: 10px; }
+    #exitOverlayMsg { font-size: 0.88rem; color: var(--slate); line-height: 1.6; margin-bottom: 14px; }
+    #exitOverlayCountText { font-size: 0.82rem; color: var(--muted); text-align: center; margin-bottom: 4px; }
+    #exitOverlayCountDig { font-size: 3rem; font-weight: 800; text-align: center; color: var(--red); margin-bottom: 20px; line-height: 1; }
+    #exitOverlayStay { background: var(--surface); color: var(--blue); border: 1.5px solid var(--line); }
+    #exitOverlayLeave { background: var(--red); }
+    #exitOverlayLeave:hover { background: #b91c1c; }
 
-    #exitOverlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(15,23,42,0.88); backdrop-filter: blur(12px);
-      z-index: 2000; align-items: center; justify-content: center;
-    }
-    #exitOverlay > div {
-      background: #fff; max-width: 440px; width: 92%;
-      border-radius: 20px; padding: 28px; box-shadow: 0 20px 60px rgba(15,23,42,0.4);
-    }
-    #exitOverlay h2 { margin: 0 0 10px; font-size: 1.35rem; color: #0f172a; }
-    #exitOverlayStrike { font-size: 1.2rem; font-weight: 800; color: #dc2626; margin-bottom: 10px; }
-    #exitOverlayMsg { font-size: 0.9rem; color: #475569; line-height: 1.6; margin-bottom: 14px; }
-    #exitOverlayCountText { font-size: 0.85rem; color: #64748b; text-align: center; margin-bottom: 4px; }
-    #exitOverlayCountDig { font-size: 3rem; font-weight: 800; text-align: center; color: #dc2626; margin-bottom: 20px; }
-    #exitOverlayStay { background: #f1f5f9; color: #2563eb; border: 2px solid #e2e8f0; box-shadow: none; }
-    #exitOverlayLeave { background: linear-gradient(135deg, #dc2626, #b91c1c); box-shadow: 0 3px 12px rgba(220,38,38,0.3); }
+    /* ── Terminated ── */
+    #terminatedScreen { display: none; position: fixed; inset: 0; background: var(--navy); z-index: 3000; align-items: center; justify-content: center; text-align: center; padding: 40px; }
+    #terminatedScreen > div { background: var(--white); padding: 44px 36px; max-width: 460px; width: 92%; border-top: 4px solid var(--red); }
 
-    /* ── TERMINATED ── */
-    #terminatedScreen {
-      display: none; position: fixed; inset: 0; background: #0f172a; z-index: 3000;
-      align-items: center; justify-content: center; text-align: center; padding: 40px;
-    }
-    #terminatedScreen > div {
-      background: #fff; border-radius: 20px; padding: 44px 36px;
-      max-width: 460px; width: 92%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-    }
-
-    /* ── CONFIRM ── */
-    .confirm-grid { display: grid; gap: 10px; margin: 16px 0; }
-    .confirm-item {
-      background: #f8f9fc; padding: 14px 16px; border-radius: 10px; border: 2px solid #e2e8f0;
-    }
-    .confirm-item-label { font-size: 0.78rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
-    .confirm-item-val { font-size: 1rem; font-weight: 600; color: #0f172a; }
-
-    /* ── SUCCESS ── */
+    /* ── Success ── */
     #successScreen { display: none; text-align: center; padding: 60px 20px; }
-    #successScreen .check { font-size: 3.5rem; margin-bottom: 16px; }
 
-    /* ── WARNING BANNER ── */
-    .warn-box {
-      background: #fef3c7; border-left: 4px solid #f59e0b;
-      padding: 14px 18px; border-radius: 8px; margin-bottom: 20px;
-      font-size: 0.88rem; color: #78350f; line-height: 1.6;
-    }
-    .warn-box strong { color: #92400e; }
+    /* ── Warning banner (legacy) ── */
+    .warn-box { background: #fffbeb; border-left: 4px solid var(--amber); padding: 14px 18px; margin-bottom: 20px; font-size: 0.88rem; color: #78350f; line-height: 1.6; }
 
     @media (max-width: 640px) {
-      body { padding-top: 70px; }
-      header { padding: 12px 16px; }
-      .card { padding: 24px 20px; }
-      main { padding: 0 12px; }
+      body { padding-top: 56px; }
+      header { padding: 0 20px; }
+      .card { padding: 24px 16px; }
+      main { padding: 0 16px; }
+      .name-row { flex-direction: column; gap: 0; }
     }
   </style>
 </head>
@@ -260,86 +198,77 @@
     </div>
 
     <!-- Login -->
-    <section id="loginScreen" style="display:none;position:relative;" class="card">
-      <h2 id="loginTitle" style="font-size:2rem;margin-bottom:8px;"></h2>
-      <p id="loginSub" style="text-align:center;font-size:0.95rem;color:#64748b;margin-bottom:24px;"></p>
+    <section id="loginScreen" style="display:none;" class="card">
+      <div class="login-eyebrow" id="loginTitle">Exam Builder</div>
+      <div class="login-title" id="loginCardTitle">Commencer l'épreuve</div>
+      <p class="login-sub" id="loginSub"></p>
 
-      <!-- Student / Teacher toggle — top right corner -->
-      <div id="loginModeToggle" style="position:absolute;top:20px;right:20px;display:flex;gap:0;background:#f1f5f9;border-radius:8px;padding:3px;border:1px solid #e2e8f0;">
-        <button id="modeStudent" onclick="setLoginMode('student')"
-          style="padding:6px 14px;border-radius:6px;border:none;background:#fff;color:#0f172a;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(15,23,42,0.1);transition:all 0.15s;">
-          <span id="modeStudentLabel">Étudiant</span>
-        </button>
-        <button id="modeTeacher" onclick="setLoginMode('teacher')"
-          style="padding:6px 14px;border-radius:6px;border:none;background:none;color:#64748b;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;">
-          <span id="modeTeacherLabel">Enseignant</span>
-        </button>
+      <label id="labelName">Nom et prénom</label>
+      <div class="name-row" style="margin-bottom:16px;">
+        <input type="text" id="inputLastName" placeholder="NOM" style="text-transform:uppercase;">
+        <input type="text" id="inputFirstName" placeholder="Prénom">
       </div>
 
-      <div style="background:#f8f9fc;padding:24px;border-radius:12px;margin-bottom:24px;">
-        <!-- Name row: NOM + Prénom side by side -->
-        <label id="labelName" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Nom et prénom</label>
-        <div style="display:flex;gap:10px;margin-bottom:16px;">
-          <input type="text" id="inputLastName" placeholder="NOM"
-            style="flex:1;text-transform:uppercase;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;">
-          <input type="text" id="inputFirstName" placeholder="Prénom"
-            style="flex:1;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;">
-        </div>
+      <label id="labelEmail">Adresse e-mail</label>
+      <input type="email" id="inputEmail" placeholder="votre.email@example.com" style="margin-bottom:16px;">
 
-        <label id="labelEmail" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Adresse e-mail</label>
-        <input type="email" id="inputEmail" placeholder="votre.email@example.com"
-          style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;margin-bottom:16px;">
-
-        <!-- Groups dropdown — shown only when groups defined -->
-        <div id="groupRow" style="display:none;">
-          <label id="labelGroup" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Groupe</label>
-          <select id="inputGroup"
-            style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;margin-bottom:16px;background:#fff;cursor:pointer;">
-            <option value="">Sélectionner votre groupe</option>
-          </select>
-        </div>
-
-        <label id="labelCode" style="font-weight:600;font-size:0.9rem;color:#0f172a;display:block;margin-bottom:8px;">Code de classe</label>
-        <input type="text" id="inputCode" placeholder=""
-          style="width:100%;padding:12px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:0.9rem;font-family:inherit;box-sizing:border-box;">
+      <!-- Groups dropdown — shown only when groups defined -->
+      <div id="groupRow" style="display:none;">
+        <label id="labelGroup">Groupe</label>
+        <select id="inputGroup" style="margin-bottom:16px;cursor:pointer;">
+          <option value="">Sélectionner votre groupe</option>
+        </select>
       </div>
 
-      <div style="display:flex;justify-content:center;">
-        <button id="loginBtn" style="font-size:1rem;padding:14px 48px;">Commencer l'épreuve</button>
-      </div>
+      <label id="labelCode">Code d'accès</label>
+      <input type="text" id="inputCode" placeholder="Ex : AB3C7D" style="margin-bottom:28px;letter-spacing:0.08em;">
+
+      <button id="loginBtn" style="width:100%;padding:15px;">Continuer →</button>
     </section>
 
     <!-- Confirm -->
     <section id="confirmScreen" style="display:none;" class="card">
-      <h2 style="font-size:1.8rem;margin-bottom:20px;" id="confirmTitle">Avant de commencer l'épreuve</h2>
+      <div class="confirm-heading-eyebrow" id="confirmTitle">Avant de commencer</div>
+      <div class="confirm-heading" id="confirmHeading">Lisez attentivement avant de commencer</div>
 
-      <!-- Before you begin — neutral info card -->
-      <div id="confirmWarningBox" style="background:#f8fafc;border:1px solid #e2e8f0;padding:18px 20px;border-radius:10px;margin-bottom:24px;">
-        <p style="margin:0 0 12px;font-weight:700;color:#0f172a;font-size:0.9rem;display:flex;align-items:center;gap:8px;" id="confirmWarningTitle">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          Comment fonctionne l'épreuve ?
-        </p>
-        <ul style="margin:0;padding-left:20px;color:#475569;font-size:0.86rem;line-height:1.9;" id="confirmWarningList">
-          <li id="cw1"></li>
-          <li id="cw2"></li>
+      <!-- Penalty callout — screen exit warning -->
+      <div class="penalty-callout" id="confirmWarningBox">
+        <div class="penalty-callout-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="penalty-callout-title" id="confirmWarningTitle">Sortie d'écran — soumission automatique</span>
+        </div>
+        <ul>
           <li id="cw3"></li>
           <li id="cw4"></li>
+        </ul>
+      </div>
+
+      <!-- Rules block — neutral conditions -->
+      <div class="rules-block">
+        <div class="rules-block-title" id="confirmRulesTitle">Conditions de l'épreuve</div>
+        <ul>
+          <li id="cw1"></li>
+          <li id="cw2"></li>
           <li id="cw5"></li>
         </ul>
       </div>
 
-      <!-- Info verification -->
-      <p style="font-weight:600;color:#0f172a;font-size:1rem;margin:0 0 14px;" id="confirmVerifyLabel">Vérifiez vos informations</p>
-      <div style="display:grid;gap:10px;margin-bottom:16px;">
-        <div class="confirm-item"><div class="confirm-item-label" id="confirmNameLabel">NOM &amp; PRÉNOM</div><div class="confirm-item-val" id="confirmName"></div></div>
-        <div class="confirm-item"><div class="confirm-item-label" id="confirmEmailLabel">EMAIL</div><div class="confirm-item-val" id="confirmEmail"></div></div>
-        <div class="confirm-item" id="confirmGroupRow" style="display:none;"><div class="confirm-item-label" id="confirmGroupLabel">GROUPE</div><div class="confirm-item-val" id="confirmGroup"></div></div>
-      </div>
-      <p style="font-size:0.88rem;color:#64748b;margin:0 0 24px;" id="confirmEditNote">Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent.</p>
+      <!-- Identity verification -->
+      <div class="confirm-verify-label" id="confirmVerifyLabel">Vos informations</div>
+      <div class="confirm-item"><div class="confirm-item-label" id="confirmNameLabel">NOM &amp; PRÉNOM</div><div class="confirm-item-val" id="confirmName"></div></div>
+      <div class="confirm-item"><div class="confirm-item-label" id="confirmEmailLabel">EMAIL</div><div class="confirm-item-val" id="confirmEmail"></div></div>
+      <div class="confirm-item" id="confirmGroupRow" style="display:none;"><div class="confirm-item-label" id="confirmGroupLabel">GROUPE</div><div class="confirm-item-val" id="confirmGroup"></div></div>
+      <p style="font-size:0.82rem;color:var(--muted);margin:10px 0 0;" id="confirmEditNote">Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent.</p>
+
+      <!-- Acknowledgement checkbox -->
+      <label class="confirm-acknowledge">
+        <input type="checkbox" id="confirmAcknowledge">
+        <span class="confirm-acknowledge-text" id="confirmAcknowledgeLabel">J'ai lu et compris les règles, notamment la politique de sortie d'écran.</span>
+      </label>
 
       <div style="display:flex;justify-content:space-between;gap:12px;">
-        <button class="btn-light" id="confirmBackBtn" style="border-radius:999px;padding:12px 24px;font-size:0.9rem;">← Modifier</button>
-        <button id="confirmStartBtn" style="border-radius:999px;padding:12px 32px;font-size:0.95rem;" id="confirmStartBtn">Commencer l'épreuve →</button>
+        <button class="btn-light" id="confirmBackBtn">← Modifier</button>
+        <button id="confirmStartBtn" disabled style="opacity:0.5;cursor:not-allowed;">Commencer l'épreuve →</button>
       </div>
     </section>
 
@@ -356,7 +285,9 @@
 
     <!-- Success -->
     <div id="successScreen" class="card">
-      <div class="check">✅</div>
+      <div style="display:flex;justify-content:center;margin-bottom:20px;">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+      </div>
       <h2 style="text-align:center;">Épreuve soumise !</h2>
       <p>Votre copie a bien été enregistrée. Vous pouvez fermer cette fenêtre.</p>
       <p id="emailStatus" style="font-size:0.82rem;color:#64748b;text-align:center;margin-top:8px;"></p>
@@ -366,8 +297,10 @@
   <!-- Terminated screen -->
   <div id="terminatedScreen">
     <div>
-      <div style="font-size:3rem;margin-bottom:14px;">🔒</div>
-      <h2 style="margin:0 0 10px;font-size:1.5rem;color:#0f172a;font-weight:700;">Accès bloqué</h2>
+      <div style="margin-bottom:20px;display:flex;justify-content:center;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h2 style="margin:0 0 10px;font-size:1.5rem;color:#0a0a0a;font-weight:700;">Accès bloqué</h2>
       <p style="margin:0 0 14px;font-size:0.93rem;color:#475569;line-height:1.7;">
         L'épreuve a été <strong>arrêtée automatiquement</strong> suite à plusieurs sorties de l'écran.
         Il n'est pas possible de recommencer depuis cet appareil.
@@ -538,29 +471,37 @@
       }
 
       // Apply UI language strings to login + confirm screens
-      document.getElementById('loginTitle').textContent = UI.loginCardTitle;
-      document.getElementById('loginSub').textContent = `${UI.loginSub} ${EXAM.duration_mins} ${UI.minutes}`;
-      document.getElementById('modeStudentLabel').textContent = UI.modeStudent;
-      document.getElementById('modeTeacherLabel').textContent = UI.modeTeacher;
-      document.getElementById('labelName').textContent    = UI.labelName;
-      document.getElementById('labelEmail').textContent   = UI.labelEmail;
-      document.getElementById('labelGroup').textContent   = UI.labelGroup;
-      document.getElementById('labelCode').textContent    = UI.labelCode;
-      document.getElementById('loginBtn').textContent     = UI.loginBtn;
+      document.getElementById('loginTitle').textContent    = UI.loginCardTitle;
+      document.getElementById('loginSub').textContent      = `${UI.loginSub} ${EXAM.duration_mins} ${UI.minutes}`;
+      document.getElementById('labelName').textContent     = UI.labelName;
+      document.getElementById('labelEmail').textContent    = UI.labelEmail;
+      document.getElementById('labelGroup').textContent    = UI.labelGroup;
+      document.getElementById('labelCode').textContent     = UI.labelCode;
+      document.getElementById('loginBtn').textContent      = UI.loginBtn;
       document.getElementById('confirmTitle').textContent        = UI.confirmTitle;
+      document.getElementById('confirmHeading').textContent      = UI.confirmHeading;
       document.getElementById('confirmWarningTitle').textContent = UI.warningTitle;
+      document.getElementById('confirmRulesTitle').textContent   = UI.rulesTitle;
       document.getElementById('confirmVerifyLabel').textContent  = UI.verifyLabel;
       document.getElementById('confirmNameLabel').textContent    = UI.nameLabel;
       document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
       document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
+      document.getElementById('confirmAcknowledgeLabel').textContent = UI.acknowledgeLabel;
       document.getElementById('confirmBackBtn').textContent      = UI.backBtn;
       document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
 
-      // Warning list items
-      const cwItems = [UI.cw1, UI.cw2, UI.cw3, UI.cw4, UI.cw5];
-      cwItems.forEach((text, i) => {
-        const el = document.getElementById('cw' + (i+1));
-        if (el) el.innerHTML = text;
+      // cw items — cw3+cw4 in penalty callout, cw1+cw2+cw5 in rules block
+      [1,2,3,4,5].forEach(i => {
+        const el = document.getElementById('cw' + i);
+        if (el) el.innerHTML = UI['cw' + i];
+      });
+
+      // Acknowledge checkbox enables start button
+      document.getElementById('confirmAcknowledge').addEventListener('change', function() {
+        const btn = document.getElementById('confirmStartBtn');
+        btn.disabled = !this.checked;
+        btn.style.opacity = this.checked ? '1' : '0.5';
+        btn.style.cursor  = this.checked ? 'pointer' : 'not-allowed';
       });
 
       // Show login
@@ -596,31 +537,31 @@
   function getUIStrings(l) {
     const isFR = l !== 'en';
     return {
-      loginCardTitle: isFR ? "Commencer l'épreuve" : 'Start the exam',
-      loginSub:     isFR ? "Une fois l'épreuve lancée, vous disposerez de" : 'Once the exam has started, you will have',
-      minutes:      isFR ? 'minutes pour la compléter.' : 'minutes to complete it.',
-      modeStudent:  isFR ? 'Étudiant' : 'Student',
-      modeTeacher:  isFR ? 'Enseignant' : 'Teacher',
-      labelName:    isFR ? 'Nom et prénom' : 'Full name',
-      labelEmail:   isFR ? 'Adresse e-mail' : 'Email address',
-      labelGroup:   isFR ? 'Groupe' : 'Group',
-      labelCode:    isFR ? 'Code de classe' : 'Access code',
-      labelCodeTeacher: isFR ? 'Code enseignant' : 'Teacher code',
-      loginBtn:     isFR ? "Commencer l'épreuve" : 'Start exam',
-      selectGroup:  isFR ? 'Sélectionner votre groupe' : 'Select your group',
-      confirmTitle: isFR ? "Avant de commencer l'épreuve" : 'Before you begin',
-      warningTitle: isFR ? "Comment fonctionne l'épreuve ?" : 'How does the exam work?',
-      verifyLabel:  isFR ? 'Vérifiez vos informations' : 'Check your details',
-      nameLabel:    isFR ? 'NOM & PRÉNOM' : 'FULL NAME',
-      emailLabel:   'EMAIL',
-      groupLabel:   isFR ? 'GROUPE' : 'GROUP',
-                  editNote:     isFR ? "Si quelque chose n’est pas correct, cliquez sur « Modifier » pour revenir à l’écran précédent." : "If something is incorrect, click Edit to go back.",
-      backBtn:      isFR ? '← Modifier' : '← Edit',
-      startBtn:     isFR ? "Commencer l'épreuve →" : 'Start exam →',
-      cw1: isFR ? "L'épreuve se déroule en <strong>plein écran</strong>." : "The exam runs in <strong>full-screen mode</strong>.",
-      cw2: isFR ? "Si vous quittez la fenêtre ou changez d'application, un <strong>message d'avertissement</strong> apparaît." : "If you leave the window or switch applications, a <strong>warning message</strong> will appear.",
-      cw3: isFR ? "Vous avez <strong>15 secondes</strong> pour revenir, sinon l'épreuve est arrêtée et devra être recommencée." : "You have <strong>15 seconds</strong> to return, otherwise the exam is terminated and must be restarted.",
-      cw4: isFR ? "Après <strong>3 évènements techniques</strong>, l'épreuve est <strong>envoyée automatiquement</strong>." : "After <strong>3 technical events</strong>, the exam is <strong>submitted automatically</strong>.",
+      loginCardTitle: isFR ? "Commencer l’épreuve" : ‘Start the exam’,
+      loginSub:       isFR ? "Durée de l’épreuve :" : ‘Exam duration:’,
+      minutes:        isFR ? ‘minutes.’ : ‘minutes.’,
+      labelName:      isFR ? ‘Nom et prénom’ : ‘Full name’,
+      labelEmail:     isFR ? ‘Adresse e-mail’ : ‘Email address’,
+      labelGroup:     isFR ? ‘Groupe’ : ‘Group’,
+      labelCode:      isFR ? "Code d’accès" : ‘Access code’,
+      loginBtn:       isFR ? ‘Continuer →’ : ‘Continue →’,
+      selectGroup:    isFR ? ‘Sélectionner votre groupe’ : ‘Select your group’,
+      confirmTitle:   isFR ? ‘Avant de commencer’ : ‘Before you begin’,
+      confirmHeading: isFR ? ‘Lisez attentivement avant de commencer’ : ‘Read carefully before starting’,
+      warningTitle:   isFR ? "Sortie d’écran — soumission automatique" : ‘Screen exit — automatic submission’,
+      rulesTitle:     isFR ? "Conditions de l’épreuve" : ‘Exam conditions’,
+      verifyLabel:    isFR ? ‘Vos informations’ : ‘Your details’,
+      nameLabel:      isFR ? ‘NOM & PRÉNOM’ : ‘FULL NAME’,
+      emailLabel:     ‘EMAIL’,
+      groupLabel:     isFR ? ‘GROUPE’ : ‘GROUP’,
+      editNote:       isFR ? "Si quelque chose n’est pas correct, cliquez sur « Modifier » pour revenir à l’écran précédent." : "If something is incorrect, click Edit to go back.",
+      backBtn:        isFR ? ‘← Modifier’ : ‘← Edit’,
+      startBtn:       isFR ? "Commencer l’épreuve →" : ‘Start exam →’,
+      acknowledgeLabel: isFR ? "J’ai lu et compris les règles, notamment la politique de sortie d’écran." : "I have read and understood the rules, including the screen exit policy.",
+      cw1: isFR ? "L’épreuve se déroule en <strong>plein écran</strong>." : "The exam runs in <strong>full-screen mode</strong>.",
+      cw2: isFR ? "Si vous quittez la fenêtre ou changez d’application, un <strong>message d’avertissement</strong> apparaît." : "If you leave the window or switch applications, a <strong>warning message</strong> will appear.",
+      cw3: isFR ? "Vous avez <strong>15 secondes</strong> pour revenir — au-delà, l’épreuve est arrêtée et doit être recommencée." : "You have <strong>15 seconds</strong> to return — after which the exam is terminated and must be restarted.",
+      cw4: isFR ? "Après <strong>3 sorties détectées</strong>, votre copie est <strong>envoyée automatiquement</strong> et l’épreuve se termine." : "After <strong>3 detected exits</strong>, your work is <strong>submitted automatically</strong> and the exam ends.",
       cw5: isFR ? "Tous ces évènements sont enregistrés dans un <strong>récapitulatif de session</strong> joint à votre copie." : "All events are recorded in a <strong>session log</strong> attached to your submission.",
       alertFillAll: isFR ? 'Merci de remplir tous les champs.' : 'Please fill in all fields.',
       alertEmail:   isFR ? 'Adresse e-mail invalide.' : 'Invalid email address.',
@@ -629,26 +570,7 @@
     };
   }
 
-  let loginMode = 'student'; // 'student' or 'teacher'
 
-  function setLoginMode(mode) {
-    loginMode = mode;
-    const isTeacher = mode === 'teacher';
-    const UI = window.UI || getUIStrings('fr');
-
-    // Top-right pill toggle styling
-    document.getElementById('modeStudent').style.background = isTeacher ? 'none' : '#fff';
-    document.getElementById('modeStudent').style.color      = isTeacher ? '#64748b' : '#0f172a';
-    document.getElementById('modeStudent').style.boxShadow  = isTeacher ? 'none' : '0 1px 4px rgba(15,23,42,0.1)';
-    document.getElementById('modeTeacher').style.background = isTeacher ? '#fff' : 'none';
-    document.getElementById('modeTeacher').style.color      = isTeacher ? '#0f172a' : '#64748b';
-    document.getElementById('modeTeacher').style.boxShadow  = isTeacher ? '0 1px 4px rgba(15,23,42,0.1)' : 'none';
-
-    // Teacher: hide group, change code label
-    document.getElementById('groupRow').style.display = isTeacher ? 'none' : (EXAM?.groups ? 'block' : 'none');
-    document.getElementById('labelCode').textContent  = isTeacher ? UI.labelCodeTeacher : UI.labelCode;
-    document.getElementById('inputCode').placeholder = window.UI?.labelCode || 'Code';
-  }
 
   // ============================================================
   //  LOGIN
@@ -661,39 +583,30 @@
       const code      = document.getElementById('inputCode').value.trim().toUpperCase();
       const groupEl   = document.getElementById('inputGroup');
       const group     = groupEl ? groupEl.value : '';
-      const UI        = window.UI || getUIStrings('fr');
-      const isTeacher = loginMode === 'teacher';
+      const UI = window.UI || getUIStrings('fr');
 
-      // Teacher code = PROF- + access_code (case insensitive)
-      const teacherCode = 'PROF-' + (EXAM?.access_code || '').toUpperCase();
-
-      // DEBUG or PROF- code clears session lock
-      if (code === 'DEBUG' || code === teacherCode) {
-        localStorage.removeItem(TERMINATED_KEY);
-      }
+      // DEBUG code clears session lock for testing
+      if (code === 'DEBUG') { localStorage.removeItem(TERMINATED_KEY); }
 
       if (localStorage.getItem(TERMINATED_KEY) === '1') { showTerminated(); return; }
 
       if (!lastName || !firstName || !email) { alert(UI.alertFillAll); return; }
       if (!email.includes('@')) { alert(UI.alertEmail); return; }
 
-      if (isTeacher) {
-        if (code !== teacherCode && code !== 'DEBUG') { alert(UI.alertCode); return; }
-      } else {
-        const groupRow = document.getElementById('groupRow');
-        if (groupRow && groupRow.style.display !== 'none' && !group) { alert(UI.alertGroup); return; }
-        // Per-group code validation
-        let validCode = (code === 'DEBUG');
-        if (!validCode && EXAM.group_codes && EXAM.group_codes !== '{}') {
-          try {
-            const gc = JSON.parse(EXAM.group_codes);
-            validCode = group && gc[group] ? (code === gc[group].toUpperCase()) : (code === (EXAM.access_code || '').toUpperCase());
-          } catch(e) { validCode = (code === (EXAM.access_code || '').toUpperCase()); }
-        } else if (!validCode) {
-          validCode = (code === (EXAM.access_code || '').toUpperCase());
-        }
-        if (!validCode) { alert(UI.alertCode); return; }
+      const groupRow = document.getElementById('groupRow');
+      if (groupRow && groupRow.style.display !== 'none' && !group) { alert(UI.alertGroup); return; }
+
+      // Per-group code validation
+      let validCode = (code === 'DEBUG');
+      if (!validCode && EXAM.group_codes && EXAM.group_codes !== '{}') {
+        try {
+          const gc = JSON.parse(EXAM.group_codes);
+          validCode = group && gc[group] ? (code === gc[group].toUpperCase()) : (code === (EXAM.access_code || '').toUpperCase());
+        } catch(e) { validCode = (code === (EXAM.access_code || '').toUpperCase()); }
+      } else if (!validCode) {
+        validCode = (code === (EXAM.access_code || '').toUpperCase());
       }
+      if (!validCode) { alert(UI.alertCode); return; }
 
       studentName  = lastName + ' ' + firstName;
       studentEmail = email;
@@ -708,9 +621,7 @@
         window._studentGroup = group;
       }
 
-      const warningBox = document.getElementById('confirmWarningBox');
-      if (warningBox) warningBox.style.display = isTeacher ? 'none' : 'block';
-      window._isTeacher = isTeacher;
+
 
       document.getElementById('loginScreen').style.display   = 'none';
       document.getElementById('confirmScreen').style.display = 'block';
@@ -727,6 +638,11 @@
   });
 
   document.getElementById('confirmBackBtn').addEventListener('click', () => {
+    // Reset acknowledge checkbox so it must be re-checked on return
+    const cb = document.getElementById('confirmAcknowledge');
+    if (cb) { cb.checked = false; }
+    const btn = document.getElementById('confirmStartBtn');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
     document.getElementById('confirmScreen').style.display = 'none';
     document.getElementById('loginScreen').style.display   = 'block';
   });
@@ -765,7 +681,7 @@
     examActive    = true;
     examSubmitted = false;
     violationCount = 0;
-    window._teacherMode = window._isTeacher || false;
+
     logEvent('Exam started', studentName);
 
     isStartingExam = true;
