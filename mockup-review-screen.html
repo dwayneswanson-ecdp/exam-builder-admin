@@ -144,11 +144,6 @@
     .btn-primary { background: var(--blue); color: var(--white); border-color: var(--blue); }
     .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
 
-    /* Demo toggle */
-    .demo-toggle { position: fixed; top: 116px; right: 24px; z-index: 999; background: var(--white); border: 1px solid var(--line); padding: 10px 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 6px; min-width: 160px; }
-    .demo-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
-    .demo-btn { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; padding: 6px 10px; background: var(--white); border: 1px solid var(--line); color: var(--slate); cursor: pointer; font-family: inherit; transition: all var(--transition); text-align: left; }
-    .demo-btn.active { background: var(--black); color: var(--white); border-color: var(--black); }
   </style>
 </head>
 <body>
@@ -422,48 +417,7 @@
   </div>
 </div>
 
-<!-- Demo toggle -->
-<div class="demo-toggle">
-  <div class="demo-label">Preview state</div>
-  <button class="demo-btn active" id="dClean" onclick="setState('clean')">All good (20/20)</button>
-  <button class="demo-btn" id="dWarn" onclick="setState('warn')">Pts mismatch</button>
-</div>
 
-<script>
-  function setState(s) {
-    document.getElementById('dClean').classList.toggle('active', s === 'clean');
-    document.getElementById('dWarn').classList.toggle('active', s === 'warn');
-
-    const ptsVal       = document.getElementById('ptsVal');
-    const ptsLbl       = document.getElementById('ptsLbl');
-    const ptsCheckIcon = document.getElementById('ptsCheckIcon');
-    const ptsCheckText = document.getElementById('ptsCheckText');
-    const ctaHint      = document.getElementById('ctaHint');
-    const ptsCell      = document.getElementById('ptsCell');
-
-    if (s === 'clean') {
-      ptsVal.textContent = '20';
-      ptsVal.className = 'stat-val green';
-      ptsLbl.textContent = '/ 20 pts';
-      ptsCheckIcon.className = 'check-icon ok';
-      ptsCheckIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-      ptsCheckText.className = 'check-text';
-      ptsCheckText.textContent = '20 / 20 pts assigned';
-      ctaHint.className = 'cta-hint';
-      ctaHint.textContent = 'Everything looks good — ready to publish.';
-    } else {
-      ptsVal.textContent = '18';
-      ptsVal.className = 'stat-val amber';
-      ptsLbl.textContent = '/ 20 pts';
-      ptsCheckIcon.className = 'check-icon warn';
-      ptsCheckIcon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
-      ptsCheckText.className = 'check-text warn';
-      ptsCheckText.textContent = '18 / 20 pts — 2 pts unassigned';
-      ctaHint.className = 'cta-hint warn';
-      ctaHint.textContent = '⚠ 2 pts unassigned — go back to the editor to fix before publishing.';
-    }
-  }
-</script>
 
 </body>
 </html>
