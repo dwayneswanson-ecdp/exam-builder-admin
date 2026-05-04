@@ -283,6 +283,15 @@
       </div>
     </section>
 
+    <!-- Already submitted (student returns after submitting) -->
+    <div id="submittedScreen" class="card" style="display:none;text-align:center;padding:60px 20px;">
+      <div style="display:flex;justify-content:center;margin-bottom:20px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
+      </div>
+      <h2 style="margin:0 0 12px;">Épreuve déjà soumise</h2>
+      <p style="color:var(--muted);">Votre copie a déjà été enregistrée. Vous pouvez fermer cette fenêtre.</p>
+    </div>
+
     <!-- Success -->
     <div id="successScreen" class="card">
       <div style="display:flex;justify-content:center;margin-bottom:20px;">
@@ -904,7 +913,7 @@
 
   function askToExit(reason, source) {
     if (!examActive || examSubmitted || exitPromptOpen) return;
-    if (window._teacherMode) return; // Teacher mode — no anti-cheat
+    if (false) return; // reserved
     if (Date.now() < antiCheatSuspendedUntil) return;
 
     violationCount++;
