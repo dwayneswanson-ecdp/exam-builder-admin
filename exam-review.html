@@ -284,7 +284,8 @@
     const groups    = ob.groups || [];
 
     const openPts = openQs.reduce((s, q) => s + (q.max_points || 5), 0);
-    const totalPts = mcqCount + openPts;
+    const mcqPts  = questions.filter(i => i.type === 'mcq').reduce((s, q) => s + (q.max_points || 1), 0);
+    const totalPts = mcqPts + openPts;
 
     // Header
     document.getElementById('leftTitle').textContent = ob.title || 'Untitled Exam';

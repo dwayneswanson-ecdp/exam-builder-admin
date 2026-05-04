@@ -255,7 +255,11 @@
     .rq-type-toggle { margin-left: 4px; font-size: 0.72rem; font-weight: 600; color: var(--slate); background: none; border: 1px solid var(--line); padding: 2px 8px; cursor: pointer; font-family: inherit; transition: all var(--transition); }
     .rq-type-toggle:hover { background: var(--surface); color: var(--black); }
 
-    .rq-actions { margin-left: auto; display: flex; gap: 4px; }
+    .rq-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .rq-pts-wrap { display: flex; align-items: center; gap: 4px; background: var(--surface); border: 1px solid var(--line); padding: 3px 8px; }
+    .rq-pts-input { width: 36px; border: none; background: transparent; font-size: 0.82rem; font-weight: 700; color: var(--black); font-family: inherit; text-align: center; outline: none; padding: 0; }
+    .rq-pts-input::-webkit-inner-spin-button, .rq-pts-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .rq-pts-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
     .rq-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 4px 6px; color: var(--muted); transition: all var(--transition); font-family: inherit; }
     .rq-btn:hover { background: var(--surface); color: var(--black); }
     .rq-btn.delete:hover { background: #fee2e2; color: var(--red); }
@@ -1278,6 +1282,13 @@
       ${isInferred ? `<span class="rq-inferred">${lang === 'fr' ? 'réponse inférée' : 'inferred answer'}</span>` : ''}
       <button class="rq-type-toggle" onclick="toggleType(${idx})">${isMCQ ? t.toggleToOpen : t.toggleToMCQ}</button>
       <div class="rq-actions">
+        <div class="rq-pts-wrap">
+          <input type="number" class="rq-pts-input" min="1" max="100"
+            value="${isMCQ ? (q.max_points || 1) : (q.max_points || 5)}"
+            title="${lang === 'fr' ? 'Points' : 'Points'}"
+            oninput="window.extractedQuestions[${idx}].max_points = parseInt(this.value)||1">
+          <span class="rq-pts-label">pts</span>
+        </div>
         <button class="rq-btn delete" onclick="deleteQuestion(${idx})">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14H6L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4h6v2"/>
@@ -1371,24 +1382,6 @@
         window.extractedQuestions[idx].grading_criteria = criteriaTA.value;
       });
       body.appendChild(criteriaTA);
-
-      const ptsRow = document.createElement('div');
-      ptsRow.className = 'criteria-pts-row';
-      ptsRow.innerHTML = `<span class="criteria-pts-label">${lang === 'fr' ? 'Points max' : 'Max points'}</span>`;
-      const ptsInput = document.createElement('input');
-      ptsInput.type = 'number';
-      ptsInput.className = 'criteria-pts-input';
-      ptsInput.value = q.max_points || 5;
-      ptsInput.min = 1; ptsInput.max = 100;
-      ptsInput.addEventListener('input', () => {
-        window.extractedQuestions[idx].max_points = parseInt(ptsInput.value) || 5;
-      });
-      ptsRow.appendChild(ptsInput);
-      const ptsUnit = document.createElement('span');
-      ptsUnit.className = 'criteria-pts-label';
-      ptsUnit.textContent = 'pts';
-      ptsRow.appendChild(ptsUnit);
-      body.appendChild(ptsRow);
     }
 
     div.appendChild(body);
@@ -2136,7 +2129,7 @@ ${currentUserEmail}`;
         options:          q.options || [],
         correct:          q.correct ?? null,
         grading_criteria: q.grading_criteria || null,
-        max_points:       q.max_points || (q.type === 'open' ? 5 : null),
+        max_points:       q.max_points || (q.type === 'open' ? 5 : q.type === 'mcq' ? 1 : null),
         title:            q.title || null,
         instructions:     q.instructions || null,
         points:           q.points || null
