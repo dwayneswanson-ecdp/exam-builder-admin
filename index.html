@@ -51,17 +51,13 @@
     .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: var(--purple); color: #fff; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; flex-shrink: 0; }
 
     /* ── Exam summary banner ── */
-    .exam-summary { background: var(--white); border: 1px solid var(--line); padding: 14px 24px; margin-bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: none; }
+    .exam-summary { background: var(--white); border: 1px solid var(--line); padding: 14px 24px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .exam-summary-title { font-size: 0.9rem; font-weight: 700; color: var(--black); margin-bottom: 3px; }
     .exam-summary-meta { font-size: 0.72rem; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; }
     .exam-summary-edit { font-size: 0.72rem; font-weight: 700; color: var(--blue); text-decoration: none; white-space: nowrap; flex-shrink: 0; cursor: pointer; background: none; border: none; font-family: inherit; }
     .exam-summary-edit:hover { text-decoration: underline; }
 
-    /* ── Step AI purple ── */
-    .step.active-ai { color: #4c1d95; }
-    .step.active-ai .step-num { background: var(--purple); border-color: var(--purple); color: #fff; }
-    .step.done-ai { color: #4c1d95; }
-    .step.done-ai .step-num { background: var(--purple); border-color: var(--purple); color: #fff; }
+    /* ── Step AI purple — handled by .step-item.active-ai/.done-ai above ── */
 
     /* ── Grading criteria ── */
     .criteria-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #a78bfa; margin: 12px 0 6px; display: flex; align-items: center; gap: 6px; }
@@ -82,15 +78,21 @@
     .lang-btn { padding: 5px 14px; cursor: pointer; border: none; background: transparent; font-family: inherit; font-size: 0.78rem; font-weight: 700; color: var(--muted); transition: all var(--transition); }
     .lang-btn.active { background: var(--navy); color: #fff; }
 
-    /* ── Step bar ── */
-    .steps { display: flex; background: var(--white); border-bottom: 1px solid var(--line); }
-    .step { flex: 1; height: 44px; padding: 0 16px; display: flex; align-items: center; gap: 8px; border-right: 1px solid var(--line); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
-    .step:last-child { border-right: none; }
-    .step.active { color: var(--black); }
-    .step.done { color: var(--green); }
-    .step-num { width: 20px; height: 20px; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 800; flex-shrink: 0; }
-    .step.active .step-num { background: var(--black); border-color: var(--black); color: var(--white); }
-    .step.done .step-num { background: var(--green); border-color: var(--green); color: var(--white); }
+    /* ── Step track — exact replica of exam-onboarding.html ── */
+    .step-track { display: flex; align-items: center; margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+    .step-item { display: flex; align-items: center; gap: 10px; }
+    .step-num { width: 26px; height: 26px; border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.04em; color: var(--muted); flex-shrink: 0; transition: all var(--transition); }
+    .step-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; transition: color var(--transition); }
+    .step-item.active .step-num { background: var(--black); border-color: var(--black); color: var(--white); }
+    .step-item.active .step-label { color: var(--black); }
+    .step-item.done .step-num { background: var(--green); border-color: var(--green); color: var(--white); }
+    .step-item.done .step-label { color: var(--green); }
+    .step-item.active-ai .step-num { background: var(--purple); border-color: var(--purple); color: var(--white); }
+    .step-item.active-ai .step-label { color: var(--purple); }
+    .step-item.done-ai .step-num { background: var(--purple); border-color: var(--purple); color: var(--white); }
+    .step-item.done-ai .step-label { color: var(--purple); }
+    .step-connector { flex: 1; height: 1px; background: var(--line); margin: 0 16px; min-width: 24px; transition: background var(--transition); }
+    .step-connector.done { background: var(--green); }
 
     /* ── Cards ── */
     .card { background: var(--white); border: 1px solid var(--line); padding: 32px 40px; margin-bottom: 20px; }
@@ -380,15 +382,6 @@
     <span class="site-username" id="siteUsername"></span>
   </header>
 
-<!-- Exam summary banner (populated from onboarding data) -->
-  <div class="exam-summary" id="examSummaryBanner" style="display:none;">
-    <div>
-      <div class="exam-summary-title" id="summaryTitle">—</div>
-      <div class="exam-summary-meta" id="summaryMeta"></div>
-    </div>
-    <button class="exam-summary-edit" onclick="window.location.href='exam-onboarding.html'">Edit details →</button>
-  </div>
-
   <!-- Page title block — kept for JS; hidden by default -->
   <div id="pageTitleBlock" style="display:none;">
     <div id="langToggleMount"></div>
@@ -396,13 +389,41 @@
 
   <div class="container">
 
-  <!-- Step indicator — matches onboarding page width -->
-  <div class="steps">
-    <div class="step done"><div class="step-num">✓</div><span>Configure</span></div>
-    <div class="step active" id="step1"><div class="step-num">1</div><span data-i18n="step1"></span></div>
-    <div class="step" id="step2"><div class="step-num">2</div><span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;margin:0 2px;">AI</span><span data-i18n="step2"></span></div>
-    <div class="step" id="step3"><div class="step-num">3</div><span data-i18n="step3"></span></div>
-    <div class="step" id="step4"><div class="step-num">4</div><span data-i18n="step4"></span></div>
+  <!-- Step track — exact replica of exam-onboarding.html -->
+  <div class="step-track">
+    <div class="step-item done">
+      <div class="step-num">✓</div>
+      <span class="step-label">Configure</span>
+    </div>
+    <div class="step-connector done"></div>
+    <div class="step-item active" id="step1">
+      <div class="step-num">1</div>
+      <span class="step-label" data-i18n="step1"></span>
+    </div>
+    <div class="step-connector" id="sc1"></div>
+    <div class="step-item" id="step2">
+      <div class="step-num">2</div>
+      <span class="step-label" data-i18n="step2"></span>
+    </div>
+    <div class="step-connector" id="sc2"></div>
+    <div class="step-item" id="step3">
+      <div class="step-num">3</div>
+      <span class="step-label" data-i18n="step3"></span>
+    </div>
+    <div class="step-connector" id="sc3"></div>
+    <div class="step-item" id="step4">
+      <div class="step-num">4</div>
+      <span class="step-label" data-i18n="step4"></span>
+    </div>
+  </div>
+
+  <!-- Exam summary banner — inside container, aligned with content -->
+  <div class="exam-summary" id="examSummaryBanner" style="display:none;">
+    <div>
+      <div class="exam-summary-title" id="summaryTitle">—</div>
+      <div class="exam-summary-meta" id="summaryMeta"></div>
+    </div>
+    <button class="exam-summary-edit" onclick="window.location.href='exam-onboarding.html'">Edit details →</button>
   </div>
 
   <!-- Upload card -->
