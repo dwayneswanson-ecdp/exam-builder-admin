@@ -78,6 +78,7 @@ test('login form: fills and reaches confirm screen', async ({ page }) => {
   await page.click('#loginBtn');
 
   await expect(page.locator('#confirmScreen')).toBeVisible({ timeout: 5000 });
+  await page.check('#confirmAcknowledge');
 
   // Confirm screen shows correct student details
   await expect(page.locator('#confirmName')).toContainText('SMITH');
@@ -108,6 +109,7 @@ test('exam screen: questions load and submit button is present', async ({ page }
   await page.fill('#inputCode',      ACCESS_CODE);
   await page.click('#loginBtn');
   await expect(page.locator('#confirmScreen')).toBeVisible({ timeout: 5000 });
+  await page.check('#confirmAcknowledge');
   await page.click('#confirmStartBtn');
 
   await expect(page.locator('#examScreen')).toBeVisible({ timeout: 5000 });
@@ -155,6 +157,7 @@ test('full submission: success screen and email payload are correct', async ({ p
   await page.click('#loginBtn');
 
   await expect(page.locator('#confirmScreen')).toBeVisible({ timeout: 5000 });
+  await page.check('#confirmAcknowledge');
   await page.click('#confirmStartBtn');
 
   await expect(page.locator('#examScreen')).toBeVisible({ timeout: 5000 });

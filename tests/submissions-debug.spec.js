@@ -8,7 +8,7 @@ const TEACHER_ID = '4a7cac18-c80c-4d84-8459-2b8ca8e753e1';
 const EXAM_ID    = 'test-exam-id-001';
 
 const MOCK_SESSION = {
-  access_token:  'fake-teacher-token',
+  access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJzdWIiOiI0YTdjYWMxOC1jODBjLTRkODQtODQ1OS0yYjhjYThlNzUzZTEiLCJlbWFpbCI6ImR3YXluZUB0ZXN0LmNvbSIsImF1ZCI6ImF1dGhlbnRpY2F0ZWQiLCJleHAiOjk5OTk5OTk5OTksImlhdCI6MTAwMDAwMDAwMH0.fakesignatureXXX',
   token_type:    'bearer',
   expires_in:    3600,
   expires_at:    Math.floor(Date.now() / 1000) + 3600,
@@ -59,7 +59,7 @@ test('submissions: setSession failure leaves page blank', async ({ page }) => {
     localStorage.setItem(key, JSON.stringify(session));
   }, [`sb-${SUPABASE_PROJECT}-auth-token`, MOCK_SESSION]);
 
-  await page.goto(`http://localhost:3000/submissions.html?exam=${EXAM_ID}`);
+  await page.goto(`http://localhost:3000/submissions?exam=${EXAM_ID}`);
   await page.waitForTimeout(4000);
 
   const isVisible = await page.locator('#pageContent').isVisible();
@@ -74,7 +74,7 @@ test('submissions: no session stored — should redirect to dashboard', async ({
   page.on('pageerror', err => jsErrors.push(err.message));
 
   // No localStorage session injected — simulates unauthenticated state
-  await page.goto(`http://localhost:3000/submissions.html?exam=${EXAM_ID}`);
+  await page.goto(`http://localhost:3000/submissions?exam=${EXAM_ID}`);
   await page.waitForTimeout(3000);
 
   const url = page.url();
@@ -96,6 +96,9 @@ test('submissions: valid session — pageContent must become visible', async ({ 
   await page.route(`${SUPABASE_BASE}/auth/v1/token*`, route =>
     route.fulfill({ contentType: 'application/json', body: JSON.stringify(MOCK_SESSION) })
   );
+  await page.route(`${SUPABASE_BASE}/auth/v1/user*`, route =>
+    route.fulfill({ contentType: 'application/json', body: JSON.stringify(MOCK_SESSION.user) })
+  );
   await page.route(`${SUPABASE_BASE}/rest/v1/teachers*`, route =>
     route.fulfill({ contentType: 'application/json', body: JSON.stringify(MOCK_TEACHER) })
   );
@@ -116,7 +119,7 @@ test('submissions: valid session — pageContent must become visible', async ({ 
     localStorage.setItem(key, JSON.stringify(session));
   }, [`sb-${SUPABASE_PROJECT}-auth-token`, MOCK_SESSION]);
 
-  await page.goto(`http://localhost:3000/submissions.html?exam=${EXAM_ID}`);
+  await page.goto(`http://localhost:3000/submissions?exam=${EXAM_ID}`);
 
   await expect(page.locator('#pageContent')).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#examTitle')).toContainText('Test Exam');
