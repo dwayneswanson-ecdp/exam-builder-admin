@@ -153,6 +153,8 @@
     .exam-row:last-child { border-bottom: none; }
     .exam-row:hover { background: var(--surface); }
     .exam-row:hover .exam-name { color: var(--blue); }
+    @keyframes rowHighlight { 0%,100% { background: var(--white); } 15%,75% { background: #eff6ff; } }
+    .exam-row.new-exam { animation: rowHighlight 4s ease forwards; border-left: 3px solid var(--blue); }
     .exam-name { font-size: 0.88rem; font-weight: 600; color: var(--black); margin-bottom: 3px; letter-spacing: -0.01em; transition: color var(--transition); }
     .exam-info { font-size: 0.7rem; color: var(--muted); }
     .exam-tags { display: flex; gap: 6px; margin-top: 5px; }
@@ -974,7 +976,7 @@
             const pendNum   = stats.total > 0 ? `<span class="stat-number ${pending > 0 ? 'amber' : ''}">${pending}</span><span class="stat-sub">pending</span>` : `<span class="stat-number muted">—</span>`;
             const sentNum   = stats.total > 0 ? `<span class="stat-number ${stats.sent > 0 ? 'green' : ''}">${stats.sent}</span><span class="stat-sub">sent</span>` : `<span class="stat-number muted">—</span>`;
             return `
-              <div class="exam-row" onclick="window.location.href='submissions.html?exam=${exam.id}'">
+              <div class="exam-row" data-exam-id="${exam.id}" onclick="window.location.href='submissions.html?exam=${exam.id}'">
                 <div>
                   <div class="exam-name">${exam.title || 'Untitled'}</div>
                   <div class="exam-info">${exam.duration_mins} min</div>
@@ -991,6 +993,14 @@
                 </div>
               </div>`;
           }).join('');
+
+      // Highlight newly published exam
+      const newId = localStorage.getItem('newExamId');
+      if (newId) {
+        const row = examListEl.querySelector(`[data-exam-id="${newId}"]`);
+        if (row) { row.classList.add('new-exam'); setTimeout(() => row.classList.remove('new-exam'), 4500); }
+        localStorage.removeItem('newExamId');
+      }
 
       // Render submissions
       const subListEl = document.getElementById('teacherSubList');

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Exam — Exam Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black:   #0a0a0a;
+      --navy:    #0f172a;
+      --ink:     #1e293b;
+      --slate:   #475569;
+      --muted:   #94a3b8;
+      --line:    #e2e8f0;
+      --surface: #f8fafc;
+      --white:   #ffffff;
+      --blue:    #2563eb;
+      --green:   #16a34a;
+      --amber:   #d97706;
+      --red:     #dc2626;
+      --purple:  #7c3aed;
+      --transition: 180ms ease;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--white); color: var(--ink); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    /* ── Header ── */
+    .header { background: var(--navy); padding: 0 40px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .header-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
+    .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
+
+    /* ── Step bar ── */
+    .step-bar { border-bottom: 1px solid var(--line); padding: 0 40px; background: var(--white); display: flex; align-items: center; height: 44px; }
+    .step-pill { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0 16px; height: 44px; border-bottom: 2px solid transparent; white-space: nowrap; }
+    .step-pill.done { color: var(--green); }
+    .step-pill.active { color: var(--black); border-bottom-color: var(--black); }
+    .step-num { width: 20px; height: 20px; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 0.58rem; font-weight: 800; flex-shrink: 0; }
+    .step-pill.done .step-num { background: var(--green); border-color: var(--green); color: var(--white); }
+    .step-pill.active .step-num { background: var(--black); border-color: var(--black); color: var(--white); }
+
+    /* ── Page ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 40px 100px; }
+
+    /* ── Two-column grid ── */
+    .review-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+
+    /* ── LEFT PANEL ── */
+    .left-panel { border: 1px solid var(--line); position: sticky; top: 116px; }
+    .left-header { padding: 16px 20px; background: var(--navy); }
+    .left-header-eyebrow { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
+    .left-exam-title { font-size: 0.95rem; font-weight: 700; color: var(--white); letter-spacing: -0.01em; }
+    .left-exam-meta { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 3px; }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+    .stat-cell { padding: 16px 20px; border-right: 1px solid var(--line); }
+    .stat-cell:nth-child(2), .stat-cell:nth-child(4) { border-right: none; }
+    .stat-cell:nth-child(3), .stat-cell:nth-child(4) { border-top: 1px solid var(--line); }
+    .stat-val { font-size: 1.4rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; line-height: 1; margin-bottom: 4px; }
+    .stat-val.green { color: var(--green); }
+    .stat-val.amber { color: var(--amber); }
+    .stat-lbl { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+
+    .checklist { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line); }
+    .check-row { display: flex; align-items: center; gap: 10px; }
+    .check-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .check-icon.ok   { color: var(--green); }
+    .check-icon.warn { color: var(--amber); }
+    .check-text { font-size: 0.75rem; color: var(--slate); flex: 1; line-height: 1.4; }
+    .check-text.warn { color: var(--amber); font-weight: 600; }
+
+    .back-to-editor { width: 100%; padding: 14px 20px; display: flex; align-items: center; gap: 7px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue); cursor: pointer; background: none; border: none; font-family: inherit; transition: all var(--transition); text-align: left; border-top: 1px solid var(--line); }
+    .back-to-editor:hover { background: #eff6ff; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel { border: 1px solid var(--line); display: flex; flex-direction: column; }
+    .preview-header { padding: 11px 20px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .preview-header-left { display: flex; align-items: center; gap: 10px; }
+    .preview-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    .teacher-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: #fef9c3; border: 1px solid #fde68a; color: #92400e; padding: 3px 8px; }
+    .preview-note { font-size: 0.68rem; color: var(--muted); font-style: italic; }
+    .preview-body { background: #eef2f7; padding: 28px 32px; }
+
+    /* ── Simulated exam ── */
+    .sim-card { background: var(--white); border: 1px solid var(--line); max-width: 680px; margin: 0 auto; }
+    .sim-header { background: var(--navy); padding: 20px 28px; }
+    .sim-title { font-size: 1.1rem; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .sim-meta { font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+    .sim-section { padding: 12px 28px; background: var(--surface); border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); margin-top: 4px; }
+    .sim-section-eyebrow { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 2px; }
+    .sim-section-name { font-size: 0.85rem; font-weight: 700; color: var(--black); }
+    .sim-question { padding: 22px 28px; border-bottom: 1px solid var(--line); }
+    .sim-question:last-child { border-bottom: none; }
+    .sim-q-eyebrow { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 7px; }
+    .sim-q-text { font-size: 0.88rem; font-weight: 600; color: var(--black); line-height: 1.65; margin-bottom: 16px; }
+    .sim-options { display: flex; flex-direction: column; gap: 7px; }
+    .sim-option { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--line); background: var(--white); }
+    .sim-option.correct { border-color: #86efac; background: #f0fdf4; border-left: 3px solid var(--green); }
+    .sim-radio { width: 16px; height: 16px; border: 1.5px solid var(--line); border-radius: 50%; flex-shrink: 0; }
+    .sim-option.correct .sim-radio { border-color: var(--green); background: var(--green); }
+    .sim-option-text { font-size: 0.82rem; color: var(--slate); flex: 1; }
+    .sim-option.correct .sim-option-text { color: var(--ink); font-weight: 500; }
+    .correct-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); flex-shrink: 0; }
+    .sim-textarea { width: 100%; min-height: 72px; border: 1px solid var(--line); background: var(--surface); padding: 10px 12px; font-size: 0.82rem; color: var(--muted); font-family: inherit; resize: none; cursor: not-allowed; font-style: italic; margin-bottom: 14px; }
+    .criteria-callout { border: 1px solid #fde68a; background: #fffbeb; padding: 12px 14px; }
+    .criteria-eyebrow { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #92400e; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .criteria-text { font-size: 0.75rem; color: #78350f; line-height: 1.65; }
+    .sim-media { max-width: 100%; margin-bottom: 14px; border: 1px solid var(--line); }
+
+    /* ── CTA bar ── */
+    .cta-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--line); z-index: 100; }
+    .cta-bar-inner { max-width: 1200px; margin: 0 auto; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .cta-hint { font-size: 0.75rem; color: var(--muted); }
+    .cta-hint.warn { color: var(--amber); font-weight: 600; }
+    .cta-right { display: flex; gap: 10px; }
+    .btn { display: inline-flex; align-items: center; gap: 7px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; font-family: inherit; border: 1px solid transparent; padding: 10px 20px; cursor: pointer; transition: all var(--transition); }
+    .btn-ghost { background: var(--white); color: var(--slate); border-color: var(--line); }
+    .btn-ghost:hover { border-color: var(--slate); color: var(--black); }
+    .btn-primary { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Toast ── */
+    .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--navy); color: var(--white); font-size: 0.82rem; font-weight: 600; padding: 12px 24px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 9999; white-space: nowrap; }
+    .toast.show { opacity: 1; }
+
+    /* ── Error state ── */
+    .error-screen { max-width: 480px; margin: 80px auto; text-align: center; padding: 0 24px; }
+    .error-title { font-size: 1rem; font-weight: 700; color: var(--black); margin-bottom: 8px; }
+    .error-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <span class="header-logo">Exam Builder</span>
+    <div class="header-divider"></div>
+    <span class="header-badge">Teacher</span>
+  </div>
+</header>
+
+<div class="step-bar">
+  <div class="step-pill done"><div class="step-num">✓</div>Configure</div>
+  <div class="step-pill done"><div class="step-num">✓</div>Build questions</div>
+  <div class="step-pill active"><div class="step-num">3</div>Review &amp; publish</div>
+  <div class="step-pill"><div class="step-num">4</div>Published</div>
+</div>
+
+<div class="page" id="pageContent" style="display:none;">
+  <div class="review-grid">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="left-header">
+        <div class="left-header-eyebrow">Ready to publish</div>
+        <div class="left-exam-title" id="leftTitle">—</div>
+        <div class="left-exam-meta" id="leftMeta">—</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-cell"><div class="stat-val" id="statQ">—</div><div class="stat-lbl">Questions</div></div>
+        <div class="stat-cell"><div class="stat-val" id="statS">—</div><div class="stat-lbl">Sections</div></div>
+        <div class="stat-cell"><div class="stat-val" id="statPts">—</div><div class="stat-lbl" id="statPtsLbl">/ — pts</div></div>
+        <div class="stat-cell"><div class="stat-val" id="statG">—</div><div class="stat-lbl">Groups</div></div>
+      </div>
+      <div class="checklist" id="checklist"></div>
+      <button class="back-to-editor" onclick="history.back()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to editor
+      </button>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <div class="preview-header">
+        <div class="preview-header-left">
+          <span class="preview-label">Student preview</span>
+          <span class="teacher-badge">Teacher view — correct answers shown</span>
+        </div>
+        <span class="preview-note">Students see this without answer highlights</span>
+      </div>
+      <div class="preview-body">
+        <div class="sim-card" id="simCard"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="error-screen" id="errorScreen" style="display:none;">
+  <div class="error-title">No exam data found</div>
+  <div class="error-sub">Please return to the exam builder and click "Preview &amp; Publish" to review your exam here.</div>
+  <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Go to My Exams</button>
+</div>
+
+<div class="cta-bar">
+  <div class="cta-bar-inner">
+    <span class="cta-hint" id="ctaHint">Reviewing your exam before publishing.</span>
+    <div class="cta-right">
+      <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'">Cancel</button>
+      <button class="btn btn-primary" id="publishBtn" onclick="publish()">
+        Publish exam
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let reviewData = null;
+
+  function escHtml(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function generateShareId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+    for (let i = 0; i < 8; i++) id += chars[Math.floor(Math.random() * chars.length)];
+    return id;
+  }
+
+  function generateCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  function showToast(msg, duration) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration || 4000);
+  }
+
+  // ── Init ──────────────────────────────────────────────────────
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = 'dashboard.html'; return; }
+
+    const raw = localStorage.getItem('examReview');
+    if (!raw) {
+      document.getElementById('errorScreen').style.display = 'block';
+      return;
+    }
+
+    try {
+      reviewData = JSON.parse(raw);
+    } catch(e) {
+      document.getElementById('errorScreen').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('pageContent').style.display = 'block';
+    renderChecklist();
+    renderPreview();
+  }
+
+  // ── Left panel ────────────────────────────────────────────────
+
+  function renderChecklist() {
+    const ob    = reviewData.onboarding || {};
+    const items = reviewData.items || [];
+
+    const questions = items.filter(i => i.type !== 'section');
+    const sections  = items.filter(i => i.type === 'section');
+    const mcqCount  = questions.filter(i => i.type === 'mcq').length;
+    const openQs    = questions.filter(i => i.type === 'open');
+    const coeff     = ob.coefficient || 0;
+    const groups    = ob.groups || [];
+
+    const openPts = openQs.reduce((s, q) => s + (q.max_points || 5), 0);
+    const totalPts = mcqCount + openPts;
+
+    // Header
+    document.getElementById('leftTitle').textContent = ob.title || 'Untitled Exam';
+    document.getElementById('leftMeta').textContent  = [
+      ob.duration ? ob.duration + ' min' : null,
+      ob.lang === 'fr' ? 'Français' : 'English',
+      groups.length ? groups.length + ' group' + (groups.length !== 1 ? 's' : '') : null
+    ].filter(Boolean).join(' · ');
+
+    // Stats
+    document.getElementById('statQ').textContent = questions.length;
+    document.getElementById('statS').textContent = sections.length;
+    document.getElementById('statG').textContent = groups.length || '—';
+
+    const ptsEl    = document.getElementById('statPts');
+    const ptsLblEl = document.getElementById('statPtsLbl');
+    ptsEl.textContent    = totalPts;
+    ptsLblEl.textContent = coeff ? `/ ${coeff} pts` : 'pts total';
+
+    if (coeff && totalPts === coeff) {
+      ptsEl.className = 'stat-val green';
+    } else if (coeff && totalPts !== coeff) {
+      ptsEl.className = 'stat-val amber';
+    }
+
+    // Checklist rows
+    const ptsOk = !coeff || totalPts === coeff;
+    const checks = [
+      { ok: !!(ob.title && ob.duration), text: 'Title and duration set' },
+      { ok: questions.length > 0,        text: questions.length + ' question' + (questions.length !== 1 ? 's' : '') + ' added' },
+      { ok: ptsOk, text: ptsOk
+          ? `${totalPts}${coeff ? ' / ' + coeff : ''} pts assigned`
+          : `${totalPts} / ${coeff} pts — ${Math.abs(coeff - totalPts)} pts ${totalPts < coeff ? 'unassigned' : 'over limit'}`,
+        warn: !ptsOk },
+      { ok: groups.length > 0,           text: groups.map(g => g.name).join(' · ') || 'No groups configured' }
+    ];
+
+    const cta = document.getElementById('ctaHint');
+    if (!ptsOk && coeff) {
+      cta.className = 'cta-hint warn';
+      cta.textContent = `⚠ ${Math.abs(coeff - totalPts)} pts ${totalPts < coeff ? 'unassigned' : 'over limit'} — you can still publish or go back to fix.`;
+    } else {
+      cta.className = 'cta-hint';
+      cta.textContent = 'Everything looks good — ready to publish.';
+    }
+
+    document.getElementById('checklist').innerHTML = checks.map(c => `
+      <div class="check-row">
+        <div class="check-icon ${c.warn ? 'warn' : 'ok'}">
+          ${c.warn
+            ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+            : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+          }
+        </div>
+        <span class="check-text ${c.warn ? 'warn' : ''}">${escHtml(c.text)}</span>
+      </div>`).join('');
+  }
+
+  // ── Student preview ───────────────────────────────────────────
+
+  function renderPreview() {
+    const ob    = reviewData.onboarding || {};
+    const items = reviewData.items || [];
+    let qNum = 0;
+
+    let html = `
+      <div class="sim-header">
+        <div class="sim-title">${escHtml(ob.title || 'Untitled Exam')}</div>
+        <div class="sim-meta">${ob.duration || '—'} minutes · Enter your name, email and access code to begin</div>
+      </div>`;
+
+    items.forEach(item => {
+      if (item.type === 'section') {
+        html += `
+          <div class="sim-section">
+            <div class="sim-section-eyebrow">Section</div>
+            <div class="sim-section-name">${escHtml(item.title || 'Section')}</div>
+          </div>`;
+      } else if (item.type === 'mcq') {
+        qNum++;
+        const opts = item.options || ['', '', '', ''];
+        html += `
+          <div class="sim-question">
+            <div class="sim-q-eyebrow">Question ${qNum} · MCQ · 1 pt</div>
+            <div class="sim-q-text">${escHtml(item.text || '')}</div>
+            ${renderMedia(item)}
+            <div class="sim-options">
+              ${opts.map((opt, i) => {
+                const isCorrect = i === item.correct;
+                return `<div class="sim-option${isCorrect ? ' correct' : ''}">
+                  <div class="sim-radio"></div>
+                  <span class="sim-option-text">${escHtml(opt)}</span>
+                  ${isCorrect ? '<span class="correct-label">✓ Correct</span>' : ''}
+                </div>`;
+              }).join('')}
+            </div>
+          </div>`;
+      } else if (item.type === 'open') {
+        qNum++;
+        const pts = item.max_points || 5;
+        html += `
+          <div class="sim-question">
+            <div class="sim-q-eyebrow">Question ${qNum} · Open · ${pts} pt${pts !== 1 ? 's' : ''}</div>
+            <div class="sim-q-text">${escHtml(item.text || '')}</div>
+            ${renderMedia(item)}
+            <textarea class="sim-textarea" disabled placeholder="Student writes their answer here..."></textarea>
+            ${item.grading_criteria ? `
+            <div class="criteria-callout">
+              <div class="criteria-eyebrow">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Grading criteria — visible to teacher only
+              </div>
+              <div class="criteria-text">${escHtml(item.grading_criteria)}</div>
+            </div>` : ''}
+          </div>`;
+      }
+    });
+
+    document.getElementById('simCard').innerHTML = html;
+  }
+
+  function renderMedia(item) {
+    if (item.attachUrl) {
+      return `<div style="margin-bottom:14px;font-size:0.75rem;color:var(--muted);font-style:italic;">📎 Video attached</div>`;
+    }
+    if (item.attachBase64 && item.attachType === 'image') {
+      return `<img src="${item.attachBase64}" class="sim-media" alt="Attached image">`;
+    }
+    if (item.attachBase64 && item.attachType === 'audio') {
+      return `<audio controls class="sim-media" style="width:100%;"><source src="${item.attachBase64}"></audio>`;
+    }
+    if (item.attachBase64) {
+      return `<div style="margin-bottom:14px;font-size:0.75rem;color:var(--muted);font-style:italic;">📎 ${item.attachType || 'File'} attached</div>`;
+    }
+    return '';
+  }
+
+  // ── Publish ───────────────────────────────────────────────────
+
+  async function publish() {
+    const btn = document.getElementById('publishBtn');
+    btn.disabled = true;
+    btn.innerHTML = 'Publishing… <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'dashboard.html'; return; }
+
+      const ob     = reviewData.onboarding || {};
+      const items  = reviewData.items || [];
+      const groups = ob.groups || [];
+
+      const shareId = generateShareId();
+      let groupCodes = {};
+      let accessCode;
+
+      if (groups.length > 0) {
+        groups.forEach(g => { groupCodes[g.name] = g.code; });
+        accessCode = groups[0].code;
+      } else {
+        accessCode = generateCode();
+      }
+
+      const { data: examRows, error: examErr } = await sb.from('exams').insert({
+        teacher_id:    session.user.id,
+        teacher_email: ob.teacherEmail || session.user.email,
+        title:         ob.title || 'Untitled Exam',
+        duration_mins: ob.duration || 60,
+        status:        'published',
+        share_id:      shareId,
+        access_code:   accessCode,
+        lang:          ob.lang || 'fr',
+        groups:        groups.map(g => g.name).join(', '),
+        group_codes:   JSON.stringify(groupCodes),
+        instructions:  ob.instructions || null,
+        rubric:        null
+      }).select();
+
+      if (examErr) throw examErr;
+      const examId = examRows[0].id;
+
+      for (let i = 0; i < items.length; i++) {
+        const q = items[i];
+        let mediaSrc  = null;
+        let mediaType = null;
+        let mediaName = null;
+
+        if (q.attachBase64) {
+          mediaSrc  = q.attachBase64;
+          mediaType = q.attachType || null;
+          mediaName = q.attachName || null;
+        } else if (q.attachUrl) {
+          mediaSrc  = q.attachUrl;
+          mediaType = 'video';
+        }
+
+        const { error: qErr } = await sb.from('questions').insert({
+          exam_id:          examId,
+          position:         i + 1,
+          type:             q.type,
+          question_text:    q.type === 'section' ? (q.title || 'Section') : (q.text || ''),
+          option_a:         q.type === 'section' ? (q.instructions || null) : (q.options?.[0] || null),
+          option_b:         q.options?.[1] || null,
+          option_c:         q.options?.[2] || null,
+          option_d:         q.options?.[3] || null,
+          correct_index:    q.type === 'mcq' ? q.correct : null,
+          grading_criteria: q.grading_criteria || null,
+          max_points:       q.type === 'section' ? (q.points || null) : (q.max_points || (q.type === 'open' ? 5 : null)),
+          media_src:        mediaSrc,
+          media_type:       mediaType,
+          media_name:       mediaName
+        });
+        if (qErr) console.warn('Question insert error:', qErr);
+      }
+
+      // Send failsafe email to teacher
+      try {
+        const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+        const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+        const shareUrl = baseUrl + '?id=' + shareId;
+        emailjs.init({ publicKey: 'Bb0oPYBiZGQcyIz5r' });
+        emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
+          to_email:    ob.teacherEmail || session.user.email,
+          to_name:     ob.teacherName  || session.user.email,
+          subject:     'Exam published: ' + (ob.title || 'New Exam'),
+          exam_title:  ob.title || 'New Exam',
+          exam_link:   shareUrl,
+          codes:       groups.length ? groups.map(g => g.name + ': ' + g.code).join('\n') : accessCode,
+          teacher_name: ob.teacherName || session.user.email
+        });
+      } catch(e) { /* failsafe — don't block on email error */ }
+
+      localStorage.removeItem('examReview');
+      localStorage.setItem('newExamId', examId);
+
+      showToast('✓ ' + (ob.title || 'Exam') + ' published successfully');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
+
+    } catch(err) {
+      console.error('Publish error:', err);
+      showToast('Publish error: ' + (err.message || err), 5000);
+      const btn = document.getElementById('publishBtn');
+      btn.disabled = false;
+      btn.innerHTML = 'Publish exam <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

@@ -159,9 +159,11 @@
     .summary-pill .n { font-size: 0.88rem; font-weight: 800; color: #0f172a; }
     .summary-pill .n.purple { color: #7c3aed; }
     .publish-section { padding: 20px; }
-    .publish-btn { width: 100%; background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 0.92rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; }
-    .publish-btn:hover { box-shadow: 0 6px 20px rgba(22,163,74,0.3); }
-    .publish-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .publish-btn { width: 100%; background: #2563eb; color: #fff; border: none; padding: 14px; border-radius: 10px; font-size: 0.92rem; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; }
+    .publish-btn:hover { background: #1d4ed8; }
+    .publish-btn:disabled { opacity: 0.5; cursor: not-allowed; background: #2563eb; }
+    .score-guard { display: none; padding: 10px 20px 0; align-items: flex-start; gap: 8px; }
+    .score-guard-msg { font-size: 0.78rem; font-weight: 600; color: #d97706; line-height: 1.5; }
 
     /* Success card */
     .success-card { margin-top: 16px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
@@ -312,8 +314,12 @@
         <div class="summary-div"></div>
         <div class="summary-pill"><span class="n" id="tC">0</span> total questions</div>
       </div>
+      <div class="score-guard" id="scoreGuard">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="flex-shrink:0;margin-top:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="score-guard-msg" id="scoreGuardMsg"></span>
+      </div>
       <div class="publish-section">
-        <button class="publish-btn" id="publishBtn" onclick="publish()">Confirm and publish exam →</button>
+        <button class="publish-btn" id="publishBtn" onclick="goToReview()">Preview &amp; Publish →</button>
 
         <!-- Success card (shown after publish) -->
         <div class="success-card" id="successCard" style="display:none;">
@@ -425,6 +431,13 @@
         ].filter(Boolean).join(' · ');
         document.getElementById('summaryMeta').textContent = meta;
       }
+
+      // Hook pts input changes for real-time score guard
+      document.getElementById('list').addEventListener('input', function(e) {
+        if (e.target.classList.contains('pts-inp')) updateScoreGuard();
+      });
+
+      updateScoreGuard();
     }
 
     // ── Rubric ──────────────────────────────────────────────────
@@ -585,6 +598,71 @@
       document.getElementById('oC').textContent = o;
       document.getElementById('tC').textContent = t;
       document.getElementById('emptyState').style.display = (s + t === 0) ? 'block' : 'none';
+      updateScoreGuard();
+    }
+
+    function updateScoreGuard() {
+      const coeff   = onboardingData?.coefficient;
+      const qCount  = document.querySelectorAll('#list .q-card').length;
+      const btn     = document.getElementById('publishBtn');
+      const guard   = document.getElementById('scoreGuard');
+      const msg     = document.getElementById('scoreGuardMsg');
+
+      if (!coeff || qCount === 0) {
+        guard.style.display = 'none';
+        btn.disabled = false;
+        return;
+      }
+
+      const mcqPts  = document.querySelectorAll('#list .q-card:not(.open-type)').length;
+      const openPts = [...document.querySelectorAll('#list .pts-inp')]
+        .reduce((sum, inp) => sum + (parseInt(inp.value) || 0), 0);
+      const total   = mcqPts + openPts;
+
+      if (total === coeff) {
+        guard.style.display = 'none';
+        btn.disabled = false;
+      } else {
+        guard.style.display = 'flex';
+        const diff = Math.abs(coeff - total);
+        msg.textContent = total < coeff
+          ? `${total} / ${coeff} pts assigned — ${diff} pt${diff !== 1 ? 's' : ''} still needed before publishing.`
+          : `${total} / ${coeff} pts — total exceeds the ${coeff} pt limit. Reduce points on some questions.`;
+        btn.disabled = true;
+      }
+    }
+
+    async function goToReview() {
+      const items     = collectItems();
+      const questions = items.filter(i => i.type !== 'section');
+      if (questions.length === 0) { showToast('Add at least one question before reviewing.'); return; }
+
+      const btn = document.getElementById('publishBtn');
+      btn.disabled = true;
+      btn.textContent = 'Preparing preview…';
+
+      // Convert any File attachments to base64 so they survive page navigation
+      for (const item of items) {
+        if (item.attachFile) {
+          try {
+            item.attachBase64 = await new Promise((res, rej) => {
+              const reader = new FileReader();
+              reader.onload  = e => res(e.target.result);
+              reader.onerror = rej;
+              reader.readAsDataURL(item.attachFile);
+            });
+          } catch(e) { item.attachBase64 = null; }
+          delete item.attachFile;
+        }
+      }
+
+      localStorage.setItem('examReview', JSON.stringify({
+        source:    'manual',
+        onboarding: onboardingData,
+        items
+      }));
+
+      window.location.href = 'exam-review.html';
     }
 
     // ── Attachments ──────────────────────────────────────────────

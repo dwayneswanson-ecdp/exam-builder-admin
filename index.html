@@ -737,7 +737,7 @@
       openNoteLabel:      "Correction enseignant — réponse libre",
       reviewStatsText:    "{total} questions · {mcq} QCM · {open} rédigées",
       addQuestion:        "+ Ajouter une question",
-      publishBtn:         "Confirmer et publier l'examen →",
+      publishBtn:         "Aperçu et publication →",
       publishedLabel:     "Épreuve publiée avec succès",
       publishedTitle:     "Partagez ces informations avec vos étudiants",
       publishedLinkLabel: "Lien de l'épreuve",
@@ -812,7 +812,7 @@
       dragInstructions:   "Drag questions using the ≡ icon on the left to reorder them.",
       metaDurationUnit:   "minutes",
       addQuestion:        "+ Add a question",
-      publishBtn:         "Confirm and publish exam →",
+      publishBtn:         "Preview & Publish →",
       publishedLabel:     "Exam published successfully",
       publishedTitle:     "Share these details with your students",
       publishedLinkLabel: "Exam link",
@@ -2109,7 +2109,6 @@ ${currentUserEmail}`;
       return;
     }
 
-    // Required: exam title
     const title = document.getElementById('examTitle').value.trim();
     const titleError = document.getElementById('examTitleError');
     if (!title) {
@@ -2121,146 +2120,43 @@ ${currentUserEmail}`;
     if (titleError) titleError.style.display = 'none';
 
     const duration = parseInt(document.getElementById('examDuration').value) || 20;
-    const groups   = document.getElementById('examGroups').value.trim();
 
-    const btn = document.getElementById('publishBtn');
-    btn.disabled = true;
-    btn.textContent = lang === 'fr' ? 'Publication en cours…' : 'Publishing…';
-
-    try {
-      const shareId = generateShareId();
-
-      // Use codes from onboarding if available, otherwise generate
-      const groupList = groups ? groups.split(',').map(g => g.trim()).filter(Boolean) : [];
-      let groupCodes = {};
-      let accessCode;
-      if (onboardingData?.groups?.length > 0) {
-        onboardingData.groups.forEach(g => { groupCodes[g.name] = g.code; });
-        accessCode = onboardingData.groups[0].code;
-      } else if (groupList.length > 0) {
-        groupList.forEach(g => { groupCodes[g] = generateAccessCode(); });
-        accessCode = Object.values(groupCodes)[0];
-      } else {
-        accessCode = generateAccessCode();
-      }
-      const groupCodesJson = JSON.stringify(groupCodes);
-
-      // 1. Create exam row
-      const teacherEmail = document.getElementById('teacherEmailPre').value.trim() || currentUserEmail;
-      const examRows = await sbPost('exams', {
-        teacher_id:    currentUserId,
-        teacher_email: teacherEmail || null,
-        title:         title,
-        duration_mins: duration,
-        status:        'published',
-        share_id:      shareId,
-        access_code:   accessCode,
-        lang:          examLang,
-        groups:        groups,
-        group_codes:   groupCodesJson
-      });
-      const examId = examRows[0].id;
-
-      // 2. Create question rows
-      for (let i = 0; i < qs.length; i++) {
-        const q = qs[i];
-        const opts = q.options || [];
-        await sbPost('questions', {
-          exam_id:       examId,
-          position:      i + 1,
-          question_text:    q.type === 'section' ? (q.title || 'Section') : (q.question || q.question_text || ''),
-          type:             q.type || 'mcq',
-          option_a:         q.type === 'section' ? (q.instructions || null) : (opts[0] || null),
-          option_b:         q.type === 'section' ? null : (opts[1] || null),
-          option_c:         q.type === 'section' ? null : (opts[2] || null),
-          option_d:         q.type === 'section' ? null : (opts[3] || null),
-          correct_index:    q.type === 'mcq' ? (q.correct ?? 0) : null,
-          correct_option:   q.type === 'mcq' ? ['A','B','C','D'][q.correct ?? 0] : null,
-          grading_criteria: q.grading_criteria || null,
-          max_points:       q.type === 'section' ? (q.points || null) : (q.max_points || (q.type === 'open' ? 5 : null)),
-          media_type:       q.media?.type || null,
-          media_src:        q.media?.src  || null,
-          media_name:       q.media?.name || null
-        });
-      }
-
-      // 3. Build shareable URL
-      const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const baseUrl = isLocal
-        ? 'http://localhost:3000/exam-engine.html'
-        : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
-      const shareUrl = baseUrl + '?id=' + shareId;
-
-      // 4. Show success panel
-      btn.disabled = false;
-      btn.textContent = lang === 'fr' ? '\u2705 Publié !' : '\u2705 Published!';
-      btn.style.background = 'linear-gradient(135deg, #16a34a, #15803d)';
-
-      // Populate panel info
-      const titleEl = document.getElementById('publishedExamTitle');
-      const metaEl  = document.getElementById('publishedExamMeta');
-      const mcqC = qs.filter(q => q.type === 'mcq').length;
-      const opnC = qs.filter(q => q.type === 'open').length;
-      if (titleEl) titleEl.textContent = title;
-      if (metaEl)  metaEl.textContent  = duration + ' min · ' + mcqC + ' QCM' + (opnC > 0 ? ' · ' + opnC + (lang === 'fr' ? ' rédigées' : ' written') : '');
-
-      // Populate codes display
-      const codesEl = document.getElementById('codesDisplay');
-      if (codesEl) {
-        if (groupList.length > 0) {
-          // One code card per group
-          codesEl.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:10px;">' +
-            groupList.map(g => `
-              <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 16px;text-align:center;min-width:120px;">
-                <div style="font-size:0.7rem;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:4px;">${g}</div>
-                <div style="font-size:1rem;font-weight:800;font-family:monospace;letter-spacing:0.12em;color:#0f172a;">${groupCodes[g]}</div>
-              </div>`).join('') +
-            '</div>';
+    // Normalize extractedQuestions → items format for exam-review.html
+    const items = qs.map(q => {
+      const item = {
+        type:             q.type,
+        text:             q.question || q.question_text || q.title || '',
+        options:          q.options || [],
+        correct:          q.correct ?? null,
+        grading_criteria: q.grading_criteria || null,
+        max_points:       q.max_points || (q.type === 'open' ? 5 : null),
+        title:            q.title || null,
+        instructions:     q.instructions || null,
+        points:           q.points || null
+      };
+      if (q.media?.src) {
+        if (q.media.type === 'video') {
+          item.attachUrl  = q.media.src;
+          item.attachType = 'video';
         } else {
-          // Single code
-          codesEl.innerHTML = `<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <div id="accessCodeDisplay" style="font-size:1.15rem;font-weight:800;font-family:monospace;letter-spacing:0.15em;color:#0f172a;background:#f0fdf4;border:2px solid #86efac;padding:7px 20px;border-radius:999px;">${accessCode}</div>
-            <button onclick="navigator.clipboard.writeText('${accessCode}').then(()=>{this.textContent='✓ Copié';setTimeout(()=>{this.textContent='${lang==='fr'?'Copier le code':'Copy code'}'},1500)})"
-              style="padding:6px 14px;border-radius:8px;border:1.5px solid #e2e8f0;background:#f8f9fc;color:#475569;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;">
-              ${lang === 'fr' ? 'Copier le code' : 'Copy code'}
-            </button>
-          </div>`;
+          item.attachBase64 = q.media.src;
+          item.attachType   = q.media.type || 'image';
         }
       }
-      window._publishedGroupCodes = groupCodes;
-      window._publishedAccessCode = accessCode;
-      window._publishedExamId     = examId;
+      return item;
+    });
 
-      const publishResult = document.getElementById('publishResult');
-      if (publishResult) {
-        publishResult.style.display = 'block';
-        document.getElementById('shareUrlDisplay').value = shareUrl;
-        const acd = document.getElementById('accessCodeDisplay');
-        if (acd) acd.textContent = accessCode;
+    const ob = {
+      title:       title,
+      duration:    duration,
+      lang:        examLang,
+      coefficient: onboardingData?.coefficient || null,
+      groups:      onboardingData?.groups || [],
+      report:      onboardingData?.report || null
+    };
 
-        // Populate draft email group selector
-        const sel = document.getElementById('draftGroupSelect');
-        if (sel) {
-          sel.innerHTML = '<option value="">— Choose a group —</option>' +
-            (groupList.length > 0
-              ? groupList.map(g => `<option value="${g}|${groupCodes[g]}">${g}</option>`).join('')
-              : `<option value="All students|${accessCode}">All students</option>`);
-        }
-
-        // Wire view submissions button
-        const vsBtn = document.getElementById('viewSubsBtn');
-        if (vsBtn) vsBtn.onclick = () => window.location.href = `submissions.html?exam=${examId}`;
-
-        publishResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-
-    } catch (err) {
-      console.error('Publish error:', err);
-      alert((lang === 'fr' ? 'Erreur lors de la publication : ' : 'Publish error: ') + err.message);
-      btn.disabled = false;
-      btn.textContent = lang === 'fr' ? 'Confirmer et publier l\'examen \u2192' : 'Confirm and publish exam \u2192';
-      btn.style.background = '';
-    }
+    localStorage.setItem('examReview', JSON.stringify({ source: 'ai', onboarding: ob, items }));
+    window.location.href = 'exam-review.html';
   });
 
 
