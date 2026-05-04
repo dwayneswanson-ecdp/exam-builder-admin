@@ -74,7 +74,7 @@
     .criteria-pts-input:focus { border-color: var(--purple); }
 
     /* ── Layout ── */
-    .container { max-width: 720px; margin: 0 auto; padding: 0 40px 100px; }
+    .container { max-width: 720px; margin: 0 auto; padding: 32px 40px 100px; }
 
     /* ── Lang toggle ── */
     .topbar { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 28px; gap: 16px; }
@@ -93,7 +93,7 @@
     .step.done .step-num { background: var(--green); border-color: var(--green); color: var(--white); }
 
     /* ── Cards ── */
-    .card { background: var(--white); border: 1px solid var(--line); border-top: none; padding: 32px 40px; margin-bottom: 20px; }
+    .card { background: var(--white); border: 1px solid var(--line); padding: 32px 40px; margin-bottom: 20px; }
     .card h2 { font-size: 1rem; font-weight: 700; color: var(--black); margin: 0 0 6px 0; }
     .card-sub { font-size: 0.85rem; color: var(--slate); margin: 0 0 24px 0; }
 
@@ -138,15 +138,10 @@
     .legend-dot.red { background: var(--red); }
     .legend-dot.purple { background: var(--purple); }
 
-    /* ── Upload hint + format disclosure ── */
-    .upload-hint { font-size: 0.78rem; color: var(--muted); margin-top: 20px; line-height: 1.7; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
-    .format-disclosure { margin-top: 20px; }
-    .format-disclosure summary { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--slate); cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; user-select: none; }
-    .format-disclosure summary::-webkit-details-marker { display: none; }
-    .format-disclosure summary .disclosure-arrow { font-size: 0.6rem; transition: transform 0.2s; display: inline-block; }
-    .format-disclosure[open] summary .disclosure-arrow { transform: rotate(90deg); }
-    .format-disclosure summary:hover { color: var(--black); }
-    .format-disclosure-body { margin-top: 16px; }
+    /* ── Upload instruction block ── */
+    .upload-instruction-block { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+    .upload-instruction { font-size: 0.82rem; color: var(--slate); line-height: 1.7; margin-bottom: 16px; }
+    .upload-hint { font-size: 0.75rem; color: var(--muted); margin-top: 14px; line-height: 1.6; font-style: italic; }
 
     /* ── Alert ── */
     .alert { display: none; padding: 12px 16px; font-size: 0.82rem; font-weight: 600; margin-top: 14px; margin-bottom: 14px; border-left: 3px solid; }
@@ -385,17 +380,8 @@
     <span class="site-username" id="siteUsername"></span>
   </header>
 
-<!-- Step bar — full width, flush under header -->
-  <div class="steps">
-    <div class="step done"><div class="step-num">✓</div><span>Configure</span></div>
-    <div class="step active" id="step1"><div class="step-num">1</div><span data-i18n="step1"></span></div>
-    <div class="step" id="step2"><div class="step-num">2</div><span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;margin:0 2px;">AI</span><span data-i18n="step2"></span></div>
-    <div class="step" id="step3"><div class="step-num">3</div><span data-i18n="step3"></span></div>
-    <div class="step" id="step4"><div class="step-num">4</div><span data-i18n="step4"></span></div>
-  </div>
-
-  <!-- Exam summary banner (populated from onboarding data) -->
-  <div class="exam-summary" id="examSummaryBanner" style="display:none; border-bottom:1px solid var(--line);">
+<!-- Exam summary banner (populated from onboarding data) -->
+  <div class="exam-summary" id="examSummaryBanner" style="display:none;">
     <div>
       <div class="exam-summary-title" id="summaryTitle">—</div>
       <div class="exam-summary-meta" id="summaryMeta"></div>
@@ -409,6 +395,15 @@
   </div>
 
   <div class="container">
+
+  <!-- Step indicator — matches onboarding page width -->
+  <div class="steps">
+    <div class="step done"><div class="step-num">✓</div><span>Configure</span></div>
+    <div class="step active" id="step1"><div class="step-num">1</div><span data-i18n="step1"></span></div>
+    <div class="step" id="step2"><div class="step-num">2</div><span class="ai-chip" style="width:16px;height:16px;font-size:0.52rem;margin:0 2px;">AI</span><span data-i18n="step2"></span></div>
+    <div class="step" id="step3"><div class="step-num">3</div><span data-i18n="step3"></span></div>
+    <div class="step" id="step4"><div class="step-num">4</div><span data-i18n="step4"></span></div>
+  </div>
 
   <!-- Upload card -->
   <div class="card" id="uploadCard">
@@ -448,36 +443,29 @@
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
     </div>
 
-    <!-- Secondary: reassurance + collapsible format guide -->
-    <p class="upload-hint" data-i18n="noStarHint"></p>
-
-    <details class="format-disclosure">
-      <summary><span class="disclosure-arrow">▸</span>&nbsp;<span data-i18n="docLabel"></span></summary>
-      <div class="format-disclosure-body">
-        <div class="doc-wrap">
-          <div class="doc-wrap-label" data-i18n="docLabel"></div>
-          <div class="doc-page">
-            <div class="doc-col">
-              <span class="doc-q" id="exQ1"></span>
-              <span class="doc-opt" id="exA"></span>
-              <span class="doc-opt doc-correct"><span class="doc-star">*</span><span id="exB"></span></span>
-              <span class="doc-opt" id="exC"></span>
-              <span class="doc-opt" id="exD"></span>
-            </div>
-            <div class="doc-col">
-              <span class="doc-q">
-                <span id="exQ2"></span>
-                <span class="doc-written-label" data-i18n="autoDetect"></span>
-              </span>
-              <span class="doc-opt" id="exWritten" style="color:#475569; font-style:italic;"></span>
-            </div>
+    <!-- Instruction + format example (always visible) -->
+    <div class="upload-instruction-block">
+      <p class="upload-instruction" data-i18n="cardSub"></p>
+      <div class="doc-wrap">
+        <div class="doc-page">
+          <div class="doc-col">
+            <span class="doc-q" id="exQ1"></span>
+            <span class="doc-opt" id="exA"></span>
+            <span class="doc-opt doc-correct"><span class="doc-star">*</span><span id="exB"></span></span>
+            <span class="doc-opt" id="exC"></span>
+            <span class="doc-opt" id="exD"></span>
+          </div>
+          <div class="doc-col">
+            <span class="doc-q">
+              <span id="exQ2"></span>
+              <span class="doc-written-label" data-i18n="autoDetect"></span>
+            </span>
+            <span class="doc-opt" id="exWritten" style="color:#475569; font-style:italic;"></span>
           </div>
         </div>
       </div>
-    </details>
-
-    <!-- card-sub kept in DOM for i18n system (hidden) -->
-    <p class="card-sub" data-i18n="cardSub" style="display:none;"></p>
+      <p class="upload-hint" data-i18n="noStarHint"></p>
+    </div>
   </div>
 
   <!-- Results card — Step 1 success -->
@@ -685,7 +673,7 @@
       step3:         "Vérifier & modifier",
       step4:         "Publier",
       cardTitle:     "Importer votre document d'examen",
-      cardSub:       "Un seul fichier suffit. Marquez la bonne réponse avec un astérisque (*) avant l'option correcte dans votre document. Les questions rédigées sont détectées automatiquement.",
+      cardSub:       "Marquez la bonne réponse avec un astérisque (*) devant l'option correcte, comme dans l'exemple ci-dessous. Les questions rédigées sont détectées automatiquement.",
       zoneLabel:     "Document d'examen",
       zoneSub:       "Glissez-déposez ou cliquez pour choisir.\n.docx ou .pdf · Max 10 Mo",
       zoneBtn:       "Choisir un fichier",
@@ -765,7 +753,7 @@
       step3:         "Review & Edit",
       step4:         "Publish",
       cardTitle:     "Import your exam document",
-      cardSub:       "One file is all you need. Mark the correct answer with an asterisk (*) before the correct option. Written questions are detected automatically.",
+      cardSub:       "Mark the correct answer with an asterisk (*) before the option — as shown in the example below. Written questions are detected automatically.",
       zoneLabel:     "Exam Document",
       zoneSub:       "Drag and drop or click to choose.\n.docx or .pdf · Max 10MB",
       zoneBtn:       "Choose file",
