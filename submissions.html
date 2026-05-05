@@ -7,7 +7,6 @@
   <title>Exam Submissions — Exam Builder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
@@ -572,9 +571,7 @@
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const EMAILJS_SERVICE  = 'service_opm4h6b';
-    const EMAILJS_TEMPLATE = 'template_x7bkb1l';
-    const EMAILJS_KEY      = 'Bb0oPYBiZGQcyIz5r';
+    const SEND_EMAIL_FN = `${SUPABASE_URL}/functions/v1/send-email`;
 
     function escHtml(s) {
       return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -650,7 +647,6 @@
       document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
       Lang.init(i18n);
 
-      try { emailjs.init({ publicKey: EMAILJS_KEY }); } catch(e) {}
 
       document.getElementById('pageContent').style.display = 'block';
       await loadPage();
@@ -1084,12 +1080,18 @@
         };
 
         try {
-          await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params);
+          const { data: { session } } = await sb.auth.getSession();
+          const res = await fetch(SEND_EMAIL_FN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ type: 'results', ...params }),
+          });
+          if (!res.ok) throw new Error(await res.text());
           const now = new Date().toISOString();
           const { error } = await sb.from('exam_attempts').update({ results_sent_at: now }).eq('id', a.id);
           if (!error) { a.results_sent_at = now; sent++; }
         } catch (e) {
-          console.error('EmailJS error for', a.student_email, e);
+          console.error('Send-email error for', a.student_email, e);
           failed++;
         }
       }
@@ -1156,8 +1158,6 @@
 
     // ── Resend exam / Delete submission / Delete exam ─────────────
 
-    const EMAILJS_RETAKE_TEMPLATE = 'template_retake00'; // ← replace with your retake template ID
-
     function generateToken() {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
@@ -1192,13 +1192,20 @@
       if (error) { showToast('Error saving retake token: ' + error.message, 5500); btn.disabled = false; btn.textContent = 'Send link'; return; }
 
       try {
-        await emailjs.send(EMAILJS_SERVICE, EMAILJS_RETAKE_TEMPLATE, {
-          to_email:    a.student_email || '',
-          to_name:     a.student_name  || '',
-          exam_title:  currentExam.title,
-          retake_link: retakeLink,
-          teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch(SEND_EMAIL_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({
+            type: 'retake',
+            to_email:    a.student_email || '',
+            to_name:     a.student_name  || '',
+            exam_title:  currentExam.title,
+            retake_link: retakeLink,
+            teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
+          }),
         });
+        if (!res.ok) throw new Error(await res.text());
         a.retake_token = token;
         showToast(`Exam link sent to ${a.student_email}`);
       } catch (e) {
