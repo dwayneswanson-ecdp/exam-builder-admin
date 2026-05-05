@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Submissions — Exam Builder</title>
+  <title>Exam Submissions — testflo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -35,7 +35,7 @@
     .header-left { display: flex; align-items: center; gap: 16px; }
     .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; background: none; border: none; cursor: pointer; font-family: inherit; padding: 6px 0; transition: color var(--transition); }
     .back-btn:hover { color: var(--white); }
-    .header-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-logo img { height: 26px; width: auto; }
     .header-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
     .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
     .header-name { font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.5); letter-spacing: 0.02em; }
@@ -276,7 +276,7 @@
         <span data-i18n="backBtn">My Exams</span>
       </button>
       <div class="header-divider"></div>
-      <span class="header-logo">Exam Builder</span>
+      <div class="header-logo"><img src="testflo-dark.svg" alt="testflo"></div>
       <div class="header-divider"></div>
       <span class="header-badge" data-i18n="badge">Teacher</span>
     </div>
@@ -682,7 +682,7 @@
       // Sort alphabetically by student_name
       attempts.sort((a, b) => (a.student_name || '').localeCompare(b.student_name || ''));
 
-      document.title = `${exam.title} — Exam Builder`;
+      document.title = `${exam.title} — testflo`;
       document.getElementById('examTitle').textContent = exam.title;
       const date = exam.created_at
         ? new Date(exam.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -1449,7 +1449,7 @@
         ? attempts
         : attempts.filter(a => a.group_name === activeGroup);
 
-      const instName    = (currentInstitution && currentInstitution.name) || 'Exam Builder';
+      const instName    = (currentInstitution && currentInstitution.name) || 'testflo';
       const teacherName = currentTeacher ? (currentTeacher.full_name || currentTeacher.email) : '—';
       const sent        = reportAttempts.filter(a => a.results_sent_at).length;
       const bounced     = reportAttempts.filter(a => a.bounce_at).length;

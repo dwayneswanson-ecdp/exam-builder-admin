@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Builder — Dashboard</title>
+  <title>testflo — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
@@ -45,7 +45,8 @@
       width: 100%;
       max-width: 400px;
     }
-    .login-logo { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .login-logo { margin-bottom: 10px; }
+    .login-logo img { height: 30px; width: auto; }
     .login-title { font-size: 1.4rem; font-weight: 700; color: var(--black); letter-spacing: -0.03em; margin-bottom: 4px; }
     .login-sub { font-size: 0.82rem; color: var(--slate); margin-bottom: 28px; }
     .field { margin-bottom: 16px; }
@@ -71,8 +72,8 @@
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
     .header-left { display: flex; align-items: center; gap: 32px; }
-    .header-logo { display: flex; align-items: center; gap: 0; }
-    .header-logo span { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .header-logo img { height: 26px; width: auto; }
     .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); margin-left: 12px; border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
     .header-right { display: flex; align-items: center; gap: 16px; }
     .header-user { display: flex; align-items: center; gap: 10px; }
@@ -262,7 +263,7 @@
   ══════════════════════════════════════ -->
   <div id="loginScreen">
     <div class="login-card">
-      <div class="login-logo">Exam Builder</div>
+      <div class="login-logo"><img src="testflo-light.svg" alt="testflo"></div>
       <h1 class="login-title">Dashboard</h1>
       <p class="login-sub">Sign in to manage your institutions and exams.</p>
       <form onsubmit="signIn(); return false;" autocomplete="on">
@@ -285,7 +286,7 @@
   ══════════════════════════════════════ -->
   <div id="resetScreen" style="display:none;">
     <div class="login-card">
-      <div class="login-logo">Exam Builder</div>
+      <div class="login-logo"><img src="testflo-light.svg" alt="testflo"></div>
       <h1 class="login-title">Set New Password</h1>
       <p class="login-sub">Choose a new password for your account.</p>
       <form onsubmit="submitNewPassword(); return false;">
@@ -308,7 +309,7 @@
     <header class="header">
       <div class="header-left">
         <div class="header-logo">
-          <span>Exam Builder</span>
+          <img src="testflo-dark.svg" alt="testflo">
           <span class="header-badge" id="headerBadge">Loading…</span>
         </div>
       </div>

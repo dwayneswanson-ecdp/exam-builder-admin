@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Builder — Importer un examen</title>
+  <title>testflo — Importer un examen</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     // Forward password recovery links to dashboard.html
@@ -42,7 +42,7 @@
     .site-header-left { display: flex; align-items: center; gap: 16px; }
     .site-back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; background: none; border: none; cursor: pointer; font-family: inherit; transition: color var(--transition); }
     .site-back-btn:hover { color: #fff; }
-    .site-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .site-logo img { height: 26px; width: auto; }
     .site-hdivider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
     .site-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
     .site-username { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.6); }
@@ -379,7 +379,7 @@
         Dashboard
       </button>
       <div class="site-hdivider"></div>
-      <span class="site-logo">Exam Builder</span>
+      <div class="site-logo"><img src="testflo-dark.svg" alt="testflo"></div>
       <div class="site-hdivider"></div>
       <span class="site-badge">Teacher</span>
     </div>
@@ -1921,7 +1921,7 @@
 
   <!-- Header -->
   <tr><td style="background:#0f172a;padding:32px 40px;text-align:center;border-radius:12px 12px 0 0;">
-    <p style="margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);">Exam Builder</p>
+    <img src="https://dwayneswanson-ecdp.github.io/exam-builder-admin/testflo-dark.svg" alt="testflo" height="32" style="margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;">
     <h1 style="margin:0;font-size:20px;font-weight:700;color:#fff;">${isFR ? 'Accès à votre épreuve en ligne' : 'Access to your online exam'}</h1>
   </td></tr>
 
@@ -1965,7 +1965,7 @@
     <!-- Footer -->
     <table cellpadding="0" cellspacing="0" width="100%" style="margin-top:28px;border-top:1px solid #e2e8f0;">
       <tr><td style="padding-top:20px;text-align:center;font-size:11px;color:#94a3b8;line-height:1.6;">
-        ${isFR ? 'Cet e-mail a été généré automatiquement par Exam Builder.' : 'This email was generated automatically by Exam Builder.'}<br>
+        ${isFR ? 'Cet e-mail a été généré automatiquement par testflo.' : 'This email was generated automatically by testflo.'}<br>
         ${isFR ? 'Pour toute question, contactez votre administrateur de plateforme.' : 'For any questions, contact your platform administrator.'}
       </td></tr>
     </table>
@@ -1980,7 +1980,7 @@
     if (window.emailjs) {
       emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
         to_email:     email,
-        from_name:    'Exam Builder',
+        from_name:    'testflo',
         from_email:   email,
         subject:      subject,
         message_html: body

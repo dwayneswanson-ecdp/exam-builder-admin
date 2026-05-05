@@ -1,0 +1,6 @@
+<svg viewBox="0 0 215 48" width="215" height="48" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>testflo logo — dark</title>
+  <circle cx="24" cy="24" r="24" fill="#1DACD6"/>
+  <path d="M10,26 L20,36 L39,13" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="62" y="33" font-family="'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-size="32" font-weight="600" fill="#ffffff" letter-spacing="0.6">testflo</text>
+</svg>

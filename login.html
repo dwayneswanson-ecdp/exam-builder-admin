@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exam Builder — Connexion</title>
+  <title>testflo — Connexion</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
@@ -44,13 +44,7 @@
       text-align: center;
       margin-bottom: 32px;
     }
-    .brand-name {
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #0f172a;
-    }
+    .brand-name img { height: 36px; width: auto; }
 
     .login-subtitle {
       text-align: left;
@@ -181,7 +175,7 @@
   <div class="login-wrap">
 
     <div class="brand">
-      <div class="brand-name">Exam Builder</div>
+      <div class="brand-name"><img src="testflo-light.svg" alt="testflo"></div>
     </div>
 
     <!-- Login form -->
@@ -273,7 +267,7 @@
 
     const i18n = {
       fr: {
-        title:        'Exam Builder — Connexion',
+        title:        'testflo — Connexion',
         subPre:       'Se connecter à ',
         subPost:      ' pour continuer',
         email:        'Adresse e-mail',
@@ -296,7 +290,7 @@
         sending:      'Envoi en cours…',
       },
       en: {
-        title:        'Exam Builder — Login',
+        title:        'testflo — Login',
         subPre:       'Log in to ',
         subPost:      ' to continue',
         email:        'Email address',
@@ -327,7 +321,7 @@
 
     function applyStrings() {
       document.title = t('title');
-      document.getElementById('loginSubtitle').innerHTML  = t('subPre') + '<strong>Exam Builder</strong>' + t('subPost');
+      document.getElementById('loginSubtitle').innerHTML  = t('subPre') + '<strong>testflo</strong>' + t('subPost');
       document.getElementById('labelEmail').textContent   = t('email');
       document.getElementById('labelPassword').textContent = t('password');
       document.getElementById('linkReset').textContent    = t('reset');
