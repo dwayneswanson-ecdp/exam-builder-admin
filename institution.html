@@ -308,6 +308,7 @@
     const instId = new URLSearchParams(window.location.search).get('id');
 
     let currentUser      = null;
+    let currentTeacher   = null;
     let addModalRole     = 'teacher';
     let classInputs      = [''];
     let removeTargetId   = null;
@@ -413,6 +414,7 @@
       currentUser = session.user;
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
+      currentTeacher = teacher;
 
       const initials = (teacher.full_name || '').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
       document.getElementById('headerAvatar').textContent = initials;

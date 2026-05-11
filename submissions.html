@@ -795,8 +795,8 @@
         currentInstitution = inst;
       }
 
-      // Sort alphabetically by student_name
-      attempts.sort((a, b) => (a.student_name || '').localeCompare(b.student_name || ''));
+      // Sort alphabetically by last name
+      attempts.sort((a, b) => formatName(a.student_name).localeCompare(formatName(b.student_name)));
 
       document.title = `${exam.title} — testflo`;
       document.getElementById('examTitle').textContent = exam.title;
@@ -873,8 +873,8 @@
       }
 
       list = [...list].sort((a, b) => {
-        if (sort === 'name')      return (a.student_name || '').localeCompare(b.student_name || '');
-        if (sort === 'name-desc') return (b.student_name || '').localeCompare(a.student_name || '');
+        if (sort === 'name')      return formatName(a.student_name).localeCompare(formatName(b.student_name));
+        if (sort === 'name-desc') return formatName(b.student_name).localeCompare(formatName(a.student_name));
         if (sort === 'date')      return new Date(b.submitted_at || 0) - new Date(a.submitted_at || 0);
         if (sort === 'date-asc')  return new Date(a.submitted_at || 0) - new Date(b.submitted_at || 0);
         const scoreA = (a.score_mcq || 0) + Object.values(a.open_scores || {}).reduce((s,v)=>s+(parseFloat(v)||0),0);

@@ -159,7 +159,7 @@
     #terminatedScreen > div { background: var(--white); padding: 44px 36px; max-width: 460px; width: 92%; border-top: 4px solid var(--red); }
 
     /* ── Success ── */
-    #successScreen { display: none; text-align: center; padding: 60px 20px; }
+    #successScreen { display: none; text-align: center; padding: 60px 20px; border-top: 4px solid var(--green); }
 
     /* ── Warning banner (legacy) ── */
     .warn-box { background: #fffbeb; border-left: 4px solid var(--amber); padding: 14px 18px; margin-bottom: 20px; font-size: 0.88rem; color: #78350f; line-height: 1.6; }
@@ -253,6 +253,12 @@
         </ul>
       </div>
 
+      <!-- Monitoring disclosure -->
+      <div id="monitoringDisclosure" style="margin:16px 0;padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #94a3b8;">
+        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:8px;" id="monitoringTitle">Ce qui est enregistré pendant l'épreuve</div>
+        <ul id="monitoringList" style="margin:0;padding-left:16px;font-size:0.8rem;color:#475569;line-height:1.9;"></ul>
+      </div>
+
       <!-- Identity verification -->
       <div class="confirm-verify-label" id="confirmVerifyLabel">Vos informations</div>
       <div class="confirm-item"><div class="confirm-item-label" id="confirmNameLabel">NOM &amp; PRÉNOM</div><div class="confirm-item-val" id="confirmName"></div></div>
@@ -297,8 +303,8 @@
       <div style="display:flex;justify-content:center;margin-bottom:20px;">
         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>
       </div>
-      <h2 style="text-align:center;">Épreuve soumise !</h2>
-      <p>Votre copie a bien été enregistrée. Vous pouvez fermer cette fenêtre.</p>
+      <h2 style="text-align:center;" id="successTitle"></h2>
+      <p id="successMsg"></p>
       <p id="emailStatus" style="font-size:0.82rem;color:#64748b;text-align:center;margin-top:8px;"></p>
     </div>
   </main>
@@ -462,6 +468,7 @@
       // Set exam language for UI
       const examLang = EXAM.lang || 'fr';
       const UI = getUIStrings(examLang);
+      window.UI = UI;
 
       // Update page title
       document.getElementById('examTitleHeader').textContent = EXAM.title;
@@ -504,6 +511,18 @@
         const el = document.getElementById('cw' + i);
         if (el) el.innerHTML = UI['cw' + i];
       });
+
+      // Monitoring disclosure
+      const monTitle = document.getElementById('monitoringTitle');
+      const monList  = document.getElementById('monitoringList');
+      if (monTitle) monTitle.textContent = UI.monitoringTitle;
+      if (monList)  monList.innerHTML = UI.monitoringItems.map(item => `<li>${item}</li>`).join('');
+
+      // Success screen
+      const successTitleEl = document.getElementById('successTitle');
+      const successMsgEl   = document.getElementById('successMsg');
+      if (successTitleEl) successTitleEl.textContent = UI.successTitle;
+      if (successMsgEl)   successMsgEl.textContent   = UI.successMsg;
 
       // Acknowledge checkbox enables start button
       document.getElementById('confirmAcknowledge').addEventListener('change', function() {
@@ -570,8 +589,27 @@
       cw1: isFR ? "L'épreuve se déroule en <strong>plein écran</strong>." : "The exam runs in <strong>full-screen mode</strong>.",
       cw2: isFR ? "Si vous quittez la fenêtre ou changez d'application, un <strong>message d'avertissement</strong> apparaît." : "If you leave the window or switch applications, a <strong>warning message</strong> will appear.",
       cw3: isFR ? "Vous avez <strong>15 secondes</strong> pour revenir — au-delà, l'épreuve est arrêtée et doit être recommencée." : "You have <strong>15 seconds</strong> to return — after which the exam is terminated and must be restarted.",
-      cw4: isFR ? "Après <strong>3 sorties détectées</strong>, votre copie est <strong>envoyée automatiquement</strong> et l'épreuve se termine." : "After <strong>3 detected exits</strong>, your work is <strong>submitted automatically</strong> and the exam ends.",
+      cw4: isFR ? "Après <strong>3 sorties détectées</strong>, votre copie est <strong>envoyée automatiquement</strong>, l'épreuve se termine et <strong>la session est définitivement verrouillée</strong> — aucune reconnexion ne sera possible." : "After <strong>3 detected exits</strong>, your work is <strong>submitted automatically</strong>, the exam ends, and <strong>the session is permanently locked</strong> — re-entry will not be permitted.",
       cw5: isFR ? "Tous ces évènements sont enregistrés dans un <strong>récapitulatif de session</strong> joint à votre copie." : "All events are recorded in a <strong>session log</strong> attached to your submission.",
+      monitoringTitle: isFR ? 'Ce qui est enregistré pendant l\'épreuve' : 'What is recorded during this exam',
+      monitoringItems: isFR ? [
+        'Sorties de fenêtre et changements d\'onglet',
+        'Sorties du plein écran',
+        'Pression des touches de capture d\'écran (PrintScreen, Cmd+Shift+4…)',
+        'Tentatives de copier-coller dans les zones de réponse',
+        'Toute tentative de copie de texte (Ctrl+C / Cmd+C)',
+        'Heure et durée de chaque évènement',
+      ] : [
+        'Window exits and tab switches',
+        'Full-screen exits',
+        'Screenshot key presses (PrintScreen, Cmd+Shift+4…)',
+        'Copy and paste attempts in answer boxes',
+        'Any text copy attempt (Ctrl+C / Cmd+C)',
+        'Time and duration of each event',
+      ],
+      successTitle: isFR ? 'Épreuve soumise !' : 'Exam submitted!',
+      successMsg:   isFR ? 'Votre copie a bien été enregistrée. Vous pouvez fermer cette fenêtre.' : 'Your answers have been recorded. You may close this window.',
+      successEmail: isFR ? 'Vos résultats vous seront communiqués par votre enseignant.' : 'Your results will be shared by your teacher.',
       alertFillAll: isFR ? 'Merci de remplir tous les champs.' : 'Please fill in all fields.',
       alertEmail:   isFR ? 'Adresse e-mail invalide.' : 'Invalid email address.',
       alertGroup:   isFR ? 'Merci de sélectionner votre groupe.' : 'Please select your group.',
@@ -1211,7 +1249,7 @@
 
 
     const statusEl = document.getElementById('emailStatus');
-    if (statusEl) statusEl.textContent = 'Vos résultats ont été enregistrés. Votre enseignant vous les communiquera prochainement.';
+    if (statusEl) statusEl.textContent = (window.UI || getUIStrings('fr')).successEmail;
   }
 
   // ============================================================

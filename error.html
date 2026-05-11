@@ -4,39 +4,43 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Something went wrong — Exam Builder</title>
+  <title>Something went wrong — testflo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 48px 40px; max-width: 480px; width: 100%; text-align: center; }
-    .icon { width: 56px; height: 56px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
-    .title { font-size: 1.4rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 8px; }
-    .msg { font-size: 0.88rem; color: #64748b; line-height: 1.6; margin-bottom: 28px; }
-    .msg strong { color: #0f172a; font-weight: 600; }
-    .btn { display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #fff; font-size: 0.88rem; font-weight: 700; font-family: inherit; border: none; border-radius: 8px; padding: 11px 22px; cursor: pointer; text-decoration: none; }
-    .btn:hover { background: #1d4ed8; }
-    .btn-outline { background: #fff; color: #475569; border: 1.5px solid #e2e8f0; margin-left: 8px; }
-    .btn-outline:hover { border-color: #94a3b8; color: #0f172a; }
-    .code { font-size: 0.72rem; color: #94a3b8; margin-top: 24px; font-family: monospace; }
+    :root {
+      --black: #0a0a0a; --navy: #0f172a; --ink: #1e293b; --slate: #475569;
+      --muted: #94a3b8; --line: #e2e8f0; --surface: #f8fafc; --white: #ffffff;
+      --blue: #2563eb; --red: #dc2626;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--surface); color: var(--ink); font-size: 16px; line-height: 1.7; padding-top: 56px; -webkit-font-smoothing: antialiased; }
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; background: var(--navy); padding: 0 40px; height: 56px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    header span { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; color: rgba(255,255,255,0.85); }
+    main { max-width: 480px; margin: 60px auto; padding: 0 24px; }
+    .card { background: var(--white); border: 1px solid var(--line); border-top: 4px solid var(--red); padding: 40px 36px; text-align: center; }
+    .icon { display: flex; justify-content: center; margin-bottom: 20px; }
+    .title { font-size: 1.4rem; font-weight: 700; color: var(--black); letter-spacing: -0.02em; margin-bottom: 8px; }
+    .msg { font-size: 0.9rem; color: var(--slate); line-height: 1.7; margin-bottom: 24px; }
+    .contact { font-size: 0.82rem; color: var(--muted); }
+    .code { font-size: 0.72rem; color: var(--muted); margin-top: 20px; font-family: monospace; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <header>
+    <span>testflo</span>
+  </header>
+  <main>
+    <div class="card">
+      <div class="icon">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="title" id="errTitle">Something went wrong</div>
+      <div class="msg" id="errMsg">The page you're looking for couldn't be found, or you may not have permission to view it.</div>
+      <div class="contact">If you think this is an error, contact your administrator for assistance.</div>
+      <div class="code" id="errCode"></div>
     </div>
-    <div class="title" id="errTitle">Something went wrong</div>
-    <div class="msg" id="errMsg">The page you're looking for couldn't be found, or you may not have permission to view it.</div>
-    <div>
-      <a class="btn" href="dashboard.html">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back to dashboard
-      </a>
-      <button class="btn btn-outline" onclick="history.back()">Go back</button>
-    </div>
-    <div class="code" id="errCode"></div>
-  </div>
+  </main>
 
   <script>
     const params = new URLSearchParams(window.location.search);

@@ -12,13 +12,22 @@
 
     body {
       font-family: 'Inter', sans-serif;
-      background: #fff;
+      background: #f8fafc;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #0f172a;
+      padding-top: 56px;
     }
+
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      display: flex; align-items: center;
+      background: #0f172a; padding: 0 40px; height: 56px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    header span { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; color: rgba(255,255,255,0.85); }
 
     /* Lang globe — light surface, injects own CSS via lang.js
        but we override colors for white background */
@@ -62,7 +71,7 @@
       padding: 16px 14px 0;
       font-size: 0.95rem; font-family: inherit;
       color: #0f172a; background: #fff;
-      border: 1.5px solid #e2e8f0; border-radius: 8px;
+      border: 1.5px solid #e2e8f0;
       outline: none; transition: border-color 0.15s;
     }
     .field input:focus { border-color: #0f172a; }
@@ -112,14 +121,14 @@
     /* Submit */
     .btn-submit {
       width: 100%; height: 50px;
-      background: #0f172a; color: #fff;
-      border: none; border-radius: 8px;
+      background: #2563eb; color: #fff;
+      border: none;
       font-size: 0.95rem; font-weight: 700;
       font-family: inherit; cursor: pointer;
       transition: background 0.15s;
       margin-bottom: 20px; letter-spacing: 0.01em;
     }
-    .btn-submit:hover { background: #1e293b; }
+    .btn-submit:hover { background: #1d4ed8; }
     .btn-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 
     /* Divider */
@@ -166,6 +175,10 @@
   </style>
 </head>
 <body>
+
+  <header>
+    <span>testflo</span>
+  </header>
 
   <!-- Language toggle — top right -->
   <div class="lang-top-right">
