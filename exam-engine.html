@@ -805,8 +805,12 @@
           div.classList.toggle('answered', ta.value.trim().length > 0);
           updateProgress();
         });
-        ta.addEventListener('paste', e => { e.preventDefault(); logEvent('Paste blocked', 'q' + idx); });
-        ta.addEventListener('cut',   e => { e.preventDefault(); logEvent('Cut blocked',   'q' + idx); });
+        ta.addEventListener('paste', e => { e.preventDefault(); logEvent('Paste attempt blocked', 'q' + idx); });
+        ta.addEventListener('cut',   e => { e.preventDefault(); logEvent('Cut attempt blocked',   'q' + idx); });
+        ta.addEventListener('copy',  e => {
+          const len = window.getSelection()?.toString().length || 0;
+          logEvent('Answer copied from text box', `q${idx} – ${len} characters`);
+        });
         div.appendChild(ta);
 
         const wcRow = document.createElement('div');
@@ -1011,6 +1015,24 @@
       logEvent('Escape pressed', 'keydown');
       askToExit('Vous avez appuyé sur Échap.', 'keydown(Escape)');
     }
+    // Screenshot key detection
+    if (examActive && !examSubmitted) {
+      if (e.key === 'PrintScreen') {
+        logEvent('Screenshot key pressed', 'PrintScreen');
+      }
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && ['3','4','5','s'].includes(e.key.toLowerCase())) {
+        logEvent('Screenshot shortcut', `${e.metaKey ? 'Cmd' : 'Ctrl'}+Shift+${e.key.toUpperCase()}`);
+      }
+    }
+  });
+
+  // Global copy attempt — question text is protected by user-select:none
+  // but log any Ctrl+C / Cmd+C so teacher can see the attempt
+  document.addEventListener('copy', e => {
+    if (!examActive || examSubmitted) return;
+    if (Date.now() < antiCheatSuspendedUntil) return;
+    const sel = window.getSelection()?.toString() || '';
+    logEvent('Copy attempt', sel.length > 0 ? `${sel.length} chars copied` : 'no content selected (question text protected)');
   });
 
   // Language sentinel

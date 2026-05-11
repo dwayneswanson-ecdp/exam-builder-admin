@@ -405,6 +405,38 @@
           ${openBlocks}
         </div>` : ''}
 
+        <!-- Session log -->
+        ${(() => {
+          const log = attempt.session_log || [];
+          if (log.length === 0) return '';
+          const flagged = ['Screenshot', 'Copy', 'Paste', 'Anti-cheat', 'Terminat'];
+          const hasSuspicious = log.some(e => flagged.some(f => e.label?.includes(f)));
+          const rows = log.map(e => {
+            const suspicious = flagged.some(f => e.label?.includes(f));
+            return `<tr style="${suspicious ? 'background:#fef2f2;' : ''}">
+              <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;font-size:0.75rem;color:#64748b;">${escHtml(e.time||'')}</td>
+              <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.78rem;font-weight:${suspicious?'600':'400'};color:${suspicious?'#dc2626':'#1e293b'};">${escHtml(e.label||'')}</td>
+              <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.75rem;color:#64748b;">${escHtml(e.detail||'')}</td>
+            </tr>`;
+          }).join('');
+          return `<div class="section-card" style="margin-top:16px;">
+            <div class="section-head" style="cursor:pointer;user-select:none;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+              <span class="section-title" style="${hasSuspicious?'color:#dc2626;':''}">${hasSuspicious ? '⚠ ' : ''}Session journal (${log.length} event${log.length!==1?'s':''})</span>
+              <span style="font-size:0.72rem;color:#94a3b8;">click to expand</span>
+            </div>
+            <div style="display:none;">
+              <table style="width:100%;border-collapse:collapse;">
+                <thead><tr style="background:#f8fafc;">
+                  <th style="padding:6px 10px;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Time</th>
+                  <th style="padding:6px 10px;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Event</th>
+                  <th style="padding:6px 10px;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Detail</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>`;
+        })()}
+
         <!-- Bottom actions -->
         <div class="bottom-actions">
           <div class="bottom-nav">

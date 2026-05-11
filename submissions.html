@@ -574,9 +574,13 @@
 
   <!-- Resend exam modal -->
   <div class="modal-backdrop" id="retakeModal" style="display:none;" onclick="if(event.target===this)closeRetakeModal()">
-    <div class="modal">
+    <div class="modal" style="max-width:480px;">
       <div class="modal-title">Resend exam access</div>
       <div class="modal-sub" id="retakeModalSub">A new one-time exam link will be emailed to the student. Their previous submission is kept.</div>
+      <div id="retakeSessionLog" style="display:none;margin-top:12px;border:1px solid #fecaca;background:#fef2f2;padding:12px 14px;">
+        <div style="font-size:0.72rem;font-weight:700;color:#dc2626;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">⚠ Session incidents on previous attempt</div>
+        <div id="retakeSessionLogRows" style="font-size:0.78rem;color:#7f1d1d;line-height:1.7;"></div>
+      </div>
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeRetakeModal()">Cancel</button>
         <button class="btn btn-primary" id="retakeConfirmBtn" onclick="confirmRetake()">
@@ -1297,6 +1301,22 @@
       _retakeAttemptId = attemptId;
       document.getElementById('retakeModalSub').textContent =
         `A new one-time exam link will be emailed to ${a.student_name || 'the student'} (${a.student_email || '—'}). Their previous submission is kept.`;
+
+      // Show session incidents if any flagged events exist
+      const flagged = ['Screenshot', 'Copy', 'Paste', 'Anti-cheat', 'Terminat', 'Visibility', 'Fullscreen', 'Escape', 'blur'];
+      const log = a.session_log || [];
+      const incidents = log.filter(e => flagged.some(f => e.label?.includes(f)));
+      const logEl  = document.getElementById('retakeSessionLog');
+      const rowsEl = document.getElementById('retakeSessionLogRows');
+      if (incidents.length > 0) {
+        rowsEl.innerHTML = incidents.map(e =>
+          `<div><strong>${escHtml(e.time||'')}</strong> — ${escHtml(e.label||'')}${e.detail ? ` (${escHtml(e.detail)})` : ''}</div>`
+        ).join('');
+        logEl.style.display = 'block';
+      } else {
+        logEl.style.display = 'none';
+      }
+
       document.getElementById('retakeModal').style.display = 'flex';
     }
     function closeRetakeModal() {
