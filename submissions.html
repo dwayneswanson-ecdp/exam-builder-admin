@@ -640,6 +640,9 @@
       ['overview', 'send-exam', 'submissions'].forEach(t => {
         document.getElementById('tab-' + t).style.display = t === name ? 'block' : 'none';
       });
+      // Show send-results bar only on submissions tab
+      const footer = document.getElementById('stickyFooter');
+      if (footer) footer.style.display = name === 'submissions' ? 'flex' : 'none';
       if (name === 'overview') updateOverviewState();
     }
 
@@ -950,6 +953,11 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
                   Copy retake link
                 </button>
+                ${!a.results_sent_at && !a.bounce_at ? `
+                <button class="menu-item" onclick="sendSingleResult('${a.id}');closeAllMenus()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Send result
+                </button>` : ''}
                 <button class="menu-item" onclick="openResultsPreview('${a.id}');closeAllMenus()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   Preview result email
@@ -1425,6 +1433,40 @@
     function getCheckedGroups() {
       return Array.from(document.querySelectorAll('.group-row')).filter(r => r.querySelector('.group-check').checked)
         .map(r => ({ name: r.dataset.group, code: r.dataset.code }));
+    }
+
+    async function sendSingleResult(attemptId) {
+      const a = attempts.find(x => x.id === attemptId);
+      if (!a || a.results_sent_at || a.bounce_at) return;
+      const scoreObtained  = a.score_mcq ?? 0;
+      const scoreConverted = mcqTotal > 0 ? ((scoreObtained / mcqTotal) * 20).toFixed(1) : scoreObtained;
+      const dateTaken = a.submitted_at
+        ? new Date(a.submitted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+        : '—';
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        const res = await fetch(SEND_EMAIL_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+          body: JSON.stringify({
+            type: 'results', reply_to: currentTeacher?.email || '',
+            to_email: a.student_email, to_name: a.student_name,
+            student_name: a.student_name, exam_title: currentExam.title,
+            date_taken: dateTaken, score_obtained: String(scoreObtained),
+            score_total: String(mcqTotal), score_converted: String(scoreConverted),
+            teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
+            institution_name: currentInstitution?.name || '',
+          }),
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const now = new Date().toISOString();
+        await sb.from('exam_attempts').update({ results_sent_at: now }).eq('id', a.id);
+        a.results_sent_at = now;
+        showToast(`Result sent to ${a.student_email}`);
+        updateStats(); renderList();
+      } catch(e) {
+        showToast('Send failed — ' + e.message, 5500);
+      }
     }
 
     let _previewAttemptId = null;

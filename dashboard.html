@@ -991,7 +991,7 @@
             const pendNum   = stats.total > 0 ? `<span class="stat-number ${pending > 0 ? 'amber' : ''}">${pending}</span><span class="stat-sub">pending</span>` : `<span class="stat-number muted">—</span>`;
             const sentNum   = stats.total > 0 ? `<span class="stat-number ${stats.sent > 0 ? 'green' : ''}">${stats.sent}</span><span class="stat-sub">sent</span>` : `<span class="stat-number muted">—</span>`;
             return `
-              <div class="exam-row" data-exam-id="${exam.id}" onclick="window.location.href='submissions.html?exam=${exam.id}'">
+              <div class="exam-row" data-exam-id="${exam.id}" onclick="window.location.href='submissions?exam=${exam.id}&tab=submissions'">
                 <div>
                   <div class="exam-name">${exam.title || 'Untitled'}</div>
                   <div class="exam-info">${exam.duration_mins} min</div>
@@ -1002,7 +1002,7 @@
                 <div class="stat-col">${sentNum}</div>
                 <div class="date-col">${date}</div>
                 <div class="action-col">
-                  <button class="row-action-btn" onclick="event.stopPropagation();window.location.href='submissions.html?exam=${exam.id}'">
+                  <button class="row-action-btn" onclick="event.stopPropagation();window.location.href='submissions?exam=${exam.id}&tab=submissions'">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
                   </button>
                 </div>
@@ -1034,7 +1034,7 @@
               : '—';
             const hasScore = att.score_mcq !== null && att.score_mcq !== undefined;
             return `
-              <div class="member-row" style="cursor:pointer;" onclick="window.location.href='submissions.html?exam=${att.exam_id}'">
+              <div class="member-row" style="cursor:pointer;" onclick="window.location.href='submissions?exam=${att.exam_id}&tab=submissions'">
                 <div class="member-info">
                   <div class="member-name">${att.student_name || '—'}</div>
                   <div class="member-sub">${exam?.title || '—'} · ${date}</div>
