@@ -403,9 +403,13 @@
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               Preview exam
             </button>
-            <button class="btn btn-blue" onclick="toggleAccessDraft()">
+            <button class="btn btn-ghost" onclick="toggleAccessDraft()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              Draft student email
+              Draft email
+            </button>
+            <button class="btn btn-primary" onclick="openInviteModal()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send invitations
             </button>
           </div>
 
@@ -531,6 +535,24 @@
       <div class="modal-actions">
         <button class="btn-cancel" onclick="closeDeleteAttemptModal()">Cancel</button>
         <button class="btn-danger" onclick="confirmDeleteAttempt()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invite students modal -->
+  <div class="modal-backdrop" id="inviteModal" style="display:none;" onclick="if(event.target===this)closeInviteModal()">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-title">Send exam invitations</div>
+      <div class="modal-sub">Enter student email addresses, one per line. Each student will receive the exam link and access code.</div>
+      <textarea id="inviteEmailsInput" placeholder="student1@school.com&#10;student2@school.com&#10;student3@school.com"
+        style="width:100%;height:120px;font-size:0.82rem;font-family:inherit;border:1px solid var(--line);padding:10px 12px;resize:vertical;outline:none;margin-bottom:4px;box-sizing:border-box;"></textarea>
+      <div id="inviteEmailCount" style="font-size:0.72rem;color:var(--muted);margin-bottom:12px;"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeInviteModal()">Cancel</button>
+        <button class="btn btn-primary" id="inviteSendBtn" onclick="sendInvitations()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send invitations
+        </button>
       </div>
     </div>
   </div>
@@ -1379,6 +1401,62 @@
     function getCheckedGroups() {
       return Array.from(document.querySelectorAll('.group-row')).filter(r => r.querySelector('.group-check').checked)
         .map(r => ({ name: r.dataset.group, code: r.dataset.code }));
+    }
+
+    function openInviteModal() {
+      document.getElementById('inviteEmailsInput').value = '';
+      document.getElementById('inviteEmailCount').textContent = '';
+      document.getElementById('inviteModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('inviteEmailsInput').focus(), 50);
+    }
+    function closeInviteModal() {
+      document.getElementById('inviteModal').style.display = 'none';
+    }
+    document.getElementById('inviteEmailsInput')?.addEventListener('input', function() {
+      const emails = parseEmails(this.value);
+      const el = document.getElementById('inviteEmailCount');
+      el.textContent = emails.length > 0 ? `${emails.length} address${emails.length > 1 ? 'es' : ''}` : '';
+    });
+    function parseEmails(raw) {
+      return raw.split(/[\n,;]+/).map(e => e.trim()).filter(e => e.includes('@'));
+    }
+    async function sendInvitations() {
+      const emails = parseEmails(document.getElementById('inviteEmailsInput').value);
+      if (emails.length === 0) { showToast('Enter at least one email address.'); return; }
+      const btn = document.getElementById('inviteSendBtn');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      const { data: { session } } = await sb.auth.getSession();
+      const link = buildExamLink();
+      const code = currentExam.access_code || '';
+      let sent = 0, failed = 0;
+      for (const email of emails) {
+        try {
+          const res = await fetch(SEND_EMAIL_FN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({
+              type: 'invite',
+              to_email:     email,
+              exam_title:   currentExam.title,
+              exam_link:    link,
+              access_code:  code,
+              duration_mins: String(currentExam.duration_mins || ''),
+              teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
+            }),
+          });
+          if (!res.ok) throw new Error(await res.text());
+          sent++;
+        } catch(e) {
+          console.error('Invite failed for', email, e);
+          failed++;
+        }
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send invitations';
+      closeInviteModal();
+      if (failed > 0 && sent > 0) showToast(`${sent} sent, ${failed} failed.`, 5500);
+      else if (failed > 0) showToast(`Failed to send ${failed} invitation${failed > 1 ? 's' : ''}.`, 5500);
+      else showToast(`${sent} invitation${sent > 1 ? 's' : ''} sent.`);
     }
 
     function buildDraftText() {
