@@ -260,8 +260,9 @@
 
   <script src="lang.js"></script>
   <script>
-    const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const SUPABASE_URL    = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+    const SUPABASE_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+    const RESET_EMAIL_URL = `${SUPABASE_URL}/functions/v1/reset-password`;
     const { createClient } = supabase;
     const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -386,12 +387,14 @@
       btn.textContent = t('sending');
       errEl.classList.remove('visible');
 
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/dashboard.html'
+      const res = await fetch(RESET_EMAIL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
-      if (error) {
-        document.getElementById('resetErrorText').textContent = error.message;
+      if (!res.ok) {
+        document.getElementById('resetErrorText').textContent = 'Something went wrong. Please try again.';
         errEl.classList.add('visible');
         btn.disabled = false;
         btn.textContent = t('resetBtn');
