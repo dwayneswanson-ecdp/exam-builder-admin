@@ -572,6 +572,7 @@
 
     let currentUser      = null;
     let currentTeacher   = null;
+    let _authType        = null;
     let uploadedLogoUrl  = null;
     let deleteTargetId   = null;
     let deleteTargetName = null;
@@ -675,6 +676,7 @@
     async function init() {
       // Handle password recovery or new teacher invite link
       const hash = Object.fromEntries(new URLSearchParams(window.location.hash.slice(1)));
+      _authType = hash.type || null;
       if ((hash.type === 'recovery' || hash.type === 'invite') && hash.access_token) {
         await sb.auth.setSession({ access_token: hash.access_token, refresh_token: hash.refresh_token || '' });
         document.getElementById('loginScreen').style.display = 'none';
@@ -714,7 +716,17 @@
       } else {
         btn.textContent = 'Password set! Signing you in…';
         const { data: { session } } = await sb.auth.getSession();
-        if (session) await loadDashboard(session.user);
+        if (session) {
+          // Send welcome email on first invite activation (not on password reset)
+          if (_authType === 'invite') {
+            fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+              body: JSON.stringify({ type: 'welcome', to_email: session.user.email, to_name: session.user.user_metadata?.full_name || '' }),
+            }).catch(() => {});
+          }
+          await loadDashboard(session.user);
+        }
       }
     }
 

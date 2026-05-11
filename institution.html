@@ -684,6 +684,21 @@
         if (result.invited) {
           succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added.<br>
             <span style="font-size:0.82rem;color:#475569;">An invitation email has been sent to <strong>${email}</strong> with a secure link to set their password.</span>`;
+          // Notify the admin who triggered the invite
+          const { data: { session: s } } = await sb.auth.getSession();
+          if (s) {
+            fetch(ADD_MEMBER_URL.replace('add-member', 'send-email'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${s.access_token}` },
+              body: JSON.stringify({
+                type: 'admin-notify',
+                to_email:    s.user.email,
+                added_name:  `${firstName} ${lastName}`,
+                added_email: email,
+                added_role:  addModalRole,
+              }),
+            }).catch(() => {});
+          }
         } else {
           succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added. Account linked.`;
         }
