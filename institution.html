@@ -666,31 +666,24 @@
           method:  'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({
-            institution_id: instId,
-            role:           addModalRole,
+            institution_id:   instId,
+            role:             addModalRole,
             email,
-            full_name:      `${firstName} ${lastName}`,
-            phone:           isKeyContact ? (phone || null) : null,
-            job_title:       jobTitle || null,
-            is_key_contact:  isKeyContact,
-            classes:         addModalRole === 'teacher' ? classInputs.filter(c => c.trim()) : []
+            full_name:        `${firstName} ${lastName}`,
+            phone:             isKeyContact ? (phone || null) : null,
+            job_title:         jobTitle || null,
+            is_key_contact:    isKeyContact,
+            classes:           addModalRole === 'teacher' ? classInputs.filter(c => c.trim()) : [],
+            invited_by_name:   currentTeacher?.full_name || currentTeacher?.email || ''
           })
         });
 
         const result = await res.json();
         if (!res.ok || result.error) throw new Error(result.error || 'Unknown error');
 
-        if (result.temp_password) {
-          succEl.innerHTML = `
-            <strong>${firstName} ${lastName}</strong> added.<br><br>
-            <span style="font-size:0.75rem;color:#475569;">Temporary password — copy before closing:</span><br>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
-              <code id="tempPwdCode" style="flex:1;background:#f1f5f9;border:1px solid #e2e8f0;padding:6px 10px;border-radius:6px;font-size:0.85rem;letter-spacing:0.04em;">${result.temp_password}</code>
-              <button onclick="navigator.clipboard.writeText('${result.temp_password}').then(()=>this.textContent='Copied').catch(()=>{})"
-                style="font-size:0.72rem;font-weight:700;background:#0f172a;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;white-space:nowrap;font-family:inherit;">
-                Copy
-              </button>
-            </div>`;
+        if (result.invited) {
+          succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added.<br>
+            <span style="font-size:0.82rem;color:#475569;">An invitation email has been sent to <strong>${email}</strong> with a secure link to set their password.</span>`;
         } else {
           succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added. Account linked.`;
         }

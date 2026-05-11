@@ -673,12 +673,14 @@
     // ── Init ─────────────────────────────────────────────────────
 
     async function init() {
-      // Handle password recovery link (#access_token=...&type=recovery)
+      // Handle password recovery or new teacher invite link
       const hash = Object.fromEntries(new URLSearchParams(window.location.hash.slice(1)));
-      if (hash.type === 'recovery' && hash.access_token) {
+      if ((hash.type === 'recovery' || hash.type === 'invite') && hash.access_token) {
         await sb.auth.setSession({ access_token: hash.access_token, refresh_token: hash.refresh_token || '' });
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('resetScreen').style.display = 'block';
+        document.getElementById('resetScreen').querySelector('h1').textContent =
+          hash.type === 'invite' ? 'Create your password' : 'Set New Password';
         return;
       }
 
