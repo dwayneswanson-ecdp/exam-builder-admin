@@ -354,12 +354,12 @@
     <!-- TAB NAV -->
     <div class="tab-nav">
       <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">Overview</button>
+      <button class="tab-btn" data-tab="exam-content" onclick="switchTab('exam-content')">Exam</button>
       <button class="tab-btn" data-tab="send-exam" onclick="switchTab('send-exam')">Send Exam</button>
       <button class="tab-btn" data-tab="submissions" onclick="switchTab('submissions')">
         Submissions
         <span class="tab-count-badge" id="tabSubBadge"></span>
       </button>
-      <button class="tab-btn" data-tab="exam-content" onclick="switchTab('exam-content')">Exam</button>
     </div>
 
     <!-- ── TAB 1: OVERVIEW ── -->
@@ -435,10 +435,6 @@
           </div>
 
           <div class="access-footer">
-            <button class="btn btn-ghost" id="previewBtn">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              Preview exam
-            </button>
             <button class="btn btn-ghost" onclick="toggleAccessDraft()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               Draft email
@@ -550,6 +546,10 @@
       <div class="exam-tab-toolbar">
         <span class="exam-tab-meta" id="examTabMeta"></span>
         <div style="display:flex;gap:8px;">
+          <a id="testAsStudentBtn" class="btn btn-ghost" href="#" target="_blank" style="text-decoration:none;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            Test as student
+          </a>
           <button id="editExamBtn" class="btn btn-ghost" onclick="enterExamEdit()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             Edit exam
@@ -1422,7 +1422,7 @@
       document.getElementById('accessLinkText').textContent = link;
       document.getElementById('copyLinkBtn').onclick = () => copyAccessText(link, document.getElementById('copyLinkBtn'));
 
-      document.getElementById('previewBtn').onclick = () => window.open(link, '_blank');
+      // previewBtn removed — test as student link is in the Exam tab
 
       const groups = exam.groups ? exam.groups.split(',').map(g => g.trim()).filter(Boolean) : [];
       let codes = {};
@@ -1511,10 +1511,16 @@
     // ── Exam Preview & Edit ──────────────────────────────────────
     let _examEditDraft = [];
 
+    function updateExamDraft(qIdx, field, value) {
+      if (_examEditDraft[qIdx]) _examEditDraft[qIdx][field] = value;
+    }
+
     function renderExamPreview() {
       const qs = examQuestions;
       const meta = document.getElementById('examTabMeta');
       if (meta) meta.textContent = `${qs.length} question${qs.length !== 1 ? 's' : ''} · ${mcqTotal} MCQ · ${qs.filter(q=>q.type==='open').length} open`;
+      const studentLink = document.getElementById('testAsStudentBtn');
+      if (studentLink) studentLink.href = buildExamLink();
 
       let html = '<div class="preview-card">';
       html += `<div class="preview-card-header">
@@ -1583,7 +1589,7 @@
             <div class="eq-card-head">Section header</div>
             <div class="eq-card-body">
               <div class="eq-field"><label>Title</label>
-                <input type="text" value="${escHtml(q.question_text||'')}" oninput="_examEditDraft[${idx}].question_text=this.value">
+                <input type="text" value="${escHtml(q.question_text||'')}" oninput="updateExamDraft(${idx},'question_text',this.value)">
               </div>
             </div>
           </div>`;
@@ -1594,19 +1600,19 @@
           const optFields = ['option_a','option_b','option_c','option_d'];
           return `<div class="eq-card">
             <div class="eq-card-head">Q${qNum} · MCQ
-              <input type="number" min="1" value="${q.max_points||1}" style="width:52px;margin-left:auto;padding:2px 6px;font-size:0.75rem;border:1px solid var(--line);font-family:inherit;" oninput="_examEditDraft[${idx}].max_points=parseInt(this.value)||1" title="Points">
+              <input type="number" min="1" value="${q.max_points||1}" style="width:52px;margin-left:auto;padding:2px 6px;font-size:0.75rem;border:1px solid var(--line);font-family:inherit;" oninput="updateExamDraft(${idx},'max_points',parseInt(this.value)||1)" title="Points">
               <span style="font-size:0.65rem;">pts</span>
             </div>
             <div class="eq-card-body">
               <div class="eq-field"><label>Question</label>
-                <textarea style="min-height:60px;" oninput="_examEditDraft[${idx}].question_text=this.value">${escHtml(q.question_text||'')}</textarea>
+                <textarea style="min-height:60px;" oninput="updateExamDraft(${idx},'question_text',this.value)">${escHtml(q.question_text||'')}</textarea>
               </div>
-              <div class="eq-field"><label>Options — select correct answer</label>
+              <div class="eq-field"><label>Options — select the correct answer</label>
                 <div class="eq-options">
                   ${opts.map((opt, i) => `
                   <div class="eq-option-row">
-                    <input type="radio" name="correct_${idx}" value="${i}" ${q.correct_index===i?'checked':''} onchange="_examEditDraft[${idx}].correct_index=${i}" title="Mark as correct">
-                    <input type="text" value="${escHtml(opt)}" placeholder="Option ${String.fromCharCode(65+i)}" oninput="_examEditDraft[${idx}].${optFields[i]}=this.value">
+                    <input type="radio" name="correct_${idx}" value="${i}" ${q.correct_index===i?'checked':''} onchange="updateExamDraft(${idx},'correct_index',${i})" title="Mark as correct">
+                    <input type="text" value="${escHtml(opt)}" placeholder="Option ${String.fromCharCode(65+i)}" oninput="updateExamDraft(${idx},'${optFields[i]}',this.value)">
                   </div>`).join('')}
                 </div>
               </div>
@@ -1616,15 +1622,15 @@
         if (q.type === 'open') {
           return `<div class="eq-card">
             <div class="eq-card-head">Q${qNum} · Open
-              <input type="number" min="1" value="${q.max_points||5}" style="width:52px;margin-left:auto;padding:2px 6px;font-size:0.75rem;border:1px solid var(--line);font-family:inherit;" oninput="_examEditDraft[${idx}].max_points=parseInt(this.value)||1" title="Points">
+              <input type="number" min="1" value="${q.max_points||5}" style="width:52px;margin-left:auto;padding:2px 6px;font-size:0.75rem;border:1px solid var(--line);font-family:inherit;" oninput="updateExamDraft(${idx},'max_points',parseInt(this.value)||1)" title="Points">
               <span style="font-size:0.65rem;">pts</span>
             </div>
             <div class="eq-card-body">
               <div class="eq-field"><label>Question</label>
-                <textarea style="min-height:60px;" oninput="_examEditDraft[${idx}].question_text=this.value">${escHtml(q.question_text||'')}</textarea>
+                <textarea style="min-height:60px;" oninput="updateExamDraft(${idx},'question_text',this.value)">${escHtml(q.question_text||'')}</textarea>
               </div>
               <div class="eq-field"><label>Grading criteria (teacher only)</label>
-                <textarea style="min-height:50px;" placeholder="Optional…" oninput="_examEditDraft[${idx}].grading_criteria=this.value">${escHtml(q.grading_criteria||'')}</textarea>
+                <textarea style="min-height:50px;" placeholder="Optional…" oninput="updateExamDraft(${idx},'grading_criteria',this.value)">${escHtml(q.grading_criteria||'')}</textarea>
               </div>
             </div>
           </div>`;
