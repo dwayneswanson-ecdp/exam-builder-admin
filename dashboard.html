@@ -1236,10 +1236,7 @@
           throw new Error(result.error || 'Unknown error');
         }
 
-        succEl.innerHTML     = `✅ <strong>${name}</strong> created.<br>Share these credentials with <strong>${email}</strong>:<br><br>
-          Email: <code>${email}</code><br>
-          Temporary password: <code>${result.temp_password}</code><br><br>
-          <small>They should change this password on first login.</small>`;
+        succEl.innerHTML     = `✅ <strong>${name}</strong> created. An invitation email has been sent to <strong>${email}</strong> with a secure link to set up their account.`;
         succEl.style.display = 'block';
         btn.textContent      = '✅ Done';
 
