@@ -969,6 +969,11 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                   Send result
                 </button>` : ''}
+                ${a.results_sent_at ? `
+                <button class="menu-item" onclick="sendSingleResult('${a.id}', true);closeAllMenus()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+                  Resend updated results
+                </button>` : ''}
                 <button class="menu-item" onclick="openResultsPreview('${a.id}');closeAllMenus()">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   Preview result email
@@ -1464,9 +1469,9 @@
       return document.getElementById('detailToggle')?.checked || false;
     }
 
-    async function sendSingleResult(attemptId) {
+    async function sendSingleResult(attemptId, force = false) {
       const a = attempts.find(x => x.id === attemptId);
-      if (!a || a.results_sent_at || a.bounce_at) return;
+      if (!a || (!force && (a.results_sent_at || a.bounce_at))) return;
       const scoreObtained  = a.score_mcq ?? 0;
       const scoreConverted = mcqTotal > 0 ? ((scoreObtained / mcqTotal) * 20).toFixed(1) : scoreObtained;
       const dateTaken = a.submitted_at
@@ -1510,8 +1515,11 @@
       document.getElementById('previewModalSub').textContent =
         `To: ${a.student_name || '—'} <${a.student_email || '—'}>`;
       const btn = document.getElementById('previewSendBtn');
-      btn.disabled = !!a.results_sent_at;
-      btn.title = a.results_sent_at ? 'Already sent' : '';
+      btn.disabled = false;
+      btn.title = '';
+      btn.innerHTML = a.results_sent_at
+        ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Resend updated results'
+        : '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send to student';
       refreshPreview();
       document.getElementById('emailPreviewModal').style.display = 'flex';
     }
@@ -1543,7 +1551,7 @@
 
     async function sendFromPreview() {
       const a = attempts.find(x => x.id === _previewAttemptId);
-      if (!a || a.results_sent_at) return;
+      if (!a) return;
       const btn = document.getElementById('previewSendBtn');
       btn.disabled = true; btn.textContent = 'Sending…';
       const scoreObtained = a.score_mcq ?? 0;
