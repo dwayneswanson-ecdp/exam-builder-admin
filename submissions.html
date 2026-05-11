@@ -921,6 +921,13 @@
       return `${last} ${first}`;
     }
 
+    function hoistRowMenus() {
+      // Remove any previously hoisted menus so they don't accumulate
+      document.querySelectorAll('body > .row-menu').forEach(m => m.remove());
+      // Move all row menus to body — escapes opacity/stacking-context on parent rows
+      document.querySelectorAll('#subList .row-menu').forEach(m => document.body.appendChild(m));
+    }
+
     function renderList() {
       const el  = document.getElementById('subList');
       const vis = visibleAttempts();
@@ -955,10 +962,12 @@
           unassigned.forEach(a => { html += renderRow(a, attempts.indexOf(a)); });
         }
         el.innerHTML = html;
+        hoistRowMenus();
         return;
       }
 
       el.innerHTML = vis.map((a) => renderRow(a, attempts.indexOf(a))).join('');
+      hoistRowMenus();
     }
 
     function renderRow(a, i) {
