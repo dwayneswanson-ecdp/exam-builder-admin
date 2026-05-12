@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" translate="no">
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -164,6 +164,16 @@
     /* ── Warning banner (legacy) ── */
     .warn-box { background: #fffbeb; border-left: 4px solid var(--amber); padding: 14px 18px; margin-bottom: 20px; font-size: 0.88rem; color: #78350f; line-height: 1.6; }
 
+    /* ── Pre-exam lang picker ── */
+    #preLangPicker { display:none; align-items:center; gap:2px; flex:0 0 auto; margin: 0 8px; }
+    .plp-btn { background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.5); font-size:0.62rem; font-weight:700; letter-spacing:0.08em; padding:4px 9px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
+    .plp-btn:hover { color:rgba(255,255,255,0.85); border-color:rgba(255,255,255,0.4); }
+    .plp-btn.active { background:rgba(255,255,255,0.12); color:#fff; border-color:rgba(255,255,255,0.45); }
+
+    /* ── Translation block overlay ── */
+    #translationBlockOverlay { display:none; position:fixed; inset:0; z-index:99999; background:#0f172a; align-items:center; justify-content:center; text-align:center; padding:40px; }
+    #translationBlockOverlay.show { display:flex; }
+
     @media (max-width: 640px) {
       body { padding-top: 56px; }
       header { padding: 0 20px; }
@@ -177,8 +187,20 @@
 
   <header>
     <h1 id="examTitleHeader">Chargement…</h1>
+    <div id="preLangPicker" role="group" aria-label="Interface language">
+      <button class="plp-btn active" id="plpFR" onclick="setPreExamLang('fr')">FR</button>
+      <button class="plp-btn" id="plpEN" onclick="setPreExamLang('en')">EN</button>
+    </div>
     <div id="timer"></div>
   </header>
+
+  <div id="translationBlockOverlay">
+    <div style="max-width:440px;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <h2 id="transBlockTitle" style="color:#fff;margin:16px 0 8px;font-size:1.1rem;font-weight:700;">Translation not permitted</h2>
+      <p id="transBlockMsg" style="color:rgba(255,255,255,0.55);font-size:0.88rem;line-height:1.6;margin:0;">Page translation is not allowed during this exam. Please disable browser translation and reload the page.</p>
+    </div>
+  </div>
 
   <main>
     <span id="langSentinel" style="display:none;">
@@ -391,6 +413,7 @@
   let studentEmail = '';
   let attemptId = null;
   let TERMINATED_KEY = '';
+  let uiLang = 'fr';
 
   // ============================================================
   //  BOOT — read ?id= from URL, fetch exam
@@ -466,63 +489,17 @@
       }
 
       // Set exam language for UI
-      const examLang = EXAM.lang || 'fr';
-      const UI = getUIStrings(examLang);
-      window.UI = UI;
+      uiLang = EXAM.lang || 'fr';
+      document.getElementById('plpFR').classList.toggle('active', uiLang === 'fr');
+      document.getElementById('plpEN').classList.toggle('active', uiLang === 'en');
 
       // Update page title
       document.getElementById('examTitleHeader').textContent = EXAM.title;
       document.title = EXAM.title;
 
-      // Populate groups dropdown if defined
-      if (EXAM.groups && EXAM.groups.trim()) {
-        const groups = EXAM.groups.split(',').map(g => g.trim()).filter(Boolean);
-        if (groups.length > 0) {
-          const select = document.getElementById('inputGroup');
-          const row    = document.getElementById('groupRow');
-          select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
-            groups.map(g => `<option value="${g}">${g}</option>`).join('');
-          row.style.display = 'block';
-        }
-      }
-
-      // Apply UI language strings to login + confirm screens
-      document.getElementById('loginTitle').textContent    = UI.loginCardTitle;
-      document.getElementById('loginSub').textContent      = `${UI.loginSub} ${EXAM.duration_mins} ${UI.minutes}`;
-      document.getElementById('labelName').textContent     = UI.labelName;
-      document.getElementById('labelEmail').textContent    = UI.labelEmail;
-      document.getElementById('labelGroup').textContent    = UI.labelGroup;
-      document.getElementById('labelCode').textContent     = UI.labelCode;
-      document.getElementById('loginBtn').textContent      = UI.loginBtn;
-      document.getElementById('confirmTitle').textContent        = UI.confirmTitle;
-      document.getElementById('confirmHeading').textContent      = UI.confirmHeading;
-      document.getElementById('confirmWarningTitle').textContent = UI.warningTitle;
-      document.getElementById('confirmRulesTitle').textContent   = UI.rulesTitle;
-      document.getElementById('confirmVerifyLabel').textContent  = UI.verifyLabel;
-      document.getElementById('confirmNameLabel').textContent    = UI.nameLabel;
-      document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
-      document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
-      document.getElementById('confirmAcknowledgeLabel').textContent = UI.acknowledgeLabel;
-      document.getElementById('confirmBackBtn').textContent      = UI.backBtn;
-      document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
-
-      // cw items — cw3+cw4 in penalty callout, cw1+cw2+cw5 in rules block
-      [1,2,3,4,5].forEach(i => {
-        const el = document.getElementById('cw' + i);
-        if (el) el.innerHTML = UI['cw' + i];
-      });
-
-      // Monitoring disclosure
-      const monTitle = document.getElementById('monitoringTitle');
-      const monList  = document.getElementById('monitoringList');
-      if (monTitle) monTitle.textContent = UI.monitoringTitle;
-      if (monList)  monList.innerHTML = UI.monitoringItems.map(item => `<li>${item}</li>`).join('');
-
-      // Success screen
-      const successTitleEl = document.getElementById('successTitle');
-      const successMsgEl   = document.getElementById('successMsg');
-      if (successTitleEl) successTitleEl.textContent = UI.successTitle;
-      if (successMsgEl)   successMsgEl.textContent   = UI.successMsg;
+      // Populate groups dropdown (language-aware — re-populated in applyUIStrings too)
+      window._examGroupsRaw = EXAM.groups;
+      applyUIStrings(uiLang);
 
       // Acknowledge checkbox enables start button
       document.getElementById('confirmAcknowledge').addEventListener('change', function() {
@@ -532,12 +509,10 @@
         btn.style.cursor  = this.checked ? 'pointer' : 'not-allowed';
       });
 
-      // Show login
+      // Show login + pre-exam lang picker
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'block';
-
-      // Store UI strings globally for use in startExam
-      window.UI = UI;
+      document.getElementById('preLangPicker').style.display = 'flex';
 
     } catch (err) {
       showError('Erreur de chargement : ' + err.message);
@@ -701,6 +676,7 @@
   // ============================================================
   async function startExam() {
     document.getElementById('confirmScreen').style.display = 'none';
+    document.getElementById('preLangPicker').style.display = 'none';
 
     // Create attempt record in Supabase
     try {
@@ -1251,6 +1227,90 @@
     const statusEl = document.getElementById('emailStatus');
     if (statusEl) statusEl.textContent = (window.UI || getUIStrings('fr')).successEmail;
   }
+
+  // ── Zone 1: pre-exam language picker ──────────────────────────
+  function applyUIStrings(lang) {
+    const UI = getUIStrings(lang);
+    window.UI = UI;
+
+    // Populate groups dropdown
+    const groups = (window._examGroupsRaw || '').split(',').map(g => g.trim()).filter(Boolean);
+    if (groups.length > 0) {
+      const select = document.getElementById('inputGroup');
+      const row    = document.getElementById('groupRow');
+      if (select) select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
+        groups.map(g => `<option value="${g}">${g}</option>`).join('');
+      if (row) row.style.display = 'block';
+    }
+
+    document.getElementById('loginTitle').textContent    = UI.loginCardTitle;
+    document.getElementById('loginSub').textContent      = `${UI.loginSub} ${(window.EXAM && EXAM.duration_mins) || '—'} ${UI.minutes}`;
+    document.getElementById('labelName').textContent     = UI.labelName;
+    document.getElementById('labelEmail').textContent    = UI.labelEmail;
+    document.getElementById('labelGroup').textContent    = UI.labelGroup;
+    document.getElementById('labelCode').textContent     = UI.labelCode;
+    document.getElementById('loginBtn').textContent      = UI.loginBtn;
+    document.getElementById('confirmTitle').textContent        = UI.confirmTitle;
+    document.getElementById('confirmHeading').textContent      = UI.confirmHeading;
+    document.getElementById('confirmWarningTitle').textContent = UI.warningTitle;
+    document.getElementById('confirmRulesTitle').textContent   = UI.rulesTitle;
+    document.getElementById('confirmVerifyLabel').textContent  = UI.verifyLabel;
+    document.getElementById('confirmNameLabel').textContent    = UI.nameLabel;
+    document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
+    document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
+    document.getElementById('confirmAcknowledgeLabel').textContent = UI.acknowledgeLabel;
+    document.getElementById('confirmBackBtn').textContent      = UI.backBtn;
+    document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
+    [1,2,3,4,5].forEach(i => {
+      const el = document.getElementById('cw' + i);
+      if (el) el.innerHTML = UI['cw' + i];
+    });
+    const monTitle = document.getElementById('monitoringTitle');
+    const monList  = document.getElementById('monitoringList');
+    if (monTitle) monTitle.textContent = UI.monitoringTitle;
+    if (monList)  monList.innerHTML = UI.monitoringItems.map(item => `<li>${item}</li>`).join('');
+    const successTitleEl = document.getElementById('successTitle');
+    const successMsgEl   = document.getElementById('successMsg');
+    if (successTitleEl) successTitleEl.textContent = UI.successTitle;
+    if (successMsgEl)   successMsgEl.textContent   = UI.successMsg;
+
+    // Update translation-block overlay copy
+    const blockTitle = lang === 'en'
+      ? 'Translation not permitted'
+      : 'Traduction non autorisée';
+    const blockMsg = lang === 'en'
+      ? 'Page translation is not allowed during this exam. Please disable browser translation and reload the page.'
+      : 'La traduction de la page n\'est pas autorisée pendant cette épreuve. Désactivez la traduction de votre navigateur et rechargez la page.';
+    const t = document.getElementById('transBlockTitle');
+    const m = document.getElementById('transBlockMsg');
+    if (t) t.textContent = blockTitle;
+    if (m) m.textContent = blockMsg;
+  }
+
+  function setPreExamLang(lang) {
+    uiLang = lang;
+    document.getElementById('plpFR').classList.toggle('active', lang === 'fr');
+    document.getElementById('plpEN').classList.toggle('active', lang === 'en');
+    applyUIStrings(lang);
+  }
+
+  // ── Zone 2: anti-translation observer ─────────────────────────
+  (function() {
+    var obs = new MutationObserver(function(muts) {
+      for (var i = 0; i < muts.length; i++) {
+        var m = muts[i];
+        if (m.attributeName === 'class') {
+          var cl = document.documentElement.classList;
+          if (cl.contains('translated-ltr') || cl.contains('translated-rtl')) {
+            sessionEvents.push({ type: 'translation_detected', timestamp: new Date().toISOString() });
+            document.getElementById('translationBlockOverlay').classList.add('show');
+            break;
+          }
+        }
+      }
+    });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  })();
 
   // ============================================================
   //  INIT
