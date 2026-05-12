@@ -475,11 +475,9 @@
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
-      if (teacher.lang && teacher.lang !== Lang.get()) { Lang.set(teacher.lang); return; }
-
       document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
-
       addGroup();
+      if (teacher.lang && teacher.lang !== Lang.get()) Lang.set(teacher.lang);
     }
 
     function genCode() {
