@@ -37,7 +37,7 @@
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       </div>
       <div class="title" id="errTitle">Something went wrong</div>
-      <div class="msg" id="errMsg">The page you're looking for couldn't be found, or you may not have permission to view it.</div>
+      <div class="msg" id="errMsg" data-i18n="errMsgDefault">The page you're looking for couldn't be found, or you may not have permission to view it.</div>
       <div class="contact" data-i18n="contactAdmin">If you think this is an error, contact your administrator for assistance.</div>
       <div class="code" id="errCode"></div>
     </div>
@@ -46,8 +46,16 @@
   <script src="lang.js"></script>
   <script>
     Lang.init({
-      fr: { contactAdmin: 'Si vous pensez qu\'il s\'agit d\'une erreur, contactez votre administrateur.' },
-      en: { contactAdmin: 'If you think this is an error, contact your administrator for assistance.' }
+      fr: {
+        contactAdmin:  'Si vous pensez qu\'il s\'agit d\'une erreur, contactez votre administrateur.',
+        errMsgDefault: 'La page que vous cherchez est introuvable, ou vous n\'avez pas l\'autorisation de la consulter.',
+        errCodePrefix: 'Code d\'erreur : ',
+      },
+      en: {
+        contactAdmin:  'If you think this is an error, contact your administrator for assistance.',
+        errMsgDefault: 'The page you\'re looking for couldn\'t be found, or you may not have permission to view it.',
+        errCodePrefix: 'Error code: ',
+      }
     });
     document.addEventListener('langchange', function() { window.location.reload(); });
   </script>
@@ -58,7 +66,7 @@
     const code   = params.get('code');
     if (title) document.getElementById('errTitle').textContent = title;
     if (msg)   document.getElementById('errMsg').textContent   = msg;
-    if (code)  document.getElementById('errCode').textContent  = 'Error code: ' + code;
+    if (code)  document.getElementById('errCode').textContent  = Lang.t('errCodePrefix') + code;
   </script>
 </body>
 </html>

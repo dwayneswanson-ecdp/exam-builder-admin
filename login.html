@@ -242,7 +242,7 @@
           <line x1="12" y1="8" x2="12" y2="12" stroke="#fff" stroke-width="2"/>
           <line x1="12" y1="16" x2="12.01" y2="16" stroke="#fff" stroke-width="2"/>
         </svg>
-        <span id="resetErrorText"></span>
+        <span id="resetErrorText" data-i18n="resetError"></span>
       </div>
 
       <button class="btn-submit" id="resetBtn" onclick="sendReset()"></button>
@@ -296,6 +296,7 @@
         confirmBack:  '← Retour à la connexion',
         signingIn:    'Connexion en cours…',
         sending:      'Envoi en cours…',
+        resetError:   'Une erreur est survenue. Veuillez réessayer.',
       },
       en: {
         title:        'testflo — Login',
@@ -319,6 +320,7 @@
         confirmBack:  '← Back to login',
         signingIn:    'Signing in…',
         sending:      'Sending…',
+        resetError:   'Something went wrong. Please try again.',
       }
     };
 
@@ -401,7 +403,7 @@
       });
 
       if (!res.ok) {
-        document.getElementById('resetErrorText').textContent = 'Something went wrong. Please try again.';
+        document.getElementById('resetErrorText').textContent = t('resetError');
         errEl.classList.add('visible');
         btn.disabled = false;
         btn.textContent = t('resetBtn');

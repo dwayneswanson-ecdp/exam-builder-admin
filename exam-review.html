@@ -546,12 +546,12 @@
       localStorage.removeItem('examReview');
       localStorage.setItem('newExamId', examId);
 
-      showToast('✓ ' + (ob.title || 'Exam') + ' published successfully');
+      showToast('✓ ' + (ob.title || Lang.t('examDefault')) + ' ' + Lang.t('publishedSuccess'));
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
 
     } catch(err) {
       console.error('Publish error:', err);
-      showToast('Publish error: ' + (err.message || err), 5000);
+      showToast(Lang.t('errorGeneric'), 5000);
       const btn = document.getElementById('publishBtn');
       btn.disabled = false;
       btn.innerHTML = Lang.t('publishExam') + ' <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
@@ -607,7 +607,10 @@
       simCriteriaLabel: 'Critères de notation — visibles par l\'enseignant uniquement',
       simCorrect: '✓ Correct',
       gradingCriteria: 'Grading criteria — visible to teacher only',
-      publishingLabel: 'Publication…'
+      publishingLabel: 'Publication…',
+      publishedSuccess: 'publié avec succès',
+      examDefault: 'Épreuve',
+      errorGeneric: 'Une erreur est survenue.',
     },
     en: {
       teacher: 'Teacher', signOut: 'Sign out',
@@ -636,7 +639,10 @@
       simCriteriaLabel: 'Grading criteria — visible to teacher only',
       simCorrect: '✓ Correct',
       gradingCriteria: 'Grading criteria — visible to teacher only',
-      publishingLabel: 'Publishing…'
+      publishingLabel: 'Publishing…',
+      publishedSuccess: 'published successfully',
+      examDefault: 'Exam',
+      errorGeneric: 'Something went wrong.',
     }
   };
   Lang.init(_i18n);

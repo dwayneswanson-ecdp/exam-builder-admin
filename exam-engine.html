@@ -547,8 +547,11 @@
       labelEmail:     isFR ? 'Adresse e-mail' : 'Email address',
       labelGroup:     isFR ? 'Groupe' : 'Group',
       labelCode:      isFR ? "Code d'accès" : 'Access code',
-      loginBtn:       isFR ? 'Continuer →' : 'Continue →',
-      selectGroup:    isFR ? 'Sélectionner votre groupe' : 'Select your group',
+      loginBtn:          isFR ? 'Continuer →' : 'Continue →',
+      placeholderLast:   isFR ? 'NOM' : 'LAST NAME',
+      placeholderFirst:  isFR ? 'Prénom' : 'First name',
+      placeholderEmail:  isFR ? 'votre.email@exemple.com' : 'your.email@example.com',
+      selectGroup:       isFR ? 'Sélectionner votre groupe' : 'Select your group',
       confirmTitle:   isFR ? 'Avant de commencer' : 'Before you begin',
       confirmHeading: isFR ? 'Lisez attentivement avant de commencer' : 'Read carefully before starting',
       warningTitle:   isFR ? "Sortie d'écran — soumission automatique" : 'Screen exit — automatic submission',
@@ -1250,6 +1253,9 @@
     document.getElementById('labelGroup').textContent    = UI.labelGroup;
     document.getElementById('labelCode').textContent     = UI.labelCode;
     document.getElementById('loginBtn').textContent      = UI.loginBtn;
+    document.getElementById('inputLastName').placeholder  = UI.placeholderLast;
+    document.getElementById('inputFirstName').placeholder = UI.placeholderFirst;
+    document.getElementById('inputEmail').placeholder     = UI.placeholderEmail;
     document.getElementById('confirmTitle').textContent        = UI.confirmTitle;
     document.getElementById('confirmHeading').textContent      = UI.confirmHeading;
     document.getElementById('confirmWarningTitle').textContent = UI.warningTitle;
@@ -1259,6 +1265,8 @@
     document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
     document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
     document.getElementById('confirmAcknowledgeLabel').textContent = UI.acknowledgeLabel;
+    const editNoteEl = document.getElementById('confirmEditNote');
+    if (editNoteEl) editNoteEl.textContent = UI.editNote;
     document.getElementById('confirmBackBtn').textContent      = UI.backBtn;
     document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
     [1,2,3,4,5].forEach(i => {
