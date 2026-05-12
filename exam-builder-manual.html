@@ -356,49 +356,49 @@
         <!-- Success card (shown after publish) -->
         <div class="success-card" id="successCard" style="display:none;">
           <div class="success-header">
-            <div class="success-lbl">Published successfully</div>
-            <div class="success-title">✅ Share these details with your students</div>
+            <div class="success-lbl" data-i18n="successPublished">Published successfully</div>
+            <div class="success-title" data-i18n="successTitle">✅ Share these details with your students</div>
           </div>
           <div class="success-body">
-            <div class="field-lbl">Exam Link</div>
+            <div class="field-lbl" data-i18n="examLink">Exam Link</div>
             <div class="link-row">
               <input class="link-input" id="shareUrlInput" type="text" readonly onclick="this.select()">
               <button class="copy-btn" onclick="copyText(document.getElementById('shareUrlInput').value, this)">Copy</button>
             </div>
-            <div class="field-lbl">Access Codes by Group</div>
+            <div class="field-lbl" data-i18n="accessCodes">Access Codes by Group</div>
             <div class="code-list" id="codeList"></div>
             <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
             <div class="action-btns">
               <button class="action-btn" id="emailMeBtn" onclick="emailTeacher()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                Email me the details
+                <span data-i18n="emailMeDetails">Email me the details</span>
               </button>
               <button class="action-btn" onclick="toggleDraftEmail()">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                Draft student email
+                <span data-i18n="draftEmailBtn">Draft student email</span>
               </button>
             </div>
             <div class="draft-panel" id="draftPanel" style="display:none;">
-              <div class="field-lbl" style="margin-bottom:8px;">Select group</div>
+              <div class="field-lbl" style="margin-bottom:8px;" data-i18n="selectGroupLabel">Select group</div>
               <select class="draft-select" id="groupSelect" onchange="updateDraft()">
-                <option value="">— Choose a group —</option>
+                <option value="" data-i18n="chooseGroup">— Choose a group —</option>
               </select>
               <div id="draftContent" style="display:none;">
-                <div class="field-lbl" style="margin-bottom:6px;">Email draft — copy and paste into your email client</div>
+                <div class="field-lbl" style="margin-bottom:6px;" data-i18n="draftEmailLabel">Email draft — copy and paste into your email client</div>
                 <textarea class="draft-textarea" id="draftText" readonly onclick="this.select()"></textarea>
                 <button class="draft-copy-btn" id="draftCopyBtn" onclick="copyDraft()">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                  Copy email
+                  <span data-i18n="copyEmail">Copy email</span>
                 </button>
               </div>
             </div>
             <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 16px;">
             <div class="view-subs-row">
               <div>
-                <div style="font-size:0.85rem;font-weight:700;color:#0f172a;margin-bottom:2px;">Ready to receive submissions</div>
-                <div style="font-size:0.75rem;color:#94a3b8;">Monitor and grade responses as students submit.</div>
+                <div style="font-size:0.85rem;font-weight:700;color:#0f172a;margin-bottom:2px;" data-i18n="readyForSubs">Ready to receive submissions</div>
+                <div style="font-size:0.75rem;color:#94a3b8;" data-i18n="monitorGrade">Monitor and grade responses as students submit.</div>
               </div>
-              <button class="view-subs-btn" id="viewSubsBtn">View submissions →</button>
+              <button class="view-subs-btn" id="viewSubsBtn" data-i18n="viewSubs">View submissions →</button>
             </div>
           </div>
         </div>
@@ -472,7 +472,7 @@
       const btn  = document.getElementById('rubricBtn');
       const open = body.style.display === 'block';
       body.style.display = open ? 'none' : 'block';
-      btn.textContent    = open ? 'Expand' : 'Collapse';
+      btn.textContent    = Lang.t(open ? 'expand' : 'collapse');
     }
 
     function addScaleRow() {
@@ -654,11 +654,11 @@
     async function goToReview() {
       const items     = collectItems();
       const questions = items.filter(i => i.type !== 'section');
-      if (questions.length === 0) { showToast('Add at least one question before reviewing.'); return; }
+      if (questions.length === 0) { showToast(Lang.t('errorNoQuestions')); return; }
 
       const btn = document.getElementById('publishBtn');
       btn.disabled = true;
-      btn.textContent = 'Preparing preview…';
+      btn.textContent = Lang.t('preparingPreview');
 
       // Convert any File attachments to base64 so they survive page navigation
       for (const item of items) {
@@ -781,11 +781,11 @@
     async function publish() {
       const items = collectItems();
       const questions = items.filter(i => i.type !== 'section');
-      if (questions.length === 0) { showToast('Add at least one question before publishing.'); return; }
+      if (questions.length === 0) { showToast(Lang.t('errorNoQuestions')); return; }
 
       const btn = document.getElementById('publishBtn');
       btn.disabled = true;
-      btn.textContent = 'Publishing…';
+      btn.textContent = Lang.t('publishing');
 
       try {
         const shareId = generateShareId();
@@ -827,7 +827,7 @@
         const examId = examRows[0].id;
         publishedExamId  = examId;
         publishedShareId = shareId;
-        publishedGroups  = groups.length > 0 ? groups : [{ name: 'All students', code: accessCode }];
+        publishedGroups  = groups.length > 0 ? groups : [{ name: Lang.t('allStudents'), code: accessCode }];
 
         for (let i = 0; i < items.length; i++) {
           const q = items[i];
@@ -878,9 +878,9 @@
 
       } catch (err) {
         console.error('Publish error:', err);
-        showToast('Publish error: ' + (err.message || err));
+        showToast(Lang.t('errorGeneric'));
         btn.disabled = false;
-        btn.textContent = 'Confirm and publish exam →';
+        btn.textContent = Lang.t('confirmPublish');
       }
     }
 
@@ -898,12 +898,12 @@
           <span class="code-group">${g.name}</span>
           <div style="display:flex;align-items:center;gap:10px;">
             <span class="code-val">${g.code}</span>
-            <button class="code-copy" onclick="copyText('${g.code}',this)">Copy</button>
+            <button class="code-copy" onclick="copyText('${g.code}',this)">${Lang.t('copyCode')}</button>
           </div>
         </div>`).join('');
 
       const sel = document.getElementById('groupSelect');
-      sel.innerHTML = '<option value="">— Choose a group —</option>' +
+      sel.innerHTML = `<option value="">${Lang.t('chooseGroup')}</option>` +
         publishedGroups.map(g => `<option value="${g.name}|${g.code}">${g.name}</option>`).join('');
 
       document.getElementById('viewSubsBtn').onclick = () =>
@@ -921,7 +921,7 @@
     // ── Post-publish actions ─────────────────────────────────────
     function emailTeacher() {
       const btn = document.getElementById('emailMeBtn');
-      btn.textContent = 'Sending…';
+      btn.textContent = Lang.t('sending');
       btn.disabled = true;
       const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
       const baseUrl = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
@@ -936,14 +936,14 @@
         codes:       codesText,
         teacher_name: currentTeacher.full_name || currentTeacher.email
       }).then(() => {
-        btn.innerHTML = '✓ Sent to ' + currentTeacher.email;
+        btn.innerHTML = Lang.t('sentTo').replace('{email}', currentTeacher.email);
         btn.style.color = '#16a34a';
         btn.style.borderColor = '#86efac';
         btn.style.background = '#f0fdf4';
       }).catch(() => {
-        btn.textContent = 'Email me the details';
+        btn.textContent = Lang.t('emailMeDetails');
         btn.disabled = false;
-        showToast('Email failed — check EmailJS settings.');
+        showToast(Lang.t('errorGeneric'));
       });
     }
 
@@ -963,27 +963,27 @@
       const title    = onboardingData?.title || 'Exam';
       const duration = onboardingData?.duration || '';
       document.getElementById('draftText').value =
-`Subject: ${title} — Exam Link & Access Code
+`${Lang.t('draftSubject').replace('{title}', title)}
 
-Dear students,
+${Lang.t('draftGreeting')}
 
-Please find below the details for your upcoming exam.
+${Lang.t('draftBodyText')}
 
-Exam: ${title}
-Group: ${groupName}${duration ? '\nDuration: ' + duration + ' minutes' : ''}
+${Lang.t('draftExamLabel')} ${title}
+${Lang.t('draftGroupLabel')} ${groupName}${duration ? '\n' + Lang.t('draftDuration') + ' ' + duration + ' ' + Lang.t('draftMinutes') : ''}
 
-Exam link:
+${Lang.t('draftLinkLabel')}
 ${shareUrl}
 
-Access code: ${code}
+${Lang.t('draftCodeLabel')} ${code}
 
-Instructions:
-- Click the link above to access the exam.
-- Enter your full name, email address, and the access code above.
-- The exam will begin immediately once confirmed.
-- Do not refresh or close your browser during the exam.
+${Lang.t('draftInstrLabel')}
+- ${Lang.t('draftInstr1')}
+- ${Lang.t('draftInstr2')}
+- ${Lang.t('draftInstr3')}
+- ${Lang.t('draftInstr4')}
 
-Good luck,
+${Lang.t('draftSignoff')}
 ${currentTeacher.full_name || currentTeacher.email}`;
       content.style.display = 'block';
     }
@@ -992,8 +992,8 @@ ${currentTeacher.full_name || currentTeacher.email}`;
       const ta  = document.getElementById('draftText');
       const btn = document.getElementById('draftCopyBtn');
       navigator.clipboard.writeText(ta.value).then(() => {
-        btn.textContent = '✓ Copied';
-        setTimeout(() => btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy email', 1500);
+        btn.textContent = Lang.t('copied');
+        setTimeout(() => btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> ' + Lang.t('copyEmail'), 1500);
       });
     }
 
@@ -1013,8 +1013,76 @@ ${currentTeacher.full_name || currentTeacher.email}`;
     }
 
     const i18n = {
-      fr: { backBtn:'Tableau de bord', badge:'Enseignant', addSection:'+ Section', addMCQ:'+ QCM', addWritten:'+ Question rédigée', publishBtn:'Confirmer et publier' },
-      en: { backBtn:'Dashboard', badge:'Teacher', addSection:'+ Section', addMCQ:'+ MCQ', addWritten:'+ Written Question', publishBtn:'Confirm and Publish' }
+      fr: {
+        backBtn:'Tableau de bord', badge:'Enseignant',
+        addSection:'+ Section', addMCQ:'+ QCM', addWritten:'+ Question rédigée',
+        publishBtn:'Confirmer et publier',
+        expand:'Développer', collapse:'Réduire',
+        errorNoQuestions:'Ajoutez au moins une question avant de continuer.',
+        preparingPreview:'Préparation de l\'aperçu…',
+        publishing:'Publication…', errorGeneric:'Une erreur est survenue.',
+        confirmPublish:'Confirmer et publier l\'examen →',
+        sending:'Envoi en cours…', sentTo:'✓ Envoyé à {email}',
+        emailMeDetails:'Recevoir les détails par e-mail',
+        copied:'✓ Copié', copyEmail:'Copier l\'e-mail', copyCode:'Copier',
+        allStudents:'Tous les étudiants',
+        successPublished:'Publié avec succès',
+        successTitle:'✅ Partagez ces informations avec vos étudiants',
+        examLink:'Lien de l\'épreuve', accessCodes:'Codes d\'accès par groupe',
+        draftEmailBtn:'Brouillon e-mail étudiant', selectGroupLabel:'Sélectionner le groupe',
+        chooseGroup:'— Choisir un groupe —',
+        draftEmailLabel:'Brouillon — copiez dans votre client e-mail',
+        readyForSubs:'Prêt à recevoir les copies',
+        monitorGrade:'Suivez et corrigez les réponses des étudiants.',
+        viewSubs:'Voir les soumissions →',
+        draftSubject:'{title} — Lien et code d\'accès',
+        draftGreeting:'Chères et chers étudiants,',
+        draftBodyText:'Voici les informations nécessaires pour accéder à l\'épreuve.',
+        draftExamLabel:'Épreuve :', draftGroupLabel:'Groupe :',
+        draftDuration:'Durée :', draftMinutes:'minutes',
+        draftLinkLabel:'Lien de l\'épreuve :', draftCodeLabel:'Code d\'accès :',
+        draftInstrLabel:'Instructions :',
+        draftInstr1:'Cliquez sur le lien ci-dessus pour accéder à l\'épreuve.',
+        draftInstr2:'Entrez votre nom complet, votre adresse e-mail et le code d\'accès.',
+        draftInstr3:'L\'épreuve commencera immédiatement après confirmation.',
+        draftInstr4:'Ne rechargez pas et ne fermez pas votre navigateur pendant l\'épreuve.',
+        draftSignoff:'Bonne chance,',
+      },
+      en: {
+        backBtn:'Dashboard', badge:'Teacher',
+        addSection:'+ Section', addMCQ:'+ MCQ', addWritten:'+ Written Question',
+        publishBtn:'Confirm and Publish',
+        expand:'Expand', collapse:'Collapse',
+        errorNoQuestions:'Add at least one question before continuing.',
+        preparingPreview:'Preparing preview…',
+        publishing:'Publishing…', errorGeneric:'Something went wrong.',
+        confirmPublish:'Confirm and publish exam →',
+        sending:'Sending…', sentTo:'✓ Sent to {email}',
+        emailMeDetails:'Email me the details',
+        copied:'✓ Copied', copyEmail:'Copy email', copyCode:'Copy',
+        allStudents:'All students',
+        successPublished:'Published successfully',
+        successTitle:'✅ Share these details with your students',
+        examLink:'Exam Link', accessCodes:'Access Codes by Group',
+        draftEmailBtn:'Draft student email', selectGroupLabel:'Select group',
+        chooseGroup:'— Choose a group —',
+        draftEmailLabel:'Email draft — copy and paste into your email client',
+        readyForSubs:'Ready to receive submissions',
+        monitorGrade:'Monitor and grade responses as students submit.',
+        viewSubs:'View submissions →',
+        draftSubject:'{title} — Exam Link & Access Code',
+        draftGreeting:'Dear students,',
+        draftBodyText:'Please find below the details for your upcoming exam.',
+        draftExamLabel:'Exam:', draftGroupLabel:'Group:',
+        draftDuration:'Duration:', draftMinutes:'minutes',
+        draftLinkLabel:'Exam link:', draftCodeLabel:'Access code:',
+        draftInstrLabel:'Instructions:',
+        draftInstr1:'Click the link above to access the exam.',
+        draftInstr2:'Enter your full name, email address, and the access code above.',
+        draftInstr3:'The exam will begin immediately once confirmed.',
+        draftInstr4:'Do not refresh or close your browser during the exam.',
+        draftSignoff:'Good luck,',
+      }
     };
 
     init();

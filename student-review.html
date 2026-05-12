@@ -505,25 +505,25 @@
       const { error } = await sb.from('exam_attempts')
         .update({ student_name: name, student_email: email })
         .eq('id', attemptId);
-      if (error) { showToast('Error saving contact.'); return; }
+      if (error) { showToast(Lang.t('errorGeneric')); return; }
       attempt.student_name  = name;
       attempt.student_email = email;
       document.getElementById('displayName').textContent  = formatName(name);
       document.getElementById('displayEmail').textContent = email || '—';
       closeContactForm();
-      showToast('Contact updated.');
+      showToast(Lang.t('contactSaved'));
     }
 
     async function requestAI(btn, qIdx) {
       const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
       const q = aqs[qIdx];
-      if (!q) { showToast('Question not found.'); return; }
+      if (!q) { showToast(Lang.t('errorGeneric')); return; }
       const answers = attempt.answers_json || {};
       const studentAnswer = answers['q' + qIdx] || '';
-      if (!studentAnswer) { showToast('No student answer to evaluate.'); return; }
+      if (!studentAnswer) { showToast(Lang.t('noAnswerToEval')); return; }
 
       btn.disabled = true;
-      btn.textContent = '✦ Thinking…';
+      btn.textContent = Lang.t('aiThinking');
 
       const aiBox = document.getElementById('ai-q' + qIdx);
       const maxPts = q.max_points || 5;
@@ -555,28 +555,28 @@
         aiBox.innerHTML = `
           <div class="ai-suggestion-head">
             <div class="ai-suggestion-meta">
-              <span class="ai-tag">AI Suggestion</span>
+              <span class="ai-tag">${Lang.t('aiTag')}</span>
               <span class="ai-score-chip">${suggestedScore} / ${maxPts}</span>
             </div>
             <button class="ai-close" onclick="this.closest('.ai-suggestion').style.display='none'" title="Close">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="ai-hint" style="font-style:italic;color:#64748b;font-size:0.75rem;margin-bottom:6px;">Grading: "${escHtml(q.question_text)}"</div>
-          <div class="ai-hint">Suggestion based on your grading criteria — review before accepting.</div>
+          <div class="ai-hint" style="font-style:italic;color:#64748b;font-size:0.75rem;margin-bottom:6px;">${escHtml(q.question_text)}</div>
+          <div class="ai-hint">${Lang.t('aiHintWarn')}</div>
           <div class="ai-text">${escHtml(rationale)}</div>
           <div class="ai-actions">
-            <button class="btn btn-ghost" onclick="applyScore(${qIdx}, '${suggestedScore}')">Use score (${suggestedScore} / ${maxPts})</button>
-            <button class="btn btn-ghost" onclick="applyComment(${qIdx}, ${JSON.stringify(comment).replace(/"/g, '&quot;')})">Use comment</button>
+            <button class="btn btn-ghost" onclick="applyScore(${qIdx}, '${suggestedScore}')">${Lang.t('aiUseScore').replace('{score}', suggestedScore).replace('{max}', maxPts)}</button>
+            <button class="btn btn-ghost" onclick="applyComment(${qIdx}, ${JSON.stringify(comment).replace(/"/g, '&quot;')})">${Lang.t('aiUseComment')}</button>
           </div>`;
         aiBox.style.display = 'block';
       } catch (e) {
         console.error('AI grading error:', e);
-        showToast('AI grading error: ' + (e.message || 'unknown'), 5500);
+        showToast(Lang.t('errorGeneric'), 5500);
       }
 
       btn.disabled = false;
-      btn.textContent = '✦ AI suggest';
+      btn.textContent = Lang.t('aiSuggest');
     }
 
     function flash(el) {
@@ -648,7 +648,7 @@
         .eq('id', attemptId);
 
       if (error) {
-        showToast('Error saving: ' + error.message, 5500);
+        showToast(Lang.t('errorGeneric'), 5500);
         btn.disabled = false;
         return;
       }
@@ -661,7 +661,7 @@
         const chip = document.getElementById('autoSaveChip');
         if (chip) { chip.style.opacity = '1'; setTimeout(() => { chip.style.opacity = '0'; }, 1500); }
       } else {
-        showToast('Saved.');
+        showToast(Lang.t('saved'));
         setTimeout(() => { goBack(); }, 800);
       }
     }
@@ -762,7 +762,7 @@
       const btn = document.getElementById('downloadReportBtn');
       const origHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Opening…';
+      btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ' + Lang.t('opening');
 
       const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
 <title>Rapport — ${displayName}</title>
@@ -800,37 +800,37 @@
   <div class="hd">
     <div class="hd-lbl">${escHtml(instName)} · ${escHtml(exam.title)}</div>
     <div class="hd-name">${escHtml(displayName)}</div>
-    <div class="hd-meta">${escHtml(attempt.student_email||'')} · Soumis le ${submittedLabel}</div>
+    <div class="hd-meta">${escHtml(attempt.student_email||'')} · ${Lang.t('rptSubmitted')} ${submittedLabel}</div>
   </div>
   <div class="body">
     <div class="cards">
-      <div class="sc"><div class="sc-lbl">Score total</div>
+      <div class="sc"><div class="sc-lbl">${Lang.t('rptTotalScore')}</div>
         <div class="sc-val" style="color:${scoreColor};">${Number.isInteger(totalCorrect)?totalCorrect:totalCorrect.toFixed(1)} / ${totalMax}</div>
         <div class="sc-sub">${pct}%</div></div>
-      <div class="sc"><div class="sc-lbl">Temps utilisé</div>
+      <div class="sc"><div class="sc-lbl">${Lang.t('rptTimeUsed')}</div>
         <div class="sc-val" style="color:#0f172a;">${timeStr}</div>
-        <div class="sc-sub">sur ${exam.duration_mins||'—'} min</div></div>
-      <div class="sc"><div class="sc-lbl">Correcteur</div>
+        <div class="sc-sub">${Lang.t('rptOutOf')} ${exam.duration_mins||'—'} min</div></div>
+      <div class="sc"><div class="sc-lbl">${Lang.t('rptGrader')}</div>
         <div class="sc-val" style="color:#0f172a;font-size:14px;padding-top:6px;">${escHtml(teacherName)}</div>
         <div class="sc-sub">${escHtml(instName)}</div></div>
     </div>
     ${sectionBlock}
     <div class="section-block">
-      <div class="sec-ttl">Détail des réponses</div>
+      <div class="sec-ttl">${Lang.t('rptAnswers')}</div>
       <table><thead><tr>
-        <th>Question</th><th>Réponse candidat</th><th>Bonne réponse / Score</th><th style="text-align:center;">Résultat</th>
+        <th>${Lang.t('rptQuestion')}</th><th>${Lang.t('rptStudentAns')}</th><th>${Lang.t('rptCorrectAns')}</th><th style="text-align:center;">${Lang.t('rptResult')}</th>
       </tr></thead><tbody>${qaRows}</tbody></table>
     </div>
     <div class="section-block">
-      <div class="sec-ttl">Journal de session</div>
-      <table><thead><tr><th>Heure</th><th>Événement</th><th>Détail</th></tr></thead>
+      <div class="sec-ttl">${Lang.t('rptSessionLog')}</div>
+      <table><thead><tr><th>${Lang.t('rptTime')}</th><th>${Lang.t('rptEvent')}</th><th>${Lang.t('rptDetail')}</th></tr></thead>
       <tbody>
-        <tr><td>${startTime}</td><td>Examen démarré</td><td>${escHtml(exam.title)}, Candidat : ${escHtml(displayName)}</td></tr>
-        <tr><td>${endTime}</td><td>Examen soumis</td><td>Soumission manuelle</td></tr>
+        <tr><td>${startTime}</td><td>${Lang.t('rptStarted')}</td><td>${escHtml(exam.title)}, ${escHtml(displayName)}</td></tr>
+        <tr><td>${endTime}</td><td>${Lang.t('rptSubmittedEvt')}</td><td>${Lang.t('rptManual')}</td></tr>
       </tbody></table>
     </div>
   </div>
-  <div class="footer">Généré automatiquement · ${escHtml(exam.title)} · ${escHtml(instName)}</div>
+  <div class="footer">${Lang.t('rptFooter')} · ${escHtml(exam.title)} · ${escHtml(instName)}</div>
 </div></div>
 <script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script>
 </body></html>`;
@@ -849,6 +849,23 @@
         aiSuggest:'✦ Suggestion IA', gradingCriteria:'Critères de correction',
         studentAnswer:'Réponse de l\'étudiant', teacherComment:'Commentaire du professeur',
         correct:'correct', score:'Score',
+        errorGeneric:'Une erreur est survenue.',
+        contactSaved:'Contact mis à jour.',
+        noAnswerToEval:'Aucune réponse de l\'étudiant à évaluer.',
+        aiThinking:'✦ Analyse…',
+        saved:'Enregistré.',
+        opening:'Ouverture…',
+        aiTag:'Suggestion IA',
+        aiHintWarn:'Suggestion basée sur vos critères — vérifiez avant d\'accepter.',
+        aiUseScore:'Appliquer le score ({score} / {max})',
+        aiUseComment:'Appliquer le commentaire',
+        rptSubmitted:'Soumis le', rptTotalScore:'Score total', rptTimeUsed:'Temps utilisé',
+        rptOutOf:'sur', rptGrader:'Correcteur', rptAnswers:'Détail des réponses',
+        rptQuestion:'Question', rptStudentAns:'Réponse candidat',
+        rptCorrectAns:'Bonne réponse / Score', rptResult:'Résultat',
+        rptSessionLog:'Journal de session', rptTime:'Heure', rptEvent:'Événement', rptDetail:'Détail',
+        rptStarted:'Examen démarré', rptSubmittedEvt:'Examen soumis', rptManual:'Soumission manuelle',
+        rptFooter:'Généré automatiquement',
       },
       en: {
         backBtn:'All submissions', badge:'Teacher',
@@ -856,6 +873,23 @@
         aiSuggest:'✦ AI suggest', gradingCriteria:'Grading criteria',
         studentAnswer:'Student\'s answer', teacherComment:'Teacher comment',
         correct:'correct', score:'Score',
+        errorGeneric:'Something went wrong.',
+        contactSaved:'Contact updated.',
+        noAnswerToEval:'No student answer to evaluate.',
+        aiThinking:'✦ Thinking…',
+        saved:'Saved.',
+        opening:'Opening…',
+        aiTag:'AI Suggestion',
+        aiHintWarn:'Suggestion based on your grading criteria — review before accepting.',
+        aiUseScore:'Use score ({score} / {max})',
+        aiUseComment:'Use comment',
+        rptSubmitted:'Submitted on', rptTotalScore:'Total score', rptTimeUsed:'Time used',
+        rptOutOf:'out of', rptGrader:'Grader', rptAnswers:'Answer details',
+        rptQuestion:'Question', rptStudentAns:'Student answer',
+        rptCorrectAns:'Correct answer / Score', rptResult:'Result',
+        rptSessionLog:'Session log', rptTime:'Time', rptEvent:'Event', rptDetail:'Detail',
+        rptStarted:'Exam started', rptSubmittedEvt:'Exam submitted', rptManual:'Manual submission',
+        rptFooter:'Automatically generated',
       }
     };
 

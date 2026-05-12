@@ -657,30 +657,30 @@
           <button id="emailMeBtn" onclick="emailTeacherDetails()"
             style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            Email me the details
+            <span data-i18n="emailMeDetails">Email me the details</span>
           </button>
           <button onclick="toggleDraftEmailPanel()"
             style="display:inline-flex;align-items:center;gap:6px;background:#fff;color:#475569;border:1.5px solid #e2e8f0;border-radius:8px;padding:8px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            Draft student email
+            <span data-i18n="draftEmailBtn">Draft student email</span>
           </button>
         </div>
 
         <!-- Draft email panel -->
         <div id="draftEmailPanel" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:16px;">
-          <div style="font-size:0.72rem;font-weight:700;color:#475569;margin-bottom:8px;">Select group</div>
+          <div style="font-size:0.72rem;font-weight:700;color:#475569;margin-bottom:8px;" data-i18n="selectGroupLabel">Select group</div>
           <select id="draftGroupSelect" onchange="updateDraftEmail()"
             style="width:100%;font-size:0.82rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:7px;padding:7px 10px;color:#0f172a;outline:none;background:#fff;margin-bottom:12px;">
-            <option value="">— Choose a group —</option>
+            <option value="" data-i18n="chooseGroup">— Choose a group —</option>
           </select>
           <div id="draftEmailContent" style="display:none;">
-            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:6px;">Email draft — copy and paste into your email client</div>
+            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:6px;" data-i18n="draftEmailLabel">Email draft — copy and paste into your email client</div>
             <textarea id="draftEmailText" readonly onclick="this.select()"
               style="width:100%;font-size:0.8rem;font-family:inherit;border:1.5px solid #e2e8f0;border-radius:8px;padding:12px;color:#374151;background:#fff;line-height:1.7;min-height:180px;resize:none;outline:none;margin-bottom:8px;"></textarea>
             <button id="copyDraftBtn" onclick="copyDraftEmail()"
               style="display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copy email
+              <span data-i18n="copyEmail">Copy email</span>
             </button>
           </div>
         </div>
@@ -790,7 +790,28 @@
       metaGroupsHint:     "Les étudiants sélectionneront leur groupe au moment de la connexion.",
       aiErrorFailed:      "L'extraction a échoué. Vérifiez votre clé API et réessayez.",
       noStarWarning:      "Aucun marqueur * détecté — l'IA inférera les bonnes réponses. Vérifiez attentivement à l'étape suivante.",
-      partialStarWarning: "Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante."
+      partialStarWarning: "Certaines réponses ne sont pas marquées. Vérifiez les réponses à l'étape suivante.",
+      emailMeDetails:  'Recevoir les détails par e-mail',
+      draftEmailBtn:   'Brouillon e-mail étudiant',
+      selectGroupLabel:'Sélectionner le groupe',
+      chooseGroup:     '— Choisir un groupe —',
+      draftEmailLabel: 'Brouillon — copiez dans votre client e-mail',
+      copyEmail:       "Copier l'e-mail",
+      sendingEmail:    'Envoi en cours…',
+      sentTo:          '✓ Envoyé à {email}',
+      copied:          '✓ Copié',
+      errorGeneric:    'Une erreur est survenue.',
+      draftSubject:    '{title} — Lien et code d\'accès',
+      draftGreeting:   'Chères et chers étudiants,',
+      draftBodyText:   'Voici les informations nécessaires pour accéder à l\'épreuve.',
+      draftExamLabel:  'Épreuve :', draftGroupLabel:'Groupe :',
+      draftLinkLabel:  'Lien de l\'épreuve :', draftCodeLabel:'Code d\'accès :',
+      draftInstrLabel: 'Instructions :',
+      draftInstr1:     'Cliquez sur le lien ci-dessus pour accéder à l\'épreuve.',
+      draftInstr2:     'Entrez votre nom complet, votre adresse e-mail et le code d\'accès.',
+      draftInstr3:     'L\'épreuve commencera immédiatement après confirmation.',
+      draftInstr4:     'Ne rechargez pas et ne fermez pas votre navigateur pendant l\'épreuve.',
+      draftSignoff:    'Bonne chance,',
     },
     en: {
       title:         "Build New Exam",
@@ -873,7 +894,28 @@
       aiErrorNoKey:       "Please enter your Anthropic API key at the top of the page.",
       aiErrorFailed:      "Extraction failed. Check your API key and try again.",
       noStarWarning:      "No * markers detected — the AI will attempt to infer correct answers. Review carefully in the next step.",
-      partialStarWarning: "Some answers are not marked. Please verify all answers in the next step."
+      partialStarWarning: "Some answers are not marked. Please verify all answers in the next step.",
+      emailMeDetails:  'Email me the details',
+      draftEmailBtn:   'Draft student email',
+      selectGroupLabel:'Select group',
+      chooseGroup:     '— Choose a group —',
+      draftEmailLabel: 'Email draft — copy and paste into your email client',
+      copyEmail:       'Copy email',
+      sendingEmail:    'Sending…',
+      sentTo:          '✓ Sent to {email}',
+      copied:          '✓ Copied',
+      errorGeneric:    'Something went wrong.',
+      draftSubject:    '{title} — Exam Link & Access Code',
+      draftGreeting:   'Dear students,',
+      draftBodyText:   'Please find below the details for your upcoming exam.',
+      draftExamLabel:  'Exam:', draftGroupLabel:'Group:',
+      draftLinkLabel:  'Exam link:', draftCodeLabel:'Access code:',
+      draftInstrLabel: 'Instructions:',
+      draftInstr1:     'Click the link above to access the exam.',
+      draftInstr2:     'Enter your full name, email address, and the access code above.',
+      draftInstr3:     'The exam will begin immediately once confirmed.',
+      draftInstr4:     'Do not refresh or close your browser during the exam.',
+      draftSignoff:    'Good luck,',
     }
   };
 
@@ -2032,7 +2074,7 @@
     const codes  = window._publishedGroupCodes && Object.keys(window._publishedGroupCodes).length > 0
       ? Object.entries(window._publishedGroupCodes).map(([g,c]) => `${g}: ${c}`).join('\n')
       : (window._publishedAccessCode || '');
-    btn.textContent = 'Sending…';
+    btn.textContent = Lang.t('sendingEmail');
     btn.disabled = true;
     emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
       to_email:     currentUserEmail,
@@ -2049,12 +2091,12 @@
       institution_name: '',
       institution_logo_url: ''
     }).then(() => {
-      btn.innerHTML = '✓ Sent to ' + currentUserEmail;
+      btn.innerHTML = Lang.t('sentTo').replace('{email}', currentUserEmail);
       btn.style.color = '#16a34a';
       btn.style.borderColor = '#86efac';
       btn.style.background = '#f0fdf4';
     }).catch(() => {
-      btn.textContent = 'Email me the details';
+      btn.textContent = Lang.t('emailMeDetails');
       btn.disabled = false;
     });
   }
@@ -2073,27 +2115,27 @@
     const title = document.getElementById('publishedExamTitle').textContent;
     const meta  = document.getElementById('publishedExamMeta').textContent;
     document.getElementById('draftEmailText').value =
-`Subject: ${title} — Exam Link & Access Code
+`${Lang.t('draftSubject').replace('{title}', title)}
 
-Dear students,
+${Lang.t('draftGreeting')}
 
-Please find below the details for your upcoming exam.
+${Lang.t('draftBodyText')}
 
-Exam: ${title}
-Group: ${groupName}${meta ? '\n' + meta : ''}
+${Lang.t('draftExamLabel')} ${title}
+${Lang.t('draftGroupLabel')} ${groupName}${meta ? '\n' + meta : ''}
 
-Exam link:
+${Lang.t('draftLinkLabel')}
 ${url}
 
-Access code: ${code}
+${Lang.t('draftCodeLabel')} ${code}
 
-Instructions:
-- Click the link above to access the exam.
-- Enter your full name, email address, and the access code above.
-- The exam will begin immediately once confirmed.
-- Do not refresh or close your browser during the exam.
+${Lang.t('draftInstrLabel')}
+- ${Lang.t('draftInstr1')}
+- ${Lang.t('draftInstr2')}
+- ${Lang.t('draftInstr3')}
+- ${Lang.t('draftInstr4')}
 
-Good luck,
+${Lang.t('draftSignoff')}
 ${currentUserEmail}`;
     content.style.display = 'block';
   }
@@ -2102,8 +2144,8 @@ ${currentUserEmail}`;
     const ta  = document.getElementById('draftEmailText');
     const btn = document.getElementById('copyDraftBtn');
     navigator.clipboard.writeText(ta.value).then(() => {
-      btn.textContent = '✓ Copied';
-      setTimeout(() => btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy email`, 1500);
+      btn.textContent = Lang.t('copied');
+      setTimeout(() => btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> ` + Lang.t('copyEmail'), 1500);
     });
   }
 
