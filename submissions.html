@@ -682,7 +682,10 @@
 
   <script src="lang.js"></script>
   <script>
-    document.addEventListener('langchange', function() { window.location.reload(); });
+    document.addEventListener('langchange', async function(e) {
+      if (window.currentTeacher) try { await sb.from('teachers').update({ lang: e.detail.lang }).eq('id', currentTeacher.id); } catch(err) {}
+      window.location.reload();
+    });
 
     const i18n = {
       fr: {
@@ -780,6 +783,7 @@
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
+      if (teacher.lang && teacher.lang !== Lang.get()) { Lang.set(teacher.lang); return; }
       document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
       Lang.init(i18n);
 

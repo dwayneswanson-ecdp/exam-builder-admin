@@ -475,6 +475,7 @@
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
+      if (teacher.lang && teacher.lang !== Lang.get()) { Lang.set(teacher.lang); return; }
 
       document.getElementById('headerName').textContent = teacher.full_name || teacher.email;
 
@@ -682,8 +683,9 @@
       }
     };
     Lang.init(_i18n);
-    document.addEventListener('langchange', function() {
+    document.addEventListener('langchange', function(e) {
       document.getElementById('proceedLabel').textContent = Lang.t(selectedMethod === 'ai' ? 'startAI' : 'startManual');
+      if (window.currentTeacher) sb.from('teachers').update({ lang: e.detail.lang }).eq('id', currentTeacher.id).catch(() => {});
     });
   </script>
 </body>

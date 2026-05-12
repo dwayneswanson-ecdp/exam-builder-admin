@@ -453,6 +453,7 @@
       const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
       if (!teacher) { window.location.href = 'dashboard.html'; return; }
       currentTeacher = teacher;
+      if (teacher.lang && teacher.lang !== Lang.get()) { Lang.set(teacher.lang); return; }
 
       const initials = (teacher.full_name || '').split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
       document.getElementById('headerAvatar').textContent = initials;
@@ -462,7 +463,10 @@
       document.getElementById('pageContent').style.display = 'block';
       await loadPage();
 
-      document.addEventListener('langchange', () => rerender());
+      document.addEventListener('langchange', function(e) {
+        if (currentTeacher) sb.from('teachers').update({ lang: e.detail.lang }).eq('id', currentTeacher.id).catch(() => {});
+        rerender();
+      });
     }
 
     async function signOut() {
@@ -824,6 +828,6 @@
     });
   </script>
   <script src="lang.js"></script>
-  <script>document.addEventListener('langchange', function() { window.location.reload(); });</script>
+  <script>/* langchange handled in init block */</script>
 </body>
 </html>

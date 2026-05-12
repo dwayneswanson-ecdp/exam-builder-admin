@@ -762,6 +762,7 @@
       }
 
       currentTeacher = teacher;
+      if (teacher.lang && teacher.lang !== Lang.get()) { Lang.set(teacher.lang); return; }
 
       // Header
       const initials = (teacher.full_name || teacher.email).split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
@@ -796,11 +797,9 @@
         }
       }
 
-      document.addEventListener('langchange', () => {
-        document.getElementById('dashLogoutBtn').textContent = Lang.t('logout');
-        if (teacher.role === 'super_admin') loadInstitutions();
-        if (teacher.role === 'admin')       { loadAdminDashboard(); loadTeacherDashboard(); }
-        if (teacher.role === 'teacher')     loadTeacherDashboard();
+      document.addEventListener('langchange', async function(e) {
+        if (currentTeacher) try { await sb.from('teachers').update({ lang: e.detail.lang }).eq('id', currentTeacher.id); } catch(err) {}
+        window.location.reload();
       });
 
       if (teacher.role === 'super_admin') {
@@ -1348,6 +1347,6 @@
     });
   </script>
   <script src="lang.js"></script>
-  <script>document.addEventListener('langchange', function() { window.location.reload(); });</script>
+  <script>/* langchange handled in init block */</script>
 </body>
 </html>
