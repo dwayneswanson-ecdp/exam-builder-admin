@@ -38,13 +38,19 @@
       </div>
       <div class="title" id="errTitle">Something went wrong</div>
       <div class="msg" id="errMsg">The page you're looking for couldn't be found, or you may not have permission to view it.</div>
-      <div class="contact">If you think this is an error, contact your administrator for assistance.</div>
+      <div class="contact" data-i18n="contactAdmin">If you think this is an error, contact your administrator for assistance.</div>
       <div class="code" id="errCode"></div>
     </div>
   </main>
 
   <script src="lang.js"></script>
-  <script>Lang.init({});</script>
+  <script>
+    Lang.init({
+      fr: { contactAdmin: 'Si vous pensez qu\'il s\'agit d\'une erreur, contactez votre administrateur.' },
+      en: { contactAdmin: 'If you think this is an error, contact your administrator for assistance.' }
+    });
+    document.addEventListener('langchange', function() { window.location.reload(); });
+  </script>
   <script>
     const params = new URLSearchParams(window.location.search);
     const title  = params.get('title');

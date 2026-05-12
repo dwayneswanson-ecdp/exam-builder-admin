@@ -204,12 +204,12 @@
     <div class="header-left">
       <button class="back-btn" onclick="window.location.href='dashboard.html'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        My Exams
+        <span data-i18n="myExams">My Exams</span>
       </button>
       <div class="header-divider"></div>
       <div class="header-logo"><img src="testflo-dark.svg" alt="testflo"></div>
       <div class="header-divider"></div>
-      <span class="header-badge">Teacher</span>
+      <span class="header-badge" data-i18n="teacher">Teacher</span>
     </div>
     <div class="header-right">
       <div id="langToggleMount"></div>
@@ -221,7 +221,7 @@
         <div class="user-dropdown" id="userDropdown">
           <button class="user-dropdown-item" onclick="signOutUser()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Sign out
+            <span data-i18n="signOut">Sign out</span>
           </button>
         </div>
       </div>
@@ -234,22 +234,22 @@
     <div class="step-track">
       <div class="step-item active" id="si1">
         <div class="step-num">1</div>
-        <span class="step-label">Configure</span>
+        <span class="step-label" data-i18n="stepConfigure">Configure</span>
       </div>
       <div class="step-connector" id="sc1"></div>
       <div class="step-item" id="si2">
         <div class="step-num">2</div>
-        <span class="step-label">Choose method</span>
+        <span class="step-label" data-i18n="stepChooseMethod">Choose method</span>
       </div>
       <div class="step-connector"></div>
       <div class="step-item">
         <div class="step-num">3</div>
-        <span class="step-label">Build</span>
+        <span class="step-label" data-i18n="stepBuild">Build</span>
       </div>
       <div class="step-connector"></div>
       <div class="step-item">
         <div class="step-num">4</div>
-        <span class="step-label">Publish</span>
+        <span class="step-label" data-i18n="stepPublish">Publish</span>
       </div>
     </div>
 
@@ -259,8 +259,8 @@
     <div id="step1">
 
       <div class="page-heading">
-        <div class="page-title">Configure your exam</div>
-        <div class="page-sub">These settings apply to both manual and AI-generated exams.</div>
+        <div class="page-title" data-i18n="pageTitle">Configure your exam</div>
+        <div class="page-sub" data-i18n="pageSub">These settings apply to both manual and AI-generated exams.</div>
       </div>
 
       <!-- 01 — Exam Details -->
@@ -269,22 +269,22 @@
           <div class="card-header-left">
             <span class="card-num">01</span>
             <div class="card-divider"></div>
-            <div class="card-title">Exam Details</div>
+            <div class="card-title" data-i18n="card01Title">Exam Details</div>
           </div>
         </div>
         <div class="card-body">
           <div class="field">
-            <label class="field-label">Exam Title <span class="req">*</span></label>
+            <label class="field-label"><span data-i18n="labelExamTitle">Exam Title</span> <span class="req">*</span></label>
             <input class="field-input" type="text" id="examTitle" placeholder="e.g. Finance d'entreprise — Partiel S2">
           </div>
           <div class="field-row" style="margin-bottom:20px;">
             <div class="field">
-              <label class="field-label">Duration <span class="req">*</span></label>
+              <label class="field-label"><span data-i18n="labelDuration">Duration</span> <span class="req">*</span></label>
               <input class="field-input" type="number" id="examDuration" placeholder="45" min="5" max="300">
-              <div class="field-hint">Minutes</div>
+              <div class="field-hint" data-i18n="hintDuration">Minutes</div>
             </div>
             <div class="field">
-              <label class="field-label">Language <span class="req">*</span></label>
+              <label class="field-label"><span data-i18n="labelLanguage">Language</span> <span class="req">*</span></label>
               <div class="lang-toggle">
                 <button class="lang-opt active" id="langFR" onclick="setLang('fr')">Français</button>
                 <button class="lang-opt" id="langEN" onclick="setLang('en')">English</button>
@@ -292,15 +292,15 @@
             </div>
           </div>
           <div class="field">
-            <label class="field-label">Additional Student Instructions <span style="font-weight:500;color:var(--muted);font-size:0.68rem;text-transform:none;letter-spacing:0;">(optional)</span></label>
+            <label class="field-label"><span data-i18n="labelInstructions">Additional Student Instructions</span> <span style="font-weight:500;color:var(--muted);font-size:0.68rem;text-transform:none;letter-spacing:0;">(<span data-i18n="labelInstructionsOpt">optional</span>)</span></label>
             <textarea class="field-input" id="examInstructions" placeholder="e.g. No notes permitted · Calculators allowed · Answer all questions"></textarea>
-            <div class="field-hint">Shown to students on the confirmation screen, after the default exam rules.</div>
+            <div class="field-hint" data-i18n="hintInstructions">Shown to students on the confirmation screen, after the default exam rules.</div>
             <button type="button" class="default-rules-toggle" id="defaultRulesToggle" onclick="toggleDefaultRules()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-              See what students already see by default
+              <span data-i18n="seeDefaultRules">See what students already see by default</span>
             </button>
             <div class="default-rules-list" id="defaultRulesList">
-              <div class="default-rules-heading">Default rules — always shown to every student</div>
+              <div class="default-rules-heading" data-i18n="defaultRulesHeading">Default rules — always shown to every student</div>
               <ul>
                 <li>The exam runs in <strong>full-screen mode</strong>.</li>
                 <li>If you leave the window or switch applications, a <strong>warning message</strong> will appear.</li>
@@ -320,20 +320,20 @@
           <div class="card-header-left">
             <span class="card-num">02</span>
             <div class="card-divider"></div>
-            <div class="card-title">Student Groups</div>
+            <div class="card-title" data-i18n="card02Title">Student Groups</div>
           </div>
           <button class="add-group-btn" onclick="addGroup()">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            Add Group
+            <span data-i18n="addGroup">Add Group</span>
           </button>
         </div>
         <div class="card-body">
           <div class="col-labels">
-            <div class="col-label" style="flex:1;">Group Name</div>
+            <div class="col-label" style="flex:1;" data-i18n="colGroupName">Group Name</div>
             <div style="width:24px;"></div>
           </div>
           <div id="groupList"></div>
-          <div class="field-hint" style="margin-top:12px;">Access codes are generated automatically after the exam is created — visible in your submissions dashboard.</div>
+          <div class="field-hint" style="margin-top:12px;" data-i18n="hintGroups">Access codes are generated automatically after the exam is created — visible in your submissions dashboard.</div>
         </div>
       </div>
 
@@ -343,27 +343,27 @@
           <div class="card-header-left">
             <span class="card-num">03</span>
             <div class="card-divider"></div>
-            <div class="card-title">Grading &amp; Results</div>
+            <div class="card-title" data-i18n="card03Title">Grading &amp; Results</div>
           </div>
         </div>
         <div class="card-body">
           <div class="field">
-            <label class="field-label">Score Scale <span class="req">*</span></label>
+            <label class="field-label"><span data-i18n="labelScoreScale">Score Scale</span> <span class="req">*</span></label>
             <div class="score-input-wrap">
               <input class="score-input" type="number" id="examCoefficient" value="20" min="1" max="100">
-              <span class="score-input-label">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
+              <span class="score-input-label" data-i18n="hintScoreScale">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
             </div>
           </div>
           <div class="field">
-            <label class="field-label">Results Report Sent to Students</label>
+            <label class="field-label" data-i18n="labelResults">Results Report Sent to Students</label>
             <div class="report-options">
               <button class="report-option selected" id="reportFull" onclick="setReport('full')">
-                <div class="report-option-title">Full Report</div>
-                <div class="report-option-desc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
+                <div class="report-option-title" data-i18n="reportFullTitle">Full Report</div>
+                <div class="report-option-desc" data-i18n="reportFullDesc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
               </button>
               <button class="report-option" id="reportScore" onclick="setReport('score')">
-                <div class="report-option-title">Score Only</div>
-                <div class="report-option-desc">Final score only — no breakdown or answers shared.</div>
+                <div class="report-option-title" data-i18n="reportScoreTitle">Score Only</div>
+                <div class="report-option-desc" data-i18n="reportScoreDesc">Final score only — no breakdown or answers shared.</div>
               </button>
             </div>
           </div>
@@ -371,20 +371,20 @@
             <div class="info-note">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               <span>
-                <strong>MCQ questions are graded automatically.</strong> <span class="ai-chip">AI</span><br>
-                <span style="color:#475569;font-size:0.75rem;">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
+                <strong data-i18n="infoMCQ">MCQ questions are graded automatically.</strong> <span class="ai-chip">AI</span><br>
+                <span style="color:#475569;font-size:0.75rem;" data-i18n="infoOpen">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
               </span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="error-msg" id="errorMsg">Please fill in all required fields (title, duration, at least one group).</div>
+      <div class="error-msg" id="errorMsg" data-i18n="errorRequired">Please fill in all required fields (title, duration, at least one group).</div>
 
       <div class="cta-row">
-        <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'">Cancel</button>
+        <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'" data-i18n="cancel">Cancel</button>
         <button class="btn btn-primary" onclick="validateStep1()">
-          Continue
+          <span data-i18n="continue">Continue</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
@@ -403,8 +403,8 @@
       </div>
 
       <div class="method-heading">
-        <div class="method-heading-title">How do you want to build the questions?</div>
-        <div class="method-heading-sub">Choose a method — your configuration applies to both.</div>
+        <div class="method-heading-title" data-i18n="methodHeading">How do you want to build the questions?</div>
+        <div class="method-heading-sub" data-i18n="methodSub">Choose a method — your configuration applies to both.</div>
       </div>
 
       <div class="method-grid">
@@ -414,10 +414,10 @@
           <div class="method-card-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           </div>
-          <div class="method-card-label">Build manually</div>
-          <div class="method-card-desc">Write questions one by one directly inside the platform. Full control over wording, options, and scoring criteria.</div>
+          <div class="method-card-label" data-i18n="methodManualLabel">Build manually</div>
+          <div class="method-card-desc" data-i18n="methodManualDesc">Write questions one by one directly inside the platform. Full control over wording, options, and scoring criteria.</div>
           <div class="method-card-footer">
-            <span class="method-badge available">Available</span>
+            <span class="method-badge available" data-i18n="available">Available</span>
             <div class="method-select-indicator">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -430,12 +430,12 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           </div>
           <div class="method-card-label">
-            AI extraction
+            <span data-i18n="methodAILabel">AI extraction</span>
             <span class="ai-chip">AI</span>
           </div>
-          <div class="method-card-desc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.</div>
+          <div class="method-card-desc" data-i18n="methodAIDesc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.</div>
           <div class="method-card-footer">
-            <span class="method-badge available">Available</span>
+            <span class="method-badge available" data-i18n="available">Available</span>
             <div class="method-select-indicator">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -445,9 +445,9 @@
       </div>
 
       <div class="cta-row">
-        <button class="btn btn-ghost" onclick="goToStep1()">← Back</button>
+        <button class="btn btn-ghost" onclick="goToStep1()" data-i18n="backBtn">← Back</button>
         <button class="btn btn-primary" id="continueBtn" onclick="proceed()">
-          <span id="proceedLabel">Start with AI extraction</span>
+          <span id="proceedLabel" data-i18n="startAI">Start with AI extraction</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
@@ -573,7 +573,7 @@
       selectedMethod = method;
       document.getElementById('cardManual').className = method === 'manual' ? 'method-card selected-manual' : 'method-card';
       document.getElementById('cardAI').className     = method === 'ai'     ? 'method-card selected-ai'     : 'method-card';
-      document.getElementById('proceedLabel').textContent = method === 'ai' ? 'Start with AI extraction' : 'Start building manually';
+      document.getElementById('proceedLabel').textContent = Lang.t(method === 'ai' ? 'startAI' : 'startManual');
     }
 
     // ── Proceed (saves config, routes to builder) ──────────────────
@@ -624,6 +624,67 @@
     });
   </script>
   <script src="lang.js"></script>
-  <script>Lang.init({});</script>
+  <script>
+    var _i18n = {
+      fr: {
+        myExams: 'Mes examens', teacher: 'Enseignant',
+        stepConfigure: 'Configurer', stepChooseMethod: 'Choisir la méthode', stepBuild: 'Créer', stepPublish: 'Publier',
+        pageTitle: 'Configurer votre examen', pageSub: 'Ces paramètres s\'appliquent aux examens manuels et générés par IA.',
+        card01Title: 'Détails de l\'examen', card02Title: 'Groupes d\'étudiants', card03Title: 'Notation et résultats',
+        labelExamTitle: 'Titre de l\'examen', labelDuration: 'Durée', hintDuration: 'Minutes', labelLanguage: 'Langue',
+        labelInstructions: 'Instructions supplémentaires pour les étudiants', labelInstructionsOpt: '(facultatif)',
+        hintInstructions: 'Affichées sur l\'écran de confirmation, après les règles par défaut.',
+        seeDefaultRules: 'Voir ce que les étudiants voient par défaut',
+        defaultRulesHeading: 'Règles par défaut — affichées à chaque étudiant',
+        addGroup: 'Ajouter un groupe', colGroupName: 'Nom du groupe',
+        hintGroups: 'Les codes d\'accès sont générés automatiquement après la création de l\'examen — visibles dans le tableau de bord.',
+        labelScoreScale: 'Barème', hintScoreScale: 'Notes rapportées sur cette valeur (ex. 14,5 / 20)',
+        labelResults: 'Rapport de résultats envoyé aux étudiants',
+        reportFullTitle: 'Rapport complet', reportFullDesc: 'Score + détail question par question avec les bonnes réponses et commentaires.',
+        reportScoreTitle: 'Score uniquement', reportScoreDesc: 'Score final uniquement — aucun détail ni réponse partagé.',
+        infoMCQ: 'Les questions à choix multiple sont corrigées automatiquement.',
+        infoOpen: 'Pour les questions rédigées (ouvertes), vous évaluez chaque réponse et attribuez un score — avec des suggestions de notation IA facultatives selon vos critères.',
+        errorRequired: 'Veuillez remplir tous les champs obligatoires (titre, durée, au moins un groupe).',
+        cancel: 'Annuler', continue: 'Continuer',
+        methodHeading: 'Comment voulez-vous créer les questions ?', methodSub: 'Choisissez une méthode — votre configuration s\'applique aux deux.',
+        methodManualLabel: 'Créer manuellement', methodManualDesc: 'Rédigez les questions une par une directement sur la plateforme. Contrôle total sur le libellé, les options et les critères.',
+        methodAILabel: 'Extraction IA', methodAIDesc: 'Chargez un document Word ou PDF — l\'IA extrait les QCM et questions ouvertes automatiquement. Relisez avant de publier.',
+        available: 'Disponible', backBtn: '← Retour',
+        startAI: 'Commencer avec l\'extraction IA', startManual: 'Commencer manuellement',
+        signOut: 'Se déconnecter'
+      },
+      en: {
+        myExams: 'My Exams', teacher: 'Teacher',
+        stepConfigure: 'Configure', stepChooseMethod: 'Choose method', stepBuild: 'Build', stepPublish: 'Publish',
+        pageTitle: 'Configure your exam', pageSub: 'These settings apply to both manual and AI-generated exams.',
+        card01Title: 'Exam Details', card02Title: 'Student Groups', card03Title: 'Grading & Results',
+        labelExamTitle: 'Exam Title', labelDuration: 'Duration', hintDuration: 'Minutes', labelLanguage: 'Language',
+        labelInstructions: 'Additional Student Instructions', labelInstructionsOpt: '(optional)',
+        hintInstructions: 'Shown to students on the confirmation screen, after the default exam rules.',
+        seeDefaultRules: 'See what students already see by default',
+        defaultRulesHeading: 'Default rules — always shown to every student',
+        addGroup: 'Add Group', colGroupName: 'Group Name',
+        hintGroups: 'Access codes are generated automatically after the exam is created — visible in your submissions dashboard.',
+        labelScoreScale: 'Score Scale', hintScoreScale: 'Scores reported out of this value (e.g. 14.5 / 20)',
+        labelResults: 'Results Report Sent to Students',
+        reportFullTitle: 'Full Report', reportFullDesc: 'Score + question-by-question breakdown with correct answers and teacher comments.',
+        reportScoreTitle: 'Score Only', reportScoreDesc: 'Final score only — no breakdown or answers shared.',
+        infoMCQ: 'MCQ questions are graded automatically.',
+        infoOpen: 'For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.',
+        errorRequired: 'Please fill in all required fields (title, duration, at least one group).',
+        cancel: 'Cancel', continue: 'Continue',
+        methodHeading: 'How do you want to build the questions?', methodSub: 'Choose a method — your configuration applies to both.',
+        methodManualLabel: 'Build manually', methodManualDesc: 'Write questions one by one directly inside the platform. Full control over wording, options, and scoring criteria.',
+        methodAILabel: 'AI extraction', methodAIDesc: 'Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.',
+        available: 'Available', backBtn: '← Back',
+        startAI: 'Start with AI extraction', startManual: 'Start building manually',
+        signOut: 'Sign out'
+      }
+    };
+    Lang.init(_i18n);
+    document.addEventListener('langchange', function() {
+      document.getElementById('proceedLabel').textContent = Lang.t(selectedMethod === 'ai' ? 'startAI' : 'startManual');
+    });
+  </script>
 </body>
 </html>

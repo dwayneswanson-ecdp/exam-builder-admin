@@ -151,7 +151,7 @@
   <div class="header-left">
     <div class="header-logo"><img src="testflo-dark.svg" alt="testflo"></div>
     <div class="header-divider"></div>
-    <span class="header-badge">Teacher</span>
+    <span class="header-badge" data-i18n="teacher">Teacher</span>
   </div>
   <div class="header-right">
     <div id="langToggleMount"></div>
@@ -163,7 +163,7 @@
       <div class="user-dropdown" id="userDropdown">
         <button class="user-dropdown-item" onclick="signOutUser()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-          Sign out
+          <span data-i18n="signOut">Sign out</span>
         </button>
       </div>
     </div>
@@ -171,10 +171,10 @@
 </header>
 
 <div class="step-bar">
-  <div class="step-pill done"><div class="step-num">✓</div>Configure</div>
-  <div class="step-pill done"><div class="step-num">✓</div>Build questions</div>
-  <div class="step-pill active"><div class="step-num">3</div>Review &amp; publish</div>
-  <div class="step-pill"><div class="step-num">4</div>Published</div>
+  <div class="step-pill done"><div class="step-num">✓</div><span data-i18n="stepConfigure">Configure</span></div>
+  <div class="step-pill done"><div class="step-num">✓</div><span data-i18n="stepBuildQs">Build questions</span></div>
+  <div class="step-pill active"><div class="step-num">3</div><span data-i18n="stepReview">Review &amp; publish</span></div>
+  <div class="step-pill"><div class="step-num">4</div><span data-i18n="stepPublished">Published</span></div>
 </div>
 
 <div class="page" id="pageContent" style="display:none;">
@@ -183,20 +183,20 @@
     <!-- LEFT PANEL -->
     <div class="left-panel">
       <div class="left-header">
-        <div class="left-header-eyebrow">Ready to publish</div>
+        <div class="left-header-eyebrow" data-i18n="readyToPublish">Ready to publish</div>
         <div class="left-exam-title" id="leftTitle">—</div>
         <div class="left-exam-meta" id="leftMeta">—</div>
       </div>
       <div class="stats-grid">
-        <div class="stat-cell"><div class="stat-val" id="statQ">—</div><div class="stat-lbl">Questions</div></div>
-        <div class="stat-cell"><div class="stat-val" id="statS">—</div><div class="stat-lbl">Sections</div></div>
+        <div class="stat-cell"><div class="stat-val" id="statQ">—</div><div class="stat-lbl" data-i18n="statQuestions">Questions</div></div>
+        <div class="stat-cell"><div class="stat-val" id="statS">—</div><div class="stat-lbl" data-i18n="statSections">Sections</div></div>
         <div class="stat-cell"><div class="stat-val" id="statPts">—</div><div class="stat-lbl" id="statPtsLbl">/ — pts</div></div>
-        <div class="stat-cell"><div class="stat-val" id="statG">—</div><div class="stat-lbl">Groups</div></div>
+        <div class="stat-cell"><div class="stat-val" id="statG">—</div><div class="stat-lbl" data-i18n="statGroups">Groups</div></div>
       </div>
       <div class="checklist" id="checklist"></div>
       <button class="back-to-editor" onclick="history.back()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back to editor
+        <span data-i18n="backToEditor">Back to editor</span>
       </button>
     </div>
 
@@ -204,10 +204,10 @@
     <div class="right-panel">
       <div class="preview-header">
         <div class="preview-header-left">
-          <span class="preview-label">Student preview</span>
-          <span class="teacher-badge">Teacher view — correct answers shown</span>
+          <span class="preview-label" data-i18n="previewLabel">Student preview</span>
+          <span class="teacher-badge" data-i18n="teacherBadge">Teacher view — correct answers shown</span>
         </div>
-        <span class="preview-note">Students see this without answer highlights</span>
+        <span class="preview-note" data-i18n="previewNote">Students see this without answer highlights</span>
       </div>
       <div class="preview-body">
         <div class="sim-card" id="simCard"></div>
@@ -218,18 +218,18 @@
 </div>
 
 <div class="error-screen" id="errorScreen" style="display:none;">
-  <div class="error-title">No exam data found</div>
-  <div class="error-sub">Please return to the exam builder and click "Preview &amp; Publish" to review your exam here.</div>
-  <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Go to My Exams</button>
+  <div class="error-title" data-i18n="errorTitle">No exam data found</div>
+  <div class="error-sub" data-i18n="errorSub">Please return to the exam builder and click "Preview &amp; Publish" to review your exam here.</div>
+  <button class="btn btn-primary" onclick="window.location.href='dashboard.html'" data-i18n="goToExams">Go to My Exams</button>
 </div>
 
 <div class="cta-bar">
   <div class="cta-bar-inner">
-    <span class="cta-hint" id="ctaHint">Reviewing your exam before publishing.</span>
+    <span class="cta-hint" id="ctaHint" data-i18n="ctaHintOk">Everything looks good — ready to publish.</span>
     <div class="cta-right">
-      <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'">Cancel</button>
+      <button class="btn btn-ghost" onclick="window.location.href='dashboard.html'" data-i18n="cancel">Cancel</button>
       <button class="btn btn-primary" id="publishBtn" onclick="publish()">
-        Publish exam
+        <span data-i18n="publishExam">Publish exam</span>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
@@ -339,11 +339,11 @@
     // Checklist rows
     const ptsOk = !coeff || totalPts === coeff;
     const checks = [
-      { ok: !!(ob.title && ob.duration), text: 'Title and duration set' },
-      { ok: questions.length > 0,        text: questions.length + ' question' + (questions.length !== 1 ? 's' : '') + ' added' },
+      { ok: !!(ob.title && ob.duration), text: Lang.t('checkTitleDuration') },
+      { ok: questions.length > 0,        text: questions.length + ' ' + Lang.t('checkQsAdded') },
       { ok: ptsOk, text: ptsOk
-          ? `${totalPts}${coeff ? ' / ' + coeff : ''} pts assigned`
-          : `${totalPts} / ${coeff} pts — ${Math.abs(coeff - totalPts)} pts ${totalPts < coeff ? 'unassigned' : 'over limit'}`,
+          ? `${totalPts}${coeff ? ' / ' + coeff : ''} ${Lang.t('checkPtsOk')}`
+          : `${totalPts} / ${coeff} pts — ${Math.abs(coeff - totalPts)} ${totalPts < coeff ? Lang.t('checkPtsUnder') : Lang.t('checkPtsOver')}`,
         warn: !ptsOk },
       { ok: groups.length > 0,           text: groups.map(g => g.name).join(' · ') || 'No groups configured' }
     ];
@@ -351,10 +351,10 @@
     const cta = document.getElementById('ctaHint');
     if (!ptsOk && coeff) {
       cta.className = 'cta-hint warn';
-      cta.textContent = `⚠ ${Math.abs(coeff - totalPts)} pts ${totalPts < coeff ? 'unassigned' : 'over limit'} — you can still publish or go back to fix.`;
+      cta.textContent = `⚠ ${Math.abs(coeff - totalPts)} ${totalPts < coeff ? Lang.t('ctaHintWarn') : Lang.t('ctaHintOver')}`;
     } else {
       cta.className = 'cta-hint';
-      cta.textContent = 'Everything looks good — ready to publish.';
+      cta.textContent = Lang.t('ctaHintOk');
     }
 
     document.getElementById('checklist').innerHTML = checks.map(c => `
@@ -379,14 +379,14 @@
     let html = `
       <div class="sim-header">
         <div class="sim-title">${escHtml(ob.title || 'Untitled Exam')}</div>
-        <div class="sim-meta">${ob.duration || '—'} minutes · Enter your name, email and access code to begin</div>
+        <div class="sim-meta">${ob.duration || '—'} minutes · ${Lang.t('simEnterInfo')}</div>
       </div>`;
 
     items.forEach(item => {
       if (item.type === 'section') {
         html += `
           <div class="sim-section">
-            <div class="sim-section-eyebrow">Section</div>
+            <div class="sim-section-eyebrow">${Lang.t('simSection')}</div>
             <div class="sim-section-name">${escHtml(item.title || 'Section')}</div>
           </div>`;
       } else if (item.type === 'mcq') {
@@ -394,7 +394,7 @@
         const opts = item.options || ['', '', '', ''];
         html += `
           <div class="sim-question">
-            <div class="sim-q-eyebrow">Question ${qNum} · MCQ · 1 pt</div>
+            <div class="sim-q-eyebrow">${Lang.t('simQuestion')} ${qNum} · ${Lang.t('simMcq')} · 1 ${Lang.t('simPt')}</div>
             <div class="sim-q-text">${escHtml(item.text || '')}</div>
             ${renderMedia(item)}
             <div class="sim-options">
@@ -403,7 +403,7 @@
                 return `<div class="sim-option${isCorrect ? ' correct' : ''}">
                   <div class="sim-radio"></div>
                   <span class="sim-option-text">${escHtml(opt)}</span>
-                  ${isCorrect ? '<span class="correct-label">✓ Correct</span>' : ''}
+                  ${isCorrect ? `<span class="correct-label">${Lang.t('simCorrect')}</span>` : ''}
                 </div>`;
               }).join('')}
             </div>
@@ -413,15 +413,15 @@
         const pts = item.max_points || 5;
         html += `
           <div class="sim-question">
-            <div class="sim-q-eyebrow">Question ${qNum} · Open · ${pts} pt${pts !== 1 ? 's' : ''}</div>
+            <div class="sim-q-eyebrow">${Lang.t('simQuestion')} ${qNum} · ${Lang.t('simOpen')} · ${pts} ${pts !== 1 ? Lang.t('simPts') : Lang.t('simPt')}</div>
             <div class="sim-q-text">${escHtml(item.text || '')}</div>
             ${renderMedia(item)}
-            <textarea class="sim-textarea" disabled placeholder="Student writes their answer here..."></textarea>
+            <textarea class="sim-textarea" disabled placeholder="${Lang.t('simPlaceholder')}"></textarea>
             ${item.grading_criteria ? `
             <div class="criteria-callout">
               <div class="criteria-eyebrow">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                Grading criteria — visible to teacher only
+                ${Lang.t('simCriteriaLabel')}
               </div>
               <div class="criteria-text">${escHtml(item.grading_criteria)}</div>
             </div>` : ''}
@@ -453,7 +453,7 @@
   async function publish() {
     const btn = document.getElementById('publishBtn');
     btn.disabled = true;
-    btn.innerHTML = 'Publishing… <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
+    btn.innerHTML = Lang.t('publishingLabel') + ' <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>';
 
     try {
       const { data: { session } } = await sb.auth.getSession();
@@ -554,7 +554,7 @@
       showToast('Publish error: ' + (err.message || err), 5000);
       const btn = document.getElementById('publishBtn');
       btn.disabled = false;
-      btn.innerHTML = 'Publish exam <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
+      btn.innerHTML = Lang.t('publishExam') + ' <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>';
     }
   }
 
@@ -578,6 +578,71 @@
   });
 </script>
 <script src="lang.js"></script>
-<script>Lang.init({});</script>
+<script>
+  var _i18n = {
+    fr: {
+      teacher: 'Enseignant', signOut: 'Se déconnecter',
+      stepConfigure: 'Configurer', stepBuildQs: 'Créer les questions', stepReview: 'Réviser &amp; publier', stepPublished: 'Publié',
+      readyToPublish: 'Prêt à publier',
+      statQuestions: 'Questions', statSections: 'Sections', statGroups: 'Groupes',
+      backToEditor: 'Retour à l\'éditeur',
+      previewLabel: 'Aperçu étudiant', teacherBadge: 'Vue enseignant — bonnes réponses visibles',
+      previewNote: 'Les étudiants voient ceci sans les réponses surlignées',
+      errorTitle: 'Aucune donnée d\'examen trouvée',
+      errorSub: 'Retournez dans l\'éditeur et cliquez sur « Aperçu &amp; Publier » pour réviser votre examen ici.',
+      goToExams: 'Mes examens',
+      ctaHintOk: 'Tout est en ordre — prêt à publier.',
+      cancel: 'Annuler', publishExam: 'Publier l\'examen',
+      checkTitleDuration: 'Titre et durée configurés',
+      checkQsAdded: 'question(s) ajoutée(s)',
+      checkPtsOk: 'pts attribués',
+      checkPtsUnder: 'pts non attribués',
+      checkPtsOver: 'pts au-dessus de la limite',
+      ctaHintWarn: 'pts manquants — vous pouvez tout de même publier ou retourner corriger.',
+      ctaHintOver: 'pts en trop — vous pouvez tout de même publier ou retourner corriger.',
+      simEnterInfo: 'Entrez votre nom, e-mail et code d\'accès pour commencer',
+      simSection: 'Section', simQuestion: 'Question', simMcq: 'QCM', simOpen: 'Rédigée',
+      simPt: 'pt', simPts: 'pts',
+      simPlaceholder: 'L\'étudiant rédige sa réponse ici...',
+      simCriteriaLabel: 'Critères de notation — visibles par l\'enseignant uniquement',
+      simCorrect: '✓ Correct',
+      gradingCriteria: 'Grading criteria — visible to teacher only',
+      publishingLabel: 'Publication…'
+    },
+    en: {
+      teacher: 'Teacher', signOut: 'Sign out',
+      stepConfigure: 'Configure', stepBuildQs: 'Build questions', stepReview: 'Review &amp; publish', stepPublished: 'Published',
+      readyToPublish: 'Ready to publish',
+      statQuestions: 'Questions', statSections: 'Sections', statGroups: 'Groups',
+      backToEditor: 'Back to editor',
+      previewLabel: 'Student preview', teacherBadge: 'Teacher view — correct answers shown',
+      previewNote: 'Students see this without answer highlights',
+      errorTitle: 'No exam data found',
+      errorSub: 'Please return to the exam builder and click "Preview &amp; Publish" to review your exam here.',
+      goToExams: 'Go to My Exams',
+      ctaHintOk: 'Everything looks good — ready to publish.',
+      cancel: 'Cancel', publishExam: 'Publish exam',
+      checkTitleDuration: 'Title and duration set',
+      checkQsAdded: 'question(s) added',
+      checkPtsOk: 'pts assigned',
+      checkPtsUnder: 'pts unassigned',
+      checkPtsOver: 'pts over limit',
+      ctaHintWarn: 'pts unassigned — you can still publish or go back to fix.',
+      ctaHintOver: 'pts over limit — you can still publish or go back to fix.',
+      simEnterInfo: 'Enter your name, email and access code to begin',
+      simSection: 'Section', simQuestion: 'Question', simMcq: 'MCQ', simOpen: 'Open',
+      simPt: 'pt', simPts: 'pts',
+      simPlaceholder: 'Student writes their answer here...',
+      simCriteriaLabel: 'Grading criteria — visible to teacher only',
+      simCorrect: '✓ Correct',
+      gradingCriteria: 'Grading criteria — visible to teacher only',
+      publishingLabel: 'Publishing…'
+    }
+  };
+  Lang.init(_i18n);
+  document.addEventListener('langchange', function() {
+    if (reviewData) { renderChecklist(); renderPreview(); }
+  });
+</script>
 </body>
 </html>
