@@ -334,7 +334,7 @@
           <div class="user-dropdown" id="userDropdown">
             <button class="user-dropdown-item" id="dashLogoutBtn" onclick="signOut()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Sign out
+              <span data-i18n="logout">Sign out</span>
             </button>
           </div>
         </div>
@@ -457,11 +457,11 @@
         </div>
         <div class="exam-list">
           <div class="exam-row-header">
-            <div class="row-col-label">Exam</div>
-            <div class="row-col-label">Submissions</div>
-            <div class="row-col-label">Pending</div>
-            <div class="row-col-label">Sent</div>
-            <div class="row-col-label">Created</div>
+            <div class="row-col-label" data-i18n="tableExam">Exam</div>
+            <div class="row-col-label" data-i18n="tableSubmissions">Submissions</div>
+            <div class="row-col-label" data-i18n="tablePending">Pending</div>
+            <div class="row-col-label" data-i18n="tableSent">Sent</div>
+            <div class="row-col-label" data-i18n="tableCreated">Created</div>
             <div></div>
           </div>
           <div id="teacherExamList"></div>
@@ -485,7 +485,7 @@
   <div class="modal-backdrop" id="addModal" style="display:none;" onclick="handleBackdropClick(event)">
     <div class="modal">
       <div class="modal-header">
-        <div class="modal-title">Add Institution</div>
+        <div class="modal-title" data-i18n="modalAddTitle">Add Institution</div>
         <button class="modal-close" onclick="closeModal()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -497,50 +497,50 @@
         <div class="logo-upload-row">
           <div class="logo-thumb" id="logoThumb"></div>
           <div class="logo-upload-info">
-            <div class="logo-upload-name" id="logoFileName">No logo selected</div>
-            <div class="logo-upload-sub">PNG, JPG or SVG recommended</div>
+            <div class="logo-upload-name" id="logoFileName" data-i18n="noLogoSelected">No logo selected</div>
+            <div class="logo-upload-sub" data-i18n="logoFormats">PNG, JPG or SVG recommended</div>
             <button type="button" class="logo-upload-btn" onclick="document.getElementById('logoFileInput').click()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              Upload Logo
+              <span data-i18n="uploadLogo">Upload Logo</span>
             </button>
             <div class="logo-upload-status" id="logoUploadStatus"></div>
           </div>
         </div>
 
         <!-- Institution details -->
-        <div class="modal-section-label">Institution</div>
+        <div class="modal-section-label" data-i18n="sectionInstitution">Institution</div>
         <div class="modal-field">
-          <label>Institution name</label>
+          <label data-i18n="instNameLabel">Institution name</label>
           <input type="text" id="instName" placeholder="e.g. Sciences Po Paris">
         </div>
         <div class="modal-field">
-          <label>Domain</label>
+          <label data-i18n="domainLabel">Domain</label>
           <input type="text" id="instDomain" placeholder="e.g. sciencespo.fr">
         </div>
 
         <!-- Admin details -->
-        <div class="modal-section-label">Institution Admin</div>
+        <div class="modal-section-label" data-i18n="sectionAdminAdmin">Institution Admin</div>
         <div class="modal-row">
           <div class="modal-field">
-            <label>First name</label>
+            <label data-i18n="firstName">First name</label>
             <input type="text" id="adminFirst" placeholder="Marie">
           </div>
           <div class="modal-field">
-            <label>Last name</label>
+            <label data-i18n="lastName">Last name</label>
             <input type="text" id="adminLast" placeholder="Dupont">
           </div>
         </div>
         <div class="modal-field">
-          <label>Job title</label>
+          <label data-i18n="jobTitle">Job title</label>
           <input type="text" id="adminJobTitle" placeholder="e.g. Head of Academic Affairs">
         </div>
         <div class="modal-row">
           <div class="modal-field">
-            <label>Admin email</label>
+            <label data-i18n="adminEmailLabel">Admin email</label>
             <input type="email" id="adminEmail" placeholder="admin@sciencespo.fr">
           </div>
           <div class="modal-field">
-            <label>Phone</label>
+            <label data-i18n="phone">Phone</label>
             <input type="tel" id="adminPhone" placeholder="+33 6 00 00 00 00">
           </div>
         </div>
@@ -560,17 +560,17 @@
   <div class="modal-backdrop" id="deleteModal" style="display:none;" onclick="handleDeleteBackdropClick(event)">
     <div class="modal" style="max-width:440px;">
       <div class="modal-header">
-        <div class="modal-title">Delete Institution</div>
+        <div class="modal-title" data-i18n="deleteTitle">Delete Institution</div>
         <button class="modal-close" onclick="closeDeleteModal()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
       <div class="modal-body">
         <div class="delete-warning">
-          <div class="delete-warning-title">This action is permanent and cannot be undone.</div>
+          <div class="delete-warning-title" data-i18n="deleteIrreversible">This action is permanent and cannot be undone.</div>
           <div class="delete-warning-text" id="deleteWarningText"></div>
         </div>
-        <label class="delete-confirm-label">Type the institution name to confirm:</label>
+        <label class="delete-confirm-label" data-i18n="deleteConfirmLabel">Type the institution name to confirm:</label>
         <input type="text" class="delete-confirm-input" id="deleteConfirmInput" placeholder="" oninput="checkDeleteConfirm()">
         <button class="delete-submit" id="deleteSubmitBtn" disabled onclick="confirmDelete()">
           Permanently Delete Institution
@@ -622,6 +622,62 @@
         teacherReview:           'Corriger',
         teacherNoExams:          'Aucun examen publié',
         teacherNoSubs:           'Aucune soumission',
+        loginBtn:                'Se connecter',
+        signingIn:               'Connexion en cours…',
+        loginFieldsRequired:     'Veuillez saisir votre e-mail et mot de passe.',
+        noAccountFound:          'Aucun compte trouvé. Contactez votre administrateur.',
+        resetTitle:              'Définir un nouveau mot de passe',
+        createPassword:          'Créer votre mot de passe',
+        resetBtn:                'Définir le mot de passe',
+        passwordTooShort:        'Le mot de passe doit contenir au moins 8 caractères.',
+        saving:                  'Enregistrement…',
+        passwordSetSuccess:      'Mot de passe défini ! Connexion en cours…',
+        adminBadge:              'Administrateur',
+        teacherBadge:            'Enseignant',
+        keyContact:              'Contact principal',
+        adminNoAdmins:           'Aucun administrateur',
+        adminNoTeachers:         'Aucun enseignant',
+        manageLink:              'Gérer →',
+        tableExam:               'Examen',
+        tableSubmissions:        'Soumissions',
+        tablePending:            'En attente',
+        tableSent:               'Envoyé',
+        tableCreated:            'Créé le',
+        teacherNoExamsSub:       'Cliquez sur "Nouvel examen" ci-dessus pour créer votre premier examen.',
+        teacherNoSubsSub:        'Les soumissions apparaîtront ici une fois un examen complété.',
+        untitled:                'Sans titre',
+        draft:                   'Brouillon',
+        studentsLabel:           'étudiants',
+        pendingLabel:            'en attente',
+        sentLabel:               'envoyé',
+        instActive:              'Actif',
+        modalAddTitle:           'Ajouter une institution',
+        noLogoSelected:          'Aucun logo sélectionné',
+        logoFormats:             'PNG, JPG ou SVG recommandé',
+        uploadLogo:              'Télécharger un logo',
+        uploading:               'Téléchargement…',
+        uploadSuccess:           '✅ Téléchargé avec succès',
+        sectionInstitution:      'Institution',
+        instNameLabel:           'Nom de l\'institution',
+        domainLabel:             'Domaine',
+        sectionAdminAdmin:       'Administrateur de l\'institution',
+        firstName:               'Prénom',
+        lastName:                'Nom',
+        jobTitle:                'Poste',
+        adminEmailLabel:         'E-mail de l\'administrateur',
+        phone:                   'Téléphone',
+        modalSubmitCreate:       'Créer l\'institution et inviter l\'admin',
+        creating:                'Création en cours…',
+        modalRequiredFields:     'Veuillez remplir tous les champs requis.',
+        institutionCreatedMsg:   '{name} créée. Un e-mail d\'invitation a été envoyé à {email}.',
+        done:                    'Terminé',
+        errorGeneric:            'Une erreur est survenue.',
+        deleteTitle:             'Supprimer l\'institution',
+        deleteIrreversible:      'Cette action est permanente et irréversible.',
+        deleteWarnMsg:           'Vous êtes sur le point de supprimer définitivement {name}.<br>Cela retirera {adminCount} admin(s) et {teacherCount} enseignant(s) de la plateforme.<br><br>Toutes les données associées seront perdues.',
+        deleteConfirmLabel:      'Saisissez le nom de l\'institution pour confirmer :',
+        deleteSubmitBtn:         'Supprimer définitivement l\'institution',
+        deleting:                'Suppression en cours…',
       },
       en: {
         pageTitle:            'Institutions',
@@ -650,6 +706,62 @@
         teacherReview:           'Review',
         teacherNoExams:          'No exams published yet',
         teacherNoSubs:           'No submissions yet',
+        loginBtn:                'Sign in',
+        signingIn:               'Signing in…',
+        loginFieldsRequired:     'Please enter your email and password.',
+        noAccountFound:          'No account found. Please contact your administrator.',
+        resetTitle:              'Set New Password',
+        createPassword:          'Create your password',
+        resetBtn:                'Set Password',
+        passwordTooShort:        'Password must be at least 8 characters.',
+        saving:                  'Saving…',
+        passwordSetSuccess:      'Password set! Signing you in…',
+        adminBadge:              'Admin',
+        teacherBadge:            'Teacher',
+        keyContact:              'Key Contact',
+        adminNoAdmins:           'No admins',
+        adminNoTeachers:         'No teachers',
+        manageLink:              'Manage →',
+        tableExam:               'Exam',
+        tableSubmissions:        'Submissions',
+        tablePending:            'Pending',
+        tableSent:               'Sent',
+        tableCreated:            'Created',
+        teacherNoExamsSub:       'Click "New Exam" above to create your first exam.',
+        teacherNoSubsSub:        'Student submissions will appear here once they complete an exam.',
+        untitled:                'Untitled',
+        draft:                   'Draft',
+        studentsLabel:           'students',
+        pendingLabel:            'pending',
+        sentLabel:               'sent',
+        instActive:              'Active',
+        modalAddTitle:           'Add Institution',
+        noLogoSelected:          'No logo selected',
+        logoFormats:             'PNG, JPG or SVG recommended',
+        uploadLogo:              'Upload Logo',
+        uploading:               'Uploading…',
+        uploadSuccess:           '✅ Uploaded successfully',
+        sectionInstitution:      'Institution',
+        instNameLabel:           'Institution name',
+        domainLabel:             'Domain',
+        sectionAdminAdmin:       'Institution Admin',
+        firstName:               'First name',
+        lastName:                'Last name',
+        jobTitle:                'Job title',
+        adminEmailLabel:         'Admin email',
+        phone:                   'Phone',
+        modalSubmitCreate:       'Create Institution & Send Admin Invite',
+        creating:                'Creating…',
+        modalRequiredFields:     'Please fill in all required fields.',
+        institutionCreatedMsg:   '{name} created. An invitation email has been sent to {email}.',
+        done:                    'Done',
+        errorGeneric:            'Something went wrong.',
+        deleteTitle:             'Delete Institution',
+        deleteIrreversible:      'This action is permanent and cannot be undone.',
+        deleteWarnMsg:           'You are about to permanently delete {name}.<br>This will remove {adminCount} admin(s) and {teacherCount} teacher(s) from the platform.<br><br>All associated data will be lost.',
+        deleteConfirmLabel:      'Type the institution name to confirm:',
+        deleteSubmitBtn:         'Permanently Delete Institution',
+        deleting:                'Deleting…',
       }
     };
 
@@ -661,17 +773,17 @@
       const btn      = document.getElementById('loginBtn');
       const errEl    = document.getElementById('loginError');
 
-      if (!email || !password) { showLoginError('Please enter your email and password.'); return; }
+      if (!email || !password) { showLoginError(Lang.t('loginFieldsRequired')); return; }
 
       btn.disabled = true;
-      btn.textContent = 'Signing in…';
+      btn.textContent = Lang.t('signingIn');
       errEl.style.display = 'none';
 
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) {
-        showLoginError(error.message);
+        showLoginError(Lang.t('errorGeneric'));
         btn.disabled = false;
-        btn.textContent = 'Sign in';
+        btn.textContent = Lang.t('loginBtn');
         return;
       }
       await loadDashboard(data.user);
@@ -696,10 +808,11 @@
       _authType = hash.type || null;
       if ((hash.type === 'recovery' || hash.type === 'invite') && hash.access_token) {
         await sb.auth.setSession({ access_token: hash.access_token, refresh_token: hash.refresh_token || '' });
+        Lang.init(dashI18n);
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('resetScreen').style.display = 'block';
         document.getElementById('resetScreen').querySelector('h1').textContent =
-          hash.type === 'invite' ? 'Create your password' : 'Set New Password';
+          hash.type === 'invite' ? Lang.t('createPassword') : Lang.t('resetTitle');
         return;
       }
 
@@ -721,17 +834,17 @@
       const btn = document.getElementById('resetBtn');
       const errEl = document.getElementById('resetError');
       const pw = document.getElementById('newPassword').value.trim();
-      if (!pw || pw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = 'block'; return; }
+      if (!pw || pw.length < 8) { errEl.textContent = Lang.t('passwordTooShort'); errEl.style.display = 'block'; return; }
       btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.textContent = Lang.t('saving');
       const { error } = await sb.auth.updateUser({ password: pw });
       if (error) {
-        errEl.textContent = error.message;
+        errEl.textContent = Lang.t('errorGeneric');
         errEl.style.display = 'block';
         btn.disabled = false;
-        btn.textContent = 'Set Password';
+        btn.textContent = Lang.t('resetBtn');
       } else {
-        btn.textContent = 'Password set! Signing you in…';
+        btn.textContent = Lang.t('passwordSetSuccess');
         const { data: { session } } = await sb.auth.getSession();
         if (session) {
           // Send welcome email on first invite activation (not on password reset)
@@ -757,7 +870,7 @@
         .single();
 
       if (error || !teacher) {
-        showLoginError('No account found for this email. Please contact your administrator.');
+        showLoginError(Lang.t('noAccountFound'));
         return;
       }
 
@@ -769,7 +882,6 @@
       document.getElementById('headerName').textContent      = teacher.full_name || teacher.email;
       document.getElementById('headerRoleLabel').textContent = teacher.role.replace('_', ' ');
       const badge = document.getElementById('headerBadge');
-      badge.textContent = teacher.role === 'super_admin' ? 'Super Admin' : teacher.role === 'admin' ? 'Admin' : 'Teacher';
       if (teacher.role === 'super_admin' || teacher.role === 'admin') badge.style.background = '#0891b2';
 
       // Show dashboard
@@ -778,6 +890,7 @@
 
       Lang.init(dashI18n);
       if (teacher.lang && teacher.lang !== Lang.get()) Lang.set(teacher.lang);
+      badge.textContent = teacher.role === 'super_admin' ? 'Super Admin' : teacher.role === 'admin' ? Lang.t('adminBadge') : Lang.t('teacherBadge');
 
       // Preview mode: super_admin viewing a teacher's dashboard
       if (previewTeacherId && teacher.role === 'super_admin') {
@@ -799,7 +912,7 @@
 
       document.addEventListener('langchange', function(e) {
         if (currentTeacher) sb.from('teachers').update({ lang: e.detail.lang }).eq('id', currentTeacher.id).catch(() => {});
-        document.getElementById('dashLogoutBtn').textContent = Lang.t('logout');
+        badge.textContent = teacher.role === 'super_admin' ? 'Super Admin' : teacher.role === 'admin' ? Lang.t('adminBadge') : Lang.t('teacherBadge');
         if (teacher.role === 'super_admin') loadInstitutions();
         if (teacher.role === 'admin')       { loadAdminDashboard(); loadTeacherDashboard(); }
         if (teacher.role === 'teacher')     loadTeacherDashboard();
@@ -891,7 +1004,7 @@
       // 7. Render admins
       const adminListEl = document.getElementById('adminAdminList');
       adminListEl.innerHTML = adminLinks.length === 0
-        ? `<div class="empty-state"><div class="empty-title">No admins</div></div>`
+        ? `<div class="empty-state"><div class="empty-title">${Lang.t('adminNoAdmins')}</div></div>`
         : adminLinks.map(link => {
             const t = teachers.find(t => t.id === link.teacher_id);
             if (!t) return '';
@@ -900,7 +1013,7 @@
               <div class="member-row">
                 <div class="member-avatar purple">${initials}</div>
                 <div class="member-info">
-                  <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-badge">Key Contact</span>' : ''}</div>
+                  <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? `<span class="key-badge">${Lang.t('keyContact')}</span>` : ''}</div>
                   <div class="member-sub">${t.email}${t.job_title ? ' · ' + t.job_title : ''}</div>
                 </div>
               </div>`;
@@ -909,7 +1022,7 @@
       // 8. Render teachers
       const teacherListEl = document.getElementById('adminTeacherList');
       teacherListEl.innerHTML = teacherLinks.length === 0
-        ? `<div class="empty-state"><div class="empty-title">No teachers</div></div>`
+        ? `<div class="empty-state"><div class="empty-title">${Lang.t('adminNoTeachers')}</div></div>`
         : teacherLinks.map(link => {
             const t = teachers.find(t => t.id === link.teacher_id);
             if (!t) return '';
@@ -1001,22 +1114,22 @@
         ? `<div class="empty-state">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             <div class="empty-title">${Lang.t('teacherNoExams')}</div>
-            <div class="empty-sub" style="margin-top:4px;">Click "New Exam" above to create your first exam.</div>
+            <div class="empty-sub" style="margin-top:4px;">${Lang.t('teacherNoExamsSub')}</div>
           </div>`
         : exams.map(exam => {
             const stats   = subStatsMap[exam.id] || { total: 0, sent: 0, bounced: 0 };
             const pending = stats.total - stats.sent - stats.bounced;
             const isDraft = !exam.share_id && !exam.access_code;
             const date    = new Date(exam.created_at).toLocaleDateString(Lang.get() === 'fr' ? 'fr-FR' : 'en-GB', { day:'numeric', month:'short', year:'numeric' });
-            const totalNum  = stats.total > 0 ? `<span class="stat-number">${stats.total}</span><span class="stat-sub">students</span>` : `<span class="stat-number muted">—</span>`;
-            const pendNum   = stats.total > 0 ? `<span class="stat-number ${pending > 0 ? 'amber' : ''}">${pending}</span><span class="stat-sub">pending</span>` : `<span class="stat-number muted">—</span>`;
-            const sentNum   = stats.total > 0 ? `<span class="stat-number ${stats.sent > 0 ? 'green' : ''}">${stats.sent}</span><span class="stat-sub">sent</span>` : `<span class="stat-number muted">—</span>`;
+            const totalNum  = stats.total > 0 ? `<span class="stat-number">${stats.total}</span><span class="stat-sub">${Lang.t('studentsLabel')}</span>` : `<span class="stat-number muted">—</span>`;
+            const pendNum   = stats.total > 0 ? `<span class="stat-number ${pending > 0 ? 'amber' : ''}">${pending}</span><span class="stat-sub">${Lang.t('pendingLabel')}</span>` : `<span class="stat-number muted">—</span>`;
+            const sentNum   = stats.total > 0 ? `<span class="stat-number ${stats.sent > 0 ? 'green' : ''}">${stats.sent}</span><span class="stat-sub">${Lang.t('sentLabel')}</span>` : `<span class="stat-number muted">—</span>`;
             return `
               <div class="exam-row" data-exam-id="${exam.id}" onclick="window.location.href='submissions?exam=${exam.id}&tab=submissions'">
                 <div>
-                  <div class="exam-name">${exam.title || 'Untitled'}</div>
+                  <div class="exam-name">${exam.title || Lang.t('untitled')}</div>
                   <div class="exam-info">${exam.duration_mins} min</div>
-                  <div class="exam-tags"><span class="tag ${isDraft ? 'draft' : 'published'}">${isDraft ? (Lang.get() === 'fr' ? 'Brouillon' : 'Draft') : Lang.t('teacherPublished')}</span></div>
+                  <div class="exam-tags"><span class="tag ${isDraft ? 'draft' : 'published'}">${isDraft ? Lang.t('draft') : Lang.t('teacherPublished')}</span></div>
                 </div>
                 <div class="stat-col">${totalNum}</div>
                 <div class="stat-col">${pendNum}</div>
@@ -1044,7 +1157,7 @@
         ? `<div class="empty-state">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
             <div class="empty-title">${Lang.t('teacherNoSubs')}</div>
-            <div class="empty-sub" style="font-size:0.78rem;color:#94a3b8;margin-top:4px;">Student submissions will appear here once they complete an exam.</div>
+            <div class="empty-sub" style="font-size:0.78rem;color:#94a3b8;margin-top:4px;">${Lang.t('teacherNoSubsSub')}</div>
           </div>`
         : attempts.map(att => {
             const exam    = exams.find(e => e.id === att.exam_id);
@@ -1095,8 +1208,8 @@
         list.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21V11h6v10"/></svg></div>
-            <div class="empty-title">No institutions yet</div>
-            <div class="empty-sub">Click "Add Institution" to get started.</div>
+            <div class="empty-title">${Lang.t('emptyTitle')}</div>
+            <div class="empty-sub">${Lang.t('emptySub')}</div>
           </div>`;
         return;
       }
@@ -1118,14 +1231,14 @@
             <div class="inst-meta">
               <div class="inst-meta-item">
                 <div class="inst-meta-val">${adminCount}</div>
-                <div class="inst-meta-lbl">Admins</div>
+                <div class="inst-meta-lbl">${Lang.t('statAdminsLabel')}</div>
               </div>
               <div class="inst-meta-item">
                 <div class="inst-meta-val">${teacherCount}</div>
-                <div class="inst-meta-lbl">Teachers</div>
+                <div class="inst-meta-lbl">${Lang.t('statTeachersLabel')}</div>
               </div>
             </div>
-            <div class="inst-status"><div class="dot"></div>Active</div>
+            <div class="inst-status"><div class="dot"></div>${Lang.t('instActive')}</div>
             <button class="delete-btn" onclick="event.stopPropagation(); openDeleteModal('${inst.id}', '${inst.name.replace(/'/g, "\\'")}', ${adminCount}, ${teacherCount})" title="Delete institution">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             </button>
@@ -1138,14 +1251,14 @@
     function openModal() {
       uploadedLogoUrl = null;
       document.getElementById('logoThumb').innerHTML        = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21V11h6v10"/></svg>';
-      document.getElementById('logoFileName').textContent   = 'No logo selected';
+      document.getElementById('logoFileName').textContent   = Lang.t('noLogoSelected');
       document.getElementById('logoUploadStatus').textContent = '';
       document.getElementById('logoFileInput').value        = '';
       ['instName','instDomain','adminFirst','adminLast','adminEmail','adminPhone','adminJobTitle'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('modalError').style.display   = 'none';
       document.getElementById('modalSuccess').style.display = 'none';
       document.getElementById('modalSubmitBtn').disabled    = false;
-      document.getElementById('modalSubmitBtn').textContent = 'Create Institution & Send Admin Invite';
+      document.getElementById('modalSubmitBtn').textContent = Lang.t('modalSubmitCreate');
       document.getElementById('addModal').style.display     = 'flex';
     }
 
@@ -1171,7 +1284,7 @@
       };
       reader.readAsDataURL(file);
       document.getElementById('logoFileName').textContent     = file.name;
-      document.getElementById('logoUploadStatus').textContent = 'Uploading…';
+      document.getElementById('logoUploadStatus').textContent = Lang.t('uploading');
       document.getElementById('logoUploadStatus').style.color = '#64748b';
       uploadLogoToStorage(file);
     }
@@ -1187,7 +1300,7 @@
 
       if (error) {
         console.error('Logo upload failed:', error.message);
-        statusEl.textContent = 'Upload failed: ' + error.message;
+        statusEl.textContent = Lang.t('errorGeneric');
         statusEl.style.color = '#dc2626';
         uploadedLogoUrl = null;
         return;
@@ -1198,7 +1311,7 @@
         .getPublicUrl(fileName);
 
       uploadedLogoUrl = publicUrl;
-      statusEl.textContent = '✅ Uploaded successfully';
+      statusEl.textContent = Lang.t('uploadSuccess');
       statusEl.style.color = '#16a34a';
     }
 
@@ -1221,13 +1334,13 @@
       succEl.style.display = 'none';
 
       if (!name || !email || !firstName || !lastName) {
-        errEl.textContent = 'Please fill in all required fields.';
+        errEl.textContent = Lang.t('modalRequiredFields');
         errEl.style.display = 'block';
         return;
       }
 
       btn.disabled    = true;
-      btn.textContent = 'Creating…';
+      btn.textContent = Lang.t('creating');
 
       const { data: { session } } = await sb.auth.getSession();
 
@@ -1255,19 +1368,19 @@
           throw new Error(result.error || 'Unknown error');
         }
 
-        succEl.innerHTML     = `✅ <strong>${name}</strong> created. An invitation email has been sent to <strong>${email}</strong> with a secure link to set up their account.`;
+        succEl.innerHTML     = Lang.t('institutionCreatedMsg').replace('{name}', `<strong>${name}</strong>`).replace('{email}', `<strong>${email}</strong>`);
         succEl.style.display = 'block';
-        btn.textContent      = '✅ Done';
+        btn.textContent      = Lang.t('done');
 
         await loadInstitutions();
 
         setTimeout(closeModal, 2000);
 
       } catch (err) {
-        errEl.textContent   = 'Error: ' + err.message;
+        errEl.textContent   = Lang.t('errorGeneric');
         errEl.style.display = 'block';
         btn.disabled        = false;
-        btn.textContent     = 'Create Institution & Send Admin Invite';
+        btn.textContent     = Lang.t('modalSubmitCreate');
       }
     }
 
@@ -1278,11 +1391,12 @@
       deleteTargetName = name;
       document.getElementById('deleteConfirmInput').value   = '';
       document.getElementById('deleteSubmitBtn').disabled   = true;
+      document.getElementById('deleteSubmitBtn').textContent = Lang.t('deleteSubmitBtn');
       document.getElementById('deleteWarningText').innerHTML =
-        `You are about to permanently delete <strong>${name}</strong>.<br>
-         This will remove <strong>${adminCount} admin${adminCount !== 1 ? 's' : ''}</strong> and
-         <strong>${teacherCount} teacher${teacherCount !== 1 ? 's' : ''}</strong> from the platform.<br><br>
-         All associated data will be lost.`;
+        Lang.t('deleteWarnMsg')
+          .replace('{name}', `<strong>${name}</strong>`)
+          .replace('{adminCount}', `<strong>${adminCount}</strong>`)
+          .replace('{teacherCount}', `<strong>${teacherCount}</strong>`);
       document.getElementById('deleteConfirmInput').placeholder = name;
       document.getElementById('deleteModal').style.display = 'flex';
     }
@@ -1305,7 +1419,7 @@
     async function confirmDelete() {
       const btn = document.getElementById('deleteSubmitBtn');
       btn.disabled    = true;
-      btn.textContent = 'Deleting…';
+      btn.textContent = Lang.t('deleting');
 
       try {
         // CASCADE on institution_admins and institution_teachers handles those rows
@@ -1321,8 +1435,8 @@
 
       } catch (err) {
         btn.disabled    = false;
-        btn.textContent = 'Permanently Delete Institution';
-        alert('Delete failed: ' + err.message);
+        btn.textContent = Lang.t('deleteSubmitBtn');
+        alert(Lang.t('errorGeneric'));
       }
     }
 

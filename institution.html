@@ -168,7 +168,7 @@
     <div class="header-left">
       <button class="back-btn" onclick="window.location.href='dashboard.html'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        <span id="backBtnText">All Institutions</span>
+        <span id="backBtnText" data-i18n="backBtn">All Institutions</span>
       </button>
       <div class="header-divider"></div>
       <div class="header-logo"><img src="testflo-dark.svg" alt="testflo"></div>
@@ -186,7 +186,7 @@
         <div class="user-dropdown" id="userDropdown">
           <button class="user-dropdown-item" onclick="signOut()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-            Sign out
+            <span data-i18n="logout">Sign out</span>
           </button>
         </div>
       </div>
@@ -393,6 +393,17 @@
         phonePH:          '+33 6 00 00 00 00',
         jobTitlePH:       'Responsable pédagogique',
         classNamePH:      'Nom de la classe',
+        badge:            'Administrateur',
+        adding:           'Ajout en cours…',
+        done:             'Terminé',
+        removing:         'Retrait en cours…',
+        errorGeneric:     'Une erreur est survenue.',
+        memberAdded:      'ajouté(e)',
+        inviteEmailSent:  'Un e-mail d\'invitation a été envoyé à {email} avec un lien sécurisé.',
+        memberLinked:     'ajouté(e). Compte existant lié.',
+        removeWarningMsg: 'Cela retirera {name} de cette institution.<br>Son compte ne sera pas supprimé — il n\'aura simplement plus accès à cette institution.',
+        requiredFields:   'Champs requis :',
+        untitledExam:     'Examen sans titre',
       },
       en: {
         backBtn:          'All Institutions',
@@ -433,6 +444,17 @@
         phonePH:          '+33 6 00 00 00 00',
         jobTitlePH:       'Head of Academic Affairs',
         classNamePH:      'Class name',
+        badge:            'Admin',
+        adding:           'Adding…',
+        done:             'Done',
+        removing:         'Removing…',
+        errorGeneric:     'Something went wrong.',
+        memberAdded:      'added',
+        inviteEmailSent:  'An invitation email has been sent to {email} with a secure link to set their password.',
+        memberLinked:     'added. Account linked.',
+        removeWarningMsg: 'This will remove {name} from this institution.<br>Their account will not be deleted — they will simply lose access to this institution.',
+        requiredFields:   'Required:',
+        untitledExam:     'Untitled exam',
       }
     };
 
@@ -553,7 +575,7 @@
     function renderAdmins(links, teachers) {
       const el = document.getElementById('adminList');
       if (links.length === 0) {
-        el.innerHTML = `<div class="empty-state"><div class="empty-title">No admins yet</div></div>`;
+        el.innerHTML = `<div class="empty-state"><div class="empty-title">${T('emptyAdmins')}</div></div>`;
         return;
       }
       el.innerHTML = links.map(link => {
@@ -564,7 +586,7 @@
           <div class="member-row">
             <div class="member-avatar">${initials}</div>
             <div class="member-info">
-              <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-contact-badge">Key Contact</span>' : ''}</div>
+              <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? `<span class="key-contact-badge">${T('keyContact')}</span>` : ''}</div>
               <div class="member-email">${t.email}</div>
               ${t.job_title ? `<div class="member-meta">${t.job_title}</div>` : ''}
               ${link.is_key_contact && t.phone ? `<div class="member-meta">${t.phone}</div>` : ''}
@@ -579,7 +601,7 @@
     function renderTeachers(links, teachers, classes) {
       const el = document.getElementById('teacherList');
       if (links.length === 0) {
-        el.innerHTML = `<div class="empty-state"><div class="empty-title">No teachers yet</div></div>`;
+        el.innerHTML = `<div class="empty-state"><div class="empty-title">${T('emptyTeachers')}</div></div>`;
         return;
       }
       el.innerHTML = links.map(link => {
@@ -590,7 +612,7 @@
           <div class="member-row" onclick="window.location.href='dashboard.html?preview=${t.id}'" style="cursor:pointer;">
             <div class="member-avatar green">${initials}</div>
             <div class="member-info">
-              <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? '<span class="key-contact-badge">Key Contact</span>' : ''}</div>
+              <div class="member-name">${t.full_name || '—'}${link.is_key_contact ? `<span class="key-contact-badge">${T('keyContact')}</span>` : ''}</div>
               <div class="member-email">${t.email}</div>
               ${link.is_key_contact && t.phone ? `<div class="member-meta">${t.phone}</div>` : ''}
             </div>
@@ -604,7 +626,7 @@
     function renderExams(exams, teachers) {
       const el = document.getElementById('examList');
       if (exams.length === 0) {
-        el.innerHTML = `<div class="empty-state"><div class="empty-title">No exams published yet</div></div>`;
+        el.innerHTML = `<div class="empty-state"><div class="empty-title">${T('emptyExams')}</div></div>`;
         return;
       }
       el.innerHTML = exams.map(exam => {
@@ -613,10 +635,10 @@
         return `
           <div class="exam-row">
             <div class="exam-info">
-              <div class="exam-title">${exam.title || 'Untitled exam'}</div>
+              <div class="exam-title">${exam.title || T('untitledExam')}</div>
               <div class="exam-meta">${t ? t.full_name : '—'} · ${date} · ${exam.duration_mins} min</div>
             </div>
-            <div class="exam-badge">Published</div>
+            <div class="exam-badge">${T('published')}</div>
           </div>`;
       }).join('');
     }
@@ -695,13 +717,13 @@
       if (isKeyContact && !phone)            missing.push(Lang.t('phone'));
 
       if (missing.length) {
-        errEl.textContent   = (Lang.get() === 'fr' ? 'Champs requis : ' : 'Required: ') + missing.join(', ');
+        errEl.textContent   = T('requiredFields') + ' ' + missing.join(', ');
         errEl.style.display = 'block';
         return;
       }
 
       btn.disabled    = true;
-      btn.textContent = 'Adding…';
+      btn.textContent = T('adding');
 
       const { data: { session } } = await sb.auth.getSession();
 
@@ -726,8 +748,8 @@
         if (!res.ok || result.error) throw new Error(result.error || 'Unknown error');
 
         if (result.invited) {
-          succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added.<br>
-            <span style="font-size:0.82rem;color:#475569;">An invitation email has been sent to <strong>${email}</strong> with a secure link to set their password.</span>`;
+          succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> ${T('memberAdded')}<br>
+            <span style="font-size:0.82rem;color:#475569;">${T('inviteEmailSent').replace('{email}', `<strong>${email}</strong>`)}</span>`;
           // Notify the admin who triggered the invite
           const { data: { session: s } } = await sb.auth.getSession();
           if (s) {
@@ -744,19 +766,19 @@
             }).catch(() => {});
           }
         } else {
-          succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> added. Account linked.`;
+          succEl.innerHTML = `<strong>${firstName} ${lastName}</strong> ${T('memberLinked')}`;
         }
         succEl.style.display = 'block';
-        btn.textContent      = 'Done';
+        btn.textContent      = T('done');
         btn.onclick          = closeAddModal;
 
         await loadPage();
 
       } catch (err) {
-        errEl.textContent   = 'Error: ' + err.message;
+        errEl.textContent   = T('errorGeneric');
         errEl.style.display = 'block';
         btn.disabled        = false;
-        btn.textContent     = addModalRole === 'admin' ? 'Add Admin' : 'Add Teacher';
+        btn.textContent     = addModalRole === 'admin' ? T('submitAdmin') : T('submitTeacher');
       }
     }
 
@@ -766,8 +788,7 @@
       removeTargetId   = teacherId;
       removeTargetRole = role;
       document.getElementById('removeWarningText').innerHTML =
-        `This will remove <strong>${name}</strong> from this institution.<br>
-         Their account will not be deleted — they will simply lose access to this institution.`;
+        T('removeWarningMsg').replace('{name}', `<strong>${name}</strong>`);
       document.getElementById('removeModal').style.display = 'flex';
     }
 
@@ -777,7 +798,7 @@
     async function confirmRemove() {
       const btn   = document.getElementById('removeConfirmBtn');
       btn.disabled    = true;
-      btn.textContent = 'Removing…';
+      btn.textContent = T('removing');
 
       const table = removeTargetRole === 'admin' ? 'institution_admins' : 'institution_teachers';
       const { error } = await sb.from(table).delete()
@@ -785,9 +806,9 @@
         .eq('teacher_id', removeTargetId);
 
       if (error) {
-        alert('Remove failed: ' + error.message);
+        alert(T('errorGeneric'));
         btn.disabled    = false;
-        btn.textContent = 'Remove';
+        btn.textContent = T('removeConfirm');
         return;
       }
 
@@ -801,10 +822,10 @@
       const ext  = file.name.split('.').pop();
       const path = `${instId}/logo-${Date.now()}.${ext}`;
       const { error: upErr } = await sb.storage.from('institution-logos').upload(path, file, { upsert: true });
-      if (upErr) { alert('Upload failed: ' + upErr.message); return; }
+      if (upErr) { alert(T('errorGeneric')); return; }
       const { data: { publicUrl } } = sb.storage.from('institution-logos').getPublicUrl(path);
       const { error: dbErr } = await sb.from('institutions').update({ logo_url: publicUrl }).eq('id', instId);
-      if (dbErr) { alert('Save failed: ' + dbErr.message); return; }
+      if (dbErr) { alert(T('errorGeneric')); return; }
       const logoEl = document.getElementById('instLogo');
       logoEl.innerHTML = `<img src="${publicUrl}" alt="logo">`;
     }
