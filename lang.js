@@ -12,13 +12,13 @@
     '.lang-globe{position:relative;display:inline-flex;align-items:center;}' +
     '.lang-globe-btn{display:flex;align-items:center;gap:5px;background:transparent;border:none;' +
       'cursor:pointer;color:rgba(255,255,255,0.5);font-size:0.72rem;font-weight:700;' +
-      'font-family:inherit;padding:5px 8px;border-radius:6px;transition:color 0.15s;line-height:1;}' +
+      'font-family:inherit;padding:5px 8px;transition:color 0.15s;line-height:1;}' +
     '.lang-globe-btn:hover{color:rgba(255,255,255,0.9);}' +
     '.lang-globe-btn .lang-caret{transition:transform 0.15s;}' +
     '.lang-globe-btn.open .lang-caret{transform:rotate(180deg);}' +
     '.lang-dropdown{position:absolute;right:0;top:calc(100% + 6px);' +
-      'background:#1e293b;border:1px solid rgba(255,255,255,0.08);' +
-      'border-radius:9px;overflow:hidden;min-width:136px;' +
+      'background:#0f172a;border:1px solid rgba(255,255,255,0.08);' +
+      'min-width:136px;' +
       'box-shadow:0 8px 28px rgba(0,0,0,0.35);z-index:500;}' +
     '.lang-dropdown button{display:flex;align-items:center;justify-content:space-between;' +
       'width:100%;padding:10px 14px;background:transparent;border:none;' +

@@ -46,6 +46,16 @@
     .site-hdivider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
     .site-badge { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
     .site-username { font-size: 0.78rem; font-weight: 600; color: rgba(255,255,255,0.6); }
+    .site-header-right { display: flex; align-items: center; gap: 16px; }
+    .user-menu { position: relative; display: flex; align-items: center; }
+    .user-menu-btn { display: flex; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.6); font-size: 0.78rem; font-weight: 600; font-family: inherit; padding: 5px 8px; transition: color var(--transition); }
+    .user-menu-btn:hover { color: rgba(255,255,255,0.9); }
+    .user-menu-btn .um-caret { transition: transform var(--transition); }
+    .user-menu-btn.open .um-caret { transform: rotate(180deg); }
+    .user-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 6px); background: var(--navy); border: 1px solid rgba(255,255,255,0.08); min-width: 160px; z-index: 500; box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+    .user-dropdown.open { display: block; }
+    .user-dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; background: transparent; border: none; color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 500; font-family: inherit; cursor: pointer; text-align: left; transition: all var(--transition); white-space: nowrap; }
+    .user-dropdown-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
 
     /* ── AI chip ── */
     .ai-chip { display: inline-flex; align-items: center; justify-content: center; background: var(--purple); color: #fff; font-size: 0.58rem; font-weight: 800; letter-spacing: 0.06em; width: 20px; height: 20px; border-radius: 50%; vertical-align: middle; flex-shrink: 0; }
@@ -110,8 +120,8 @@
     .zone-icon { font-size: 32px; margin-bottom: 16px; display: block; color: var(--muted); }
     .zone-label { font-size: 0.95rem; font-weight: 700; color: var(--black); margin-bottom: 6px; }
     .zone-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
-    .zone-btn { display: inline-block; background: var(--navy); color: #fff; padding: 10px 24px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; transition: background var(--transition); }
-    .zone-btn:hover { background: var(--ink); }
+    .zone-btn { display: inline-block; background: var(--blue); color: #fff; padding: 10px 24px; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; transition: background var(--transition); }
+    .zone-btn:hover { background: #1d4ed8; }
 
     /* ── File pill ── */
     .file-pill { display: none; align-items: center; gap: 8px; background: #f0fdf4; border: 1px solid #86efac; padding: 10px 14px; margin-top: 12px; }
@@ -202,8 +212,8 @@
     .section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 10px; }
     .text-preview { background: var(--surface); border: 1px solid var(--line); padding: 16px; font-size: 0.82rem; color: #374151; line-height: 1.7; max-height: 240px; overflow-y: auto; white-space: pre-wrap; font-family: monospace; margin-bottom: 20px; }
 
-    .next-btn { width: 100%; background: var(--navy); color: #fff; border: none; padding: 15px; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-family: inherit; cursor: pointer; transition: background var(--transition); }
-    .next-btn:hover { background: var(--ink); }
+    .next-btn { width: 100%; background: var(--blue); color: #fff; border: none; padding: 15px; font-size: 0.88rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-family: inherit; cursor: pointer; transition: background var(--transition); }
+    .next-btn:hover { background: #1d4ed8; }
 
     /* ── Review interface ── */
     .exam-meta { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -383,13 +393,25 @@
       <div class="site-hdivider"></div>
       <span class="site-badge">Teacher</span>
     </div>
-    <span class="site-username" id="siteUsername"></span>
+    <div class="site-header-right">
+      <div id="langToggleMount"></div>
+      <div class="user-menu" id="userMenu">
+        <button class="user-menu-btn" id="userMenuBtn" onclick="toggleUserMenu()">
+          <span id="siteUsername"></span>
+          <svg class="um-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <button class="user-dropdown-item" onclick="signOutUser()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <!-- Page title block — kept for JS; hidden by default -->
-  <div id="pageTitleBlock" style="display:none;">
-    <div id="langToggleMount"></div>
-  </div>
+  <!-- Page title block — kept for JS compatibility -->
+  <div id="pageTitleBlock" style="display:none;"></div>
 
   <div class="container">
 
@@ -2198,6 +2220,22 @@ ${currentUserEmail}`;
     el.querySelector('.step-num').textContent = '✓';
   }
   function markActive(n) { document.getElementById('step'+n).classList.add('active'); }
+  function toggleUserMenu() {
+    var d = document.getElementById('userDropdown');
+    var b = document.getElementById('userMenuBtn');
+    var isOpen = d.classList.contains('open');
+    d.classList.toggle('open', !isOpen);
+    b.classList.toggle('open', !isOpen);
+  }
+  function signOutUser() { sb.auth.signOut().then(function() { window.location.href = 'login.html'; }); }
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('#userMenu')) {
+      var d = document.getElementById('userDropdown');
+      var b = document.getElementById('userMenuBtn');
+      if (d) { d.classList.remove('open'); }
+      if (b) { b.classList.remove('open'); }
+    }
+  });
 </script>
 <script src="lang.js"></script>
 <script>

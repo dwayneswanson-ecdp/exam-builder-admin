@@ -36,7 +36,17 @@
     .header-left { display: flex; align-items: center; gap: 16px; }
     .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.45); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.04em; background: none; border: none; cursor: pointer; font-family: inherit; transition: color var(--transition); }
     .back-btn:hover { color: var(--white); }
-    .header-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--white); }
+    .header-logo img { height: 26px; width: auto; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .user-menu { position: relative; display: flex; align-items: center; }
+    .user-menu-btn { display: flex; align-items: center; gap: 7px; background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.6); font-size: 0.78rem; font-weight: 600; font-family: inherit; padding: 5px 8px; transition: color var(--transition); }
+    .user-menu-btn:hover { color: rgba(255,255,255,0.9); }
+    .user-menu-btn .um-caret { transition: transform var(--transition); }
+    .user-menu-btn.open .um-caret { transform: rotate(180deg); }
+    .user-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 6px); background: var(--navy); border: 1px solid rgba(255,255,255,0.08); min-width: 160px; z-index: 500; box-shadow: 0 8px 28px rgba(0,0,0,0.35); }
+    .user-dropdown.open { display: block; }
+    .user-dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 14px; background: transparent; border: none; color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 500; font-family: inherit; cursor: pointer; text-align: left; transition: all var(--transition); white-space: nowrap; }
+    .user-dropdown-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
     .header-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
     .header-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.15); padding: 2px 8px; }
 
@@ -169,11 +179,25 @@
         <span data-i18n="backBtn">All submissions</span>
       </button>
       <div class="header-divider"></div>
-      <span class="header-logo">Exam Builder</span>
+      <div class="header-logo"><img src="testflo-dark.svg" alt="testflo"></div>
       <div class="header-divider"></div>
       <span class="header-badge" data-i18n="badge">Teacher</span>
     </div>
-    <div id="langToggleMount"></div>
+    <div class="header-right">
+      <div id="langToggleMount"></div>
+      <div class="user-menu" id="userMenu">
+        <button class="user-menu-btn" id="userMenuBtn" onclick="toggleUserMenu()">
+          <span id="headerName"></span>
+          <svg class="um-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <button class="user-dropdown-item" onclick="signOutUser()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sign out
+          </button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <div class="page" id="pageContent" style="display:none;"></div>
@@ -836,6 +860,23 @@
     };
 
     init();
+
+    function toggleUserMenu() {
+      var d = document.getElementById('userDropdown');
+      var b = document.getElementById('userMenuBtn');
+      var isOpen = d.classList.contains('open');
+      d.classList.toggle('open', !isOpen);
+      b.classList.toggle('open', !isOpen);
+    }
+    function signOutUser() { sb.auth.signOut().then(function() { window.location.href = 'login.html'; }); }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#userMenu')) {
+        var d = document.getElementById('userDropdown');
+        var b = document.getElementById('userMenuBtn');
+        if (d) { d.classList.remove('open'); }
+        if (b) { b.classList.remove('open'); }
+      }
+    });
   </script>
 </body>
 </html>
