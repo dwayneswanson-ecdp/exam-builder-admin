@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:seed": "node tests/seed.js",
+    "test:seed:reset": "node tests/seed.js --teardown-only"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dwayneswanson-ecdp/exam-builder-admin.git"

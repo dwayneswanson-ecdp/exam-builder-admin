@@ -1,6 +1,7 @@
 
 # Secrets
 .mcp.json
+.env.test
 
 # OS
 .DS_Store
