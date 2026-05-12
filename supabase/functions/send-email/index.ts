@@ -127,7 +127,11 @@ function resultsHtml(p: Record<string, unknown>) {
   // ── Question table ────────────────────────────────────────────────────────
   let questionTable = '';
   if (questions && questions.length > 0) {
-    const mcqRows = questions.filter(q => q.type === 'mcq').map((q, i) => {
+    // ── MCQ rows ──────────────────────────────────────────────────────────────
+    const mcqQs  = questions.filter(q => q.type === 'mcq');
+    const openQs = questions.filter(q => q.type === 'open');
+
+    const mcqRows = mcqQs.map((q, i) => {
       const options      = Array.isArray(q.options) ? q.options as string[] : [];
       const correctIdx   = typeof q.correct_index === 'number' ? q.correct_index : -1;
       const studentIdx   = typeof q.student_answer === 'number' ? q.student_answer : -1;
@@ -146,10 +150,10 @@ function resultsHtml(p: Record<string, unknown>) {
     }).join('');
 
     if (mcqRows) {
-      questionTable = `
+      questionTable += `
   <div style="margin-top:0;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
     <div style="background:#0f172a;padding:12px 24px;">
-      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Détail des réponses</p>
+      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Questions à choix multiple</p>
     </div>
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
       <thead>
@@ -160,9 +164,48 @@ function resultsHtml(p: Record<string, unknown>) {
           <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;">Résultat</th>
         </tr>
       </thead>
-      <tbody>
-        ${mcqRows}
-      </tbody>
+      <tbody>${mcqRows}</tbody>
+    </table>
+  </div>`;
+    }
+
+    // ── Open question rows ────────────────────────────────────────────────────
+    const openBlocks = openQs.filter(q => q.student_response || q.comment || q.open_score != null).map((q, i) => {
+      const scoreLabel = q.open_score != null
+        ? `<p style="margin:8px 0 0;font-size:0.78rem;font-weight:700;color:#475569;">Note : <strong>${q.open_score} / ${q.max_points ?? '?'}</strong></p>`
+        : '';
+      const responseBlock = q.student_response
+        ? `<p style="margin:0 0 4px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;">Réponse</p>
+           <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;font-style:italic;white-space:pre-wrap;">${esc(String(q.student_response))}</p>`
+        : '';
+      const commentBlock = q.comment
+        ? `<p style="margin:0 0 4px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;">Commentaire de l'enseignant</p>
+           <p style="margin:0;font-size:0.82rem;color:#1e293b;">${esc(String(q.comment))}</p>`
+        : '';
+      const rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+      return `
+      <tr style="background:${rowBg};">
+        <td style="padding:14px;font-size:0.82rem;color:#1e293b;border-bottom:1px solid #e2e8f0;font-weight:600;vertical-align:top;width:40%;">${esc(String(q.text || ''))}</td>
+        <td style="padding:14px;border-bottom:1px solid #e2e8f0;vertical-align:top;">
+          ${responseBlock}${commentBlock}${scoreLabel}
+        </td>
+      </tr>`;
+    }).join('');
+
+    if (openBlocks) {
+      questionTable += `
+  <div style="margin-top:0;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+    <div style="background:#0f172a;padding:12px 24px;">
+      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">Questions rédigées</p>
+    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:40%;">Question</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">Réponse · Commentaire · Note</th>
+        </tr>
+      </thead>
+      <tbody>${openBlocks}</tbody>
     </table>
   </div>`;
     }

@@ -1214,9 +1214,11 @@
       let failed = 0;
 
       for (const a of selected) {
-        const scoreObtained  = a.score_mcq ?? 0;
-        const scoreConverted = mcqTotal > 0
-          ? ((scoreObtained / mcqTotal) * 20).toFixed(1)
+        const openSum        = Object.values(a.open_scores || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+        const scoreObtained  = (a.score_mcq ?? 0) + openSum;
+        const totalMax       = mcqTotal + openMaxTotal;
+        const scoreConverted = totalMax > 0
+          ? ((scoreObtained / totalMax) * 20).toFixed(1)
           : scoreObtained;
         const dateTaken = a.submitted_at
           ? new Date(a.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -1231,7 +1233,7 @@
           teacher_name:       currentTeacher.full_name || currentTeacher.email,
           date_taken:         dateTaken,
           score_obtained:     scoreObtained,
-          score_total:        mcqTotal,
+          score_total:        totalMax,
           score_converted:    scoreConverted,
           score_coefficient:  20,
           institution_name:   currentInstitution?.name  || '',
@@ -1726,14 +1728,17 @@
     function buildQuestionsPayload(attempt) {
       const answers      = attempt.answers_json  || {};
       const openComments = attempt.open_comments || {};
+      const openScores   = attempt.open_scores   || {};
       return examQuestions.map((q, idx) => ({
         text:             q.question_text || '',
         type:             q.type,
+        max_points:       q.max_points ?? (q.type === 'mcq' ? 1 : 5),
         options:          q.type === 'mcq' ? [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean) : null,
         correct_index:    q.correct_index ?? null,
         student_answer:   q.type === 'mcq' ? (parseInt(answers['q' + idx], 10) ?? null) : null,
         student_response: q.type === 'open' ? (answers['q' + idx] || '') : null,
         comment:          openComments[idx] || '',
+        open_score:       q.type === 'open' ? (openScores[idx] != null ? parseFloat(openScores[idx]) : null) : null,
       }));
     }
 
@@ -1744,8 +1749,10 @@
     async function sendSingleResult(attemptId, force = false) {
       const a = attempts.find(x => x.id === attemptId);
       if (!a || (!force && (a.results_sent_at || a.bounce_at))) return;
-      const scoreObtained  = a.score_mcq ?? 0;
-      const scoreConverted = mcqTotal > 0 ? ((scoreObtained / mcqTotal) * 20).toFixed(1) : scoreObtained;
+      const openSum_s      = Object.values(a.open_scores || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+      const scoreObtained  = (a.score_mcq ?? 0) + openSum_s;
+      const totalMax_s     = mcqTotal + openMaxTotal;
+      const scoreConverted = totalMax_s > 0 ? ((scoreObtained / totalMax_s) * 20).toFixed(1) : scoreObtained;
       const dateTaken = a.submitted_at
         ? new Date(a.submitted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
         : '—';
@@ -1760,7 +1767,7 @@
             to_email: a.student_email, to_name: a.student_name,
             student_name: a.student_name, exam_title: currentExam.title,
             date_taken: dateTaken, score_obtained: String(scoreObtained),
-            score_total: String(mcqTotal), score_converted: String(scoreConverted),
+            score_total: String(totalMax_s), score_converted: String(scoreConverted),
             teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
             institution_name: currentInstitution?.name || '',
             ...(isDetailedMode() ? { questions: buildQuestionsPayload(a) } : {}),
@@ -1800,7 +1807,9 @@
       const a = attempts.find(x => x.id === _previewAttemptId);
       if (!a) return;
       const detailed = document.getElementById('previewDetailToggle')?.checked;
-      const scoreObtained = a.score_mcq ?? 0;
+      const openSum_p     = Object.values(a.open_scores || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+      const scoreObtained = (a.score_mcq ?? 0) + openSum_p;
+      const totalMax_p    = mcqTotal + openMaxTotal;
       const dateTaken = a.submitted_at
         ? new Date(a.submitted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
         : '—';
@@ -1809,7 +1818,7 @@
         exam_title:       currentExam.title,
         date_taken:       dateTaken,
         score_obtained:   String(scoreObtained),
-        score_total:      String(mcqTotal),
+        score_total:      String(totalMax_p),
         teacher_name:     currentTeacher?.full_name || currentTeacher?.email || '',
         teacher_email:    currentTeacher?.email || '',
         institution_name: currentInstitution?.name || '',
@@ -1826,8 +1835,10 @@
       if (!a) return;
       const btn = document.getElementById('previewSendBtn');
       btn.disabled = true; btn.textContent = 'Sending…';
-      const scoreObtained = a.score_mcq ?? 0;
-      const scoreConverted = mcqTotal > 0 ? ((scoreObtained / mcqTotal) * 20).toFixed(1) : scoreObtained;
+      const openSum_fp     = Object.values(a.open_scores || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+      const scoreObtained  = (a.score_mcq ?? 0) + openSum_fp;
+      const totalMax_fp    = mcqTotal + openMaxTotal;
+      const scoreConverted = totalMax_fp > 0 ? ((scoreObtained / totalMax_fp) * 20).toFixed(1) : scoreObtained;
       const dateTaken = a.submitted_at
         ? new Date(a.submitted_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
         : '—';
@@ -1842,7 +1853,7 @@
             to_email: a.student_email, to_name: a.student_name,
             student_name: a.student_name, exam_title: currentExam.title,
             date_taken: dateTaken, score_obtained: String(scoreObtained),
-            score_total: String(mcqTotal), score_converted: String(scoreConverted),
+            score_total: String(totalMax_fp), score_converted: String(scoreConverted),
             teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
             institution_name: currentInstitution?.name || '',
             ...(isDetailedMode() ? { questions: buildQuestionsPayload(a) } : {}),
@@ -1863,7 +1874,7 @@
     }
 
     function buildResultsEmailHtml(p, questions = null) {
-      const LOGO = 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/testflo-light.svg';
+      const LOGO = 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/testflo-dark.svg';
       const mcqQs  = questions ? questions.filter(q => q.type === 'mcq')  : [];
       const openQs = questions ? questions.filter(q => q.type === 'open') : [];
 
@@ -1894,7 +1905,8 @@
             ${q.student_response ? `<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;margin:0 0 3px">Votre réponse</p>
             <p style="font-size:0.82rem;color:#475569;margin:0 0 8px;font-style:italic">${escHtml(q.student_response)}</p>` : ''}
             ${q.comment ? `<p style="font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;margin:0 0 3px">Commentaire de l'enseignant</p>
-            <p style="font-size:0.82rem;color:#0a0a0a;margin:0">${escHtml(q.comment)}</p>` : ''}
+            <p style="font-size:0.82rem;color:#0a0a0a;margin:0 0 8px">${escHtml(q.comment)}</p>` : ''}
+            ${q.open_score != null ? `<p style="font-size:0.78rem;font-weight:700;color:#475569;margin:0">Note : <strong>${q.open_score} / ${q.max_points ?? '?'}</strong></p>` : ''}
           </div>`;
         }).join('')}` : '';
 
