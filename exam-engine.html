@@ -409,6 +409,7 @@
   let uiLang = 'fr';
   let SHUFFLE_MAP = {};   // { "qIdx": [originalIndices...] } — set once at exam start
   let isReconnect = false;
+  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
   // ============================================================
   //  SHUFFLE HELPERS
@@ -1070,12 +1071,31 @@
   document.addEventListener('visibilitychange', () => {
     if (isStartingExam || !examActive || examSubmitted) return;
     if (Date.now() < antiCheatSuspendedUntil) return;
-    if (document.hidden) { logEvent('Visibility lost', 'visibilitychange'); askToExit('Vous avez quitté l\'écran.', 'visibilitychange'); }
+    if (!document.hidden) return;
+    if (isMobile) {
+      const ae = document.activeElement;
+      if (ae && (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT')) return;
+      // 500ms confirmation: brief keyboard dismissal should not count as exit
+      setTimeout(() => {
+        if (!examActive || examSubmitted) return;
+        if (!document.hidden) return;
+        logEvent('Visibility lost', 'visibilitychange');
+        askToExit('Vous avez quitté l\'écran.', 'visibilitychange');
+      }, 500);
+      return;
+    }
+    logEvent('Visibility lost', 'visibilitychange');
+    askToExit('Vous avez quitté l\'écran.', 'visibilitychange');
   });
   window.addEventListener('blur', () => {
     if (isStartingExam || !examActive || examSubmitted) return;
     if (Date.now() < safeBlurUntil || Date.now() < antiCheatSuspendedUntil) return;
-    logEvent('Window blur', 'blur'); askToExit('Vous avez quitté la fenêtre.', 'blur');
+    if (isMobile) {
+      const ae = document.activeElement;
+      if (ae && (ae.tagName === 'TEXTAREA' || ae.tagName === 'INPUT')) return;
+    }
+    logEvent('Window blur', 'blur');
+    askToExit('Vous avez quitté la fenêtre.', 'blur');
   });
   document.addEventListener('fullscreenchange', () => {
     if (!examActive || examSubmitted || isStartingExam) return;
