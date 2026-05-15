@@ -28,6 +28,12 @@ Deno.serve(async (req) => {
         ? `Exam link — ${p.exam_title}`
         : `Lien de reprise — ${p.exam_title}`;
       payload = { from: FROM, to: [p.to_email], subject, html: retakeHtml(p, lang) };
+    } else if (type === "invite") {
+      const subject = lang === "en"
+        ? `Exam invitation — ${p.exam_title}`
+        : `Invitation à l'examen — ${p.exam_title}`;
+      payload = { from: FROM, to: [p.to_email], subject, html: inviteHtml(p, lang) };
+      if (p.reply_to) payload.reply_to = p.reply_to;
     } else {
       return respond({ error: "Unknown type" }, 400);
     }
@@ -280,6 +286,55 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
       <span style="color:#2563eb;">${esc(link)}</span>
     </p>
     <p style="font-size:0.75rem;color:#94a3b8;margin:16px 0 0;">${T.singleUse}</p>
+  </div>`;
+
+  return emailShell(content, lang);
+}
+
+// ── Invite email ──────────────────────────────────────────────────────────────
+
+function inviteHtml(p: Record<string, unknown>, lang: string) {
+  const toEmail    = String(p.to_email    || '');
+  const teacher    = String(p.teacher_name || '');
+  const examTitle  = String(p.exam_title  || '');
+  const link       = String(p.exam_link   || '');
+  const code       = String(p.access_code || '');
+  const duration   = String(p.duration_mins || '');
+
+  const T = lang === "en" ? {
+    greeting:   `Hello,`,
+    body:       teacher
+      ? `<strong>${esc(teacher)}</strong> has invited you to take the following exam:`
+      : `You have been invited to take the following exam:`,
+    code:       `Access code`,
+    duration:   `Duration`,
+    minutes:    `minutes`,
+    btnLabel:   `Start exam →`,
+    fallback:   `If the button doesn't work, copy this link:`,
+  } : {
+    greeting:   `Bonjour,`,
+    body:       teacher
+      ? `<strong>${esc(teacher)}</strong> vous invite à passer l'examen suivant :`
+      : `Vous êtes invité(e) à passer l'examen suivant :`,
+    code:       `Code d'accès`,
+    duration:   `Durée`,
+    minutes:    `minutes`,
+    btnLabel:   `Commencer l'épreuve →`,
+    fallback:   `Si le bouton ne fonctionne pas, copiez ce lien :`,
+  };
+
+  const content = `
+  <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
+    <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 20px;">${T.body}</p>
+    <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;color:#0f172a;">${esc(examTitle)}</h3>
+    ${code ? `<p style="margin:0 0 8px;font-size:0.85rem;color:#475569;"><strong>${T.code}:</strong> <span style="font-family:monospace;background:#f1f5f9;padding:2px 8px;border-radius:4px;">${esc(code)}</span></p>` : ''}
+    ${duration ? `<p style="margin:0 0 20px;font-size:0.85rem;color:#475569;"><strong>${T.duration}:</strong> ${esc(duration)} ${T.minutes}</p>` : '<div style="margin-bottom:20px;"></div>'}
+    <a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
+    <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br>
+      <span style="color:#2563eb;">${esc(link)}</span>
+    </p>
   </div>`;
 
   return emailShell(content, lang);

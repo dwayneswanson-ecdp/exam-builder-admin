@@ -253,33 +253,26 @@
       <div class="confirm-heading-eyebrow" id="confirmTitle">Avant de commencer</div>
       <div class="confirm-heading" id="confirmHeading">Lisez attentivement avant de commencer</div>
 
-      <!-- Penalty callout — screen exit warning -->
+      <!-- What the system logs -->
+      <div id="monitoringDisclosure" style="margin:0 0 16px;padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #94a3b8;">
+        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:8px;" id="monitoringTitle">CE QUE LE SYSTÈME NOTE AUTOMATIQUEMENT</div>
+        <ul id="monitoringList" style="margin:0;padding-left:16px;font-size:0.8rem;color:#475569;line-height:1.9;"></ul>
+      </div>
+
+      <!-- Consequences — red warning card -->
       <div class="penalty-callout" id="confirmWarningBox">
         <div class="penalty-callout-header">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span class="penalty-callout-title" id="confirmWarningTitle">Sortie d'écran — soumission automatique</span>
         </div>
-        <ul>
-          <li id="cw3"></li>
-          <li id="cw4"></li>
-        </ul>
+        <ul><li id="cw3"></li></ul>
       </div>
 
-      <!-- Rules block — neutral conditions -->
-      <div class="rules-block">
-        <div class="rules-block-title" id="confirmRulesTitle">Conditions de l'épreuve</div>
-        <ul>
-          <li id="cw1"></li>
-          <li id="cw2"></li>
-          <li id="cw5"></li>
-        </ul>
-      </div>
+      <!-- Session journal note — plain text below red card -->
+      <p style="font-size:0.82rem;color:#475569;margin:0 0 24px;" id="cw5"></p>
 
-      <!-- Monitoring disclosure -->
-      <div id="monitoringDisclosure" style="margin:16px 0;padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #94a3b8;">
-        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:8px;" id="monitoringTitle">Ce qui est enregistré pendant l'épreuve</div>
-        <ul id="monitoringList" style="margin:0;padding-left:16px;font-size:0.8rem;color:#475569;line-height:1.9;"></ul>
-      </div>
+      <!-- Hidden: preserves applyUIStrings() reference -->
+      <span id="confirmRulesTitle" style="display:none;"></span>
 
       <!-- Identity verification -->
       <div class="confirm-verify-label" id="confirmVerifyLabel">Vos informations</div>
@@ -291,7 +284,7 @@
       <!-- Acknowledgement checkbox -->
       <label class="confirm-acknowledge">
         <input type="checkbox" id="confirmAcknowledge">
-        <span class="confirm-acknowledge-text" id="confirmAcknowledgeLabel">J'ai lu et compris les règles, notamment la politique de sortie d'écran.</span>
+        <span class="confirm-acknowledge-text" id="confirmAcknowledgeLabel">Je comprends que mon activité génère un journal de session transmis à mon enseignant</span>
       </label>
 
       <div style="display:flex;justify-content:space-between;gap:12px;">
@@ -414,6 +407,31 @@
   let attemptId = null;
   let TERMINATED_KEY = '';
   let uiLang = 'fr';
+  let SHUFFLE_MAP = {};   // { "qIdx": [originalIndices...] } — set once at exam start
+  let isReconnect = false;
+
+  // ============================================================
+  //  SHUFFLE HELPERS
+  // ============================================================
+  function fisherYates(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function generateShuffleMap() {
+    const map = {};
+    QUESTIONS.forEach((q, idx) => {
+      if (q.type === 'mcq') {
+        const count = [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean).length;
+        map[String(idx)] = fisherYates(Array.from({ length: count }, (_, i) => i));
+      }
+    });
+    return map;
+  }
 
   // ============================================================
   //  BOOT — read ?id= from URL, fetch exam
@@ -433,14 +451,31 @@
       localStorage.removeItem(TERMINATED_KEY);
     }
 
+    // Detect mid-exam reconnect — restore shuffle map from cache so order is preserved
+    const _cachedAttemptId  = localStorage.getItem('examAttemptId_' + shareId);
+    const _cachedShuffleMap = localStorage.getItem('examShuffleCache_' + shareId);
+    if (_cachedAttemptId && _cachedShuffleMap) {
+      try {
+        SHUFFLE_MAP = JSON.parse(_cachedShuffleMap);
+        attemptId   = _cachedAttemptId;
+        isReconnect = true;
+      } catch(e) {
+        localStorage.removeItem('examAttemptId_' + shareId);
+        localStorage.removeItem('examShuffleCache_' + shareId);
+      }
+    }
+
     // Retake bypass: teacher issued a one-time token — skip localStorage blocks
     const retakeToken = params.get('retake');
     if (retakeToken) {
       const rows = await sbFetch(`exam_attempts?retake_token=eq.${retakeToken}&select=id`).catch(() => null);
       if (rows && rows.length > 0) {
-        // Valid token — clear local blocks so student can start fresh
+        // Valid token — clear local blocks and reconnect cache so student starts fresh
         localStorage.removeItem(TERMINATED_KEY);
         localStorage.removeItem('submitted_' + shareId);
+        localStorage.removeItem('examAttemptId_' + shareId);
+        localStorage.removeItem('examShuffleCache_' + shareId);
+        SHUFFLE_MAP = {}; isReconnect = false;
         // Invalidate token immediately so it can only be used once
         await sbFetch(`exam_attempts?id=eq.${rows[0].id}`, { method: 'PATCH', body: { retake_token: null } }).catch(() => {});
         // Continue to exam normally (skip the checks below)
@@ -553,37 +588,33 @@
       placeholderEmail:  isFR ? 'votre.email@exemple.com' : 'your.email@example.com',
       selectGroup:       isFR ? 'Sélectionner votre groupe' : 'Select your group',
       confirmTitle:   isFR ? 'Avant de commencer' : 'Before you begin',
-      confirmHeading: isFR ? 'Lisez attentivement avant de commencer' : 'Read carefully before starting',
+      confirmHeading: isFR ? 'Lisez attentivement avant de commencer' : 'Read carefully before you start',
       warningTitle:   isFR ? "Sortie d'écran — soumission automatique" : 'Screen exit — automatic submission',
       rulesTitle:     isFR ? "Conditions de l'épreuve" : 'Exam conditions',
       verifyLabel:    isFR ? 'Vos informations' : 'Your details',
       nameLabel:      isFR ? 'NOM & PRÉNOM' : 'FULL NAME',
       emailLabel:     'EMAIL',
-      groupLabel:     isFR ? 'GROUPE' : 'GROUP',
-      editNote:       isFR ? "Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent." : "If something is incorrect, click Edit to go back.",
+      groupLabel:     isFR ? 'Groupe' : 'Group',
+      editNote:       isFR ? "Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent." : "If anything is incorrect, click « Edit » to return to the previous screen",
       backBtn:        isFR ? '← Modifier' : '← Edit',
       startBtn:       isFR ? "Commencer l'épreuve →" : 'Start exam →',
-      acknowledgeLabel: isFR ? "J'ai lu et compris les règles, notamment la politique de sortie d'écran." : "I have read and understood the rules, including the screen exit policy.",
+      acknowledgeLabel: isFR ? "Je comprends que mon activité génère un journal de session transmis à mon enseignant" : "I understand that my activity generates a session journal transmitted to my instructor",
       cw1: isFR ? "L'épreuve se déroule en <strong>plein écran</strong>." : "The exam runs in <strong>full-screen mode</strong>.",
       cw2: isFR ? "Si vous quittez la fenêtre ou changez d'application, un <strong>message d'avertissement</strong> apparaît." : "If you leave the window or switch applications, a <strong>warning message</strong> will appear.",
-      cw3: isFR ? "Vous avez <strong>15 secondes</strong> pour revenir — au-delà, l'épreuve est arrêtée et doit être recommencée." : "You have <strong>15 seconds</strong> to return — after which the exam is terminated and must be restarted.",
+      cw3: isFR ? "<strong>Sorties de fenêtre et sorties du plein écran</strong> : vous disposez de 15 secondes pour revenir. À partir de 3 incidents, votre copie est soumise automatiquement et la session est définitivement verrouillée" : "<strong>Window exits and fullscreen exits</strong>: you have 15 seconds to return. From 3 incidents, your paper is automatically submitted and your session is permanently locked",
       cw4: isFR ? "Après <strong>3 sorties détectées</strong>, votre copie est <strong>envoyée automatiquement</strong>, l'épreuve se termine et <strong>la session est définitivement verrouillée</strong> — aucune reconnexion ne sera possible." : "After <strong>3 detected exits</strong>, your work is <strong>submitted automatically</strong>, the exam ends, and <strong>the session is permanently locked</strong> — re-entry will not be permitted.",
-      cw5: isFR ? "Tous ces évènements sont enregistrés dans un <strong>récapitulatif de session</strong> joint à votre copie." : "All events are recorded in a <strong>session log</strong> attached to your submission.",
-      monitoringTitle: isFR ? 'Ce qui est enregistré pendant l\'épreuve' : 'What is recorded during this exam',
+      cw5: isFR ? "Toute autre activité est notée dans votre journal de session et transmise à votre enseignant à la fin de l'épreuve." : "All other activity is noted in your session journal and sent to your instructor at the end of the exam.",
+      monitoringTitle: isFR ? 'CE QUE LE SYSTÈME NOTE AUTOMATIQUEMENT' : 'WHAT THE SYSTEM LOGS AUTOMATICALLY',
       monitoringItems: isFR ? [
         'Sorties de fenêtre et changements d\'onglet',
         'Sorties du plein écran',
-        'Pression des touches de capture d\'écran (PrintScreen, Cmd+Shift+4…)',
-        'Tentatives de copier-coller dans les zones de réponse',
-        'Toute tentative de copie de texte (Ctrl+C / Cmd+C)',
-        'Heure et durée de chaque évènement',
+        'Tentatives de capture d\'écran',
+        'Tentatives de copier-coller',
       ] : [
-        'Window exits and tab switches',
-        'Full-screen exits',
-        'Screenshot key presses (PrintScreen, Cmd+Shift+4…)',
-        'Copy and paste attempts in answer boxes',
-        'Any text copy attempt (Ctrl+C / Cmd+C)',
-        'Time and duration of each event',
+        'Window exits and tab changes',
+        'Fullscreen exits',
+        'Screenshot attempts',
+        'Copy-paste attempts',
       ],
       successTitle: isFR ? 'Épreuve soumise !' : 'Exam submitted!',
       successMsg:   isFR ? 'Votre copie a bien été enregistrée. Vous pouvez fermer cette fenêtre.' : 'Your answers have been recorded. You may close this window.',
@@ -681,23 +712,43 @@
     document.getElementById('confirmScreen').style.display = 'none';
     document.getElementById('preLangPicker').style.display = 'none';
 
-    // Create attempt record in Supabase
-    try {
-      const attempts = await sbFetch('exam_attempts', {
-        method: 'POST',
-        body: {
-          exam_id: EXAM.id,
-          student_name: studentName,
-          student_email: studentEmail,
-          access_code: document.getElementById('inputCode').value.trim(),
-          group_name: window._studentGroup || null,
-          status: 'active'
+    if (isReconnect) {
+      // Reconnect — SHUFFLE_MAP already restored from localStorage in boot()
+      violationCount = 1;
+      logEvent('Reconnexion détectée', 'La page a été rechargée — violation comptabilisée');
+    } else {
+      // Fresh start — generate shuffle map and persist atomically with the attempt
+      SHUFFLE_MAP = generateShuffleMap();
+      let created = false;
+      try {
+        const attempts = await sbFetch('exam_attempts', {
+          method: 'POST',
+          body: {
+            exam_id: EXAM.id,
+            student_name: studentName,
+            student_email: studentEmail,
+            access_code: document.getElementById('inputCode').value.trim(),
+            group_name: window._studentGroup || null,
+            status: 'active',
+            shuffle_map: SHUFFLE_MAP
+          }
+        });
+        if (attempts && attempts[0]) {
+          attemptId = attempts[0].id;
+          localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
+          localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
+          created = true;
         }
-      });
-      if (attempts && attempts[0]) attemptId = attempts[0].id;
-    } catch (err) {
-      console.error('Failed to create attempt:', err);
-      // Continue anyway — don't block student
+      } catch (err) {
+        console.error('Failed to create attempt:', err);
+      }
+      if (!created) {
+        document.getElementById('confirmScreen').style.display = 'block';
+        const btn = document.getElementById('confirmStartBtn');
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+        alert('Impossible de démarrer l\'épreuve. Vérifiez votre connexion et réessayez.');
+        return;
+      }
     }
 
     // Set up timer
@@ -836,15 +887,19 @@
         div.appendChild(wcRow);
 
       } else {
-        // MCQ
-        const opts = [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean);
+        // MCQ — render in shuffle map order; each label carries data-original-index for scoring
+        const allOpts = [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean);
+        const shuffleOrder = SHUFFLE_MAP[String(idx)] || allOpts.map((_, i) => i);
         const optsDiv = document.createElement('div');
         optsDiv.className = 'q-options';
 
-        opts.forEach((opt, oi) => {
+        shuffleOrder.forEach((originalIndex) => {
+          const opt = allOpts[originalIndex];
+          if (!opt) return;
           const label = document.createElement('label');
           label.className = 'q-option';
-          label.innerHTML = `<input type="radio" name="q${idx}" value="${oi}"><span>${opt}</span>`;
+          label.dataset.originalIndex = String(originalIndex);
+          label.innerHTML = `<input type="radio" name="q${idx}" value="${originalIndex}"><span>${opt}</span>`;
           label.addEventListener('click', () => {
             div.querySelectorAll('.q-option').forEach(l => l.classList.remove('selected'));
             label.classList.add('selected');
@@ -985,6 +1040,8 @@
     setOverlayActive(false);
     logEvent('Exam terminated', msg);
     localStorage.setItem(TERMINATED_KEY, '1');
+    localStorage.removeItem('examAttemptId_' + (EXAM ? EXAM.share_id : ''));
+    localStorage.removeItem('examShuffleCache_' + (EXAM ? EXAM.share_id : ''));
     alert(msg || 'L\'épreuve est terminée.');
     showTerminated();
   }
@@ -1101,7 +1158,8 @@
         answers['q' + idx] = ta ? ta.value.trim() : '';
       } else {
         const checked = document.querySelector(`input[name="q${idx}"]:checked`);
-        const selected = checked ? parseInt(checked.value) : -1;
+        const selectedLabel = checked ? checked.closest('label') : null;
+        const selected = selectedLabel ? parseInt(selectedLabel.dataset.originalIndex) : -1;
         answers['q' + idx] = selected;
         const correct = q.correct_index ?? -1;
         const ok = selected === correct;
@@ -1219,6 +1277,8 @@
     // Lock student out after successful submission
     localStorage.setItem('submitted_' + EXAM.share_id, '1');
     localStorage.removeItem('examDeadline_' + EXAM.id);
+    localStorage.removeItem('examAttemptId_' + EXAM.share_id);
+    localStorage.removeItem('examShuffleCache_' + EXAM.share_id);
 
     // Show success
     document.getElementById('examScreen').style.display    = 'none';
