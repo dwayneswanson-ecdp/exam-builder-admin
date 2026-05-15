@@ -3,7 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const RESEND_KEY  = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM        = Deno.env.get("RESEND_FROM") ?? "onboarding@resend.dev";
 // testflo-dark.svg = white text logo — correct for dark navy header
-const LOGO_URL    = "https://dwayneswanson-ecdp.github.io/exam-builder-admin/testflo-dark.svg";
+const LOGO_URL    = "https://exam.test-flo.com/testflo-dark.svg";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -96,6 +96,7 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
   const scoreTotal    = String(p.score_total   ?? '—');
   const scoreConverted = p.score_converted ? String(p.score_converted) : null;
   const teacherName   = String(p.teacher_name  || '');
+  const teacherEmail  = String(p.teacher_email || '');
   const toEmail       = String(p.to_email      || '');
 
   const questions = Array.isArray(p.questions) ? p.questions as Record<string, unknown>[] : null;
@@ -136,7 +137,7 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
   <div style="background:#fff;padding:24px 32px 20px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
     ${institution ? `<p style="margin:0 0 2px;font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${esc(institution)}</p>` : ''}
     <h2 style="margin:0 0 8px;font-size:1.15rem;font-weight:700;color:#0a0a0a;line-height:1.3;">${esc(examTitle)}</h2>
-    <p style="margin:0;font-size:0.85rem;color:#475569;"><strong>${esc(studentName)}</strong>${toEmail ? ` · ${esc(toEmail)}` : ''}</p>
+    <p style="margin:0;font-size:0.85rem;color:#475569;"><strong>${esc(studentName)}</strong></p>
     <p style="margin:4px 0 0;font-size:0.8rem;color:#94a3b8;">${T.submittedOn} ${esc(dateTaken)}${teacherName ? ` · ${esc(teacherName)}` : ''}</p>
   </div>`;
 
@@ -246,46 +247,69 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
     }
   }
 
-  const body = headerStripe + heroStats + questionTable;
+  const contactBlock = (teacherName || teacherEmail) ? `
+  <div style="border-top:1px solid #e2e8f0;margin:24px 0 16px;"></div>
+  <div style="text-align:center;font-size:0.85rem;color:#64748b;padding:0 32px 8px;">
+    ${lang === 'en'
+      ? 'For any question regarding your result, contact your instructor :'
+      : 'Pour toute question concernant votre résultat, contactez votre enseignant :'}
+    <br>
+    ${teacherName ? `<span style="font-weight:700;color:#1e293b;">${esc(teacherName)}</span>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}
+  </div>` : '';
+
+  const body = headerStripe + heroStats + questionTable + contactBlock;
   return emailShell(body, lang);
 }
 
 // ── Retake / resend email ─────────────────────────────────────────────────────
 
 function retakeHtml(p: Record<string, unknown>, lang: string) {
-  const toName    = String(p.to_name   || p.student_name || '');
-  const teacher   = String(p.teacher_name || '');
-  const examTitle = String(p.exam_title || '');
-  const link      = String(p.retake_link || '');
+  const toName       = String(p.to_name       || p.student_name || '');
+  const teacher      = String(p.teacher_name  || '');
+  const teacherEmail = String(p.teacher_email || '');
+  const examTitle    = String(p.exam_title    || '');
+  const link         = String(p.retake_link   || '');
+  const accessCode   = String(p.access_code   || '');
+
+  const nameParts = toName.trim().split(/\s+/);
+  const firstName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : (nameParts[0] || '');
 
   const T = lang === "en" ? {
-    greeting:    `Hello ${esc(toName)},`,
+    greeting:    firstName ? `Hello ${esc(firstName)},` : `Hello,`,
     body:        teacher
       ? `<strong>${esc(teacher)}</strong> has sent you an exam link for <strong>${esc(examTitle)}</strong>.`
       : `You have received an exam link for <strong>${esc(examTitle)}</strong>.`,
-    btnLabel:    "Access the exam →",
-    fallback:    "If the button doesn't work, copy this link:",
-    singleUse:   "This link is for single use.",
+    btnLabel:        "Access the exam →",
+    fallback:        "If the button doesn't work, copy this link:",
+    singleUse:       "This link is for single use.",
+    accessCodeLabel: "Your access code :",
+    contactLabel:    "For any question, contact your instructor :",
   } : {
-    greeting:    `Bonjour ${esc(toName)},`,
+    greeting:    firstName ? `Bonjour ${esc(firstName)},` : `Bonjour,`,
     body:        teacher
       ? `<strong>${esc(teacher)}</strong> vous a envoyé un lien de reprise pour <strong>${esc(examTitle)}</strong>.`
       : `Vous avez reçu un lien de reprise pour <strong>${esc(examTitle)}</strong>.`,
-    btnLabel:    "Accéder à l'épreuve →",
-    fallback:    "Si le bouton ne fonctionne pas, copiez ce lien :",
-    singleUse:   "Ce lien est à usage unique.",
+    btnLabel:        "Accéder à l'épreuve →",
+    fallback:        "Si le bouton ne fonctionne pas, copiez ce lien :",
+    singleUse:       "Ce lien est à usage unique.",
+    accessCodeLabel: "Votre code d'accès :",
+    contactLabel:    "Pour toute question, contactez votre enseignant :",
   };
 
   const content = `
   <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
     <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
     <p style="color:#64748b;font-size:0.9rem;margin:0 0 24px;">${T.body}</p>
+    ${accessCode ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p>
+    <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(accessCode)}</span>` : ''}
     <a href="${link}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
     <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br>
       <span style="color:#2563eb;">${esc(link)}</span>
     </p>
     <p style="font-size:0.75rem;color:#94a3b8;margin:16px 0 0;">${T.singleUse}</p>
+    ${(teacher || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${T.contactLabel}<br>${teacher ? `<strong style="color:#1e293b;">${esc(teacher)}</strong>` : ''}${teacher && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
+    <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${lang === 'en' ? 'This message was generated automatically by testflo.' : 'Ce message a été généré automatiquement par testflo.'}</p>
   </div>`;
 
   return emailShell(content, lang);
@@ -294,9 +318,10 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
 // ── Invite email ──────────────────────────────────────────────────────────────
 
 function inviteHtml(p: Record<string, unknown>, lang: string) {
-  const toEmail    = String(p.to_email    || '');
-  const teacher    = String(p.teacher_name || '');
-  const examTitle  = String(p.exam_title  || '');
+  const toEmail      = String(p.to_email      || '');
+  const teacher      = String(p.teacher_name  || '');
+  const teacherEmail = String(p.teacher_email || '');
+  const examTitle    = String(p.exam_title    || '');
   const link       = String(p.exam_link   || '');
   const code       = String(p.access_code || '');
   const duration   = String(p.duration_mins || '');
@@ -309,8 +334,9 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     code:       `Access code`,
     duration:   `Duration`,
     minutes:    `minutes`,
-    btnLabel:   `Start exam →`,
-    fallback:   `If the button doesn't work, copy this link:`,
+    btnLabel:      `Start exam →`,
+    fallback:      `If the button doesn't work, copy this link:`,
+    contactLabel:  `For any question, contact your instructor :`,
   } : {
     greeting:   `Bonjour,`,
     body:       teacher
@@ -319,8 +345,9 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     code:       `Code d'accès`,
     duration:   `Durée`,
     minutes:    `minutes`,
-    btnLabel:   `Commencer l'épreuve →`,
-    fallback:   `Si le bouton ne fonctionne pas, copiez ce lien :`,
+    btnLabel:      `Commencer l'épreuve →`,
+    fallback:      `Si le bouton ne fonctionne pas, copiez ce lien :`,
+    contactLabel:  `Pour toute question, contactez votre enseignant :`,
   };
 
   const content = `
@@ -335,6 +362,8 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br>
       <span style="color:#2563eb;">${esc(link)}</span>
     </p>
+    ${(teacher || teacherEmail) ? `<hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0 16px;">
+    <p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0;">${T.contactLabel}<br>${teacher ? `<strong style="color:#1e293b;">${esc(teacher)}</strong>` : ''}${teacher && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
   </div>`;
 
   return emailShell(content, lang);

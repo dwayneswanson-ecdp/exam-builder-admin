@@ -886,7 +886,7 @@
 
     function showSuccess(shareId, examId) {
       const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+      const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://exam.test-flo.com/exam-engine.html';
       const shareUrl = `${baseUrl}?id=${shareId}`;
 
       document.getElementById('publishBtn').style.display = 'none';
@@ -924,7 +924,7 @@
       btn.textContent = Lang.t('sending');
       btn.disabled = true;
       const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
-      const baseUrl = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+      const baseUrl = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://exam.test-flo.com/exam-engine.html';
       const shareUrl = `${baseUrl}?id=${publishedShareId}`;
       const codesText = publishedGroups.map(g => `${g.name}: ${g.code}`).join('\n');
       emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
@@ -958,7 +958,7 @@
       if (!val) { content.style.display = 'none'; return; }
       const [groupName, code] = val.split('|');
       const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
-      const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+      const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://exam.test-flo.com/exam-engine.html';
       const shareUrl = `${baseUrl}?id=${publishedShareId}`;
       const title    = onboardingData?.title || 'Exam';
       const duration = onboardingData?.duration || '';

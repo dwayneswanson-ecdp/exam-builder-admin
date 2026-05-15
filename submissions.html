@@ -1602,14 +1602,16 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({
-            type: 'retake',
-            reply_to:    currentTeacher?.email || '',
-            to_email:    a.student_email || '',
-            to_name:     a.student_name  || '',
-            exam_title:  currentExam.title,
-            lang:        currentExam.lang || 'fr',
-            retake_link: retakeLink,
-            teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
+            type:          'retake',
+            reply_to:      currentTeacher?.email || '',
+            to_email:      a.student_email || '',
+            to_name:       a.student_name  || '',
+            exam_title:    currentExam.title,
+            lang:          currentExam.lang || 'fr',
+            retake_link:   retakeLink,
+            teacher_name:  currentTeacher?.full_name || currentTeacher?.email || '',
+            teacher_email: currentTeacher?.email || '',
+            access_code:   currentExam.access_code || '',
           }),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -2112,7 +2114,7 @@
     }
 
     function buildResultsEmailHtml(p, questions = null) {
-      const LOGO = 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/testflo-dark.svg';
+      const LOGO = 'https://exam.test-flo.com/testflo-dark.svg';
       const mcqQs  = questions ? questions.filter(q => q.type === 'mcq')  : [];
       const openQs = questions ? questions.filter(q => q.type === 'open') : [];
 
@@ -2216,7 +2218,9 @@
               exam_link:    link,
               access_code:  code,
               duration_mins: String(currentExam.duration_mins || ''),
-              teacher_name: currentTeacher?.full_name || currentTeacher?.email || '',
+              teacher_name:  currentTeacher?.full_name || currentTeacher?.email || '',
+              teacher_email: currentTeacher?.email || '',
+              lang:          currentExam.lang || 'fr',
             }),
           });
           if (!res.ok) throw new Error(await res.text());

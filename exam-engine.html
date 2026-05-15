@@ -102,7 +102,7 @@
 
     /* ── Question cards ── */
     .q-card { background: var(--white); border: 1.5px solid var(--line); padding: 24px; margin-bottom: 16px; transition: border-color var(--transition); }
-    .q-card.answered { border-color: #86efac; background: #f0fdf4; }
+    .q-card.answered { border-color: var(--line); background: var(--white); }
     .q-num { font-size: 0.65rem; font-weight: 700; color: var(--white); background: var(--navy); display: inline-block; padding: 3px 10px; margin-bottom: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
     .q-text { font-size: 0.95rem; font-weight: 600; color: var(--black); margin-bottom: 14px; line-height: 1.6; }
 
@@ -180,6 +180,14 @@
       .card { padding: 24px 16px; }
       main { padding: 0 16px; }
       .name-row { flex-direction: column; gap: 0; }
+    }
+
+    .q-progress-mobile { display: none; text-align: center; font-size: 0.875rem; color: var(--muted); padding: 8px 0 4px; }
+    .mobile-notif-notice { display: none; }
+    @media (max-width: 768px) {
+      .q-nav { display: none; }
+      .q-progress-mobile { display: block; }
+      .mobile-notif-notice { display: block; background: #fef9c3; border: 1px solid #fde68a; color: #92400e; font-size: 0.8rem; padding: 10px 14px; border-radius: 0; margin-bottom: 16px; }
     }
   </style>
 </head>
@@ -281,6 +289,9 @@
       <div class="confirm-item" id="confirmGroupRow" style="display:none;"><div class="confirm-item-label" id="confirmGroupLabel">GROUPE</div><div class="confirm-item-val" id="confirmGroup"></div></div>
       <p style="font-size:0.82rem;color:var(--muted);margin:10px 0 0;" id="confirmEditNote">Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent.</p>
 
+      <!-- Mobile Do Not Disturb notice -->
+      <div class="mobile-notif-notice" id="mobileNotifNotice"></div>
+
       <!-- Acknowledgement checkbox -->
       <label class="confirm-acknowledge">
         <input type="checkbox" id="confirmAcknowledge">
@@ -299,6 +310,7 @@
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
       <div id="questionsContainer"></div>
       <div class="q-nav" id="qNav"></div>
+      <div class="q-progress-mobile" id="qProgressMobile"></div>
       <div class="btn-row center" style="margin-top:8px;">
         <button id="submitBtn">Envoyer ma copie →</button>
       </div>
@@ -616,6 +628,10 @@
       alertEmail:   isFR ? 'Adresse e-mail invalide.' : 'Invalid email address.',
       alertGroup:   isFR ? 'Merci de sélectionner votre groupe.' : 'Please select your group.',
       alertCode:    isFR ? "Code d'accès invalide." : 'Invalid access code.',
+      questionOf:   isFR ? 'sur' : 'of',
+      mobileNotifNotice: isFR
+        ? '📵 Avant de commencer, activez le mode « Ne pas déranger » et désactivez les notifications pour éviter toute interruption pendant l\'épreuve.'
+        : '📵 Before starting, enable Do Not Disturb mode and turn off notifications to avoid any interruption during the exam.',
     };
   }
 
@@ -871,6 +887,7 @@
         const ta = document.createElement('textarea');
         ta.placeholder = 'Écrivez votre réponse ici…';
         ta.dataset.qidx = idx;
+        ta.setAttribute('autocomplete','off'); ta.setAttribute('autocorrect','off'); ta.setAttribute('autocapitalize','off'); ta.spellcheck = false;
         ta.addEventListener('input', () => {
           updateWordCount(ta, div);
           div.classList.toggle('answered', ta.value.trim().length > 0);
@@ -940,6 +957,21 @@
     updateNavigator();
   }
 
+  function updateProgressText(idx) {
+    const el = document.getElementById('qProgressMobile');
+    if (el) el.textContent = 'Question ' + (idx + 1) + ' ' + UI.questionOf + ' ' + QUESTIONS.length;
+  }
+
+  function setupScrollProgress() {
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) updateProgressText(parseInt(entry.target.dataset.idx, 10));
+      });
+    }, { rootMargin: '-40% 0px -40% 0px' });
+    document.querySelectorAll('.q-card[data-idx]').forEach(card => observer.observe(card));
+  }
+
   function buildNavigator() {
     const nav = document.getElementById('qNav');
     if (!nav) return;
@@ -947,6 +979,8 @@
       const isOpen = q.type === 'open';
       return `<div class="q-dot${isOpen ? ' dot-open' : ''}" id="dot-${i}" title="Question ${i+1}" onclick="jumpToQuestion(${i})">${i+1}</div>`;
     }).join('');
+    updateProgressText(0);
+    setupScrollProgress();
   }
 
   function updateNavigator() {
@@ -960,6 +994,7 @@
   }
 
   function jumpToQuestion(idx) {
+    updateProgressText(idx);
     const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
     if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -1318,6 +1353,7 @@
     document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
     document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
     document.getElementById('confirmAcknowledgeLabel').textContent = UI.acknowledgeLabel;
+    document.getElementById('mobileNotifNotice').textContent = UI.mobileNotifNotice;
     const editNoteEl = document.getElementById('confirmEditNote');
     if (editNoteEl) editNoteEl.textContent = UI.editNote;
     document.getElementById('confirmBackBtn').textContent      = UI.backBtn;

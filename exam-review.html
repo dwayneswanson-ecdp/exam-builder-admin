@@ -529,7 +529,7 @@
       // Send failsafe email to teacher
       try {
         const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
-        const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html';
+        const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://exam.test-flo.com/exam-engine.html';
         const shareUrl = baseUrl + '?id=' + shareId;
         emailjs.init({ publicKey: 'Bb0oPYBiZGQcyIz5r' });
         emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
