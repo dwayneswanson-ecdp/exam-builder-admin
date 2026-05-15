@@ -358,29 +358,19 @@
 
   <script>
   // ============================================================
-  //  SUPABASE CONFIG
+  //  EDGE FUNCTION CONFIG
   // ============================================================
-  const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
+  const EF_BASE = 'https://toxgihdyfzdymgidgvaq.supabase.co/functions/v1';
 
-  async function sbFetch(path, opts = {}) {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': opts.prefer || 'return=representation',
-        ...opts.headers
-      },
-      method: opts.method || 'GET',
-      body: opts.body ? JSON.stringify(opts.body) : undefined
+  async function efFetch(fn, body) {
+    const res = await fetch(`${EF_BASE}/${fn}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error('Supabase error ' + res.status + ': ' + err);
-    }
-    const text = await res.text();
-    return text ? JSON.parse(text) : null;
+    const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
   }
 
   // ============================================================
@@ -404,7 +394,8 @@
   const sessionEvents = [];
   let studentName = '';
   let studentEmail = '';
-  let attemptId = null;
+  let attemptId    = null;
+  let sessionToken = null;
   let TERMINATED_KEY = '';
   let uiLang = 'fr';
   let SHUFFLE_MAP = {};   // { "qIdx": [originalIndices...] } — set once at exam start
@@ -453,33 +444,37 @@
     }
 
     // Detect mid-exam reconnect — restore shuffle map from cache so order is preserved
-    const _cachedAttemptId  = localStorage.getItem('examAttemptId_' + shareId);
-    const _cachedShuffleMap = localStorage.getItem('examShuffleCache_' + shareId);
-    if (_cachedAttemptId && _cachedShuffleMap) {
+    const _cachedAttemptId    = localStorage.getItem('examAttemptId_' + shareId);
+    const _cachedShuffleMap   = localStorage.getItem('examShuffleCache_' + shareId);
+    const _cachedSessionToken = localStorage.getItem('examSessionToken_' + shareId);
+    if (_cachedAttemptId && _cachedShuffleMap && _cachedSessionToken) {
       try {
-        SHUFFLE_MAP = JSON.parse(_cachedShuffleMap);
-        attemptId   = _cachedAttemptId;
-        isReconnect = true;
+        SHUFFLE_MAP  = JSON.parse(_cachedShuffleMap);
+        attemptId    = _cachedAttemptId;
+        sessionToken = _cachedSessionToken;
+        isReconnect  = true;
       } catch(e) {
         localStorage.removeItem('examAttemptId_' + shareId);
         localStorage.removeItem('examShuffleCache_' + shareId);
+        localStorage.removeItem('examSessionToken_' + shareId);
       }
     }
 
-    // Retake bypass: teacher issued a one-time token — skip localStorage blocks
+    // Retake bypass: teacher issued a one-time token — validated server-side
     const retakeToken = params.get('retake');
     if (retakeToken) {
-      const rows = await sbFetch(`exam_attempts?retake_token=eq.${retakeToken}&select=id`).catch(() => null);
-      if (rows && rows.length > 0) {
-        // Valid token — clear local blocks and reconnect cache so student starts fresh
+      const retakeRes = await efFetch('exam-retake', { retake_token: retakeToken }).catch(() => null);
+      if (retakeRes && retakeRes.attempt_id) {
+        // Valid token — clear all local blocks and reconnect cache so student starts fresh
         localStorage.removeItem(TERMINATED_KEY);
         localStorage.removeItem('submitted_' + shareId);
         localStorage.removeItem('examAttemptId_' + shareId);
         localStorage.removeItem('examShuffleCache_' + shareId);
+        localStorage.removeItem('examSessionToken_' + shareId);
         SHUFFLE_MAP = {}; isReconnect = false;
-        // Invalidate token immediately so it can only be used once
-        await sbFetch(`exam_attempts?id=eq.${rows[0].id}`, { method: 'PATCH', body: { retake_token: null } }).catch(() => {});
-        // Continue to exam normally (skip the checks below)
+        // Store retake credentials — startExam() will use these and skip exam-start
+        attemptId    = retakeRes.attempt_id;
+        sessionToken = retakeRes.session_token;
       } else {
         showError('Ce lien de reprise est invalide ou a déjà été utilisé. Contactez votre enseignant.');
         return;
@@ -501,28 +496,25 @@
         new Promise((_, reject) => setTimeout(() => reject(new Error('Délai dépassé — vérifiez votre connexion.')), ms))
       ]);
 
-      const exams = await fetchWithTimeout(
-        sbFetch(`exams?share_id=eq.${shareId}&status=eq.published&select=id,title,duration_mins,access_code,lang,groups,group_codes,share_id,instructions,teacher_email`),
+      // Fetch public exam metadata for the login screen (no access code required)
+      const examInfo = await fetchWithTimeout(
+        efFetch('exam-start', { share_id: shareId }),
         10000
       );
 
-      if (!exams || exams.length === 0) {
+      if (!examInfo || examInfo.error) {
         showError('Épreuve introuvable ou non publiée. Vérifiez le lien avec votre enseignant. (id: ' + shareId + ')');
         return;
       }
-      EXAM = exams[0];
-
-      // Fetch questions ordered by position
-      const qs = await sbFetch(`questions?exam_id=eq.${EXAM.id}&order=position.asc&select=*`);
-      const allItems = qs || [];
-      // Sections are visual dividers — keep them for rendering but separate from answerable questions
-      window.ALL_ITEMS  = allItems;
-      QUESTIONS = allItems.filter(q => q.type !== 'section');
-
-      if (QUESTIONS.length === 0) {
-        showError('Cette épreuve ne contient pas encore de questions.');
-        return;
-      }
+      // Populate EXAM with public metadata only — exam_id and QUESTIONS loaded in startExam()
+      EXAM = {
+        share_id:     shareId,
+        title:        examInfo.title         || '',
+        duration_mins: examInfo.duration_mins || 0,
+        lang:         examInfo.lang          || 'fr',
+        groups:       examInfo.groups        || null,
+        instructions: examInfo.instructions  || null,
+      };
 
       // Set exam language for UI
       uiLang = EXAM.lang || 'fr';
@@ -653,17 +645,8 @@
       const groupRow = document.getElementById('groupRow');
       if (groupRow && groupRow.style.display !== 'none' && !group) { alert(UI.alertGroup); return; }
 
-      // Per-group code validation
-      let validCode = (code === 'DEBUG');
-      if (!validCode && EXAM.group_codes && EXAM.group_codes !== '{}') {
-        try {
-          const gc = JSON.parse(EXAM.group_codes);
-          validCode = group && gc[group] ? (code === gc[group].toUpperCase()) : (code === (EXAM.access_code || '').toUpperCase());
-        } catch(e) { validCode = (code === (EXAM.access_code || '').toUpperCase()); }
-      } else if (!validCode) {
-        validCode = (code === (EXAM.access_code || '').toUpperCase());
-      }
-      if (!validCode) { alert(UI.alertCode); return; }
+      // Access code presence check — full validation happens server-side in exam-start
+      if (code !== 'DEBUG' && !code) { alert(UI.alertCode); return; }
 
       studentName  = lastName + ' ' + firstName;
       studentEmail = email;
@@ -714,47 +697,66 @@
     document.getElementById('preLangPicker').style.display = 'none';
 
     if (isReconnect) {
-      // Reconnect — SHUFFLE_MAP already restored from localStorage in boot()
+      // Reconnect — credentials and SHUFFLE_MAP already restored from localStorage in boot()
       violationCount = 1;
       logEvent('Reconnexion détectée', 'La page a été rechargée — violation comptabilisée');
-    } else {
-      // Fresh start — generate shuffle map and persist atomically with the attempt
+    } else if (attemptId && sessionToken) {
+      // Retake — credentials set by exam-retake in boot(), generate fresh shuffle for this session
       SHUFFLE_MAP = generateShuffleMap();
-      let created = false;
+      localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
+      localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
+      localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
+    } else {
+      // Fresh start — generate shuffle and call exam-start (validates code + creates attempt)
+      SHUFFLE_MAP = generateShuffleMap();
+      let startRes = null;
       try {
-        const attempts = await sbFetch('exam_attempts', {
-          method: 'POST',
-          body: {
-            exam_id: EXAM.id,
-            student_name: studentName,
-            student_email: studentEmail,
-            access_code: document.getElementById('inputCode').value.trim(),
-            group_name: window._studentGroup || null,
-            status: 'active',
-            shuffle_map: SHUFFLE_MAP
-          }
+        startRes = await efFetch('exam-start', {
+          share_id:      EXAM.share_id,
+          access_code:   document.getElementById('inputCode').value.trim(),
+          student_name:  studentName,
+          student_email: studentEmail,
+          group_name:    window._studentGroup || null,
+          shuffle_map:   SHUFFLE_MAP,
         });
-        if (attempts && attempts[0]) {
-          attemptId = attempts[0].id;
-          localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
-          localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
-          created = true;
-        }
       } catch (err) {
-        console.error('Failed to create attempt:', err);
-      }
-      if (!created) {
+        console.error('exam-start failed:', err);
         document.getElementById('confirmScreen').style.display = 'block';
         const btn = document.getElementById('confirmStartBtn');
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
-        alert('Impossible de démarrer l\'épreuve. Vérifiez votre connexion et réessayez.');
+        const msg = err.message === 'Invalid access code'
+          ? (EXAM.lang === 'en' ? 'Invalid access code. Please check and try again.' : 'Code d\'accès incorrect. Veuillez vérifier et réessayer.')
+          : 'Impossible de démarrer l\'épreuve. Vérifiez votre connexion et réessayez.';
+        alert(msg);
         return;
       }
+      attemptId    = startRes.attempt_id;
+      sessionToken = startRes.session_token;
+      EXAM.id      = startRes.exam_id;
+      localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
+      localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
+      localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
+    }
+
+    // Load questions via edge function — requires session_token, never sends correct_index
+    try {
+      const qData = await efFetch('exam-questions', { attempt_id: attemptId, session_token: sessionToken });
+      const allItems = qData.questions || [];
+      window.ALL_ITEMS = allItems;
+      QUESTIONS = allItems.filter(q => q.type !== 'section');
+      if (QUESTIONS.length === 0) {
+        showError('Cette épreuve ne contient pas encore de questions.');
+        return;
+      }
+    } catch (err) {
+      console.error('exam-questions failed:', err);
+      showError('Impossible de charger les questions. Vérifiez votre connexion et réessayez.');
+      return;
     }
 
     // Set up timer
     examDeadline = Date.now() + EXAM.duration_mins * 60 * 1000;
-    localStorage.setItem('examDeadline_' + EXAM.id, String(examDeadline));
+    localStorage.setItem('examDeadline_' + EXAM.share_id, String(examDeadline));
 
     examActive    = true;
     examSubmitted = false;
@@ -1043,6 +1045,7 @@
     localStorage.setItem(TERMINATED_KEY, '1');
     localStorage.removeItem('examAttemptId_' + (EXAM ? EXAM.share_id : ''));
     localStorage.removeItem('examShuffleCache_' + (EXAM ? EXAM.share_id : ''));
+    localStorage.removeItem('examSessionToken_' + (EXAM ? EXAM.share_id : ''));
     alert(msg || 'L\'épreuve est terminée.');
     showTerminated();
   }
@@ -1167,10 +1170,9 @@
     logEvent('Exam submitted', autoReason || 'Student clicked submit');
     console.log('submitExam started', { student: studentName, email: studentEmail });
 
-    // Collect answers
+    // Collect answers — MCQ scoring is server-side only (correct_index never sent to client)
     const answers = {};
-    let scoreMCQ = 0;
-    let partARows = '', partBRows = '';
+    let partBRows = '';
 
     QUESTIONS.forEach((q, idx) => {
       if (q.type === 'open') {
@@ -1181,15 +1183,10 @@
         const selectedLabel = checked ? checked.closest('label') : null;
         const selected = selectedLabel ? parseInt(selectedLabel.dataset.originalIndex) : -1;
         answers['q' + idx] = selected;
-        const correct = q.correct_index ?? -1;
-        const ok = selected === correct;
-        if (ok) scoreMCQ++;
         const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
         partBRows += `<tr>
           <td style="padding:8px;border:1px solid #ddd;">Q${idx+1}: ${q.question_text}</td>
           <td style="padding:8px;border:1px solid #ddd;">${selected >= 0 ? opts[selected] : 'Pas de réponse'}</td>
-          <td style="padding:8px;border:1px solid #ddd;">${correct >= 0 ? opts[correct] : '—'}</td>
-          <td style="padding:8px;border:1px solid #ddd;color:${ok?'#166534':'#991b1b'};font-weight:600;">${ok?'+1':'0'}</td>
         </tr>`;
       }
     });
@@ -1232,13 +1229,11 @@
       </table>
       <hr style="border:none;border-top:2px solid #e2e8f0;margin:0 0 16px 0;">
       ${mcqCount > 0 ? `
-        <h3 style="color:#004080;margin:0 0 8px 0;">Questions QCM — ${scoreMCQ} / ${mcqCount}</h3>
+        <h3 style="color:#004080;margin:0 0 8px 0;">Questions QCM — ${mcqCount} question(s)</h3>
         <table style="border-collapse:collapse;width:100%;font-size:13px;margin-bottom:20px;">
           <thead><tr style="background:#004080;color:#fff;text-align:left;">
             <th style="padding:8px 10px;border:1px solid #003060;">Question</th>
-            <th style="padding:8px 10px;border:1px solid #003060;">Réponse</th>
-            <th style="padding:8px 10px;border:1px solid #003060;">Correcte</th>
-            <th style="padding:8px 10px;border:1px solid #003060;">Résultat</th>
+            <th style="padding:8px 10px;border:1px solid #003060;">Réponse du candidat</th>
           </tr></thead>
           <tbody>${partBRows}</tbody>
         </table>` : ''}
@@ -1257,48 +1252,26 @@
           <tbody>${sessionRows}</tbody>
         </table>` : '<p style="font-size:12px;color:#6b7280;">Aucun incident détecté.</p>'}`;
 
-    // Save to Supabase
+    // Submit to server — grading is fully server-side, score_mcq computed by exam-submit
     try {
-      if (attemptId) {
-        await sbFetch(`exam_attempts?id=eq.${attemptId}`, {
-          method: 'PATCH',
-          prefer: 'return=minimal',
-          body: {
-            status: 'submitted',
-            score_mcq: scoreMCQ,
-            answers_json: answers,
-            session_log: sessionEvents,
-            submitted_at: new Date().toISOString()
-          }
+      if (attemptId && sessionToken) {
+        await efFetch('exam-submit', {
+          attempt_id:    attemptId,
+          session_token: sessionToken,
+          answers:       answers,
+          session_log:   sessionEvents,
         });
       }
     } catch (err) {
-      console.error('Failed to save attempt:', err);
+      console.error('Failed to submit attempt:', err);
     }
 
-    // Failsafe: fire submission copy to teacher on every submit
-    if (window.emailjs && EXAM.teacher_email) {
-      try {
-        await emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
-          to_email:      EXAM.teacher_email,
-          to_name:       EXAM.teacher_email,
-          student_name:  studentName,
-          student_email: studentEmail,
-          exam_title:    EXAM.title,
-          score:         scoreMCQ + ' / ' + QUESTIONS.filter(function(q){ return q.type === 'mcq'; }).length,
-          submitted_at:  new Date().toLocaleString('fr-FR'),
-          html_content:  htmlReport,
-        });
-      } catch(e) {
-        console.warn('Failsafe email error:', e);
-      }
-    }
-
-    // Lock student out after successful submission
+    // Lock student out after submission
     localStorage.setItem('submitted_' + EXAM.share_id, '1');
-    localStorage.removeItem('examDeadline_' + EXAM.id);
+    localStorage.removeItem('examDeadline_' + EXAM.share_id);
     localStorage.removeItem('examAttemptId_' + EXAM.share_id);
     localStorage.removeItem('examShuffleCache_' + EXAM.share_id);
+    localStorage.removeItem('examSessionToken_' + EXAM.share_id);
 
     // Show success
     document.getElementById('examScreen').style.display    = 'none';
