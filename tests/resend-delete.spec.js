@@ -27,7 +27,8 @@ async function setupPage(page) {
   await page.route(`${SB_BASE}/auth/v1/token*`, r => r.fulfill({ contentType:'application/json', body: JSON.stringify(MOCK_SESSION) }));
   await page.route(`${SB_BASE}/auth/v1/user*`, r => r.fulfill({ contentType:'application/json', body: JSON.stringify(MOCK_SESSION.user) }));
   await page.route(`${SB_BASE}/rest/v1/teachers*`, r => r.fulfill({ contentType:'application/json', body: JSON.stringify(MOCK_TEACHER) }));
-  await page.route(`${SB_BASE}/rest/v1/exams*`, r => r.fulfill({ contentType:'application/json', body: JSON.stringify([MOCK_EXAM]) }));
+  // Return single object (not array) for .single() calls — Supabase JS expects object for single()
+  await page.route(`${SB_BASE}/rest/v1/exams*`, r => r.fulfill({ contentType:'application/json', body: JSON.stringify(MOCK_EXAM) }));
   await page.route(`${SB_BASE}/rest/v1/exam_attempts*`, r => {
     const url = r.request().url();
     const method = r.request().method();
@@ -51,8 +52,8 @@ async function setupPage(page) {
 
   await page.goto(`http://localhost:3000/submissions?exam=${EXAM_ID}&tab=submissions`);
   await expect(page.locator('#pageContent')).toBeVisible({ timeout: 10000 });
-  // Wait for attempts data to be populated before tests call openRetakeModal etc.
-  await page.waitForFunction(() => Array.isArray(window.attempts) && window.attempts.length > 0, { timeout: 8000 });
+  // Wait for the first submission row action button to be rendered
+  await page.waitForSelector('.kebab-btn', { timeout: 8000 });
 
   return jsErrors;
 }

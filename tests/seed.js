@@ -191,9 +191,9 @@ async function seedInstitution() {
   console.log('\n[Step 2] Creating institution and teacher profiles…');
 
   await dbUpsert('teachers', [
-    { id: ID.SUPERADMIN, email: 'superadmin@test-flo.com', full_name: 'Test Super Admin', role: 'super_admin', lang: 'en' },
-    { id: ID.ADMIN,      email: 'admin@test-flo.com',      full_name: 'Test Admin',        role: 'admin',       lang: 'en' },
-    { id: ID.TEACHER,    email: 'teacher@test-flo.com',    full_name: 'Test Teacher',       role: 'teacher',     lang: 'en' },
+    { id: ID.SUPERADMIN, email: 'superadmin@test-flo.com', full_name: 'Test Super Admin', role: 'super_admin', lang: null },
+    { id: ID.ADMIN,      email: 'admin@test-flo.com',      full_name: 'Test Admin',        role: 'admin',       lang: null },
+    { id: ID.TEACHER,    email: 'teacher@test-flo.com',    full_name: 'Test Teacher',       role: 'teacher',     lang: null },
   ]);
   console.log('   ✓ 3 teacher profiles');
 
@@ -244,32 +244,34 @@ async function seedExam() {
       id: ID.Q1, exam_id: ID.EXAM, position: 0, type: 'mcq',
       question_text: 'What is the capital of France?',
       option_a: 'Paris', option_b: 'Lyon', option_c: 'Marseille', option_d: 'Bordeaux',
-      correct_index: 0, max_points: 1,
+      correct_index: 0, max_points: 1, grading_criteria: null,
     },
     {
       id: ID.Q2, exam_id: ID.EXAM, position: 1, type: 'mcq',
       question_text: 'In which year did the French Revolution begin?',
       option_a: '1776', option_b: '1789', option_c: '1799', option_d: '1815',
-      correct_index: 1, max_points: 1,
+      correct_index: 1, max_points: 1, grading_criteria: null,
     },
     {
       id: ID.Q3, exam_id: ID.EXAM, position: 2, type: 'mcq',
       question_text: 'Who was the last king of France before the Revolution?',
       option_a: 'Louis XIV', option_b: 'Napoleon Bonaparte',
       option_c: 'Louis XVI', option_d: 'Charles X',
-      correct_index: 2, max_points: 1,
+      correct_index: 2, max_points: 1, grading_criteria: null,
     },
     {
       id: ID.Q4, exam_id: ID.EXAM, position: 3, type: 'open',
       question_text: 'Describe the founding and early history of Paris.',
+      option_a: null, option_b: null, option_c: null, option_d: null,
+      correct_index: null, max_points: 5,
       grading_criteria: 'Award points for: Parisii tribe (1pt), Lutetia/Roman period (1pt), medieval growth (1pt), Seine island origin (1pt), Frankish kingdom (1pt).',
-      max_points: 5,
     },
     {
       id: ID.Q5, exam_id: ID.EXAM, position: 4, type: 'open',
       question_text: 'What were the main causes of the French Revolution? Give at least three.',
+      option_a: null, option_b: null, option_c: null, option_d: null,
+      correct_index: null, max_points: 5,
       grading_criteria: 'Award 1pt each for: financial crisis, social inequality between estates, Enlightenment ideas, food shortages, weak leadership of Louis XVI.',
-      max_points: 5,
     },
   ]);
   console.log('   ✓ 3 MCQ questions (correct indices: 0, 1, 2)');

@@ -169,7 +169,8 @@ test('full submission: success screen and email payload are correct', async ({ p
   await expect(page.locator('#successScreen h2')).toBeVisible();
 
   // Success screen shows teacher-will-share message (auto-email removed — results sent by teacher)
-  await expect(page.locator('#emailStatus')).toContainText('enregistrés', { timeout: 5000 });
+  // The mock exam has lang:'en' so the EN string is shown
+  await expect(page.locator('#emailStatus')).toContainText('Your results will be shared by your teacher', { timeout: 5000 });
 
   // No JS errors during the entire flow
   expect(jsErrors, 'JS errors during flow: ' + jsErrors.join(', ')).toHaveLength(0);

@@ -23,60 +23,45 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './tests',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  testDir:       './tests',
+  globalSetup:   './tests/global-setup.ts',
+  fullyParallel: false,           // sequential — tests share a live DB
+  forbidOnly:    !!process.env.CI,
+  retries:       process.env.CI ? 1 : 0,
+  workers:       1,               // 1 worker avoids Supabase rate-limit collisions
+  reporter:      [['html'], ['list']],
+  outputDir:     './tests/screenshots',
+
   use: {
-    baseURL: BASE_URL,
-    trace: 'on-first-retry',
+    baseURL:    BASE_URL,
+    trace:      'on-first-retry',
+    screenshot: 'only-on-failure',
+    video:      'off',
   },
 
-  /* Configure projects for major browsers */
+  /* Run only against Chromium by default to keep the suite fast.
+     Uncomment the other projects when you need cross-browser coverage. */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
-
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-
-    /* Test against mobile viewports. */
     // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
     // },
     // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* Auto-start a static file server so tests don't need one running manually. */
+  webServer: {
+    command:            'npx serve . -p 3000 --no-clipboard',
+    url:                BASE_URL,
+    reuseExistingServer: true,
+    timeout:            10_000,
+  },
 });
 
