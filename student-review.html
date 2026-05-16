@@ -205,8 +205,12 @@
 
   <div class="toast" id="toast"></div>
 
+  <footer style="padding:32px 0;text-align:center;font-size:0.8rem;color:#94a3b8;border-top:1px solid #e2e8f0;">
+    testflo &copy; 2026 &nbsp;&middot;&nbsp; <a id="privacyFooterLink" href="privacy.html" style="color:#94a3b8;text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Politique de confidentialité</a>
+  </footer>
   <script src="lang.js"></script>
   <script>
+    document.getElementById('privacyFooterLink').textContent = (localStorage.getItem('examBuilderLang') || 'fr') === 'en' ? 'Privacy Policy' : 'Politique de confidentialité';
     document.addEventListener('langchange', function() { window.location.reload(); });
 
     const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';

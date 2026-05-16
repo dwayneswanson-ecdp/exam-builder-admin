@@ -256,29 +256,8 @@
       <button id="loginBtn" style="width:100%;padding:15px;">Continuer →</button>
     </section>
 
-    <!-- Confirm -->
+    <!-- Confirm — Screen 2: identity only -->
     <section id="confirmScreen" style="display:none;" class="card">
-      <div class="confirm-heading-eyebrow" id="confirmTitle">Avant de commencer</div>
-      <div class="confirm-heading" id="confirmHeading">Lisez attentivement avant de commencer</div>
-
-      <!-- What the system logs -->
-      <div id="monitoringDisclosure" style="margin:0 0 16px;padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #94a3b8;">
-        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:8px;" id="monitoringTitle">CE QUE LE SYSTÈME NOTE AUTOMATIQUEMENT</div>
-        <ul id="monitoringList" style="margin:0;padding-left:16px;font-size:0.8rem;color:#475569;line-height:1.9;"></ul>
-      </div>
-
-      <!-- Consequences — red warning card -->
-      <div class="penalty-callout" id="confirmWarningBox">
-        <div class="penalty-callout-header">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span class="penalty-callout-title" id="confirmWarningTitle">Sortie d'écran — soumission automatique</span>
-        </div>
-        <ul><li id="cw3"></li></ul>
-      </div>
-
-      <!-- Session journal note — plain text below red card -->
-      <p style="font-size:0.82rem;color:#475569;margin:0 0 24px;" id="cw5"></p>
-
       <!-- Hidden: preserves applyUIStrings() reference -->
       <span id="confirmRulesTitle" style="display:none;"></span>
 
@@ -289,6 +268,41 @@
       <div class="confirm-item" id="confirmGroupRow" style="display:none;"><div class="confirm-item-label" id="confirmGroupLabel">GROUPE</div><div class="confirm-item-val" id="confirmGroup"></div></div>
       <p style="font-size:0.82rem;color:var(--muted);margin:10px 0 0;" id="confirmEditNote">Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent.</p>
 
+      <div style="display:flex;justify-content:space-between;gap:12px;margin-top:24px;">
+        <button class="btn-light" id="confirmBackBtn">← Modifier</button>
+        <button id="confirmContinueBtn">Continuer →</button>
+      </div>
+    </section>
+
+    <!-- Rules — Screen 3: instructions, rules, privacy -->
+    <section id="rulesScreen" style="display:none;" class="card">
+      <!-- Back link -->
+      <div style="margin-bottom:16px;">
+        <button class="btn-light" id="rulesBackBtn" style="font-size:0.82rem;padding:6px 14px;">← Modifier</button>
+      </div>
+
+      <!-- Eyebrow + heading -->
+      <div class="confirm-heading-eyebrow" id="confirmTitle">Avant de commencer</div>
+      <div class="confirm-heading" id="confirmHeading">Lisez attentivement avant de commencer</div>
+
+      <!-- Consequences — red warning card -->
+      <div class="penalty-callout" id="confirmWarningBox">
+        <div class="penalty-callout-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span class="penalty-callout-title" id="confirmWarningTitle">Sortie d'écran — soumission automatique</span>
+        </div>
+        <ul><li id="cw3"></li></ul>
+      </div>
+
+      <!-- What the system logs -->
+      <div id="monitoringDisclosure" style="margin:0 0 16px;padding:14px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-left:3px solid #94a3b8;">
+        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;margin-bottom:8px;" id="monitoringTitle">CE QUE LE SYSTÈME NOTE AUTOMATIQUEMENT</div>
+        <ul id="monitoringList" style="margin:0;padding-left:16px;font-size:0.8rem;color:#475569;line-height:1.9;"></ul>
+      </div>
+
+      <!-- Session journal note -->
+      <p style="font-size:0.82rem;color:#475569;margin:0 0 24px;" id="cw5"></p>
+
       <!-- Mobile Do Not Disturb notice -->
       <div class="mobile-notif-notice" id="mobileNotifNotice"></div>
 
@@ -298,10 +312,12 @@
         <span class="confirm-acknowledge-text" id="confirmAcknowledgeLabel">Je comprends que mon activité génère un journal de session transmis à mon enseignant</span>
       </label>
 
-      <div style="display:flex;justify-content:space-between;gap:12px;">
-        <button class="btn-light" id="confirmBackBtn">← Modifier</button>
-        <button id="confirmStartBtn" disabled style="opacity:0.5;cursor:not-allowed;">Commencer l'épreuve →</button>
-      </div>
+      <button id="confirmStartBtn" disabled style="width:100%;opacity:0.5;cursor:not-allowed;">Commencer l'épreuve →</button>
+
+      <!-- Privacy footer -->
+      <p style="text-align:center;margin-top:16px;font-size:0.78rem;color:#94a3b8;">
+        <a id="privacyFooterLink" href="privacy.html" target="_blank" rel="noopener noreferrer" style="color:#94a3b8;">Politique de confidentialité</a>
+      </p>
     </section>
 
     <!-- Exam questions -->
@@ -601,7 +617,11 @@
       editNote:       isFR ? "Si quelque chose n'est pas correct, cliquez sur « Modifier » pour revenir à l'écran précédent." : "If anything is incorrect, click « Edit » to return to the previous screen",
       backBtn:        isFR ? '← Modifier' : '← Edit',
       startBtn:       isFR ? "Commencer l'épreuve →" : 'Start exam →',
-      acknowledgeLabel: isFR ? "Je comprends que mon activité génère un journal de session transmis à mon enseignant" : "I understand that my activity generates a session journal transmitted to my instructor",
+      continueBtn:    isFR ? 'Continuer →' : 'Continue →',
+      privacyLink:    isFR ? 'Politique de confidentialité' : 'Privacy Policy',
+      acknowledgeLabel: isFR
+        ? 'J\'ai lu et j\'accepte les conditions de l\'épreuve et la <a href="privacy.html" target="_blank" rel="noopener noreferrer" style="color:#2563eb;">politique de confidentialité</a>'
+        : 'I have read and accept the exam conditions and the <a href="privacy.html" target="_blank" rel="noopener noreferrer" style="color:#2563eb;">privacy policy</a>',
       cw1: isFR ? "L'épreuve se déroule en <strong>plein écran</strong>." : "The exam runs in <strong>full-screen mode</strong>.",
       cw2: isFR ? "Si vous quittez la fenêtre ou changez d'application, un <strong>message d'avertissement</strong> apparaît." : "If you leave the window or switch applications, a <strong>warning message</strong> will appear.",
       cw3: isFR ? "<strong>Sorties de fenêtre et sorties du plein écran</strong> : vous disposez de 15 secondes pour revenir. À partir de 3 incidents, votre copie est soumise automatiquement et la session est définitivement verrouillée" : "<strong>Window exits and fullscreen exits</strong>: you have 15 seconds to return. From 3 incidents, your paper is automatically submitted and your session is permanently locked",
@@ -701,13 +721,25 @@
     document.getElementById('loginScreen').style.display   = 'block';
   });
 
+  document.getElementById('confirmContinueBtn').addEventListener('click', () => {
+    document.getElementById('confirmScreen').style.display = 'none';
+    document.getElementById('rulesScreen').style.display   = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  document.getElementById('rulesBackBtn').addEventListener('click', () => {
+    document.getElementById('rulesScreen').style.display   = 'none';
+    document.getElementById('confirmScreen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   document.getElementById('confirmStartBtn').addEventListener('click', startExam);
 
   // ============================================================
   //  START EXAM
   // ============================================================
   async function startExam() {
-    document.getElementById('confirmScreen').style.display = 'none';
+    document.getElementById('rulesScreen').style.display   = 'none';
     document.getElementById('preLangPicker').style.display = 'none';
 
     if (isReconnect) {
@@ -735,7 +767,7 @@
         });
       } catch (err) {
         console.error('exam-start failed:', err);
-        document.getElementById('confirmScreen').style.display = 'block';
+        document.getElementById('rulesScreen').style.display = 'block';
         const btn = document.getElementById('confirmStartBtn');
         if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
         const msg = err.message === 'Invalid access code'
@@ -1350,12 +1382,16 @@
     document.getElementById('confirmNameLabel').textContent    = UI.nameLabel;
     document.getElementById('confirmEmailLabel').textContent   = UI.emailLabel;
     document.getElementById('confirmGroupLabel').textContent   = UI.groupLabel;
-    document.getElementById('confirmAcknowledgeLabel').textContent = UI.acknowledgeLabel;
+    document.getElementById('confirmAcknowledgeLabel').innerHTML = UI.acknowledgeLabel;
     document.getElementById('mobileNotifNotice').textContent = UI.mobileNotifNotice;
     const editNoteEl = document.getElementById('confirmEditNote');
     if (editNoteEl) editNoteEl.textContent = UI.editNote;
     document.getElementById('confirmBackBtn').textContent      = UI.backBtn;
+    document.getElementById('rulesBackBtn').textContent        = UI.backBtn;
+    document.getElementById('confirmContinueBtn').textContent  = UI.continueBtn;
     document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
+    const privacyFooterLinkEl = document.getElementById('privacyFooterLink');
+    if (privacyFooterLinkEl) privacyFooterLinkEl.textContent  = UI.privacyLink;
     [1,2,3,4,5].forEach(i => {
       const el = document.getElementById('cw' + i);
       if (el) el.innerHTML = UI['cw' + i];

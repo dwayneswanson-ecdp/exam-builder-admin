@@ -650,7 +650,8 @@
         methodAILabel: 'Extraction IA', methodAIDesc: 'Chargez un document Word ou PDF — l\'IA extrait les QCM et questions ouvertes automatiquement. Relisez avant de publier.',
         available: 'Disponible', backBtn: '← Retour',
         startAI: 'Commencer avec l\'extraction IA', startManual: 'Commencer manuellement',
-        signOut: 'Se déconnecter'
+        signOut: 'Se déconnecter',
+        privacyLink: 'Politique de confidentialité'
       },
       en: {
         myExams: 'My Exams', teacher: 'Teacher',
@@ -677,7 +678,8 @@
         methodAILabel: 'AI extraction', methodAIDesc: 'Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.',
         available: 'Available', backBtn: '← Back',
         startAI: 'Start with AI extraction', startManual: 'Start building manually',
-        signOut: 'Sign out'
+        signOut: 'Sign out',
+        privacyLink: 'Privacy Policy'
       }
     };
     Lang.init(_i18n);
@@ -686,5 +688,8 @@
       if (window.currentTeacher) sb.from('teachers').update({ lang: e.detail.lang }).eq('id', currentTeacher.id).catch(() => {});
     });
   </script>
+  <footer style="padding:32px 0;text-align:center;font-size:0.8rem;color:#94a3b8;border-top:1px solid #e2e8f0;">
+    testflo &copy; 2026 &nbsp;&middot;&nbsp; <a href="privacy.html" data-i18n="privacyLink" style="color:#94a3b8;text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Politique de confidentialité</a>
+  </footer>
 </body>
 </html>

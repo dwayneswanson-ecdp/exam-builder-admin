@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politique de confidentialité — testflo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      background: #0f172a;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-logo a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .nav-logo img { height: 26px; width: auto; }
+
+    /* ── Lang toggle ── */
+    .lang-toggle {
+      display: flex;
+      border: 1px solid rgba(255,255,255,0.15);
+      overflow: hidden;
+    }
+    .lang-btn {
+      padding: 5px 12px;
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.4);
+      font-family: inherit;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lang-btn.active {
+      background: rgba(255,255,255,0.12);
+      color: #ffffff;
+    }
+    .lang-btn:hover:not(.active) {
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* ── Content ── */
+    .content {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+    }
+
+    .page-updated {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 40px;
+    }
+
+    /* ── Section ── */
+    .section {
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .section:last-of-type {
+      border-bottom: none;
+    }
+    .section h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    /* ── Body text ── */
+    .section p {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+    .section ul {
+      padding-left: 20px;
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+    .section ul li { margin-bottom: 6px; }
+
+    /* ── Data controller card ── */
+    .controller-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      font-size: 0.92rem;
+      line-height: 1.7;
+    }
+
+    /* ── Links ── */
+    a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+
+    /* ── Footer ── */
+    .site-footer {
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-logo">
+      <a href="index.html">
+        <img src="https://exam.test-flo.com/testflo-dark.svg" alt="testflo">
+      </a>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btnFR" onclick="setLang('fr')">FR</button>
+      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+
+    <h1 class="page-title" id="pageTitle">Politique de confidentialité</h1>
+    <p class="page-updated" id="pageUpdated">Dernière mise à jour : 16 mai 2026</p>
+
+    <!-- Section 1 -->
+    <div class="section">
+      <h2 id="s1h">1. Responsable du traitement</h2>
+      <div class="controller-card" id="s1card">
+        Dwayne Antonio Swanson JR<br>
+        Entrepreneur individuel<br>
+        SIRET : 833 079 668 00038<br>
+        19 Rue du Faubourg Poissonnière, 75009 Paris, France<br>
+        Contact : <a href="mailto:dpo@test-flo.com">dpo@test-flo.com</a>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="section">
+      <h2 id="s2h">2. Données collectées</h2>
+      <ul id="s2list">
+        <li><strong>Nom et e-mail de l'étudiant</strong> — collectés lors de la connexion à l'examen.</li>
+        <li><strong>Réponses et scores</strong> — collectés pendant et après l'examen.</li>
+        <li><strong>Journal d'activité de session</strong> — événements techniques enregistrés pendant l'examen : sorties de fenêtre, changements d'onglet, sorties du mode plein écran, tentatives de capture d'écran, tentatives de copier-coller.</li>
+        <li><strong>Nom et e-mail de l'enseignant</strong> — collectés à la création du compte.</li>
+        <li><strong>Nom de l'établissement</strong> — collecté à la création du compte.</li>
+        <li><strong>Codes d'accès</strong> — générés par examen, non liés à une identité personnelle.</li>
+      </ul>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="section">
+      <h2 id="s3h">3. Finalités du traitement</h2>
+      <ul id="s3list">
+        <li>Organisation et administration des examens en ligne.</li>
+        <li>Mise à disposition des résultats et données de performance aux enseignants.</li>
+        <li>Garantie de l'intégrité académique par la surveillance de session.</li>
+        <li>Envoi des résultats par e-mail aux étudiants.</li>
+        <li>Génération de documents de présence et de résultats conformes Qualiopi.</li>
+      </ul>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="section">
+      <h2 id="s4h">4. Base légale</h2>
+      <ul id="s4list">
+        <li><strong>Données étudiants</strong> : intérêt légitime de l'établissement dans l'organisation des évaluations.</li>
+        <li><strong>Surveillance de session</strong> : intérêt légitime au maintien de l'intégrité académique — explicitement divulguée aux étudiants avant le début de l'examen.</li>
+        <li><strong>Données enseignants</strong> : exécution du contrat.</li>
+      </ul>
+    </div>
+
+    <!-- Section 5 -->
+    <div class="section">
+      <h2 id="s5h">5. Durée de conservation</h2>
+      <ul id="s5list">
+        <li>Résultats d'examen, réponses, scores, journaux de session : supprimés 1 an après la date de l'examen.</li>
+        <li>Données de compte enseignant et établissement : conservées pendant la durée du compte actif + 1 an après la clôture.</li>
+        <li>Aucune donnée conservée au-delà de ces délais sans consentement explicite.</li>
+      </ul>
+    </div>
+
+    <!-- Section 6 -->
+    <div class="section">
+      <h2 id="s6h">6. Destinataires des données</h2>
+      <ul id="s6list">
+        <li><strong>Supabase</strong> (hébergement de la base de données) — serveurs en région UE — accord de traitement des données en place.</li>
+        <li><strong>Resend</strong> (envoi d'e-mails) — utilisé uniquement pour délivrer les e-mails de résultats aux étudiants.</li>
+        <li><strong>GitHub Pages</strong> (hébergement statique) — sert uniquement les fichiers de l'application, aucune donnée personnelle stockée.</li>
+        <li>Aucune donnée n'est vendue ni partagée avec un tiers à des fins commerciales.</li>
+      </ul>
+    </div>
+
+    <!-- Section 7 -->
+    <div class="section">
+      <h2 id="s7h">7. Transferts hors UE</h2>
+      <p id="s7p1">Resend traite des données d'e-mail — leurs serveurs peuvent être situés en dehors de l'UE — couvert par des clauses contractuelles types.</p>
+      <p id="s7p2">Tous les autres traitements ont lieu au sein de l'UE.</p>
+    </div>
+
+    <!-- Section 8 -->
+    <div class="section">
+      <h2 id="s8h">8. Droits des personnes</h2>
+      <p id="s8intro">Conformément aux articles 15 à 22 du RGPD, vous disposez du droit :</p>
+      <ul id="s8list">
+        <li>D'accéder à vos données personnelles.</li>
+        <li>De corriger des données inexactes.</li>
+        <li>De demander la suppression de vos données.</li>
+        <li>De vous opposer au traitement.</li>
+        <li>À la portabilité des données.</li>
+      </ul>
+      <p id="s8contact" style="margin-top:12px;">Contact : <a href="mailto:dpo@test-flo.com">dpo@test-flo.com</a><br>
+      Réponse dans un délai de 30 jours conformément à l'article 12 du RGPD.</p>
+    </div>
+
+    <!-- Section 9 -->
+    <div class="section">
+      <h2 id="s9h">9. Réclamations</h2>
+      <p id="s9p">Vous avez le droit de déposer une réclamation auprès de la <strong>Commission Nationale de l'Informatique et des Libertés (CNIL)</strong>, 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a>.</p>
+    </div>
+
+    <!-- Section 10 -->
+    <div class="section">
+      <h2 id="s10h">10. Cookies et stockage local</h2>
+      <p id="s10p">testflo n'utilise pas de cookies de traçage. La plateforme utilise le stockage local du navigateur (localStorage) uniquement pour maintenir l'état de la session d'examen et la préférence de langue. Aucun cookie publicitaire ou analytique n'est utilisé.</p>
+    </div>
+
+    <!-- Section 11 -->
+    <div class="section">
+      <h2 id="s11h">11. Modifications</h2>
+      <p id="s11p">Cette politique peut être mise à jour. La date en haut de page reflète la version la plus récente. La poursuite de l'utilisation de la plateforme après une mise à jour vaut acceptation.</p>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    testflo &copy; 2026
+  </footer>
+
+  <script>
+    var _lang = localStorage.getItem('examBuilderLang') || 'fr';
+
+    var _content = {
+      fr: {
+        title:    'testflo — Politique de confidentialité',
+        pageTitle: 'Politique de confidentialité',
+        pageUpdated: 'Dernière mise à jour : 16 mai 2026',
+        s1h: '1. Responsable du traitement',
+        s1card: 'Dwayne Antonio Swanson JR<br>Entrepreneur individuel<br>SIRET : 833 079 668 00038<br>19 Rue du Faubourg Poissonnière, 75009 Paris, France<br>Contact : <a href="mailto:dpo@test-flo.com">dpo@test-flo.com</a>',
+        s2h: '2. Données collectées',
+        s2list: '<li><strong>Nom et e-mail de l\'étudiant</strong> — collectés lors de la connexion à l\'examen.</li><li><strong>Réponses et scores</strong> — collectés pendant et après l\'examen.</li><li><strong>Journal d\'activité de session</strong> — événements techniques enregistrés pendant l\'examen : sorties de fenêtre, changements d\'onglet, sorties du mode plein écran, tentatives de capture d\'écran, tentatives de copier-coller.</li><li><strong>Nom et e-mail de l\'enseignant</strong> — collectés à la création du compte.</li><li><strong>Nom de l\'établissement</strong> — collecté à la création du compte.</li><li><strong>Codes d\'accès</strong> — générés par examen, non liés à une identité personnelle.</li>',
+        s3h: '3. Finalités du traitement',
+        s3list: '<li>Organisation et administration des examens en ligne.</li><li>Mise à disposition des résultats et données de performance aux enseignants.</li><li>Garantie de l\'intégrité académique par la surveillance de session.</li><li>Envoi des résultats par e-mail aux étudiants.</li><li>Génération de documents de présence et de résultats conformes Qualiopi.</li>',
+        s4h: '4. Base légale',
+        s4list: '<li><strong>Données étudiants</strong> : intérêt légitime de l\'établissement dans l\'organisation des évaluations.</li><li><strong>Surveillance de session</strong> : intérêt légitime au maintien de l\'intégrité académique — explicitement divulguée aux étudiants avant le début de l\'examen.</li><li><strong>Données enseignants</strong> : exécution du contrat.</li>',
+        s5h: '5. Durée de conservation',
+        s5list: '<li>Résultats d\'examen, réponses, scores, journaux de session : supprimés 1 an après la date de l\'examen.</li><li>Données de compte enseignant et établissement : conservées pendant la durée du compte actif + 1 an après la clôture.</li><li>Aucune donnée conservée au-delà de ces délais sans consentement explicite.</li>',
+        s6h: '6. Destinataires des données',
+        s6list: '<li><strong>Supabase</strong> (hébergement de la base de données) — serveurs en région UE — accord de traitement des données en place.</li><li><strong>Resend</strong> (envoi d\'e-mails) — utilisé uniquement pour délivrer les e-mails de résultats aux étudiants.</li><li><strong>GitHub Pages</strong> (hébergement statique) — sert uniquement les fichiers de l\'application, aucune donnée personnelle stockée.</li><li>Aucune donnée n\'est vendue ni partagée avec un tiers à des fins commerciales.</li>',
+        s7h: '7. Transferts hors UE',
+        s7p1: 'Resend traite des données d\'e-mail — leurs serveurs peuvent être situés en dehors de l\'UE — couvert par des clauses contractuelles types.',
+        s7p2: 'Tous les autres traitements ont lieu au sein de l\'UE.',
+        s8h: '8. Droits des personnes',
+        s8intro: 'Conformément aux articles 15 à 22 du RGPD, vous disposez du droit :',
+        s8list: '<li>D\'accéder à vos données personnelles.</li><li>De corriger des données inexactes.</li><li>De demander la suppression de vos données.</li><li>De vous opposer au traitement.</li><li>À la portabilité des données.</li>',
+        s8contact: 'Contact : <a href="mailto:dpo@test-flo.com">dpo@test-flo.com</a><br>Réponse dans un délai de 30 jours conformément à l\'article 12 du RGPD.',
+        s9h: '9. Réclamations',
+        s9p: 'Vous avez le droit de déposer une réclamation auprès de la <strong>Commission Nationale de l\'Informatique et des Libertés (CNIL)</strong>, 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a>.',
+        s10h: '10. Cookies et stockage local',
+        s10p: 'testflo n\'utilise pas de cookies de traçage. La plateforme utilise le stockage local du navigateur (localStorage) uniquement pour maintenir l\'état de la session d\'examen et la préférence de langue. Aucun cookie publicitaire ou analytique n\'est utilisé.',
+        s11h: '11. Modifications',
+        s11p: 'Cette politique peut être mise à jour. La date en haut de page reflète la version la plus récente. La poursuite de l\'utilisation de la plateforme après une mise à jour vaut acceptation.'
+      },
+      en: {
+        title:    'testflo — Privacy Policy',
+        pageTitle: 'Privacy Policy',
+        pageUpdated: 'Last updated: 16 May 2026',
+        s1h: '1. Data Controller',
+        s1card: 'Dwayne Antonio Swanson JR<br>Sole trader<br>SIRET: 833 079 668 00038<br>19 Rue du Faubourg Poissonnière, 75009 Paris, France<br>Contact: <a href="mailto:dpo@test-flo.com">dpo@test-flo.com</a>',
+        s2h: '2. Data Collected',
+        s2list: '<li><strong>Student name and email</strong> — collected at exam login.</li><li><strong>Exam answers and scores</strong> — collected during and after the exam.</li><li><strong>Session activity log</strong> — technical events recorded during the exam: window exits, tab changes, fullscreen exits, screenshot attempts, copy-paste attempts.</li><li><strong>Teacher name and email</strong> — collected at account creation.</li><li><strong>Institution name</strong> — collected at account creation.</li><li><strong>Access codes</strong> — generated per exam, not linked to personal identity.</li>',
+        s3h: '3. Purpose of Processing',
+        s3list: '<li>Conducting and administering online exams.</li><li>Providing teachers with student results and performance data.</li><li>Ensuring academic integrity through session monitoring.</li><li>Sending results by email to students.</li><li>Generating Qualiopi-compliant attendance and results records.</li>',
+        s4h: '4. Legal Basis',
+        s4list: '<li><strong>Student data</strong>: legitimate interest of the educational institution in administering assessments.</li><li><strong>Session monitoring</strong>: legitimate interest in maintaining academic integrity — explicitly disclosed to students before the exam starts.</li><li><strong>Teacher data</strong>: performance of contract.</li>',
+        s5h: '5. Retention Period',
+        s5list: '<li>Exam results, answers, scores, session logs: deleted 1 year after the exam date.</li><li>Teacher and institution account data: kept for the duration of the active account + 1 year after closure.</li><li>No data kept beyond these periods without explicit consent.</li>',
+        s6h: '6. Data Recipients',
+        s6list: '<li><strong>Supabase</strong> (database hosting) — servers in EU region — data processing agreement in place.</li><li><strong>Resend</strong> (email delivery) — used solely to deliver exam results emails to students.</li><li><strong>GitHub Pages</strong> (static hosting) — serves application files only, no personal data stored.</li><li>No data sold or shared with any third party for commercial purposes.</li>',
+        s7h: '7. International Transfers',
+        s7p1: 'Resend processes email data — their servers may be outside the EU — covered by standard contractual clauses.',
+        s7p2: 'All other processing takes place within the EU.',
+        s8h: '8. Individual Rights',
+        s8intro: 'Under GDPR Articles 15–22, you have the right to:',
+        s8list: '<li>Access your personal data.</li><li>Correct inaccurate data.</li><li>Request deletion of your data.</li><li>Object to processing.</li><li>Data portability.</li>',
+        s8contact: 'Contact: <a href="mailto:dpo@test-flo.com">dpo@test-flo.com</a><br>Response within 30 days as required by GDPR Article 12.',
+        s9h: '9. Complaints',
+        s9p: 'You have the right to lodge a complaint with the <strong>Commission Nationale de l\'Informatique et des Libertés (CNIL)</strong>, 3 Place de Fontenoy, TSA 80715, 75334 Paris Cedex 07 — <a href="https://www.cnil.fr" target="_blank" rel="noopener noreferrer">www.cnil.fr</a>.',
+        s10h: '10. Cookies and Local Storage',
+        s10p: 'testflo does not use tracking cookies. The platform uses browser localStorage solely to maintain exam session state and language preference. No advertising or analytics cookies are used.',
+        s11h: '11. Updates',
+        s11p: 'This policy may be updated. The date at the top reflects the most recent version. Continued use of the platform after an update constitutes acceptance.'
+      }
+    };
+
+    function applyLang(l) {
+      var c = _content[l] || _content.fr;
+      document.title = c.title;
+      document.getElementById('pageTitle').textContent = c.pageTitle;
+      document.getElementById('pageUpdated').textContent = c.pageUpdated;
+      document.getElementById('s1h').textContent = c.s1h;
+      document.getElementById('s1card').innerHTML = c.s1card;
+      document.getElementById('s2h').textContent = c.s2h;
+      document.getElementById('s2list').innerHTML = c.s2list;
+      document.getElementById('s3h').textContent = c.s3h;
+      document.getElementById('s3list').innerHTML = c.s3list;
+      document.getElementById('s4h').textContent = c.s4h;
+      document.getElementById('s4list').innerHTML = c.s4list;
+      document.getElementById('s5h').textContent = c.s5h;
+      document.getElementById('s5list').innerHTML = c.s5list;
+      document.getElementById('s6h').textContent = c.s6h;
+      document.getElementById('s6list').innerHTML = c.s6list;
+      document.getElementById('s7h').textContent = c.s7h;
+      document.getElementById('s7p1').textContent = c.s7p1;
+      document.getElementById('s7p2').textContent = c.s7p2;
+      document.getElementById('s8h').textContent = c.s8h;
+      document.getElementById('s8intro').textContent = c.s8intro;
+      document.getElementById('s8list').innerHTML = c.s8list;
+      document.getElementById('s8contact').innerHTML = c.s8contact;
+      document.getElementById('s9h').textContent = c.s9h;
+      document.getElementById('s9p').innerHTML = c.s9p;
+      document.getElementById('s10h').textContent = c.s10h;
+      document.getElementById('s10p').textContent = c.s10p;
+      document.getElementById('s11h').textContent = c.s11h;
+      document.getElementById('s11p').textContent = c.s11p;
+      document.getElementById('btnFR').classList.toggle('active', l === 'fr');
+      document.getElementById('btnEN').classList.toggle('active', l === 'en');
+      document.documentElement.lang = l === 'fr' ? 'fr' : 'en';
+    }
+
+    function setLang(l) {
+      _lang = l;
+      localStorage.setItem('examBuilderLang', l);
+      applyLang(l);
+    }
+
+    applyLang(_lang);
+  </script>
+
+</body>
+</html>
