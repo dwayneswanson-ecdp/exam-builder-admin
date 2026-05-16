@@ -366,8 +366,6 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-
   <script>
   // ============================================================
   //  EDGE FUNCTION CONFIG
@@ -1412,10 +1410,6 @@
   // ============================================================
   //  INIT
   // ============================================================
-  if (window.emailjs) {
-    try { emailjs.init({ publicKey: 'Bb0oPYBiZGQcyIz5r' }); } catch(e) {}
-  }
-
   document.addEventListener('contextmenu', e => e.preventDefault(), { capture: true });
 
   boot();
