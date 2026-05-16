@@ -302,18 +302,13 @@
       const mcqQuestions  = aqs.filter(q => q.type === 'mcq');
       const openQuestions = aqs.filter(q => q.type === 'open');
 
-      const mcqCorrect = mcqQuestions.filter((q) => {
-        const globalIdx = aqs.indexOf(q);
-        const selected  = parseInt(answers['q' + globalIdx], 10);
-        return selected === q.correct_index;
-      }).length;
-
-      // Score display
+      // Score display — use server-computed score_mcq (matches submissions.html)
       const openScoreSum = Object.values(openScores).reduce((s, v) => s + (parseFloat(v) || 0), 0);
       const hasOpenScore = Object.keys(openScores).length > 0;
+      const mcqScore     = attempt.score_mcq || 0;
       const scoreDisplay = hasOpenScore
-        ? (mcqCorrect + openScoreSum).toFixed(1)
-        : mcqCorrect;
+        ? (mcqScore + openScoreSum).toFixed(1)
+        : mcqScore;
       const scoreMax = mcqQuestions.length + openQuestions.reduce((s, q) => s + (q.max_points || 5), 0);
 
       const submittedDate = attempt.submitted_at
@@ -397,7 +392,7 @@
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0;">
             <div class="score-block">
-              <div class="score-big" id="scoreDisplay" data-mcq="${mcqCorrect}" data-max="${scoreMax}">${scoreDisplay} <span>/ ${scoreMax}</span></div>
+              <div class="score-big" id="scoreDisplay" data-mcq="${mcqScore}" data-max="${scoreMax}">${scoreDisplay} <span>/ ${scoreMax}</span></div>
               <div class="score-label">Current score</div>
             </div>
             <button class="btn btn-ghost" id="downloadReportBtn" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="generateAndDownload()">
@@ -412,7 +407,7 @@
         <div class="section-card">
           <div class="section-head">
             <span class="section-title">Section 1 — ${escHtml(exam.title)}</span>
-            <span class="section-score">${mcqCorrect} / ${mcqQuestions.length} correct</span>
+            <span class="section-score">${mcqScore} / ${mcqQuestions.length} correct</span>
           </div>
           <table class="mcq-table">
             <thead><tr>
