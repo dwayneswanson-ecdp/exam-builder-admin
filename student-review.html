@@ -833,16 +833,25 @@
         const scoreColor = pct>=70 ? [22,163,74] : pct>=50 ? [217,119,6] : [220,38,38];
         const namedSegs = segData.filter(s => s.title);
 
-        // Try to fetch testflo logo as base64
+        // Fetch testflo SVG logo and convert to PNG via canvas (jsPDF does not support SVG format)
         let testfloLogoB64 = null;
         try {
           const logoRes = await fetch('https://exam.test-flo.com/testflo-dark.svg');
           if (logoRes.ok) {
-            const blob = await logoRes.blob();
+            const svgText = await logoRes.text();
             testfloLogoB64 = await new Promise(resolve => {
-              const fr = new FileReader();
-              fr.onload = () => resolve(fr.result);
-              fr.readAsDataURL(blob);
+              const img = new Image();
+              const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+              const url = URL.createObjectURL(svgBlob);
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 220; canvas.height = 80;
+                canvas.getContext('2d').drawImage(img, 0, 0, 220, 80);
+                URL.revokeObjectURL(url);
+                resolve(canvas.toDataURL('image/png'));
+              };
+              img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+              img.src = url;
             });
           }
         } catch(e) { /* logo fetch failed — use text fallback */ }
@@ -859,11 +868,15 @@
         doc.setFillColor(15, 23, 42); // #0f172a
         doc.rect(0, 0, pageW, headerH, 'F');
 
-        // Institution name — small caps style (uppercase, muted)
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(7);
-        doc.setTextColor(148, 163, 184); // #94a3b8
-        doc.text(instName.toUpperCase(), margin, 9);
+        // testflo logo top-left (PNG converted from SVG) or text fallback
+        if (testfloLogoB64) {
+          doc.addImage(testfloLogoB64, 'PNG', margin, 2, 22, 8);
+        } else {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184);
+          doc.text('testflo', margin, 9);
+        }
 
         // Exam title — white bold
         doc.setFont('helvetica', 'bold');
@@ -899,14 +912,14 @@
           },
           {
             label: Lang.t('rptTimeUsed'),
-            val: timeStr,
-            sub: Lang.t('rptOutOf') + ' ' + (exam.duration_mins || '—') + ' min',
+            val: (exam.duration_mins ? exam.duration_mins + ' min' : '—'),
+            sub: '',
             valColor: [15, 23, 42]
           },
           {
             label: Lang.t('rptGrader'),
             val: teacherName,
-            sub: instName,
+            sub: (currentInstitution && currentInstitution.name) || '',
             valColor: [15, 23, 42]
           }
         ];
@@ -1010,7 +1023,7 @@
             question: 'Q' + (gi + 1) + '. ' + (q.question_text || ''),
             studentAns: sAns,
             correctAns: cAns,
-            result: ok ? '✓' : '✗',
+            result: '',
             type: 'mcq',
             correct: ok
           };
@@ -1067,9 +1080,32 @@
               }
             }
             if (data.column.index === 1 && row.type === 'open') {
-              // Teacher comment part is in muted italic
               data.cell.styles.fontSize = 8;
             }
+          },
+          didDrawCell: function(data) {
+            if (data.column.index !== 3) return;
+            const row = tableBody[data.row.index];
+            if (!row || row.type !== 'mcq') return;
+            const cx = data.cell.x + data.cell.width / 2;
+            const cy = data.cell.y + data.cell.height / 2;
+            const r = 3;
+            if (row.correct) {
+              doc.setFillColor(22, 163, 74);
+            } else {
+              doc.setFillColor(220, 38, 38);
+            }
+            doc.circle(cx, cy, r, 'F');
+            doc.setDrawColor(255, 255, 255);
+            doc.setLineWidth(0.6);
+            if (row.correct) {
+              doc.line(cx - 1.4, cy + 0.1, cx - 0.2, cy + 1.3);
+              doc.line(cx - 0.2, cy + 1.3, cx + 1.6, cy - 1.0);
+            } else {
+              doc.line(cx - 1.2, cy - 1.2, cx + 1.2, cy + 1.2);
+              doc.line(cx + 1.2, cy - 1.2, cx - 1.2, cy + 1.2);
+            }
+            doc.setLineWidth(0.2);
           }
         });
 
@@ -1081,7 +1117,8 @@
         doc.setDrawColor(226, 232, 240);
         doc.line(margin, finalY - 1, pageW - margin, finalY - 1);
 
-        // Left: institution logo or name
+        // Left: institution logo or name (never 'testflo' default)
+        const footerInstName = (currentInstitution && currentInstitution.name) || teacherName;
         if (currentInstitution && currentInstitution.logo_url) {
           try {
             doc.addImage(currentInstitution.logo_url, 'PNG', margin, finalY + 1, 20, 8);
@@ -1089,19 +1126,19 @@
             doc.setFont('helvetica', 'normal');
             doc.setFontSize(7);
             doc.setTextColor(148, 163, 184);
-            doc.text(instName, margin, finalY + 6);
+            doc.text(footerInstName, margin, finalY + 6);
           }
         } else {
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(7);
           doc.setTextColor(148, 163, 184);
-          doc.text(instName, margin, finalY + 6);
+          doc.text(footerInstName, margin, finalY + 6);
         }
 
-        // Right: testflo branding
+        // Right: testflo branding (PNG format — SVG is not supported by jsPDF addImage)
         if (testfloLogoB64) {
           try {
-            doc.addImage(testfloLogoB64, 'SVG', pageW - margin - 22, finalY + 1, 22, 8);
+            doc.addImage(testfloLogoB64, 'PNG', pageW - margin - 22, finalY + 1, 22, 8);
           } catch(e) {
             doc.setFont('helvetica', 'bold');
             doc.setFontSize(7);
