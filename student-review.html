@@ -271,6 +271,8 @@
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('pageContent').style.display = 'block';
       render();
+      // Auto-grade open questions that have grading criteria
+      autoGradeAllWithCriteria();
     }
 
     function formatName(raw) {
@@ -514,16 +516,15 @@
       showToast(Lang.t('contactSaved'));
     }
 
-    async function requestAI(btn, qIdx) {
+    // Internal: perform the AI grading fetch and populate the aiBox.
+    // Returns true on success, false on failure.
+    async function _fetchAIGrade(qIdx) {
       const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
       const q = aqs[qIdx];
-      if (!q) { showToast(Lang.t('errorGeneric')); return; }
+      if (!q) return false;
       const answers = attempt.answers_json || {};
       const studentAnswer = answers['q' + qIdx] || '';
-      if (!studentAnswer) { showToast(Lang.t('noAnswerToEval')); return; }
-
-      btn.disabled = true;
-      btn.textContent = Lang.t('aiThinking');
+      if (!studentAnswer) return false;
 
       const aiBox = document.getElementById('ai-q' + qIdx);
       const maxPts = q.max_points || 5;
@@ -556,9 +557,9 @@
           <div class="ai-suggestion-head">
             <div class="ai-suggestion-meta">
               <span class="ai-tag">${Lang.t('aiTag')}</span>
-              <span class="ai-score-chip">${suggestedScore} / ${maxPts}</span>
+              <span class="ai-score-chip" id="ai-chip-q${qIdx}">${suggestedScore} / ${maxPts}</span>
             </div>
-            <button class="ai-close" onclick="this.closest('.ai-suggestion').style.display='none'" title="Close">
+            <button class="ai-close" onclick="this.closest('.ai-suggestion').style.display='none';updateConfirmAllBtn();" title="Close">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
@@ -570,13 +571,119 @@
             <button class="btn btn-ghost" onclick="applyComment(${qIdx}, ${JSON.stringify(comment).replace(/"/g, '&quot;')})">${Lang.t('aiUseComment')}</button>
           </div>`;
         aiBox.style.display = 'block';
+        // Store suggested score on the box for confirmAllGrades
+        aiBox.dataset.suggestedScore = suggestedScore;
+        aiBox.dataset.qidx = qIdx;
+        updateConfirmAllBtn();
+        return true;
       } catch (e) {
         console.error('AI grading error:', e);
-        showToast(Lang.t('errorGeneric'), 5500);
+        return false;
+      }
+    }
+
+    async function requestAI(btn, qIdx) {
+      const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
+      const q = aqs[qIdx];
+      if (!q) { showToast(Lang.t('errorGeneric')); return; }
+      const answers = attempt.answers_json || {};
+      const studentAnswer = answers['q' + qIdx] || '';
+      if (!studentAnswer) { showToast(Lang.t('noAnswerToEval')); return; }
+
+      btn.disabled = true;
+      btn.textContent = Lang.t('aiThinking');
+
+      // If no grading criteria: show inline notice for 2 seconds, then proceed
+      if (!q.grading_criteria) {
+        const openQEl = btn.closest('.open-q');
+        let notice = openQEl ? openQEl.querySelector('.no-criteria-notice') : null;
+        if (!notice && openQEl) {
+          notice = document.createElement('div');
+          notice.className = 'no-criteria-notice';
+          notice.style.cssText = 'font-size:0.78rem;color:#64748b;background:#f8fafc;padding:6px 10px;margin-bottom:8px;border-left:2px solid #cbd5e1;';
+          notice.textContent = Lang.t('noCriteriaNotice');
+          // Insert before the ai-suggestion box
+          const aiBox = document.getElementById('ai-q' + qIdx);
+          if (aiBox) aiBox.parentNode.insertBefore(notice, aiBox);
+        }
+        await new Promise(r => setTimeout(r, 2000));
+        const ok = await _fetchAIGrade(qIdx);
+        if (!ok) showToast(Lang.t('errorGeneric'), 5500);
+        // Remove notice after AI returns
+        if (notice && notice.parentNode) notice.parentNode.removeChild(notice);
+      } else {
+        const ok = await _fetchAIGrade(qIdx);
+        if (!ok) showToast(Lang.t('errorGeneric'), 5500);
       }
 
       btn.disabled = false;
       btn.textContent = Lang.t('aiSuggest');
+    }
+
+    // Auto-grade all open questions that have grading_criteria on page load
+    async function autoGradeAllWithCriteria() {
+      const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
+      const openQs = aqs.filter(q => q.type === 'open' && q.grading_criteria);
+      if (openQs.length === 0) return;
+
+      for (const q of openQs) {
+        const qIdx = aqs.indexOf(q);
+        const answers = attempt.answers_json || {};
+        if (!answers['q' + qIdx]) continue; // skip if no answer
+        // Mark the AI button as thinking while loading
+        const btn = document.querySelector(`.btn-ai[onclick="requestAI(this, ${qIdx})"]`);
+        if (btn) { btn.disabled = true; btn.textContent = Lang.t('aiThinking'); }
+        await _fetchAIGrade(qIdx);
+        if (btn) { btn.disabled = false; btn.textContent = Lang.t('aiSuggest'); }
+      }
+    }
+
+    // Show/hide the "Confirm all grades" button based on visible AI suggestions
+    function updateConfirmAllBtn() {
+      const anyVisible = document.querySelectorAll('.ai-suggestion[style*="display: block"], .ai-suggestion[style*="display:block"]').length > 0 ||
+        [...document.querySelectorAll('.ai-suggestion')].some(el => el.style.display !== 'none' && el.style.display !== '');
+      let bar = document.getElementById('confirmAllBar');
+      if (anyVisible) {
+        if (!bar) {
+          bar = document.createElement('div');
+          bar.id = 'confirmAllBar';
+          bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0f172a;padding:12px 40px;display:flex;align-items:center;justify-content:flex-end;gap:12px;z-index:200;border-top:1px solid rgba(255,255,255,0.1);';
+          bar.innerHTML = `<span style="font-size:0.78rem;color:#94a3b8;"></span>
+            <button class="btn btn-primary" onclick="confirmAllGrades()" style="font-size:0.82rem;padding:10px 22px;">${Lang.t('confirmAllGrades')}</button>`;
+          document.body.appendChild(bar);
+        }
+        // Update count label
+        const count = [...document.querySelectorAll('.ai-suggestion')].filter(el => el.style.display !== 'none' && el.style.display !== '').length;
+        const label = bar.querySelector('span');
+        if (label) label.textContent = count + ' AI suggestion' + (count !== 1 ? 's' : '') + ' pending';
+        bar.style.display = 'flex';
+      } else {
+        if (bar) bar.style.display = 'none';
+      }
+    }
+
+    async function confirmAllGrades() {
+      // For each visible AI suggestion, apply the suggested score if not already set by teacher
+      const aiBoxes = [...document.querySelectorAll('.ai-suggestion')].filter(el => el.style.display !== 'none' && el.style.display !== '');
+      for (const box of aiBoxes) {
+        const qIdx = parseInt(box.dataset.qidx, 10);
+        const suggested = box.dataset.suggestedScore;
+        if (!isNaN(qIdx) && suggested !== undefined && suggested !== '—') {
+          const input = document.querySelector(`.score-text-input[data-qidx="${qIdx}"]`);
+          if (input && input.value.trim() === '') {
+            // Only auto-fill if teacher hasn't already entered a score
+            input.value = suggested;
+            flash(input);
+          }
+        }
+      }
+      updateScoreChip();
+      markUnsaved();
+      await saveChanges(true);
+      // Hide all AI suggestion boxes and the confirm bar
+      aiBoxes.forEach(box => { box.style.display = 'none'; });
+      const bar = document.getElementById('confirmAllBar');
+      if (bar) bar.style.display = 'none';
     }
 
     function flash(el) {
@@ -677,166 +784,347 @@
       setTimeout(() => t.classList.remove('show'), duration || 4000);
     }
 
-    function generateAndDownload() {
+    function safeFilename(str) {
+      return (str || '').replace(/[^a-zA-Z0-9\-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    }
+
+    async function generateAndDownload() {
       const answers      = attempt.answers_json  || {};
       const openScores   = attempt.open_scores   || {};
       const openComments = attempt.open_comments || {};
       const aqs = window.answerableQs || questions.filter(q => q.type !== 'section');
-
-      // Build segments for section bars
-      const segments = [];
-      let cur = null;
-      for (const q of questions) {
-        if (q.type === 'section') { if (cur) segments.push(cur); cur = {title:q.question_text,questions:[]}; }
-        else { if (!cur) cur = {title:null,questions:[]}; cur.questions.push(q); }
-      }
-      if (cur) segments.push(cur);
-
-      let totalCorrect=0, totalMax=0;
-      const segData = segments.map(seg => {
-        let sc=0, sm=0;
-        seg.questions.forEach(q => {
-          const gi = aqs.indexOf(q);
-          if (q.type==='open') { sc+=parseFloat(openScores[gi])||0; sm+=q.max_points||5; }
-          else { sc+=(parseInt(answers['q'+gi],10)===q.correct_index)?1:0; sm+=1; }
-        });
-        totalCorrect+=sc; totalMax+=sm;
-        return {title:seg.title, questions:seg.questions, sc, sm};
-      });
-
-      const instName    = (currentInstitution && currentInstitution.name) || 'Exam Builder';
-      const teacherName = currentTeacher ? (currentTeacher.full_name||currentTeacher.email) : '—';
-      const displayName = formatName(attempt.student_name);
-      const submittedAt = attempt.submitted_at ? new Date(attempt.submitted_at) : null;
-      const createdAt   = attempt.created_at   ? new Date(attempt.created_at)   : null;
-      const timeStr = (submittedAt&&createdAt) ? Math.round((submittedAt-createdAt)/60000)+' min' : '—';
-      const submittedLabel = submittedAt
-        ? submittedAt.toLocaleDateString('fr-FR')+' '+submittedAt.toLocaleTimeString('fr-FR') : '—';
-      const startTime = createdAt
-        ? createdAt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-      const endTime = submittedAt
-        ? submittedAt.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'}) : '—';
-      const pct = totalMax>0 ? Math.round((totalCorrect/totalMax)*100) : 0;
-      const scoreColor = pct>=70 ? '#16a34a' : pct>=50 ? '#d97706' : '#dc2626';
-
-      // Section bars HTML
-      const namedSegs = segData.filter(s => s.title);
-      const sectionBarsHtml = namedSegs.map(s => {
-        const p = s.sm>0 ? Math.round((s.sc/s.sm)*100) : 0;
-        const scStr = (Number.isInteger(s.sc)?s.sc:s.sc.toFixed(1))+' / '+s.sm;
-        return `<div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
-          <span style="font-size:13px;color:#475569;min-width:220px;flex-shrink:0;">${escHtml(s.title)}</span>
-          <div style="flex:1;background:#e2e8f0;border-radius:999px;height:7px;overflow:hidden;">
-            <div style="width:${p}%;height:100%;background:#1e3a5f;border-radius:999px;"></div>
-          </div>
-          <span style="font-size:13px;color:#64748b;min-width:48px;text-align:right;">${scStr}</span>
-        </div>`;
-      }).join('');
-      const sectionBlock = namedSegs.length>0
-        ? `<div class="section-block"><div class="sec-ttl">Résultats par partie</div>${sectionBarsHtml}</div>` : '';
-
-      // Q&A rows
-      const qaRows = aqs.map(q => {
-        const gi = aqs.indexOf(q);
-        if (q.type==='open') {
-          const ans = answers['q'+gi]||'(pas de réponse)';
-          const sc  = openScores[gi]!==undefined ? openScores[gi] : '—';
-          const cmt = openComments[gi]||'';
-          return `<tr>
-            <td>${escHtml(q.question_text)}</td>
-            <td style="white-space:pre-wrap;">${escHtml(ans)}${cmt?'<div style="margin-top:5px;font-size:11px;color:#94a3b8;font-style:italic;">'+escHtml(cmt)+'</div>':''}</td>
-            <td>${sc} / ${q.max_points||5} pts</td>
-            <td style="text-align:center;color:#64748b;font-weight:700;">✏</td></tr>`;
-        }
-        const sel = parseInt(answers['q'+gi],10);
-        const ok  = sel===q.correct_index;
-        const sAns = isNaN(sel)?'(pas de réponse)':getOptionText(q,sel);
-        const cAns = getOptionText(q,q.correct_index);
-        return `<tr>
-          <td>${escHtml(q.question_text)}</td>
-          <td style="color:${ok?'#374151':'#dc2626'};">${escHtml(sAns)}</td>
-          <td>${escHtml(cAns)}</td>
-          <td style="text-align:center;font-weight:700;color:${ok?'#16a34a':'#dc2626'};">${ok?'✓':'✗'}</td></tr>`;
-      }).join('');
 
       const btn = document.getElementById('downloadReportBtn');
       const origHtml = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ' + Lang.t('opening');
 
-      const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
-<title>Rapport — ${displayName}</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{font-family:"Helvetica Neue",Arial,sans-serif;background:#f8f9fc;color:#1e293b;padding:32px;font-size:15px;line-height:1.6;}
-  .wrap{max-width:800px;margin:0 auto;}
-  .card{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(15,23,42,.08);overflow:hidden;}
-  .hd{background:#0f172a;padding:28px 32px;}
-  .hd-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;}
-  .hd-name{font-size:24px;font-weight:700;color:#fff;margin-bottom:4px;}
-  .hd-meta{font-size:13px;color:#64748b;}
-  .body{padding:28px 32px;}
-  .cards{display:flex;gap:12px;margin-bottom:28px;}
-  .sc{flex:1;background:#f8f9fc;border-radius:10px;padding:14px 16px;}
-  .sc-lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:6px;}
-  .sc-val{font-size:26px;font-weight:700;}
-  .sc-sub{font-size:12px;color:#94a3b8;margin-top:2px;}
-  .section-block{margin-bottom:28px;}
-  .sec-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;padding-bottom:8px;border-bottom:1px solid #f1f5f9;margin-bottom:14px;}
-  table{width:100%;border-collapse:collapse;}
-  thead tr{background:#f8f9fc;}
-  th{padding:8px 10px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;border-bottom:1px solid #e2e8f0;}
-  td{padding:7px 10px;font-size:12px;border-bottom:1px solid #f1f5f9;color:#374151;vertical-align:top;}
-  tr:last-child td{border-bottom:none;}
-  .footer{background:#f8f9fc;border-top:1px solid #e2e8f0;padding:14px 32px;font-size:11px;color:#94a3b8;}
-  @media print{
-    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    body{background:#fff;padding:16px;}
-    .card{box-shadow:none;border-radius:8px;}
-  }
-</style>
-</head><body>
-<div class="wrap"><div class="card">
-  <div class="hd">
-    <div class="hd-lbl">${escHtml(instName)} · ${escHtml(exam.title)}</div>
-    <div class="hd-name">${escHtml(displayName)}</div>
-    <div class="hd-meta">${escHtml(attempt.student_email||'')} · ${Lang.t('rptSubmitted')} ${submittedLabel}</div>
-  </div>
-  <div class="body">
-    <div class="cards">
-      <div class="sc"><div class="sc-lbl">${Lang.t('rptTotalScore')}</div>
-        <div class="sc-val" style="color:${scoreColor};">${Number.isInteger(totalCorrect)?totalCorrect:totalCorrect.toFixed(1)} / ${totalMax}</div>
-        <div class="sc-sub">${pct}%</div></div>
-      <div class="sc"><div class="sc-lbl">${Lang.t('rptTimeUsed')}</div>
-        <div class="sc-val" style="color:#0f172a;">${timeStr}</div>
-        <div class="sc-sub">${Lang.t('rptOutOf')} ${exam.duration_mins||'—'} min</div></div>
-      <div class="sc"><div class="sc-lbl">${Lang.t('rptGrader')}</div>
-        <div class="sc-val" style="color:#0f172a;font-size:14px;padding-top:6px;">${escHtml(teacherName)}</div>
-        <div class="sc-sub">${escHtml(instName)}</div></div>
-    </div>
-    ${sectionBlock}
-    <div class="section-block">
-      <div class="sec-ttl">${Lang.t('rptAnswers')}</div>
-      <table><thead><tr>
-        <th>${Lang.t('rptQuestion')}</th><th>${Lang.t('rptStudentAns')}</th><th>${Lang.t('rptCorrectAns')}</th><th style="text-align:center;">${Lang.t('rptResult')}</th>
-      </tr></thead><tbody>${qaRows}</tbody></table>
-    </div>
-    <div class="section-block">
-      <div class="sec-ttl">${Lang.t('rptSessionLog')}</div>
-      <table><thead><tr><th>${Lang.t('rptTime')}</th><th>${Lang.t('rptEvent')}</th><th>${Lang.t('rptDetail')}</th></tr></thead>
-      <tbody>
-        <tr><td>${startTime}</td><td>${Lang.t('rptStarted')}</td><td>${escHtml(exam.title)}, ${escHtml(displayName)}</td></tr>
-        <tr><td>${endTime}</td><td>${Lang.t('rptSubmittedEvt')}</td><td>${Lang.t('rptManual')}</td></tr>
-      </tbody></table>
-    </div>
-  </div>
-  <div class="footer">${Lang.t('rptFooter')} · ${escHtml(exam.title)} · ${escHtml(instName)}</div>
-</div></div>
-<script>window.onload=function(){window.print();window.onafterprint=function(){window.close();};};<\/script>
-</body></html>`;
+      try {
+        // Build segments for section bars
+        const segments = [];
+        let cur = null;
+        for (const q of questions) {
+          if (q.type === 'section') { if (cur) segments.push(cur); cur = {title:q.question_text,questions:[]}; }
+          else { if (!cur) cur = {title:null,questions:[]}; cur.questions.push(q); }
+        }
+        if (cur) segments.push(cur);
 
-      const win = window.open('', '_blank');
-      if (win) { win.document.write(html); win.document.close(); }
+        let totalCorrect=0, totalMax=0;
+        const segData = segments.map(seg => {
+          let sc=0, sm=0;
+          seg.questions.forEach(q => {
+            const gi = aqs.indexOf(q);
+            if (q.type==='open') { sc+=parseFloat(openScores[gi])||0; sm+=q.max_points||5; }
+            else { sc+=(parseInt(answers['q'+gi],10)===q.correct_index)?1:0; sm+=1; }
+          });
+          totalCorrect+=sc; totalMax+=sm;
+          return {title:seg.title, questions:seg.questions, sc, sm};
+        });
+
+        const instName    = (currentInstitution && currentInstitution.name) || 'testflo';
+        const teacherName = currentTeacher ? (currentTeacher.full_name||currentTeacher.email) : '—';
+        const displayName = formatName(attempt.student_name);
+        const submittedAt = attempt.submitted_at ? new Date(attempt.submitted_at) : null;
+        const createdAt   = attempt.created_at   ? new Date(attempt.created_at)   : null;
+        const timeUsedMins = (submittedAt&&createdAt) ? Math.round((submittedAt-createdAt)/60000) : null;
+        const timeStr = timeUsedMins !== null ? timeUsedMins + ' min' : '—';
+        const submittedLabel = submittedAt
+          ? submittedAt.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' '+submittedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+        const pct = totalMax>0 ? Math.round((totalCorrect/totalMax)*100) : 0;
+        const scoreColor = pct>=70 ? [22,163,74] : pct>=50 ? [217,119,6] : [220,38,38];
+        const namedSegs = segData.filter(s => s.title);
+
+        // Try to fetch testflo logo as base64
+        let testfloLogoB64 = null;
+        try {
+          const logoRes = await fetch('https://exam.test-flo.com/testflo-dark.svg');
+          if (logoRes.ok) {
+            const blob = await logoRes.blob();
+            testfloLogoB64 = await new Promise(resolve => {
+              const fr = new FileReader();
+              fr.onload = () => resolve(fr.result);
+              fr.readAsDataURL(blob);
+            });
+          }
+        } catch(e) { /* logo fetch failed — use text fallback */ }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        const pageW = doc.internal.pageSize.getWidth();   // 210
+        const pageH = doc.internal.pageSize.getHeight();  // 297
+        const margin = 14;
+        const contentW = pageW - margin * 2;
+
+        // ── 1. DARK NAVY HEADER BAR ──────────────────────────────────
+        const headerH = 38;
+        doc.setFillColor(15, 23, 42); // #0f172a
+        doc.rect(0, 0, pageW, headerH, 'F');
+
+        // Institution name — small caps style (uppercase, muted)
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184); // #94a3b8
+        doc.text(instName.toUpperCase(), margin, 9);
+
+        // Exam title — white bold
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(255, 255, 255);
+        doc.text(exam.title || '', margin, 18, { maxWidth: contentW * 0.62 });
+
+        // Student name — white bold, larger, right side
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(255, 255, 255);
+        doc.text(displayName, pageW - margin, 15, { align: 'right' });
+
+        // Student email — muted
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139); // #64748b
+        doc.text(attempt.student_email || '', pageW - margin, 22, { align: 'right' });
+
+        // Submitted date — muted
+        doc.text(Lang.t('rptSubmitted') + ' ' + submittedLabel, pageW - margin, 27, { align: 'right' });
+
+        // ── 2. THREE SCORE CARDS ─────────────────────────────────────
+        let y = headerH + 8;
+        const cardW = (contentW - 8) / 3;
+        const cardH = 24;
+        const cards = [
+          {
+            label: Lang.t('rptTotalScore'),
+            val: (Number.isInteger(totalCorrect) ? totalCorrect : totalCorrect.toFixed(1)) + ' / ' + totalMax,
+            sub: pct + '%',
+            valColor: scoreColor
+          },
+          {
+            label: Lang.t('rptTimeUsed'),
+            val: timeStr,
+            sub: Lang.t('rptOutOf') + ' ' + (exam.duration_mins || '—') + ' min',
+            valColor: [15, 23, 42]
+          },
+          {
+            label: Lang.t('rptGrader'),
+            val: teacherName,
+            sub: instName,
+            valColor: [15, 23, 42]
+          }
+        ];
+        cards.forEach((card, i) => {
+          const cx = margin + i * (cardW + 4);
+          // Card border
+          doc.setDrawColor(226, 232, 240); // #e2e8f0
+          doc.setFillColor(255, 255, 255);
+          doc.rect(cx, y, cardW, cardH, 'FD');
+          // Label
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(6.5);
+          doc.setTextColor(148, 163, 184);
+          doc.text(card.label.toUpperCase(), cx + 5, y + 5);
+          // Value
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(i === 2 ? 9 : 14);
+          doc.setTextColor(...card.valColor);
+          doc.text(String(card.val), cx + 5, y + 14, { maxWidth: cardW - 8 });
+          // Sub-label
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(148, 163, 184);
+          doc.text(String(card.sub), cx + 5, y + 21);
+        });
+        y += cardH + 8;
+
+        // ── 3. SECTION BREAKDOWN ──────────────────────────────────────
+        if (namedSegs.length > 0) {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(7);
+          doc.setTextColor(148, 163, 184);
+          doc.text('RÉSULTATS PAR PARTIE', margin, y);
+          y += 4;
+          doc.setDrawColor(241, 245, 249);
+          doc.line(margin, y, pageW - margin, y);
+          y += 4;
+
+          namedSegs.forEach(s => {
+            const p = s.sm > 0 ? s.sc / s.sm : 0;
+            const scStr = (Number.isInteger(s.sc) ? s.sc : s.sc.toFixed(1)) + ' / ' + s.sm;
+            const labelW = 65;
+            const scoreW = 18;
+            const barX = margin + labelW + 3;
+            const barW = contentW - labelW - scoreW - 6;
+            const barH = 3;
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(71, 85, 105); // #475569
+            doc.text(s.title || '', margin, y + 2.5, { maxWidth: labelW });
+
+            // Bar background
+            doc.setFillColor(226, 232, 240); // #e2e8f0
+            doc.rect(barX, y, barW, barH, 'F');
+            // Bar fill
+            doc.setFillColor(30, 58, 95); // #1e3a5f
+            doc.rect(barX, y, barW * p, barH, 'F');
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(100, 116, 139);
+            doc.text(scStr, pageW - margin, y + 2.5, { align: 'right' });
+
+            y += 7;
+          });
+          y += 4;
+        }
+
+        // ── 4. QUESTION TABLE ─────────────────────────────────────────
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(148, 163, 184);
+        doc.text(Lang.t('rptAnswers').toUpperCase(), margin, y);
+        y += 4;
+        doc.setDrawColor(241, 245, 249);
+        doc.line(margin, y, pageW - margin, y);
+        y += 3;
+
+        // Build table body
+        const tableBody = aqs.map(q => {
+          const gi = aqs.indexOf(q);
+          if (q.type === 'open') {
+            const ans = answers['q' + gi] || '—';
+            const sc  = openScores[gi] !== undefined ? openScores[gi] : '—';
+            const cmt = openComments[gi] || '';
+            return {
+              question: 'Q' + (gi + 1) + '. ' + (q.question_text || ''),
+              studentAns: ans + (cmt ? '\n[' + cmt + ']' : ''),
+              correctAns: '—',
+              result: sc + ' / ' + (q.max_points || 5) + ' pts',
+              type: 'open',
+              correct: null
+            };
+          }
+          const sel = parseInt(answers['q' + gi], 10);
+          const ok  = sel === q.correct_index;
+          const sAns = isNaN(sel) ? '—' : getOptionText(q, sel);
+          const cAns = getOptionText(q, q.correct_index);
+          return {
+            question: 'Q' + (gi + 1) + '. ' + (q.question_text || ''),
+            studentAns: sAns,
+            correctAns: cAns,
+            result: ok ? '✓' : '✗',
+            type: 'mcq',
+            correct: ok
+          };
+        });
+
+        doc.autoTable({
+          startY: y,
+          margin: { left: margin, right: margin },
+          head: [[
+            Lang.t('rptQuestion'),
+            Lang.t('rptStudentAns'),
+            Lang.t('rptCorrectAns'),
+            Lang.t('rptResult')
+          ]],
+          body: tableBody.map(r => [r.question, r.studentAns, r.correctAns, r.result]),
+          styles: {
+            font: 'helvetica',
+            fontSize: 8,
+            cellPadding: 3,
+            lineColor: [226, 232, 240],
+            lineWidth: 0.1,
+            overflow: 'linebreak',
+            valign: 'top'
+          },
+          headStyles: {
+            fillColor: [248, 250, 252],
+            textColor: [148, 163, 184],
+            fontStyle: 'bold',
+            fontSize: 6.5
+          },
+          alternateRowStyles: {
+            fillColor: [252, 253, 254]
+          },
+          columnStyles: {
+            0: { cellWidth: 58 },
+            1: { cellWidth: 52 },
+            2: { cellWidth: 52 },
+            3: { cellWidth: 18, halign: 'center' }
+          },
+          didParseCell: function(data) {
+            const row = tableBody[data.row.index];
+            if (!row) return;
+            if (data.column.index === 1 && row.type === 'mcq' && row.correct === false) {
+              data.cell.styles.textColor = [220, 38, 38]; // #dc2626
+            }
+            if (data.column.index === 3) {
+              if (row.type === 'mcq' && row.correct === true) {
+                data.cell.styles.textColor = [22, 163, 74]; // green
+              } else if (row.type === 'mcq' && row.correct === false) {
+                data.cell.styles.textColor = [220, 38, 38]; // red
+              } else if (row.type === 'open') {
+                data.cell.styles.textColor = [71, 85, 105];
+                data.cell.styles.fontStyle = 'bold';
+              }
+            }
+            if (data.column.index === 1 && row.type === 'open') {
+              // Teacher comment part is in muted italic
+              data.cell.styles.fontSize = 8;
+            }
+          }
+        });
+
+        // ── 5. FOOTER ─────────────────────────────────────────────────
+        const footerH = 12;
+        const finalY = pageH - footerH;
+
+        // Draw separator line
+        doc.setDrawColor(226, 232, 240);
+        doc.line(margin, finalY - 1, pageW - margin, finalY - 1);
+
+        // Left: institution logo or name
+        if (currentInstitution && currentInstitution.logo_url) {
+          try {
+            doc.addImage(currentInstitution.logo_url, 'PNG', margin, finalY + 1, 20, 8);
+          } catch(e) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(7);
+            doc.setTextColor(148, 163, 184);
+            doc.text(instName, margin, finalY + 6);
+          }
+        } else {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(148, 163, 184);
+          doc.text(instName, margin, finalY + 6);
+        }
+
+        // Right: testflo branding
+        if (testfloLogoB64) {
+          try {
+            doc.addImage(testfloLogoB64, 'SVG', pageW - margin - 22, finalY + 1, 22, 8);
+          } catch(e) {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(7);
+            doc.setTextColor(100, 116, 139);
+            doc.text('testflo', pageW - margin, finalY + 6, { align: 'right' });
+          }
+        } else {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(7);
+          doc.setTextColor(100, 116, 139);
+          doc.text('testflo', pageW - margin, finalY + 6, { align: 'right' });
+        }
+
+        // ── SAVE ──────────────────────────────────────────────────────
+        const fname = 'rapport-' + safeFilename(attempt.student_name) + '-' + safeFilename(exam.title) + '.pdf';
+        doc.save(fname);
+
+      } catch(err) {
+        console.error('PDF generation error:', err);
+        showToast(Lang.t('errorGeneric'), 5500);
+      }
+
       btn.disabled = false;
       btn.innerHTML = origHtml;
     }
@@ -866,6 +1154,8 @@
         rptSessionLog:'Journal de session', rptTime:'Heure', rptEvent:'Événement', rptDetail:'Détail',
         rptStarted:'Examen démarré', rptSubmittedEvt:'Examen soumis', rptManual:'Soumission manuelle',
         rptFooter:'Généré automatiquement',
+        confirmAllGrades:'Confirmer toutes les notes',
+        noCriteriaNotice:'Ajouter des critères de notation rendrait le feedback IA plus ciblé et personnalisé',
       },
       en: {
         backBtn:'All submissions', badge:'Teacher',
@@ -890,6 +1180,8 @@
         rptSessionLog:'Session log', rptTime:'Time', rptEvent:'Event', rptDetail:'Detail',
         rptStarted:'Exam started', rptSubmittedEvt:'Exam submitted', rptManual:'Manual submission',
         rptFooter:'Automatically generated',
+        confirmAllGrades:'Confirm all grades',
+        noCriteriaNotice:'Adding grading criteria would make the AI feedback more targeted and tailored',
       }
     };
 
