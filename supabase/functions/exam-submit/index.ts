@@ -90,12 +90,14 @@ Deno.serve(async (req) => {
     let scoreMCQ  = 0;
     let totalMCQ  = 0;
 
-    questions.forEach((q, idx) => {
+    // sections consume no answer slot — use non-section index to match exam-engine storage
+    let nonSectionIdx = 0;
+    questions.forEach((q) => {
+      if (q.type === "section") return;
+      const idx = nonSectionIdx++;
       if (q.type !== "mcq") return;
       totalMCQ++;
       const studentAnswer = answers[`q${idx}`];
-      // studentAnswer is the original DB index (0-3) sent by the client
-      // correct_index is the DB source of truth — comparison is fully server-side
       if (
         studentAnswer !== undefined &&
         studentAnswer !== null &&
