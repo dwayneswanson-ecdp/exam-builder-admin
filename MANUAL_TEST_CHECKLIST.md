@@ -529,6 +529,61 @@ Browser-only. No automation. A human runs each test by clicking through the live
 
 ---
 
+## Section 11 — New Section Features
+
+---
+
+### T31 — Section page break
+
+**Precondition:** An exam built in exam-builder-manual.html with at least two sections, each with the Page break toggle enabled. A student has logged in and reached the exam screen.
+
+**Steps:**
+1. Observe the exam screen on load — only the first section's questions should be visible.
+2. Verify a Next section button is present at the bottom. Verify no Submit button is visible.
+3. Answer at least one question in the first section.
+4. Click Next section.
+5. Verify the first section's questions are no longer visible and the second section's questions appear.
+6. Verify a Previous section button is now present alongside Next section (or Submit on the last page).
+7. Click Previous section and verify the first section returns.
+
+**Expected result:** Each page-break section renders as a discrete page. Next/Back navigation advances and retreats between pages correctly. The Submit button only appears on the final page. Questions from other pages are never shown alongside the current page.
+
+**Pass / Fail:** `[ ]`
+
+---
+
+### T32 — Question pool
+
+**Precondition:** An exam with a pool section configured (e.g. 10 questions in pool, pool_draw set to 3). At least two students have submitted attempts from different browsers or devices.
+
+**Steps:**
+1. As student A, start and submit the exam. Note which 3 questions were shown.
+2. As student B (different browser / incognito), start and submit the exam. Note which 3 questions were shown.
+3. Open student review for student A and student B as teacher.
+
+**Expected result:** Students A and B receive different subsets of the pool questions (confirmed by comparing question text in their respective reviews). The pool label in student review reads "Pool — 3 of 10 questions drawn" above the pool section. Questions not drawn for a student do not appear in their review.
+
+**Pass / Fail:** `[ ]`
+
+---
+
+### T33 — Section attachment
+
+**Precondition:** An exam built in exam-builder-manual.html with a section that has an attachment added (test with image, PDF, and audio separately, or whichever type is available).
+
+**Steps:**
+1. Add an image attachment to a section in the manual builder. Publish the exam.
+2. As a student, log in and reach the exam screen.
+3. Verify the image renders at the top of the section, above all questions in that section.
+4. Repeat with a PDF attachment — verify it renders as an inline preview frame.
+5. Repeat with an audio attachment — verify the custom audio player (play/pause/replay buttons, time display) is present and functional.
+
+**Expected result:** Each attachment type renders at the top of its section before the questions. Image: visible inline. PDF: rendered in an iframe preview. Audio: custom player with play, replay, and time display — not a raw browser audio control. The attachment does not appear in other sections.
+
+**Pass / Fail:** `[ ]`
+
+---
+
 ## Results Summary
 
 | Test ID | Name | Result | Notes |
@@ -563,6 +618,9 @@ Browser-only. No automation. A human runs each test by clicking through the live
 | T28 | Direct database access blocked | `[ ]` | |
 | T29 | Mobile exam flow | `[ ]` | |
 | T30 | Mobile DND notice | `[ ]` | |
+| T31 | Section page break | `[ ]` | |
+| T32 | Question pool | `[ ]` | |
+| T33 | Section attachment | `[ ]` | |
 
 ---
 
