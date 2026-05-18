@@ -165,48 +165,48 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
   // ── Question table ────────────────────────────────────────────────────────
   let questionTable = '';
   if (questions && questions.length > 0) {
-    const mcqQs  = questions.filter(q => q.type === 'mcq');
-    const openQs = questions.filter(q => q.type === 'open');
+    // FIX 1 — Pool filtering
+    // pool_selection: { sectionId: [qIdx, ...] } where qIdx is 0-based array index
+    const poolSel = p.pool_selection && typeof p.pool_selection === 'object'
+      ? p.pool_selection as Record<string, number[]>
+      : null;
+    const poolActive = poolSel !== null && Object.keys(poolSel).length > 0;
 
-    const mcqRows = mcqQs.map((q, i) => {
-      const options      = Array.isArray(q.options) ? q.options as string[] : [];
-      const correctIdx   = typeof q.correct_index === 'number' ? q.correct_index : -1;
-      const studentIdx   = typeof q.student_answer === 'number' ? q.student_answer : -1;
-      const isCorrect    = studentIdx !== -1 && studentIdx === correctIdx;
-      const correctText  = correctIdx >= 0 ? (options[correctIdx] ?? '—') : '—';
-      const studentText  = studentIdx >= 0 ? (options[studentIdx] ?? (lang === "en" ? "No answer" : "Sans réponse")) : (lang === "en" ? "No answer" : "Sans réponse");
-      const rowBg        = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+    // Build a flat set of all allowed indices across all pool sections
+    const poolAllowedSet: Set<number> = new Set();
+    if (poolActive) {
+      for (const idxArr of Object.values(poolSel!)) {
+        if (Array.isArray(idxArr)) idxArr.forEach(i => poolAllowedSet.add(i));
+      }
+    }
 
+    // FIX 2 — Section grouping
+    // Check if any item has type === 'section' (section header rows may appear in payload)
+    const hasSections = questions.some(q => q.type === 'section');
+
+    // Helper to render a single MCQ row
+    function renderMcqRow(q: Record<string, unknown>, rowIdx: number): string {
+      const options     = Array.isArray(q.options) ? q.options as string[] : [];
+      const correctIdx  = typeof q.correct_index === 'number' ? q.correct_index : -1;
+      const studentIdx  = typeof q.student_answer === 'number' ? q.student_answer : -1;
+      const isCorrect   = studentIdx !== -1 && studentIdx === correctIdx;
+      const correctText = correctIdx >= 0 ? (options[correctIdx] ?? '—') : '—';
+      const studentText = studentIdx >= 0 ? (options[studentIdx] ?? (lang === "en" ? "No answer" : "Sans réponse")) : (lang === "en" ? "No answer" : "Sans réponse");
+      const rowBg       = rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
+      // FIX 3 — fallback to Q{position} when text is empty
+      const pos = typeof q.position === 'number' ? q.position : (rowIdx + 1);
+      const qText = String(q.text || q.question_text || '').trim() || `Q${pos}`;
       return `
       <tr style="background:${rowBg};">
-        <td style="padding:10px 14px;font-size:0.78rem;color:#1e293b;border-bottom:1px solid #e2e8f0;vertical-align:top;max-width:220px;">${esc(String(q.text || ''))}</td>
+        <td style="padding:10px 14px;font-size:0.78rem;color:#1e293b;border-bottom:1px solid #e2e8f0;vertical-align:top;max-width:220px;">${esc(qText)}</td>
         <td style="padding:10px 14px;font-size:0.78rem;border-bottom:1px solid #e2e8f0;vertical-align:top;${isCorrect ? 'color:#1e293b;' : 'color:#dc2626;font-weight:600;'}">${esc(studentText)}</td>
         <td style="padding:10px 14px;font-size:0.78rem;color:#1e293b;border-bottom:1px solid #e2e8f0;vertical-align:top;">${esc(correctText)}</td>
         <td style="padding:10px 14px;font-size:1rem;border-bottom:1px solid #e2e8f0;text-align:center;vertical-align:middle;${isCorrect ? 'color:#16a34a;' : 'color:#dc2626;'}">${isCorrect ? '✓' : '✗'}</td>
       </tr>`;
-    }).join('');
-
-    if (mcqRows) {
-      questionTable += `
-  <div style="margin-top:0;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
-    <div style="background:#0f172a;padding:12px 24px;">
-      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${T.mcqHeader}</p>
-    </div>
-    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
-      <thead>
-        <tr style="background:#f8fafc;">
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQuestion}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colStudentAns}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colCorrectAns}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;">${T.colResult}</th>
-        </tr>
-      </thead>
-      <tbody>${mcqRows}</tbody>
-    </table>
-  </div>`;
     }
 
-    const openBlocks = openQs.filter(q => q.student_response || q.comment || q.open_score != null).map((q, i) => {
+    // Helper to render a single open question row
+    function renderOpenRow(q: Record<string, unknown>, rowIdx: number): string {
       const scoreLabel = q.open_score != null
         ? `<p style="margin:8px 0 0;font-size:0.78rem;font-weight:700;color:#475569;">${T.openScore} : <strong>${q.open_score} / ${q.max_points ?? '?'}</strong></p>`
         : '';
@@ -218,21 +218,48 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
         ? `<p style="margin:0 0 4px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;">${T.openComment}</p>
            <p style="margin:0;font-size:0.82rem;color:#1e293b;">${esc(String(q.comment))}</p>`
         : '';
-      const rowBg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+      const rowBg = rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
+      // FIX 3 — fallback to Q{position} when text is empty
+      const pos = typeof q.position === 'number' ? q.position : (rowIdx + 1);
+      const qText = String(q.text || q.question_text || '').trim() || `Q${pos}`;
       return `
       <tr style="background:${rowBg};">
-        <td style="padding:14px;font-size:0.82rem;color:#1e293b;border-bottom:1px solid #e2e8f0;font-weight:600;vertical-align:top;width:40%;">${esc(String(q.text || ''))}</td>
+        <td style="padding:14px;font-size:0.82rem;color:#1e293b;border-bottom:1px solid #e2e8f0;font-weight:600;vertical-align:top;width:40%;">${esc(qText)}</td>
         <td style="padding:14px;border-bottom:1px solid #e2e8f0;vertical-align:top;">
           ${responseBlock}${commentBlock}${scoreLabel}
         </td>
       </tr>`;
-    }).join('');
+    }
 
-    if (openBlocks) {
-      questionTable += `
+    // Helper to wrap MCQ rows in a section block
+    function wrapMcqBlock(rows: string, headerLabel: string): string {
+      if (!rows) return '';
+      return `
   <div style="margin-top:0;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
     <div style="background:#0f172a;padding:12px 24px;">
-      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${T.openHeader}</p>
+      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${headerLabel}</p>
+    </div>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQuestion}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colStudentAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colCorrectAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;">${T.colResult}</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+    }
+
+    // Helper to wrap open rows in a section block
+    function wrapOpenBlock(rows: string, headerLabel: string): string {
+      if (!rows) return '';
+      return `
+  <div style="margin-top:0;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+    <div style="background:#0f172a;padding:12px 24px;">
+      <p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${headerLabel}</p>
     </div>
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
       <thead>
@@ -241,9 +268,132 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
           <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQAndMore}</th>
         </tr>
       </thead>
-      <tbody>${openBlocks}</tbody>
+      <tbody>${rows}</tbody>
     </table>
   </div>`;
+    }
+
+    if (hasSections) {
+      // FIX 2 — Group by teacher-defined sections
+      // Walk questions array; section items start a new group
+      type SectionGroup = { title: string; items: { q: Record<string, unknown>; globalIdx: number }[] };
+      const groups: SectionGroup[] = [];
+      let currentGroup: SectionGroup = { title: '', items: [] };
+      let globalQIdx = 0; // tracks non-section question index
+
+      for (const item of questions) {
+        if (item.type === 'section') {
+          if (currentGroup.items.length > 0 || currentGroup.title) {
+            groups.push(currentGroup);
+          }
+          currentGroup = { title: String(item.text || item.question_text || ''), items: [] };
+        } else {
+          // FIX 1 — apply pool filter using globalQIdx
+          const idx = typeof (item as Record<string, unknown>).idx === 'number'
+            ? (item as Record<string, unknown>).idx as number
+            : globalQIdx;
+          if (!poolActive || poolAllowedSet.has(idx)) {
+            currentGroup.items.push({ q: item, globalIdx: idx });
+          }
+          globalQIdx++;
+        }
+      }
+      if (currentGroup.items.length > 0 || currentGroup.title) {
+        groups.push(currentGroup);
+      }
+
+      for (const group of groups) {
+        if (group.items.length === 0) continue;
+        const sectionHeaderHtml = group.title
+          ? `<div style="background:#0f172a;padding:12px 24px;"><p style="margin:0;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.85);">${esc(group.title)}</p></div>`
+          : '';
+
+        const mcqItems  = group.items.filter(({ q }) => q.type === 'mcq');
+        const openItems = group.items.filter(({ q }) => q.type === 'open');
+
+        let mcqRowsHtml = '';
+        mcqItems.forEach(({ q }, i) => { mcqRowsHtml += renderMcqRow(q, i); });
+
+        let openRowsHtml = '';
+        openItems.filter(({ q }) => q.student_response || q.comment || q.open_score != null)
+          .forEach(({ q }, i) => { openRowsHtml += renderOpenRow(q, i); });
+
+        if (mcqRowsHtml || openRowsHtml) {
+          questionTable += `
+  <div style="margin-top:0;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+    ${sectionHeaderHtml}`;
+
+          if (mcqRowsHtml) {
+            questionTable += `
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQuestion}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colStudentAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colCorrectAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;">${T.colResult}</th>
+        </tr>
+      </thead>
+      <tbody>${mcqRowsHtml}</tbody>
+    </table>`;
+          }
+
+          if (openRowsHtml) {
+            if (mcqRowsHtml) {
+              // divider between MCQ and open within same section
+              questionTable += `<div style="border-top:1px solid #e2e8f0;"></div>`;
+            }
+            questionTable += `
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f8fafc;">
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:40%;">${T.colQuestion}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQAndMore}</th>
+        </tr>
+      </thead>
+      <tbody>${openRowsHtml}</tbody>
+    </table>`;
+          }
+
+          questionTable += `</div>`;
+        }
+      }
+
+      if (poolActive) {
+        const note = lang === 'en'
+          ? 'Questions shown reflect the questions served to this student.'
+          : 'Les questions affichées correspondent aux questions présentées à cet étudiant.';
+        questionTable += `<div style="padding:8px 16px;font-size:0.72rem;color:#94a3b8;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">${note}</div>`;
+      }
+    } else {
+      // No sections — original MCQ/Open grouping with pool filter applied
+      let globalQIdx = 0;
+      const filteredQuestions = questions.filter((q) => {
+        if (q.type === 'section') return false;
+        const idx = typeof (q as Record<string, unknown>).idx === 'number'
+          ? (q as Record<string, unknown>).idx as number
+          : globalQIdx;
+        globalQIdx++;
+        return !poolActive || poolAllowedSet.has(idx);
+      });
+
+      const mcqQs  = filteredQuestions.filter(q => q.type === 'mcq');
+      const openQs = filteredQuestions.filter(q => q.type === 'open');
+
+      const mcqRows = mcqQs.map((q, i) => renderMcqRow(q, i)).join('');
+      questionTable += wrapMcqBlock(mcqRows, T.mcqHeader);
+
+      const openRows = openQs
+        .filter(q => q.student_response || q.comment || q.open_score != null)
+        .map((q, i) => renderOpenRow(q, i)).join('');
+      questionTable += wrapOpenBlock(openRows, T.openHeader);
+
+      if (poolActive && (mcqRows || openRows)) {
+        const note = lang === 'en'
+          ? 'Questions shown reflect the questions served to this student.'
+          : 'Les questions affichées correspondent aux questions présentées à cet étudiant.';
+        questionTable += `<div style="padding:8px 16px;font-size:0.72rem;color:#94a3b8;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">${note}</div>`;
+      }
     }
   }
 
@@ -268,6 +418,7 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
   const teacher      = String(p.teacher_name  || '');
   const teacherEmail = String(p.teacher_email || '');
   const examTitle    = String(p.exam_title    || '');
+  const institution  = String(p.institution_name || '');
   const link         = String(p.retake_link   || '');
   const accessCode   = String(p.access_code   || '');
 
@@ -299,7 +450,8 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
   const content = `
   <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
     <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 24px;">${T.body}</p>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${T.body}</p>
+    ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
     ${accessCode ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p>
     <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(accessCode)}</span>` : ''}
     <a href="${link}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
@@ -318,52 +470,56 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
 // ── Invite email ──────────────────────────────────────────────────────────────
 
 function inviteHtml(p: Record<string, unknown>, lang: string) {
-  const toEmail      = String(p.to_email      || '');
   const teacher      = String(p.teacher_name  || '');
   const teacherEmail = String(p.teacher_email || '');
   const examTitle    = String(p.exam_title    || '');
-  const link       = String(p.exam_link   || '');
-  const code       = String(p.access_code || '');
-  const duration   = String(p.duration_mins || '');
+  const institution  = String(p.institution_name || '');
+  const link         = String(p.exam_link     || '');
+  const code         = String(p.access_code   || '');
+  const duration     = String(p.duration_mins || '');
 
   const T = lang === "en" ? {
-    greeting:   `Hello,`,
-    body:       teacher
+    greeting:        `Hello,`,
+    body:            teacher
       ? `<strong>${esc(teacher)}</strong> has invited you to take the following exam:`
       : `You have been invited to take the following exam:`,
-    code:       `Access code`,
-    duration:   `Duration`,
-    minutes:    `minutes`,
-    btnLabel:      `Start exam →`,
-    fallback:      `If the button doesn't work, copy this link:`,
-    contactLabel:  `For any question, contact your instructor :`,
+    duration:        `Duration`,
+    minutes:         `minutes`,
+    btnLabel:        `Start exam →`,
+    fallback:        `If the button doesn't work, copy this link:`,
+    singleUse:       `This link is for single use.`,
+    accessCodeLabel: `Your access code :`,
+    contactLabel:    `For any question, contact your instructor :`,
   } : {
-    greeting:   `Bonjour,`,
-    body:       teacher
+    greeting:        `Bonjour,`,
+    body:            teacher
       ? `<strong>${esc(teacher)}</strong> vous invite à passer l'examen suivant :`
       : `Vous êtes invité(e) à passer l'examen suivant :`,
-    code:       `Code d'accès`,
-    duration:   `Durée`,
-    minutes:    `minutes`,
-    btnLabel:      `Commencer l'épreuve →`,
-    fallback:      `Si le bouton ne fonctionne pas, copiez ce lien :`,
-    contactLabel:  `Pour toute question, contactez votre enseignant :`,
+    duration:        `Durée`,
+    minutes:         `minutes`,
+    btnLabel:        `Commencer l'épreuve →`,
+    fallback:        `Si le bouton ne fonctionne pas, copiez ce lien :`,
+    singleUse:       `Ce lien est à usage unique.`,
+    accessCodeLabel: `Votre code d'accès :`,
+    contactLabel:    `Pour toute question, contactez votre enseignant :`,
   };
 
   const content = `
   <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
     <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 20px;">${T.body}</p>
-    <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;color:#0f172a;">${esc(examTitle)}</h3>
-    ${code ? `<p style="margin:0 0 8px;font-size:0.85rem;color:#475569;"><strong>${T.code}:</strong> <span style="font-family:monospace;background:#f1f5f9;padding:2px 8px;border-radius:4px;">${esc(code)}</span></p>` : ''}
-    ${duration ? `<p style="margin:0 0 20px;font-size:0.85rem;color:#475569;"><strong>${T.duration}:</strong> ${esc(duration)} ${T.minutes}</p>` : '<div style="margin-bottom:20px;"></div>'}
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${T.body}</p>
+    <h3 style="margin:0 0 2px;font-size:1rem;font-weight:700;color:#0f172a;">${esc(examTitle)}</h3>
+    ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
+    ${duration ? `<p style="margin:0 0 12px;font-size:0.85rem;color:#475569;"><strong>${T.duration}:</strong> ${esc(duration)} ${T.minutes}</p>` : ''}
+    ${code ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p>
+    <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(code)}</span>` : ''}
     <a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
     <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br>
       <span style="color:#2563eb;">${esc(link)}</span>
     </p>
-    ${(teacher || teacherEmail) ? `<hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0 16px;">
-    <p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0;">${T.contactLabel}<br>${teacher ? `<strong style="color:#1e293b;">${esc(teacher)}</strong>` : ''}${teacher && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
+    ${(teacher || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${T.contactLabel}<br>${teacher ? `<strong style="color:#1e293b;">${esc(teacher)}</strong>` : ''}${teacher && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
+    <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${lang === 'en' ? 'This message was generated automatically by testflo.' : 'Ce message a été généré automatiquement par testflo.'}</p>
   </div>`;
 
   return emailShell(content, lang);
