@@ -275,6 +275,7 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let reviewData = null;
+  const _sectionFiles = {}; // { itemIdx: { file, type } } — survives re-renders
 
   function escHtml(s) {
     return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -427,16 +428,22 @@
         <div class="sim-meta">${ob.duration || '—'} minutes · ${Lang.t('simEnterInfo')}</div>
       </div>`;
 
-    items.forEach((item) => {
+    items.forEach((item, itemIdx) => {
       if (item.type === 'section') {
         const poolNote = item.poolEnabled && item.pool_draw != null
           ? ` — ${item.pool_draw} of ${item.pool_total || '?'} questions served per student`
           : '';
+        const existingFile = _sectionFiles[itemIdx];
         html += `
           <div class="sim-section">
             <div class="sim-section-eyebrow">${Lang.t('simSection')}${poolNote}</div>
             <div class="sim-section-name">${escHtml(item.title || 'Section')}</div>
             ${item.instructions ? `<div style="font-size:0.75rem;color:var(--slate);margin-top:4px;">${escHtml(item.instructions)}</div>` : ''}
+          </div>
+          <div style="margin:-6px 0 8px;padding:6px 12px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-top:none;font-size:0.78rem;">
+            <input type="file" accept="image/*,.pdf,audio/*" id="sec-file-${itemIdx}" style="display:none;" onchange="attachSectionFile(this,${itemIdx})">
+            <button type="button" onclick="document.getElementById('sec-file-${itemIdx}').click()" style="font-size:0.75rem;padding:4px 10px;cursor:pointer;">+ Attach file</button>
+            <span id="sec-attach-name-${itemIdx}" style="color:#475569;margin-left:8px;font-size:0.75rem;">${existingFile ? '📎 ' + escHtml(existingFile.file.name) : ''}</span>
           </div>`;
       } else if (item.type === 'mcq') {
         qNum++;
@@ -506,6 +513,17 @@
     if (reviewData && reviewData.items && reviewData.items[idx]) {
       reviewData.items[idx][field] = value;
     }
+  }
+
+  function attachSectionFile(input, itemIdx) {
+    if (!input.files[0]) return;
+    const file = input.files[0];
+    const type = file.name.toLowerCase().endsWith('.pdf') ? 'pdf'
+               : file.type.startsWith('audio/') ? 'audio' : 'image';
+    _sectionFiles[itemIdx] = { file, type };
+    const nameEl = document.getElementById('sec-attach-name-' + itemIdx);
+    if (nameEl) nameEl.textContent = '📎 ' + file.name;
+    input.value = '';
   }
 
   // ── Section attachment helpers (copied from exam-builder-manual.html) ──
@@ -644,9 +662,6 @@
       if (examErr) throw examErr;
       const examId = examRows[0].id;
 
-      const sectionCardEls = [...document.querySelectorAll('#simCard .section-card')];
-      let sectionCardIdx = 0;
-
       for (let i = 0; i < items.length; i++) {
         const q = items[i];
         let mediaSrc  = null;
@@ -666,28 +681,20 @@
         let sectionMediaType = null;
 
         if (q.type === 'section') {
-          const cardEl = sectionCardEls[sectionCardIdx++] || null;
-          if (cardEl) {
-            const pill = cardEl.querySelector('.section-attach-preview .attach-file');
-            if (pill) {
-              if (pill._attachedFile) {
-                const file = pill._attachedFile;
-                const ext  = file.name.split('.').pop();
-                const path = `${examId}/sec${i + 1}-${Date.now()}.${ext}`;
-                const { error: upErr } = await sb.storage
-                  .from('exam-attachments')
-                  .upload(path, file, { upsert: true });
-                if (!upErr) {
-                  const { data: urlData } = sb.storage.from('exam-attachments').getPublicUrl(path);
-                  sectionMediaSrc  = urlData.publicUrl;
-                  sectionMediaType = pill.dataset.mediaType;
-                } else {
-                  console.warn('Section attachment upload error:', upErr);
-                }
-              } else if (pill.dataset.mediaUrl) {
-                sectionMediaSrc  = pill.dataset.mediaUrl;
-                sectionMediaType = 'video';
-              }
+          const stored = _sectionFiles[i];
+          if (stored) {
+            const { file, type } = stored;
+            const ext  = file.name.split('.').pop();
+            const path = `${examId}/sec${i + 1}-${Date.now()}.${ext}`;
+            const { error: upErr } = await sb.storage
+              .from('exam-attachments')
+              .upload(path, file, { upsert: true });
+            if (!upErr) {
+              const { data: urlData } = sb.storage.from('exam-attachments').getPublicUrl(path);
+              sectionMediaSrc  = urlData.publicUrl;
+              sectionMediaType = type;
+            } else {
+              console.warn('Section attachment upload error:', upErr);
             }
           }
         }
