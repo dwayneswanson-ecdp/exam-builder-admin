@@ -1225,8 +1225,8 @@
     const banner = document.getElementById('aiSuccessBanner');
     if (banner) {
       banner.textContent = lang === 'fr'
-        ? `✅ Analysé avec succès — ${questions.length} questions extraites`
-        : `✅ Analysed successfully — ${questions.length} questions extracted`;
+        ? `✅ Analysé avec succès — ${questions.filter(q => q.type !== 'section').length} questions extraites`
+        : `✅ Analysed successfully — ${questions.filter(q => q.type !== 'section').length} questions extracted`;
       banner.style.display = 'flex';
     }
 
@@ -1998,7 +1998,7 @@
     const open = qs.filter(q => q.type === 'open').length;
     document.getElementById('reviewTotalStat').innerHTML =
       t.reviewStatsText
-        .replace('{total}', `<span class="rs-total">${qs.length}</span>`)
+        .replace('{total}', `<span class="rs-total">${qs.filter(q => q.type !== 'section').length}</span>`)
         .replace('{mcq}',   `<span class="rs-mcq">${mcq}</span>`)
         .replace('{open}',  `<span class="rs-open">${open}</span>`);
   }
