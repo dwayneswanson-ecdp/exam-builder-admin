@@ -596,6 +596,7 @@ Browser-only. No automation. A human runs each test by clicking through the live
 5. Click Publish exam.
 6. Open the published exam as a student and verify: the section renders on its own page with Next section navigation, the image attachment appears at the top of the section, and only 4 of the 10 pool questions are shown.
 7. As teacher, open student review for a submitted attempt. Verify the pool label reads "Pool — 4 of 10 questions drawn" above the section.
+8. Verify section panels appear in the AI builder review step (index.html) and not only in the manual builder.
 
 **Expected result:** All three section configuration panels are visible and interactive on the Review & Publish page. Values entered are persisted through publish. The published exam reflects: page break navigation, the correct pool draw count, and the section attachment rendered above questions. Student review shows the pool label with the correct X of Y count.
 
