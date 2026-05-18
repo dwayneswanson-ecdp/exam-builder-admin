@@ -1159,6 +1159,7 @@
   }
 
   function showPage(n) {
+    if (n < 0 || n >= PAGES.length) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
     currentPage = n;
     const page = PAGES[n];
@@ -1491,6 +1492,15 @@
     const btn = document.getElementById('submitBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours — merci de patienter…'; }
 
+    if (!attemptId || !sessionToken) {
+      console.error('submitExam: missing session credentials');
+      examSubmitted = false;
+      examActive = true;
+      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ma copie →'; }
+      alert('Une erreur est survenue. Veuillez contacter votre enseignant.');
+      return;
+    }
+
     logEvent('Exam submitted', autoReason || 'Student clicked submit');
     console.log('submitExam started', { student: studentName, email: studentEmail });
 
@@ -1577,18 +1587,26 @@
         </table>` : '<p style="font-size:12px;color:#6b7280;">Aucun incident détecté.</p>'}`;
 
     // Submit to server — grading is fully server-side, score_mcq computed by exam-submit
+    let serverConfirmed = false;
     try {
-      if (attemptId && sessionToken) {
-        await efFetch('exam-submit', {
-          attempt_id:     attemptId,
-          session_token:  sessionToken,
-          answers:        answers,
-          session_log:    sessionEvents,
-          pool_selection: Object.keys(POOL_SELECTION).length > 0 ? POOL_SELECTION : null,
-        });
-      }
+      await efFetch('exam-submit', {
+        attempt_id:     attemptId,
+        session_token:  sessionToken,
+        answers:        answers,
+        session_log:    sessionEvents,
+        pool_selection: Object.keys(POOL_SELECTION).length > 0 ? POOL_SELECTION : null,
+      });
+      serverConfirmed = true;
     } catch (err) {
       console.error('Failed to submit attempt:', err);
+    }
+
+    if (!serverConfirmed) {
+      examSubmitted = false;
+      examActive = true;
+      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ma copie →'; }
+      alert('Une erreur est survenue lors de l\'envoi. Vérifiez votre connexion et réessayez.');
+      return;
     }
 
     // Lock student out after submission
@@ -1603,7 +1621,6 @@
     document.getElementById('successScreen').style.display = 'block';
     document.getElementById('timer').style.display = 'none';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
 
     const statusEl = document.getElementById('emailStatus');
     if (statusEl) statusEl.textContent = (window.UI || getUIStrings('fr')).successEmail;
