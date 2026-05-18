@@ -690,11 +690,23 @@
       const file  = input.files[0];
       const icons = { image: '🖼', pdf: '📄', audio: '🔊' };
       const preview = input.closest('.attach-section').querySelector('.attach-preview');
-      const pill = document.createElement('span');
+      const pill = document.createElement(type === 'audio' ? 'div' : 'span');
       pill.className = 'attach-file';
       pill.dataset.mediaType = type;
       pill._attachedFile = file; // store File object for upload on publish
-      pill.innerHTML = `${icons[type] || '📎'} ${file.name} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
+      if (type === 'audio') {
+        const previewUrl = URL.createObjectURL(file);
+        pill.style.cssText = 'display:block;padding:10px 12px;';
+        pill.innerHTML = `
+          <audio controls src="${previewUrl}" style="width:100%;display:block;margin-bottom:8px;"></audio>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span style="font-size:0.82rem;font-weight:600;color:#475569;">${file.name} *</span>
+            <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>
+          </div>
+          <div style="font-size:0.78rem;color:#94a3b8;margin-top:3px;">* Le nom du fichier ne sera pas visible par les étudiants / * The filename will not be visible to students</div>`;
+      } else {
+        pill.innerHTML = `${icons[type] || '📎'} ${file.name} <button class="attach-rm" onclick="this.closest('.attach-file').remove()">✕</button>`;
+      }
       preview.appendChild(pill);
       input.value = '';
     }
