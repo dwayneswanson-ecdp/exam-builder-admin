@@ -338,8 +338,22 @@
     const coeff     = ob.coefficient || 0;
     const groups    = ob.groups || [];
 
-    const openPts = openQs.reduce((s, q) => s + (q.max_points || 5), 0);
-    const mcqPts  = questions.filter(i => i.type === 'mcq').reduce((s, q) => s + (q.max_points || 1), 0);
+    let mcqPts = 0, openPts = 0;
+    let curSec = null, secQCount = 0;
+    items.forEach(item => {
+      if (item.type === 'section') {
+        curSec = item;
+        secQCount = 0;
+      } else {
+        secQCount++;
+        const draw = curSec?.poolEnabled ? (curSec.pool_draw || null) : null;
+        const visible = !draw || secQCount <= draw;
+        if (visible) {
+          if (item.type === 'mcq')  mcqPts  += (item.max_points || 1);
+          if (item.type === 'open') openPts += (item.max_points || 5);
+        }
+      }
+    });
     const totalPts = mcqPts + openPts;
 
     // Header
@@ -402,6 +416,7 @@
   // ── Student preview ───────────────────────────────────────────
 
   function renderPreview() {
+    try {
     const ob    = reviewData.onboarding || {};
     const items = reviewData.items || [];
     let qNum = 0;
@@ -412,56 +427,16 @@
         <div class="sim-meta">${ob.duration || '—'} minutes · ${Lang.t('simEnterInfo')}</div>
       </div>`;
 
-    items.forEach((item, idx) => {
+    items.forEach((item) => {
       if (item.type === 'section') {
-        const poolChecked  = item.poolEnabled ? 'checked' : '';
-        const poolDisplay  = item.poolEnabled ? 'flex' : 'none';
-        const pageChecked  = item.page_break  ? 'checked' : '';
-        const poolTotal    = item.pool_total != null ? item.pool_total : 5;
-        const poolDraw     = item.pool_draw  != null ? item.pool_draw  : 3;
+        const poolNote = item.poolEnabled && item.pool_draw != null
+          ? ` — ${item.pool_draw} of ${item.pool_total || '?'} questions served per student`
+          : '';
         html += `
-          <div class="section-card">
-            <div class="section-head">
-              <span style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.4);">Section</span>
-              <span class="section-title-display">${escHtml(item.title || 'Section')}</span>
-            </div>
-            <div class="section-body">
-              <div class="s-top-row">
-                <input class="section-instr" type="text" placeholder="Section instructions (optional)…"
-                  value="${escHtml(item.instructions || '')}"
-                  oninput="updateSectionField(${idx},'instructions',this.value)">
-              </div>
-              <div class="s-panel">
-                <span class="s-panel-lbl">Section attachment</span>
-                <div class="attach-options">
-                  <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image</button>
-                  <input type="file" accept="image/*" style="display:none;" onchange="showSectionFile(this,'image')">
-                  <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
-                  <input type="file" accept=".pdf" style="display:none;" onchange="showSectionFile(this,'pdf')">
-                  <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio</button>
-                  <input type="file" accept="audio/*" style="display:none;" onchange="showSectionFile(this,'audio')">
-                  <button class="attach-opt" type="button" onclick="toggleSectionVideoInput(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link</button>
-                </div>
-                <div class="section-attach-preview attach-preview"></div>
-                <div class="s-attach-note" style="display:none;">* This file will display at the top of this section for students</div>
-              </div>
-              <div class="s-panel">
-                <label class="s-toggle-row">
-                  <input type="checkbox" class="s-pool-toggle" ${poolChecked} onchange="togglePoolFields(this);updateSectionField(${idx},'poolEnabled',this.checked)">
-                  <span class="s-toggle-lbl">Question pool</span>
-                </label>
-                <div class="s-pool-fields" style="display:${poolDisplay};">
-                  <label class="s-field-row"><span class="s-field-lbl">Total questions in pool</span><input type="number" class="s-num-input s-pool-total" min="1" value="${poolTotal}" oninput="updateSectionField(${idx},'pool_total',parseInt(this.value)||null)"></label>
-                  <label class="s-field-row"><span class="s-field-lbl">Questions to serve per student</span><input type="number" class="s-num-input s-pool-draw" min="1" value="${poolDraw}" oninput="updateSectionField(${idx},'pool_draw',parseInt(this.value)||null)"></label>
-                </div>
-              </div>
-              <div class="s-panel" style="padding-bottom:10px;">
-                <label class="s-toggle-row">
-                  <input type="checkbox" class="s-pagebreak-toggle" ${pageChecked} onchange="updateSectionField(${idx},'page_break',this.checked)">
-                  <span class="s-toggle-lbl">Start on new page</span>
-                </label>
-              </div>
-            </div>
+          <div class="sim-section">
+            <div class="sim-section-eyebrow">${Lang.t('simSection')}${poolNote}</div>
+            <div class="sim-section-name">${escHtml(item.title || 'Section')}</div>
+            ${item.instructions ? `<div style="font-size:0.75rem;color:var(--slate);margin-top:4px;">${escHtml(item.instructions)}</div>` : ''}
           </div>`;
       } else if (item.type === 'mcq') {
         qNum++;
@@ -504,6 +479,9 @@
     });
 
     document.getElementById('simCard').innerHTML = html;
+    } catch(e) {
+      console.error('renderPreview error:', e);
+    }
   }
 
   function renderMedia(item) {
