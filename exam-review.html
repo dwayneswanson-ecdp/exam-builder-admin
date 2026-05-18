@@ -122,6 +122,36 @@
     .criteria-text { font-size: 0.75rem; color: #78350f; line-height: 1.65; }
     .sim-media { max-width: 100%; margin-bottom: 14px; border: 1px solid var(--line); }
 
+    /* ── Section config cards ── */
+    .section-card { border: 2px solid var(--ink); overflow: hidden; margin: 4px 0; }
+    .section-head { background: var(--navy); padding: 11px 16px; display: flex; align-items: center; gap: 10px; }
+    .section-title-display { font-size: 0.9rem; font-weight: 700; color: #fff; }
+    .section-body { background: var(--surface); border-top: 1px solid var(--ink); padding: 0 16px; display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+    .s-top-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+    .section-instr { flex: 1; background: transparent; border: none; border-bottom: 1px solid var(--line); outline: none; font-size: 0.78rem; color: var(--slate); font-family: inherit; padding: 3px 0; }
+    .s-panel { padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.06); }
+    .s-panel-lbl { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; display: block; }
+    .s-toggle-row { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+    .s-toggle-lbl { font-size: 0.78rem; font-weight: 600; color: var(--slate); }
+    .s-pool-fields { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 22px; }
+    .s-field-row { display: flex; align-items: center; gap: 8px; }
+    .s-field-lbl { font-size: 0.75rem; color: var(--slate); min-width: 200px; }
+    .s-num-input { width: 60px; font-size: 0.82rem; font-weight: 700; border: 1px solid var(--line); padding: 4px 6px; font-family: inherit; text-align: center; outline: none; color: var(--black); }
+    .s-num-input:focus { border-color: var(--blue); }
+    .s-num-input::-webkit-inner-spin-button, .s-num-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .pool-badge { font-size: 0.62rem; font-weight: 700; color: #92400e; background: #fef3c7; border: 1px solid #fde68a; padding: 2px 8px; letter-spacing: 0.04em; white-space: nowrap; }
+    .s-attach-note { font-size: 0.78rem; color: #94a3b8; margin-top: 4px; }
+    .attach-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .attach-opt { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: var(--slate); background: var(--white); border: 1px solid var(--line); padding: 5px 10px; cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .attach-opt:hover { border-color: var(--muted); color: var(--black); }
+    .attach-preview { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .attach-file { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: #166534; background: #f0fdf4; border: 1px solid #86efac; padding: 5px 10px; }
+    .attach-rm { color: var(--muted); cursor: pointer; margin-left: 2px; background: none; border: none; font-size: 0.82rem; }
+    .video-link-row { display: flex; gap: 6px; margin-top: 8px; }
+    .video-link-input { flex: 1; font-size: 0.8rem; font-family: inherit; border: 1px solid var(--line); padding: 6px 10px; color: var(--black); outline: none; }
+    .video-link-input:focus { border-color: var(--blue); }
+    .video-confirm-btn { font-size: 0.75rem; font-weight: 700; background: var(--surface); border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; font-family: inherit; color: var(--slate); }
+
     /* ── CTA bar ── */
     .cta-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--line); z-index: 100; }
     .cta-bar-inner { max-width: 1200px; margin: 0 auto; padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -382,12 +412,56 @@
         <div class="sim-meta">${ob.duration || '—'} minutes · ${Lang.t('simEnterInfo')}</div>
       </div>`;
 
-    items.forEach(item => {
+    items.forEach((item, idx) => {
       if (item.type === 'section') {
+        const poolChecked  = item.poolEnabled ? 'checked' : '';
+        const poolDisplay  = item.poolEnabled ? 'flex' : 'none';
+        const pageChecked  = item.page_break  ? 'checked' : '';
+        const poolTotal    = item.pool_total != null ? item.pool_total : 5;
+        const poolDraw     = item.pool_draw  != null ? item.pool_draw  : 3;
         html += `
-          <div class="sim-section">
-            <div class="sim-section-eyebrow">${Lang.t('simSection')}</div>
-            <div class="sim-section-name">${escHtml(item.title || 'Section')}</div>
+          <div class="section-card">
+            <div class="section-head">
+              <span style="font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:rgba(255,255,255,0.4);">Section</span>
+              <span class="section-title-display">${escHtml(item.title || 'Section')}</span>
+            </div>
+            <div class="section-body">
+              <div class="s-top-row">
+                <input class="section-instr" type="text" placeholder="Section instructions (optional)…"
+                  value="${escHtml(item.instructions || '')}"
+                  oninput="updateSectionField(${idx},'instructions',this.value)">
+              </div>
+              <div class="s-panel">
+                <span class="s-panel-lbl">Section attachment</span>
+                <div class="attach-options">
+                  <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image</button>
+                  <input type="file" accept="image/*" style="display:none;" onchange="showSectionFile(this,'image')">
+                  <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
+                  <input type="file" accept=".pdf" style="display:none;" onchange="showSectionFile(this,'pdf')">
+                  <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio</button>
+                  <input type="file" accept="audio/*" style="display:none;" onchange="showSectionFile(this,'audio')">
+                  <button class="attach-opt" type="button" onclick="toggleSectionVideoInput(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link</button>
+                </div>
+                <div class="section-attach-preview attach-preview"></div>
+                <div class="s-attach-note" style="display:none;">* This file will display at the top of this section for students</div>
+              </div>
+              <div class="s-panel">
+                <label class="s-toggle-row">
+                  <input type="checkbox" class="s-pool-toggle" ${poolChecked} onchange="togglePoolFields(this);updateSectionField(${idx},'poolEnabled',this.checked)">
+                  <span class="s-toggle-lbl">Question pool</span>
+                </label>
+                <div class="s-pool-fields" style="display:${poolDisplay};">
+                  <label class="s-field-row"><span class="s-field-lbl">Total questions in pool</span><input type="number" class="s-num-input s-pool-total" min="1" value="${poolTotal}" oninput="updateSectionField(${idx},'pool_total',parseInt(this.value)||null)"></label>
+                  <label class="s-field-row"><span class="s-field-lbl">Questions to serve per student</span><input type="number" class="s-num-input s-pool-draw" min="1" value="${poolDraw}" oninput="updateSectionField(${idx},'pool_draw',parseInt(this.value)||null)"></label>
+                </div>
+              </div>
+              <div class="s-panel" style="padding-bottom:10px;">
+                <label class="s-toggle-row">
+                  <input type="checkbox" class="s-pagebreak-toggle" ${pageChecked} onchange="updateSectionField(${idx},'page_break',this.checked)">
+                  <span class="s-toggle-lbl">Start on new page</span>
+                </label>
+              </div>
+            </div>
           </div>`;
       } else if (item.type === 'mcq') {
         qNum++;
@@ -448,6 +522,106 @@
     return '';
   }
 
+  // ── Section field mutations ───────────────────────────────────
+
+  function updateSectionField(idx, field, value) {
+    if (reviewData && reviewData.items && reviewData.items[idx]) {
+      reviewData.items[idx][field] = value;
+    }
+  }
+
+  // ── Section attachment helpers (copied from exam-builder-manual.html) ──
+
+  function showSectionFile(input, type) {
+    if (!input.files[0]) return;
+    const file = input.files[0];
+    const icons = { image: '🖼', pdf: '📄', audio: '🔊' };
+    const sectionCard = input.closest('.section-card');
+    const preview = sectionCard.querySelector('.section-attach-preview');
+    const note    = sectionCard.querySelector('.s-attach-note');
+    preview.innerHTML = '';
+    const pill = document.createElement(type === 'audio' ? 'div' : 'span');
+    pill.className = 'attach-file';
+    pill.dataset.mediaType = type;
+    pill._attachedFile = file;
+    const rmHandler = `this.closest('.attach-file').remove();this.closest('.section-card').querySelector('.s-attach-note').style.display='none';`;
+    if (type === 'audio') {
+      const previewUrl = URL.createObjectURL(file);
+      pill.style.cssText = 'display:block;padding:10px 12px;';
+      pill.innerHTML = `
+        <audio controls src="${previewUrl}" style="width:100%;display:block;margin-bottom:8px;"></audio>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:0.82rem;font-weight:600;color:#475569;">${file.name} *</span>
+          <button class="attach-rm" onclick="${rmHandler}">✕</button>
+        </div>`;
+    } else {
+      pill.innerHTML = `${icons[type] || '📎'} ${file.name} <button class="attach-rm" onclick="${rmHandler}">✕</button>`;
+    }
+    preview.appendChild(pill);
+    note.style.display = 'block';
+    input.value = '';
+  }
+
+  function toggleSectionVideoInput(btn) {
+    const panel = btn.closest('.s-panel');
+    let row = panel.querySelector('.video-link-row');
+    if (row) { row.remove(); return; }
+    row = document.createElement('div');
+    row.className = 'video-link-row';
+    row.innerHTML = `<input class="video-link-input" type="url" placeholder="Paste YouTube or Vimeo URL…"><button class="video-confirm-btn" onclick="confirmSectionVideo(this)">Confirm</button>`;
+    btn.closest('.attach-options').after(row);
+    row.querySelector('input').focus();
+  }
+
+  function confirmSectionVideo(btn) {
+    const input = btn.previousElementSibling;
+    const url   = input.value.trim();
+    if (!url) return;
+    try { new URL(url); } catch(e) { input.style.borderColor = '#dc2626'; return; }
+    if (!/^https?:\/\//i.test(url)) { input.style.borderColor = '#dc2626'; return; }
+    input.style.borderColor = '';
+    const sectionCard = btn.closest('.section-card');
+    const preview = sectionCard.querySelector('.section-attach-preview');
+    const note    = sectionCard.querySelector('.s-attach-note');
+    preview.innerHTML = '';
+    const pill = document.createElement('span');
+    pill.className = 'attach-file';
+    pill.dataset.mediaType = 'video';
+    pill.dataset.mediaUrl  = url;
+    const rmHandler = `this.closest('.attach-file').remove();this.closest('.section-card').querySelector('.s-attach-note').style.display='none';`;
+    pill.innerHTML = `▶ ${url.length > 40 ? url.slice(0,40) + '…' : url} <button class="attach-rm" onclick="${rmHandler}">✕</button>`;
+    preview.appendChild(pill);
+    note.style.display = 'block';
+    btn.closest('.video-link-row').remove();
+  }
+
+  function togglePoolFields(checkbox) {
+    const fields = checkbox.closest('.s-panel').querySelector('.s-pool-fields');
+    fields.style.display = checkbox.checked ? 'flex' : 'none';
+    refreshPoolBadges();
+  }
+
+  function refreshPoolBadges() {
+    let inPool = false;
+    document.querySelectorAll('#simCard .section-card, #simCard .sim-question').forEach(el => {
+      if (el.classList.contains('section-card')) {
+        inPool = el.querySelector('.s-pool-toggle')?.checked || false;
+      } else {
+        let badge = el.querySelector('.pool-badge');
+        if (inPool) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'pool-badge';
+            badge.textContent = 'Pool question — will be randomised';
+            el.querySelector('.sim-q-eyebrow').after(badge);
+          }
+        } else {
+          if (badge) badge.remove();
+        }
+      }
+    });
+  }
+
   // ── Publish ───────────────────────────────────────────────────
 
   async function publish() {
@@ -492,6 +666,9 @@
       if (examErr) throw examErr;
       const examId = examRows[0].id;
 
+      const sectionCardEls = [...document.querySelectorAll('#simCard .section-card')];
+      let sectionCardIdx = 0;
+
       for (let i = 0; i < items.length; i++) {
         const q = items[i];
         let mediaSrc  = null;
@@ -507,21 +684,56 @@
           mediaType = 'video';
         }
 
+        let sectionMediaSrc  = null;
+        let sectionMediaType = null;
+
+        if (q.type === 'section') {
+          const cardEl = sectionCardEls[sectionCardIdx++] || null;
+          if (cardEl) {
+            const pill = cardEl.querySelector('.section-attach-preview .attach-file');
+            if (pill) {
+              if (pill._attachedFile) {
+                const file = pill._attachedFile;
+                const ext  = file.name.split('.').pop();
+                const path = `${examId}/sec${i + 1}-${Date.now()}.${ext}`;
+                const { error: upErr } = await sb.storage
+                  .from('exam-attachments')
+                  .upload(path, file, { upsert: true });
+                if (!upErr) {
+                  const { data: urlData } = sb.storage.from('exam-attachments').getPublicUrl(path);
+                  sectionMediaSrc  = urlData.publicUrl;
+                  sectionMediaType = pill.dataset.mediaType;
+                } else {
+                  console.warn('Section attachment upload error:', upErr);
+                }
+              } else if (pill.dataset.mediaUrl) {
+                sectionMediaSrc  = pill.dataset.mediaUrl;
+                sectionMediaType = 'video';
+              }
+            }
+          }
+        }
+
         const { error: qErr } = await sb.from('questions').insert({
-          exam_id:          examId,
-          position:         i + 1,
-          type:             q.type,
-          question_text:    q.type === 'section' ? (q.title || 'Section') : (q.text || ''),
-          option_a:         q.type === 'section' ? (q.instructions || null) : (q.options?.[0] || null),
-          option_b:         q.options?.[1] || null,
-          option_c:         q.options?.[2] || null,
-          option_d:         q.options?.[3] || null,
-          correct_index:    q.type === 'mcq' ? q.correct : null,
-          grading_criteria: q.grading_criteria || null,
-          max_points:       q.type === 'section' ? (q.points || null) : (q.max_points || (q.type === 'open' ? 5 : null)),
-          media_src:        mediaSrc,
-          media_type:       mediaType,
-          media_name:       mediaName
+          exam_id:            examId,
+          position:           i + 1,
+          type:               q.type,
+          question_text:      q.type === 'section' ? (q.title || 'Section') : (q.text || ''),
+          option_a:           q.type === 'section' ? (q.instructions || null) : (q.options?.[0] || null),
+          option_b:           q.options?.[1] || null,
+          option_c:           q.options?.[2] || null,
+          option_d:           q.options?.[3] || null,
+          correct_index:      q.type === 'mcq' ? q.correct : null,
+          grading_criteria:   q.grading_criteria || null,
+          max_points:         q.type === 'section' ? (q.points || null) : (q.max_points || (q.type === 'open' ? 5 : null)),
+          media_src:          mediaSrc,
+          media_type:         mediaType,
+          media_name:         mediaName,
+          section_media_src:  sectionMediaSrc,
+          section_media_type: sectionMediaType,
+          pool_total:         q.type === 'section' && q.poolEnabled ? (q.pool_total || null) : null,
+          pool_draw:          q.type === 'section' && q.poolEnabled ? (q.pool_draw  || null) : null,
+          page_break:         q.type === 'section' ? (q.page_break  || false)                : false,
         });
         if (qErr) console.warn('Question insert error:', qErr);
       }
