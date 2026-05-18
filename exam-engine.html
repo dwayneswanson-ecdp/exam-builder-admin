@@ -325,11 +325,6 @@
       </label>
 
       <button id="confirmStartBtn" disabled style="width:100%;opacity:0.5;cursor:not-allowed;">Commencer l'épreuve →</button>
-
-      <!-- Privacy footer -->
-      <p style="text-align:center;margin-top:16px;font-size:0.78rem;color:#94a3b8;">
-        <a id="privacyFooterLink" href="privacy.html" target="_blank" rel="noopener noreferrer" style="color:#94a3b8;">Politique de confidentialité</a>
-      </p>
     </section>
 
     <!-- Exam questions -->
@@ -447,6 +442,7 @@
   let currentPage = 0;
   let POOL_SELECTION = {}; // { sectionId: [nonSectionQIdx, ...] } — fixed at exam start
   let isReconnect = false;
+  let VISIBLE_TOTAL = 0; // count of questions visible after pool selection
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
   // ============================================================
@@ -820,6 +816,10 @@
         showError('Cette épreuve ne contient pas encore de questions.');
         return;
       }
+      if (!isReconnect) {
+        SHUFFLE_MAP = generateShuffleMap();
+        localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
+      }
     } catch (err) {
       console.error('exam-questions failed:', err);
       showError('Impossible de charger les questions. Vérifiez votre connexion et réessayez.');
@@ -852,6 +852,10 @@
     // Build page structure and render
     buildPages();
     initPoolSelection();
+    VISIBLE_TOTAL = QUESTIONS.reduce((count, q) => {
+      const poolList = POOL_SELECTION[q._sectionId];
+      return (!poolList || poolList.includes(q._qIdx)) ? count + 1 : count;
+    }, 0);
     buildQuestions();    // unchanged — renders all question cards
     buildNavigator();    // unchanged — builds all nav dots
     markDOMPageIndices(); // post-marks each card/divider with its page index
@@ -869,6 +873,7 @@
     container.innerHTML = '';
 
     let questionCounter = 0; // counts only answerable questions
+    let visibleRank = 0;
 
     (window.ALL_ITEMS || QUESTIONS).forEach((item) => {
       // Render section as a visual heading divider
@@ -886,12 +891,24 @@
           instr.textContent = item.option_a;
           sec.appendChild(instr);
         }
+        const meta = document.createElement('div');
+        meta.style.cssText = 'font-size:0.78rem;color:#64748b;margin-top:4px;';
+        const qCount = item.pool_draw || item.pool_total || null;
+        const pts = item.max_points;
+        const parts = [];
+        if (qCount) parts.push(qCount + ' question' + (qCount !== 1 ? 's' : ''));
+        if (pts) parts.push(pts + ' pt' + (pts !== 1 ? 's' : ''));
+        if (parts.length) { meta.textContent = parts.join(' · '); sec.appendChild(meta); }
         container.appendChild(sec);
         return; // skip q-card rendering for sections
       }
 
       const idx = questionCounter++;
       const q   = item;
+
+      const poolList = POOL_SELECTION[item._sectionId];
+      const isVisible = !poolList || poolList.includes(item._qIdx);
+      if (isVisible) visibleRank++;
 
       const div = document.createElement('div');
       div.className = 'q-card';
@@ -901,7 +918,7 @@
       // Number badge
       const num = document.createElement('div');
       num.className = 'q-num';
-      num.textContent = 'Question ' + (idx + 1) + ' / ' + QUESTIONS.length;
+      num.textContent = 'Question ' + visibleRank + ' / ' + VISIBLE_TOTAL;
       div.appendChild(num);
 
       // Media (if any)
@@ -911,44 +928,13 @@
         if (q.media_type === 'image') {
           mediaDiv.innerHTML = `<img src="${q.media_src}" alt="Question media">`;
         } else if (q.media_type === 'audio') {
-          mediaDiv.innerHTML = `
-            <audio id="qa_${idx}" src="${q.media_src}" preload="metadata"></audio>
-            <div class="q-audio-player">
-              <svg class="q-audio-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
-              <button class="q-audio-play" type="button" aria-label="Lecture">
-                <svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>
-              </button>
-              <button class="q-audio-replay" type="button" aria-label="Rejouer">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
-              </button>
-              <span class="q-audio-time">0:00 / --:--</span>
-            </div>`;
-          const audio   = mediaDiv.querySelector('audio');
-          const playBtn = mediaDiv.querySelector('.q-audio-play');
-          const replayBtn = mediaDiv.querySelector('.q-audio-replay');
-          const timeEl  = mediaDiv.querySelector('.q-audio-time');
-          function fmtTime(s) {
-            if (!isFinite(s) || isNaN(s)) return '--:--';
-            return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
-          }
-          audio.addEventListener('loadedmetadata', () => {
-            timeEl.textContent = '0:00 / ' + fmtTime(audio.duration);
-          });
-          audio.addEventListener('timeupdate', () => {
-            timeEl.textContent = fmtTime(audio.currentTime) + ' / ' + fmtTime(audio.duration);
-          });
-          audio.addEventListener('play', () => {
-            playBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/></svg>';
-            armSafeBlur(3000);
-          }, { passive: true });
-          audio.addEventListener('pause', () => {
-            playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>';
-          });
-          audio.addEventListener('ended', () => {
-            playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>';
-          });
-          playBtn.addEventListener('click', () => { audio.paused ? audio.play() : audio.pause(); });
-          replayBtn.addEventListener('click', () => { audio.currentTime = 0; audio.play(); });
+          const audio = document.createElement('audio');
+          audio.controls = true;
+          audio.src = q.media_src;
+          audio.preload = 'metadata';
+          audio.style.cssText = 'width:100%;display:block;margin-bottom:8px;';
+          audio.addEventListener('play', () => { armSafeBlur(3000); }, { passive: true });
+          mediaDiv.appendChild(audio);
         } else if (q.media_type === 'video') {
           // YouTube / Vimeo embed or direct video
           const src = q.media_src;
@@ -1151,12 +1137,21 @@
         mediaDiv.innerHTML = `<video controls src="${src}" style="width:100%;display:block;"></video>`;
       }
     } else if (type === 'pdf') {
-      mediaDiv.innerHTML = `<iframe src="${src}" style="width:100%;height:260px;border:none;display:block;"></iframe>`;
+      fetch(src)
+        .then(r => r.blob())
+        .then(blob => {
+          const blobUrl = URL.createObjectURL(blob);
+          mediaDiv.innerHTML = `<embed src="${blobUrl}" type="application/pdf" style="width:100%;height:480px;display:block;">`;
+        })
+        .catch(() => {
+          mediaDiv.innerHTML = `<div style="padding:16px;background:#fef9c3;border:1px solid #fde68a;font-size:0.9rem;color:#92400e;">Le document PDF n'a pas pu être affiché.</div>`;
+        });
     }
     container.appendChild(mediaDiv);
   }
 
   function showPage(n) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     currentPage = n;
     const page = PAGES[n];
     const container = document.getElementById('questionsContainer');
@@ -1218,6 +1213,7 @@
       pageNav.style.display = 'none';
       submitRow.style.display = '';
     }
+    document.getElementById('qNav').style.display = PAGES.length > 1 ? 'none' : '';
 
     updateProgress();
   }
@@ -1234,7 +1230,7 @@
   }
 
   function updateProgress() {
-    const total    = QUESTIONS.length;
+    const total    = VISIBLE_TOTAL > 0 ? VISIBLE_TOTAL : QUESTIONS.length;
     const answered = document.querySelectorAll('.q-card.answered').length;
     const pct = total > 0 ? Math.round(answered / total * 100) : 0;
     document.getElementById('progressFill').style.width  = pct + '%';
@@ -1244,7 +1240,7 @@
 
   function updateProgressText(idx) {
     const el = document.getElementById('qProgressMobile');
-    if (el) el.textContent = 'Question ' + (idx + 1) + ' ' + UI.questionOf + ' ' + QUESTIONS.length;
+    if (el) el.textContent = 'Question ' + (idx + 1) + ' ' + UI.questionOf + ' ' + (VISIBLE_TOTAL > 0 ? VISIBLE_TOTAL : QUESTIONS.length);
   }
 
   function setupScrollProgress() {
@@ -1646,8 +1642,6 @@
     document.getElementById('rulesBackBtn').textContent        = UI.backBtn;
     document.getElementById('confirmContinueBtn').textContent  = UI.continueBtn;
     document.getElementById('confirmStartBtn').textContent     = UI.startBtn;
-    const privacyFooterLinkEl = document.getElementById('privacyFooterLink');
-    if (privacyFooterLinkEl) privacyFooterLinkEl.textContent  = UI.privacyLink;
     [1,2,3,4,5].forEach(i => {
       const el = document.getElementById('cw' + i);
       if (el) el.innerHTML = UI['cw' + i];
