@@ -1242,6 +1242,7 @@
     let currentType = null;
     let sectionNum  = 0;
     const isFR = lang === 'fr';
+    const hasExplicitSections = questions.some(q => q.type === 'section');
 
     questions.forEach(q => {
       if (q.type === 'section') {
@@ -1254,7 +1255,7 @@
         return;
       }
       const qType = q.type === 'open' ? 'open' : 'mcq';
-      if (qType !== currentType) {
+      if (!hasExplicitSections && qType !== currentType) {
         sectionNum++;
         const title = isFR
           ? (qType === 'open' ? `Section ${sectionNum} — Questions rédigées` : `Section ${sectionNum} — Questions à choix multiples`)
@@ -1510,7 +1511,7 @@
           <rect x="2" y="10" width="10" height="2" rx="1" fill="#94a3b8"/>
         </svg>
       </span>
-      <span class="rq-num">Q${idx + 1}</span>
+      <span class="rq-num">Q${window.extractedQuestions.slice(0, idx).filter(x => x.type !== 'section').length + 1}</span>
       <span class="rq-badge ${isMCQ ? 'mcq' : 'open'}">${isMCQ ? 'QCM' : (lang === 'fr' ? 'Rédigée' : 'Written')}</span>
       ${isInferred ? `<span class="rq-inferred">${lang === 'fr' ? 'réponse inférée' : 'inferred answer'}</span>` : ''}
       <button class="rq-type-toggle" onclick="toggleType(${idx})">${isMCQ ? t.toggleToOpen : t.toggleToMCQ}</button>
