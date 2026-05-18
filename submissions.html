@@ -508,6 +508,7 @@
             <option value="score-asc" data-i18n="sortScoreAsc">Score ↑</option>
           </select>
         </div>
+        <div id="refreshIndicator" style="font-size:0.68rem;color:var(--muted);text-align:right;padding:2px 0 4px;display:none;">Updated just now</div>
         <div class="panel-header">
           <label class="select-all-label">
             <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)">
@@ -983,6 +984,7 @@
     let examQuestions    = [];
     let scheduledState   = false;
     let activeGroup      = 'all'; // 'all' or a group name string
+    let _lastRefresh     = Date.now();
 
     // ── Tab navigation ─────────────────────────────────────────────
 
@@ -1084,6 +1086,45 @@
       mcqTotal     = examQuestions.filter(q => q.type === 'mcq').length;
       openMaxTotal = examQuestions.filter(q => q.type === 'open').reduce((s, q) => s + (q.max_points || 5), 0);
 
+      // Load section metadata for pool scoring
+      const { data: sectionItems } = await sb.from('questions')
+        .select('id, pool_draw, pool_total, position')
+        .eq('exam_id', examId)
+        .eq('type', 'section')
+        .order('position');
+      const sectionMeta = sectionItems || [];
+
+      // Recompute totals accounting for pool sections
+      let poolAdjustedMcq  = mcqTotal;
+      let poolAdjustedOpen = openMaxTotal;
+
+      if (sectionMeta.some(s => s.pool_draw && s.pool_total && s.pool_draw < s.pool_total)) {
+        // Rebuild counts using only drawn questions per pool section
+        let secQCount = {}; // sectionId -> count of questions seen so far
+        let adjMcq = 0, adjOpen = 0;
+        examQuestions.forEach(q => {
+          // Find which section this question belongs to (nearest section with smaller position)
+          const sec = sectionMeta.filter(s => s.position < q.position).slice(-1)[0] || null;
+          const secId = sec?.id || null;
+          if (!secQCount[secId]) secQCount[secId] = 0;
+          secQCount[secId]++;
+
+          // If this section has pool_draw, only count up to pool_draw questions
+          const draw = sec?.pool_draw || null;
+          const visible = !draw || secQCount[secId] <= draw;
+
+          if (visible) {
+            if (q.type === 'mcq')  adjMcq++;
+            if (q.type === 'open') adjOpen += (q.max_points || 5);
+          }
+        });
+        poolAdjustedMcq  = adjMcq;
+        poolAdjustedOpen = adjOpen;
+      }
+
+      mcqTotal     = poolAdjustedMcq;
+      openMaxTotal = poolAdjustedOpen;
+
       // Fetch institution for email branding
       if (institutionTeacherRes.data?.institution_id) {
         const { data: inst } = await sb.from('institutions')
@@ -1110,6 +1151,10 @@
       const badge = document.getElementById('tabSubBadge');
       if (badge) badge.textContent = attempts.length || '';
       renderAccessCard();
+      // Show last-refresh indicator
+      _lastRefresh = Date.now();
+      const indicator = document.getElementById('refreshIndicator');
+      if (indicator) { indicator.style.display = 'block'; indicator.textContent = 'Updated just now'; }
       // stickyFooter is inside tab-submissions; shown when that tab is active
     }
 
@@ -1656,16 +1701,17 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
           body: JSON.stringify({
-            type:          'retake',
-            reply_to:      currentTeacher?.email?.trim() || '',
-            to_email:      a.student_email?.trim() || '',
-            to_name:       a.student_name  || '',
-            exam_title:    currentExam.title,
-            lang:          currentExam.lang || 'fr',
-            retake_link:   retakeLink,
-            teacher_name:  currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
-            teacher_email: currentTeacher?.email?.trim() || '',
-            access_code:   currentExam.access_code || '',
+            type:             'retake',
+            reply_to:         currentTeacher?.email?.trim() || '',
+            to_email:         a.student_email?.trim() || '',
+            to_name:          a.student_name  || '',
+            exam_title:       currentExam.title,
+            lang:             currentExam.lang || 'fr',
+            retake_link:      retakeLink,
+            teacher_name:     currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
+            teacher_email:    currentTeacher?.email?.trim() || '',
+            access_code:      currentExam.access_code || '',
+            institution_name: currentInstitution?.name || '',
           }),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -2265,16 +2311,17 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
             body: JSON.stringify({
-              type: 'invite',
-              reply_to:     currentTeacher?.email?.trim() || '',
-              to_email:     email.trim(),
-              exam_title:   currentExam.title,
-              exam_link:    link,
-              access_code:  code,
-              duration_mins: String(currentExam.duration_mins || ''),
-              teacher_name:  currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
-              teacher_email: currentTeacher?.email?.trim() || '',
-              lang:          currentExam.lang || 'fr',
+              type:             'invite',
+              reply_to:         currentTeacher?.email?.trim() || '',
+              to_email:         email.trim(),
+              exam_title:       currentExam.title,
+              exam_link:        link,
+              access_code:      code,
+              duration_mins:    String(currentExam.duration_mins || ''),
+              teacher_name:     currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
+              teacher_email:    currentTeacher?.email?.trim() || '',
+              lang:             currentExam.lang || 'fr',
+              institution_name: currentInstitution?.name || '',
             }),
           });
           if (!res.ok) throw new Error(await res.text());
@@ -2958,6 +3005,39 @@
     }
 
     init();
+
+    // ── Auto-refresh every 30 seconds ──────────────────────────────
+    setInterval(async () => {
+      // Don't refresh if a modal is open
+      const anyModalOpen = document.querySelector('.modal[style*="flex"], .modal[style*="block"]');
+      if (anyModalOpen) return;
+      try {
+        const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId);
+        if (data) {
+          attempts = data;
+          _lastRefresh = Date.now();
+          updateStats();
+          renderList();
+          const indicator = document.getElementById('refreshIndicator');
+          if (indicator) { indicator.style.display = 'block'; indicator.textContent = 'Updated just now'; }
+        }
+      } catch(e) { /* silent */ }
+    }, 30000);
+
+    // Tick the "Updated X seconds ago" counter every second
+    setInterval(() => {
+      const indicator = document.getElementById('refreshIndicator');
+      if (!indicator || indicator.style.display === 'none') return;
+      const secs = Math.floor((Date.now() - _lastRefresh) / 1000);
+      if (secs < 5) {
+        indicator.textContent = 'Updated just now';
+      } else if (secs < 60) {
+        indicator.textContent = `Updated ${secs}s ago`;
+      } else {
+        const mins = Math.floor(secs / 60);
+        indicator.textContent = `Updated ${mins}m ago`;
+      }
+    }, 1000);
 
     function toggleUserMenu() {
       var d = document.getElementById('userDropdown');
