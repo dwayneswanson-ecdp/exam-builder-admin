@@ -2,8 +2,6 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const RESEND_KEY  = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM        = Deno.env.get("RESEND_FROM") ?? "onboarding@resend.dev";
-// testflo-dark.svg = white text logo — correct for dark navy header
-const LOGO_URL    = "https://exam.test-flo.com/testflo-dark.svg";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -75,7 +73,7 @@ function emailShell(content: string, lang: string) {
 <body style="font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:32px 16px;">
 <div style="max-width:600px;margin:0 auto;">
   <div style="background:#0f172a;padding:24px 32px;">
-    <img src="${LOGO_URL}" alt="testflo" height="28" style="display:block;">
+    <span style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.08em;color:#ffffff;">testflo</span>
   </div>
   ${content}
   <div style="padding:20px 0;text-align:center;font-size:11px;color:#94a3b8;">
