@@ -584,6 +584,25 @@ Browser-only. No automation. A human runs each test by clicking through the live
 
 ---
 
+### T34 — AI-generated exam edit — section attachment, pool, and page break on review page
+
+**Precondition:** Logged in as teacher. Use the AI extraction flow (upload a document → extract questions → arrive at the Review & Publish page). The exam must include at least one section header detected by the AI.
+
+**Steps:**
+1. On the Review & Publish page, locate a section card. Verify it shows three configuration panels: Section attachment, Question pool, and Start on new page.
+2. Upload an image file as a section attachment. Verify the attachment pill appears and the asterisk note is visible below the buttons.
+3. Check the Question pool toggle. Verify the Total questions in pool and Questions to serve per student fields appear. Enter values (e.g. 10 and 4).
+4. Check the Start on new page toggle.
+5. Click Publish exam.
+6. Open the published exam as a student and verify: the section renders on its own page with Next section navigation, the image attachment appears at the top of the section, and only 4 of the 10 pool questions are shown.
+7. As teacher, open student review for a submitted attempt. Verify the pool label reads "Pool — 4 of 10 questions drawn" above the section.
+
+**Expected result:** All three section configuration panels are visible and interactive on the Review & Publish page. Values entered are persisted through publish. The published exam reflects: page break navigation, the correct pool draw count, and the section attachment rendered above questions. Student review shows the pool label with the correct X of Y count.
+
+**Pass / Fail:** `[ ]`
+
+---
+
 ## Results Summary
 
 | Test ID | Name | Result | Notes |
@@ -621,6 +640,7 @@ Browser-only. No automation. A human runs each test by clicking through the live
 | T31 | Section page break | `[ ]` | |
 | T32 | Question pool | `[ ]` | |
 | T33 | Section attachment | `[ ]` | |
+| T34 | AI-generated exam edit — section attachment, pool, and page break on review page | `[ ]` | |
 
 ---
 
