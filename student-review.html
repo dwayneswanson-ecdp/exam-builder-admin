@@ -323,7 +323,9 @@
       const scoreDisplay = hasOpenScore
         ? (mcqScore + openScoreSum).toFixed(1)
         : mcqScore;
-      const scoreMax = mcqQuestions.length + openQuestions.reduce((s, q) => s + (q.max_points || 5), 0);
+      const visibleMcq  = mcqQuestions.filter(q => inPool(aqs.indexOf(q)));
+      const visibleOpen = openQuestions.filter(q => inPool(aqs.indexOf(q)));
+      const scoreMax = visibleMcq.length + visibleOpen.reduce((s, q) => s + (q.max_points || 5), 0);
 
       const submittedDate = attempt.submitted_at
         ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' +
@@ -436,33 +438,69 @@
           </div>
         </div>
 
-        ${mcqQuestions.length > 0 ? `
-        <!-- MCQ section -->
-        <div class="section-card">
-          <div class="section-head">
-            <span class="section-title">Section 1 — ${escHtml(exam.title)}</span>
-            <span class="section-score">${mcqScore} / ${mcqQuestions.length} correct</span>
-          </div>
-          <table class="mcq-table">
-            <thead><tr>
-              <th style="width:38%;">Question</th>
-              <th>Student Response</th>
-              <th>Correct Answer</th>
-              <th class="result-col">Result</th>
-            </tr></thead>
-            <tbody>${mcqRows}</tbody>
-          </table>
-        </div>` : ''}
+        ${(() => {
+          // Determine section titles for MCQ and open-question cards.
+          // Walk questions in order to build section groups. If no section items exist, fall back to generic labels.
+          const sectionItems = questions.filter(q => q.type === 'section');
+          const hasSections = sectionItems.length > 0;
 
-        ${openQuestions.length > 0 ? `
-        <!-- Open questions section -->
-        <div class="section-card">
-          <div class="section-head">
-            <span class="section-title">Section 2 — Open questions</span>
-            <span class="section-score">Teacher graded</span>
-          </div>
-          ${openBlocks}
-        </div>` : ''}
+          // Map each answerable question to its teacher-defined section title.
+          // Walk questions array: whenever we hit a section item, update current title.
+          const qSectionTitle = {}; // globalIdx → section title string or null
+          let _walkTitle = null;
+          questions.forEach(q => {
+            if (q.type === 'section') { _walkTitle = q.question_text || null; }
+            else {
+              const gi = aqs.indexOf(q);
+              if (gi >= 0) qSectionTitle[gi] = _walkTitle;
+            }
+          });
+
+          // Resolve MCQ section title: use title of the first visible MCQ's section.
+          let mcqSectionTitle = null;
+          for (const q of mcqQuestions) {
+            const gi = aqs.indexOf(q);
+            if (inPool(gi) && qSectionTitle[gi]) { mcqSectionTitle = qSectionTitle[gi]; break; }
+          }
+          // Resolve open section title: use title of the first visible open question's section.
+          let openSectionTitle = null;
+          for (const q of openQuestions) {
+            const gi = aqs.indexOf(q);
+            if (inPool(gi) && qSectionTitle[gi]) { openSectionTitle = qSectionTitle[gi]; break; }
+          }
+
+          const mcqHeader  = hasSections && mcqSectionTitle  ? escHtml(mcqSectionTitle)  : `Section 1 — ${escHtml(exam.title)}`;
+          const openHeader = hasSections && openSectionTitle ? escHtml(openSectionTitle) : 'Section 2 — Open questions';
+
+          return `
+          ${mcqQuestions.length > 0 ? `
+          <!-- MCQ section -->
+          <div class="section-card">
+            <div class="section-head">
+              <span class="section-title">${mcqHeader}</span>
+              <span class="section-score">${mcqScore} / ${visibleMcq.length} correct</span>
+            </div>
+            <table class="mcq-table">
+              <thead><tr>
+                <th style="width:38%;">Question</th>
+                <th>Student Response</th>
+                <th>Correct Answer</th>
+                <th class="result-col">Result</th>
+              </tr></thead>
+              <tbody>${mcqRows}</tbody>
+            </table>
+          </div>` : ''}
+
+          ${openQuestions.length > 0 ? `
+          <!-- Open questions section -->
+          <div class="section-card">
+            <div class="section-head">
+              <span class="section-title">${openHeader}</span>
+              <span class="section-score">Teacher graded</span>
+            </div>
+            ${openBlocks}
+          </div>` : ''}`;
+        })()}
 
         <!-- Session log -->
         ${(() => {
