@@ -302,6 +302,20 @@
       const mcqQuestions  = aqs.filter(q => q.type === 'mcq');
       const openQuestions = aqs.filter(q => q.type === 'open');
 
+      // Pool filtering — reads pool_selection saved by exam-engine on submit
+      const poolSelection = attempt.pool_selection || {};
+      const sectionForQ = {};
+      let _curSec = null;
+      questions.forEach(q => {
+        if (q.type === 'section') { _curSec = q; }
+        else { const gi = aqs.indexOf(q); if (gi >= 0) sectionForQ[gi] = _curSec; }
+      });
+      function inPool(gi) {
+        const sec = sectionForQ[gi];
+        if (!sec || !poolSelection[sec.id]) return true;
+        return poolSelection[sec.id].includes(gi);
+      }
+
       // Score display — use server-computed score_mcq (matches submissions.html)
       const openScoreSum = Object.values(openScores).reduce((s, v) => s + (parseFloat(v) || 0), 0);
       const hasOpenScore = Object.keys(openScores).length > 0;
@@ -322,13 +336,23 @@
       const nextId  = curIdx < allAttemptIds.length - 1 ? allAttemptIds[curIdx + 1] : null;
 
       // Build MCQ table rows
+      const _mcqPoolSeen = new Set();
       const mcqRows = mcqQuestions.map((q, i) => {
         const globalIdx   = aqs.indexOf(q);
+        if (!inPool(globalIdx)) return '';
+        const sec = sectionForQ[globalIdx];
+        let poolBanner = '';
+        if (sec && poolSelection[sec.id] && !_mcqPoolSeen.has(sec.id)) {
+          _mcqPoolSeen.add(sec.id);
+          const drawn = poolSelection[sec.id].length;
+          const total = Object.values(sectionForQ).filter(s => s?.id === sec.id).length;
+          poolBanner = `<tr><td colspan="4" style="background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:0.7rem;font-weight:700;color:#1e40af;padding:8px 24px;letter-spacing:0.05em;text-transform:uppercase;">Pool — ${drawn} of ${total} questions drawn</td></tr>`;
+        }
         const selectedIdx = parseInt(answers['q' + globalIdx], 10);
         const isCorrect   = selectedIdx === q.correct_index;
         const studentAns  = isNaN(selectedIdx) ? '—' : getOptionText(q, selectedIdx);
         const correctAns  = getOptionText(q, q.correct_index);
-        return `<tr>
+        return poolBanner + `<tr>
           <td><span class="q-num">Q${globalIdx + 1}</span>${escHtml(q.question_text)}</td>
           <td>${escHtml(studentAns)}</td>
           <td>${escHtml(correctAns)}</td>
@@ -337,8 +361,18 @@
       }).join('');
 
       // Build open question blocks
+      const _openPoolSeen = new Set();
       const openBlocks = openQuestions.map((q, i) => {
         const globalIdx = aqs.indexOf(q);
+        if (!inPool(globalIdx)) return '';
+        const _openSec = sectionForQ[globalIdx];
+        let openPoolBanner = '';
+        if (_openSec && poolSelection[_openSec.id] && !_openPoolSeen.has(_openSec.id)) {
+          _openPoolSeen.add(_openSec.id);
+          const drawn = poolSelection[_openSec.id].length;
+          const total = Object.values(sectionForQ).filter(s => s?.id === _openSec.id).length;
+          openPoolBanner = `<div style="background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:0.7rem;font-weight:700;color:#1e40af;padding:8px 24px;letter-spacing:0.05em;text-transform:uppercase;">Pool — ${drawn} of ${total} questions drawn</div>`;
+        }
         const rawAnswer = answers['q' + globalIdx] || '';
         const savedScore   = openScores[globalIdx] !== undefined ? openScores[globalIdx] : '';
         const savedComment = openComments[globalIdx] || '';
@@ -351,7 +385,7 @@
              <div class="criteria-block" style="display:none;">${escHtml(q.grading_criteria)}</div>`
           : '';
 
-        return `<div class="open-q" data-qidx="${globalIdx}">
+        return openPoolBanner + `<div class="open-q" data-qidx="${globalIdx}">
           <div class="open-q-label">Question ${globalIdx + 1}</div>
           <div class="open-q-text">${escHtml(q.question_text)}</div>
           <div class="answer-label">${Lang.t('studentAnswer')}</div>

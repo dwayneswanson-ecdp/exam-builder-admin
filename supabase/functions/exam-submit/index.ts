@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return respond({ error: "Method not allowed" }, 405);
 
   try {
-    const { attempt_id, session_token, answers, session_log } = await req.json();
+    const { attempt_id, session_token, answers, session_log, pool_selection } = await req.json();
 
     if (!attempt_id || !session_token || !answers) {
       return respond({ error: "Missing required fields" }, 400);
@@ -112,11 +112,12 @@ Deno.serve(async (req) => {
     const saveRes = await dbPatch(
       `exam_attempts?id=eq.${encodeURIComponent(attempt_id)}`,
       {
-        status:       "submitted",
-        score_mcq:    scoreMCQ,       // server-computed, never from client
-        answers_json: answers,        // raw student answers stored for teacher review
-        session_log:  session_log ?? [],
-        submitted_at: new Date().toISOString(),
+        status:         "submitted",
+        score_mcq:      scoreMCQ,
+        answers_json:   answers,
+        session_log:    session_log ?? [],
+        submitted_at:   new Date().toISOString(),
+        pool_selection: pool_selection ?? null,
       }
     );
 

@@ -131,6 +131,13 @@
     .q-audio-play { width: 34px; height: 34px; border-radius: 50%; background: #2563eb; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .q-audio-replay { width: 28px; height: 28px; border: none; background: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .q-audio-time { font-size: 0.82rem; font-weight: 600; color: #475569; font-family: inherit; margin-left: auto; white-space: nowrap; }
+    /* ── Page navigation ── */
+    .answer-persist-notice { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 0.82rem; padding: 10px 14px; margin-top: 16px; line-height: 1.5; }
+    #pageNav { display: none; align-items: center; gap: 10px; margin-top: 12px; }
+    .page-nav-btn { padding: 12px 24px; font-size: 0.88rem; font-weight: 700; font-family: inherit; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; transition: all 180ms ease; }
+    .page-nav-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .page-nav-next { background: var(--blue); color: #fff; border-color: var(--blue); margin-left: auto; }
+    .page-nav-next:hover { background: #1d4ed8; border-color: #1d4ed8; color: #fff; }
 
     /* ── Progress ── */
     .progress-bar-wrap { background: var(--line); height: 4px; margin-bottom: 24px; }
@@ -329,10 +336,16 @@
     <section id="examScreen" style="display:none;">
       <div class="progress-label" id="progressLabel"></div>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <div id="sectionMediaTop"></div>
       <div id="questionsContainer"></div>
       <div class="q-nav" id="qNav"></div>
       <div class="q-progress-mobile" id="qProgressMobile"></div>
-      <div class="btn-row center" style="margin-top:8px;">
+      <div id="answerPersistNotice" class="answer-persist-notice" style="display:none;"></div>
+      <div id="pageNav">
+        <button id="pagePrevBtn" type="button" class="page-nav-btn" style="display:none;"></button>
+        <button id="pageNextBtn" type="button" class="page-nav-btn page-nav-next"></button>
+      </div>
+      <div class="btn-row center" id="submitBtnRow" style="margin-top:8px;">
         <button id="submitBtn">Envoyer ma copie →</button>
       </div>
     </section>
@@ -430,6 +443,9 @@
   let TERMINATED_KEY = '';
   let uiLang = 'fr';
   let SHUFFLE_MAP = {};   // { "qIdx": [originalIndices...] } — set once at exam start
+  let PAGES = [];         // page-break grouping built once at exam start
+  let currentPage = 0;
+  let POOL_SELECTION = {}; // { sectionId: [nonSectionQIdx, ...] } — fixed at exam start
   let isReconnect = false;
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
@@ -652,6 +668,11 @@
       alertGroup:   isFR ? 'Merci de sélectionner votre groupe.' : 'Please select your group.',
       alertCode:    isFR ? "Code d'accès invalide." : 'Invalid access code.',
       questionOf:   isFR ? 'sur' : 'of',
+      nextSection: isFR ? 'Section suivante →' : 'Next section →',
+      prevSection: isFR ? '← Section précédente' : '← Previous section',
+      answerPersistNotice: isFR
+        ? 'Vos réponses sont sauvegardées au fur et à mesure. Vous pouvez revenir en arrière et modifier vos réponses à tout moment avant de soumettre.'
+        : 'Your answers are saved as you go. You can go back and change your responses at any time before submitting.',
       mobileNotifNotice: isFR
         ? '📵 Avant de commencer, activez le mode « Ne pas déranger » et désactivez les notifications pour éviter toute interruption pendant l\'épreuve.'
         : '📵 Before starting, enable Do Not Disturb mode and turn off notifications to avoid any interruption during the exam.',
@@ -828,9 +849,13 @@
     timerEl.style.display = 'inline-block';
     startTimer();
 
-    // Build questions
-    buildQuestions();
-    buildNavigator();
+    // Build page structure and render
+    buildPages();
+    initPoolSelection();
+    buildQuestions();    // unchanged — renders all question cards
+    buildNavigator();    // unchanged — builds all nav dots
+    markDOMPageIndices(); // post-marks each card/divider with its page index
+    showPage(0);         // show first page, hide the rest
 
     document.getElementById('examScreen').style.display = 'block';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1003,6 +1028,196 @@
 
       container.appendChild(div);
     });
+
+    updateProgress();
+  }
+
+  // ============================================================
+  //  PAGE-BREAK NAVIGATION
+  // ============================================================
+  function buildPages() {
+    let pageIdx = 0;
+    let nonSectionIdx = 0;
+    let currentSectionId = null;
+    (window.ALL_ITEMS || []).forEach((item, i) => {
+      if (item.type === 'section') {
+        if (item.page_break && i > 0) pageIdx++;
+        currentSectionId = item.id || null;
+      }
+      item._pageIdx = pageIdx;
+      item._sectionId = currentSectionId;
+      if (item.type !== 'section') item._qIdx = nonSectionIdx++;
+    });
+    PAGES = [];
+    for (let p = 0; p <= pageIdx; p++) {
+      const pageItems = (window.ALL_ITEMS || []).filter(x => x._pageIdx === p);
+      const leadSection = pageItems.find(x => x.type === 'section' && x.page_break) || null;
+      const qIndices = pageItems.filter(x => x.type !== 'section').map(x => x._qIdx);
+      PAGES.push({ leadSection, qIndices });
+    }
+  }
+
+  function initPoolSelection() {
+    const cacheKey = 'poolSelectionCache_' + EXAM.share_id;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) { try { POOL_SELECTION = JSON.parse(cached); return; } catch(e) {} }
+    POOL_SELECTION = {};
+    let currentSec = null;
+    let currentItems = [];
+    function flushSection() {
+      if (!currentSec || !currentSec.pool_draw) return;
+      if (currentSec.pool_draw >= currentItems.length) return;
+      const arr = currentItems.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      POOL_SELECTION[currentSec.id] = arr.slice(0, currentSec.pool_draw);
+    }
+    (window.ALL_ITEMS || []).forEach(item => {
+      if (item.type === 'section') {
+        flushSection();
+        currentSec = (item.pool_draw) ? item : null;
+        currentItems = [];
+      } else if (currentSec) {
+        currentItems.push(item._qIdx);
+      }
+    });
+    flushSection();
+    localStorage.setItem(cacheKey, JSON.stringify(POOL_SELECTION));
+  }
+
+  function markDOMPageIndices() {
+    const container = document.getElementById('questionsContainer');
+    const cards    = [...container.querySelectorAll('.q-card')];
+    const dividers = [...container.querySelectorAll('.section-divider')];
+    let cardI = 0, divI = 0;
+    (window.ALL_ITEMS || []).forEach(item => {
+      if (item.type === 'section') {
+        const d = dividers[divI++];
+        if (d) {
+          d.dataset.pageIdx   = item._pageIdx;
+          d.dataset.sectionId = item.id || '';
+          if (item.page_break) d.dataset.isPageBreak = '1';
+        }
+      } else {
+        const c = cards[cardI++];
+        if (c) {
+          c.dataset.pageIdx   = item._pageIdx;
+          c.dataset.sectionId = item._sectionId || '';
+        }
+      }
+    });
+  }
+
+  function renderSectionMedia(section, container) {
+    if (!section || !section.section_media_src) return;
+    const src  = section.section_media_src;
+    const type = section.section_media_type;
+    const mediaDiv = document.createElement('div');
+    mediaDiv.className = 'q-media';
+    mediaDiv.style.marginBottom = '16px';
+    if (type === 'image') {
+      mediaDiv.innerHTML = `<img src="${src}" alt="Section media">`;
+    } else if (type === 'audio') {
+      const aid = 'sec_aud_' + (section.id || 'x');
+      mediaDiv.innerHTML = `
+        <audio id="${aid}" src="${src}" preload="metadata"></audio>
+        <div class="q-audio-player">
+          <svg class="q-audio-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          <button class="q-audio-play" type="button" aria-label="Lecture"><svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg></button>
+          <button class="q-audio-replay" type="button" aria-label="Rejouer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg></button>
+          <span class="q-audio-time">0:00 / --:--</span>
+        </div>`;
+      const audio    = mediaDiv.querySelector('audio');
+      const playBtn  = mediaDiv.querySelector('.q-audio-play');
+      const replayBtn = mediaDiv.querySelector('.q-audio-replay');
+      const timeEl   = mediaDiv.querySelector('.q-audio-time');
+      function fmtT(s) { if (!isFinite(s)||isNaN(s)) return '--:--'; return Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0'); }
+      audio.addEventListener('loadedmetadata', () => { timeEl.textContent = '0:00 / '+fmtT(audio.duration); });
+      audio.addEventListener('timeupdate', () => { timeEl.textContent = fmtT(audio.currentTime)+' / '+fmtT(audio.duration); });
+      audio.addEventListener('play', () => { playBtn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" fill="white"/><rect x="14" y="4" width="4" height="16" fill="white"/></svg>'; armSafeBlur(3000); }, {passive:true});
+      audio.addEventListener('pause', () => { playBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>'; });
+      audio.addEventListener('ended', () => { playBtn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21" fill="white"/></svg>'; });
+      playBtn.addEventListener('click', () => { audio.paused ? audio.play() : audio.pause(); });
+      replayBtn.addEventListener('click', () => { audio.currentTime = 0; audio.play(); });
+    } else if (type === 'video') {
+      if (src.includes('youtube')||src.includes('youtu.be')||src.includes('vimeo')) {
+        let embedUrl = src;
+        if (src.includes('watch?v=')) embedUrl = 'https://www.youtube.com/embed/'+src.split('watch?v=')[1].split('&')[0];
+        else if (src.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/'+src.split('youtu.be/')[1];
+        mediaDiv.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+      } else {
+        mediaDiv.innerHTML = `<video controls src="${src}" style="width:100%;display:block;"></video>`;
+      }
+    } else if (type === 'pdf') {
+      mediaDiv.innerHTML = `<iframe src="${src}" style="width:100%;height:260px;border:none;display:block;"></iframe>`;
+    }
+    container.appendChild(mediaDiv);
+  }
+
+  function showPage(n) {
+    currentPage = n;
+    const page = PAGES[n];
+    const container = document.getElementById('questionsContainer');
+
+    // Show/hide question cards by page and pool selection
+    container.querySelectorAll('.q-card').forEach(card => {
+      const onPage   = parseInt(card.dataset.pageIdx) === n;
+      const qIdx     = parseInt(card.dataset.idx);
+      const secId    = card.dataset.sectionId;
+      const poolList = POOL_SELECTION[secId];
+      const inPool   = poolList !== undefined;
+      const selected = !inPool || poolList.includes(qIdx);
+      card.style.display = (onPage && selected) ? '' : 'none';
+    });
+
+    // Show/hide section dividers — hide page-break dividers (rendered as page headings)
+    container.querySelectorAll('.section-divider').forEach(div => {
+      const onPage = parseInt(div.dataset.pageIdx) === n;
+      div.style.display = (onPage && div.dataset.isPageBreak !== '1') ? '' : 'none';
+    });
+
+    // Section attachment above questions
+    const mediaTop = document.getElementById('sectionMediaTop');
+    mediaTop.innerHTML = '';
+    if (page.leadSection) renderSectionMedia(page.leadSection, mediaTop);
+
+    // Answer persistence notice — always visible during exam
+    const notice = document.getElementById('answerPersistNotice');
+    notice.textContent = UI.answerPersistNotice;
+    notice.style.display = 'block';
+
+    // Page navigation buttons
+    const pageNav    = document.getElementById('pageNav');
+    const prevBtn    = document.getElementById('pagePrevBtn');
+    const nextBtn    = document.getElementById('pageNextBtn');
+    const submitRow  = document.getElementById('submitBtnRow');
+    if (PAGES.length > 1) {
+      pageNav.style.display = 'flex';
+      submitRow.style.display = 'none';
+      prevBtn.style.display = n > 0 ? '' : 'none';
+      prevBtn.textContent = UI.prevSection;
+      prevBtn.onclick = () => showPage(n - 1);
+      if (n === PAGES.length - 1) {
+        nextBtn.textContent = UI.submitBtn || 'Envoyer ma copie →';
+        nextBtn.onclick = () => {
+          if (examSubmitted) return;
+          const visibleUnans = [...document.querySelectorAll('.q-card')]
+            .filter(c => c.style.display !== 'none' && !c.classList.contains('answered')).length;
+          if (visibleUnans > 0) {
+            if (!confirm(visibleUnans + ' question(s) sans réponse. Voulez-vous quand même envoyer votre copie ?')) return;
+          }
+          submitExam();
+        };
+      } else {
+        nextBtn.textContent = UI.nextSection;
+        nextBtn.onclick = () => showPage(n + 1);
+      }
+    } else {
+      pageNav.style.display = 'none';
+      submitRow.style.display = '';
+    }
 
     updateProgress();
   }
@@ -1361,10 +1576,11 @@
     try {
       if (attemptId && sessionToken) {
         await efFetch('exam-submit', {
-          attempt_id:    attemptId,
-          session_token: sessionToken,
-          answers:       answers,
-          session_log:   sessionEvents,
+          attempt_id:     attemptId,
+          session_token:  sessionToken,
+          answers:        answers,
+          session_log:    sessionEvents,
+          pool_selection: Object.keys(POOL_SELECTION).length > 0 ? POOL_SELECTION : null,
         });
       }
     } catch (err) {

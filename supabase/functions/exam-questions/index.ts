@@ -16,6 +16,8 @@ const QUESTION_COLS = [
   "option_a", "option_b", "option_c", "option_d",
   "media_type", "media_src", "media_name",
   "max_points",
+  "section_media_src", "section_media_type",
+  "pool_total", "pool_draw", "page_break",
 ].join(",");
 
 function respond(body: unknown, status = 200) {
