@@ -242,10 +242,33 @@
     .rq-section-btn { background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.3); padding: 5px; display: flex; align-items: center; transition: color var(--transition); }
     .rq-section-btn:hover { color: #fff; }
     .rq-section-btn.del:hover { color: #fca5a5; }
-    .rq-section-body { background: var(--surface); border-top: 1px solid var(--ink); padding: 9px 16px; display: flex; align-items: center; gap: 12px; }
+    .rq-section-body { background: var(--surface); border-top: 1px solid var(--ink); padding: 0 16px; display: flex; flex-direction: column; align-items: stretch; gap: 0; }
     .rq-section-instr { flex: 1; background: transparent; border: none; outline: none; font-size: 0.78rem; color: var(--slate); font-family: inherit; }
     .rq-section-instr::placeholder { color: var(--line); font-style: italic; }
     .rq-section-auto { font-size: 0.65rem; font-weight: 700; background: #eff6ff; color: var(--blue); border: 1px solid #bfdbfe; padding: 2px 7px; flex-shrink: 0; }
+    .s-top-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+    .s-panel { padding: 8px 0; border-top: 1px solid rgba(0,0,0,0.06); }
+    .s-panel-lbl { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; display: block; }
+    .s-toggle-row { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+    .s-toggle-lbl { font-size: 0.78rem; font-weight: 600; color: var(--slate); }
+    .s-pool-fields { margin-top: 8px; display: flex; flex-direction: column; gap: 6px; padding-left: 22px; }
+    .s-field-row { display: flex; align-items: center; gap: 8px; }
+    .s-field-lbl { font-size: 0.75rem; color: var(--slate); min-width: 200px; }
+    .s-num-input { width: 60px; font-size: 0.82rem; font-weight: 700; border: 1px solid var(--line); padding: 4px 6px; font-family: inherit; text-align: center; outline: none; color: var(--black); }
+    .s-num-input:focus { border-color: var(--blue); }
+    .s-num-input::-webkit-inner-spin-button, .s-num-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .pool-badge { font-size: 0.62rem; font-weight: 700; color: #92400e; background: #fef3c7; border: 1px solid #fde68a; padding: 2px 8px; letter-spacing: 0.04em; white-space: nowrap; }
+    .s-attach-note { font-size: 0.78rem; color: #94a3b8; margin-top: 4px; }
+    .attach-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .attach-opt { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: var(--slate); background: var(--white); border: 1px solid var(--line); padding: 5px 10px; cursor: pointer; font-family: inherit; transition: all var(--transition); }
+    .attach-opt:hover { border-color: var(--muted); color: var(--black); }
+    .attach-preview { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .attach-file { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 600; color: #166534; background: #f0fdf4; border: 1px solid #86efac; padding: 5px 10px; }
+    .attach-rm { color: var(--muted); cursor: pointer; margin-left: 2px; background: none; border: none; font-size: 0.82rem; }
+    .video-link-row { display: flex; gap: 6px; margin-top: 8px; }
+    .video-link-input { flex: 1; font-size: 0.8rem; font-family: inherit; border: 1px solid var(--line); padding: 6px 10px; color: var(--black); outline: none; }
+    .video-link-input:focus { border-color: var(--blue); }
+    .video-confirm-btn { font-size: 0.75rem; font-weight: 700; background: var(--surface); border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; font-family: inherit; color: var(--slate); }
 
     .rq-card { border: 1.5px solid var(--line); overflow: hidden; background: var(--white); transition: border-color var(--transition); }
     .rq-card:hover { border-color: #cbd5e1; }
@@ -1221,19 +1244,119 @@
     const isFR = lang === 'fr';
 
     questions.forEach(q => {
-      if (q.type === 'section') { result.push(q); currentType = 'section'; return; }
+      if (q.type === 'section') {
+        if (q.poolEnabled  === undefined) q.poolEnabled  = false;
+        if (q.pool_total   === undefined) q.pool_total   = null;
+        if (q.pool_draw    === undefined) q.pool_draw    = null;
+        if (q.page_break   === undefined) q.page_break   = false;
+        result.push(q);
+        currentType = 'section';
+        return;
+      }
       const qType = q.type === 'open' ? 'open' : 'mcq';
       if (qType !== currentType) {
         sectionNum++;
         const title = isFR
           ? (qType === 'open' ? `Section ${sectionNum} — Questions rédigées` : `Section ${sectionNum} — Questions à choix multiples`)
           : (qType === 'open' ? `Section ${sectionNum} — Written Questions`   : `Section ${sectionNum} — MCQ Questions`);
-        result.push({ type: 'section', title, instructions: '', points: 0, _auto: true });
+        result.push({ type: 'section', title, instructions: '', points: 0, _auto: true, poolEnabled: false, pool_total: null, pool_draw: null, page_break: false });
         currentType = qType;
       }
       result.push(q);
     });
     return result;
+  }
+
+  // ── Section attachment helpers ────────────────────────────────
+
+  function showSectionFile(input, type) {
+    if (!input.files[0]) return;
+    const file = input.files[0];
+    const icons = { image: '🖼', pdf: '📄', audio: '🔊' };
+    const sectionCard = input.closest('.rq-section');
+    const preview = sectionCard.querySelector('.section-attach-preview');
+    const note    = sectionCard.querySelector('.s-attach-note');
+    preview.innerHTML = '';
+    const pill = document.createElement(type === 'audio' ? 'div' : 'span');
+    pill.className = 'attach-file';
+    pill.dataset.mediaType = type;
+    pill._attachedFile = file;
+    const rmHandler = `this.closest('.attach-file').remove();this.closest('.rq-section').querySelector('.s-attach-note').style.display='none';`;
+    if (type === 'audio') {
+      const previewUrl = URL.createObjectURL(file);
+      pill.style.cssText = 'display:block;padding:10px 12px;';
+      pill.innerHTML = `
+        <audio controls src="${previewUrl}" style="width:100%;display:block;margin-bottom:8px;"></audio>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:0.82rem;font-weight:600;color:#475569;">${file.name} *</span>
+          <button class="attach-rm" onclick="${rmHandler}">✕</button>
+        </div>`;
+    } else {
+      pill.innerHTML = `${icons[type] || '📎'} ${file.name} <button class="attach-rm" onclick="${rmHandler}">✕</button>`;
+    }
+    preview.appendChild(pill);
+    note.style.display = 'block';
+    input.value = '';
+  }
+
+  function toggleSectionVideoInput(btn) {
+    const panel = btn.closest('.s-panel');
+    let row = panel.querySelector('.video-link-row');
+    if (row) { row.remove(); return; }
+    row = document.createElement('div');
+    row.className = 'video-link-row';
+    row.innerHTML = `<input class="video-link-input" type="url" placeholder="Paste YouTube or Vimeo URL…"><button class="video-confirm-btn" onclick="confirmSectionVideo(this)">Confirm</button>`;
+    btn.closest('.attach-options').after(row);
+    row.querySelector('input').focus();
+  }
+
+  function confirmSectionVideo(btn) {
+    const input = btn.previousElementSibling;
+    const url   = input.value.trim();
+    if (!url) return;
+    try { new URL(url); } catch(e) { input.style.borderColor = '#dc2626'; return; }
+    if (!/^https?:\/\//i.test(url)) { input.style.borderColor = '#dc2626'; return; }
+    input.style.borderColor = '';
+    const sectionCard = btn.closest('.rq-section');
+    const preview = sectionCard.querySelector('.section-attach-preview');
+    const note    = sectionCard.querySelector('.s-attach-note');
+    preview.innerHTML = '';
+    const pill = document.createElement('span');
+    pill.className = 'attach-file';
+    pill.dataset.mediaType = 'video';
+    pill.dataset.mediaUrl  = url;
+    const rmHandler = `this.closest('.attach-file').remove();this.closest('.rq-section').querySelector('.s-attach-note').style.display='none';`;
+    pill.innerHTML = `▶ ${url.length > 40 ? url.slice(0,40) + '…' : url} <button class="attach-rm" onclick="${rmHandler}">✕</button>`;
+    preview.appendChild(pill);
+    note.style.display = 'block';
+    btn.closest('.video-link-row').remove();
+  }
+
+  function togglePoolFields(checkbox) {
+    const fields = checkbox.closest('.s-panel').querySelector('.s-pool-fields');
+    fields.style.display = checkbox.checked ? 'flex' : 'none';
+    refreshPoolBadges();
+  }
+
+  function refreshPoolBadges() {
+    let inPool = false;
+    document.querySelectorAll('#reviewList .rq-section, #reviewList .rq-card').forEach(el => {
+      if (el.classList.contains('rq-section')) {
+        inPool = el.querySelector('.s-pool-toggle')?.checked || false;
+      } else {
+        let badge = el.querySelector('.pool-badge');
+        if (inPool) {
+          if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'pool-badge';
+            badge.textContent = 'Pool question — will be randomised';
+            el.querySelector('.rq-num').after(badge);
+          }
+        } else {
+          if (badge) badge.remove();
+        }
+      }
+    });
   }
 
   function buildSectionCard(q, idx) {
@@ -1252,13 +1375,57 @@
         </div>
       </div>
       <div class="rq-section-body">
-        <input class="rq-section-instr" type="text" value="${(q.instructions || '').replace(/"/g, '&quot;')}" placeholder="Section instructions (optional)…">
+        <div class="s-top-row">
+          <input class="rq-section-instr" type="text" value="${(q.instructions || '').replace(/"/g, '&quot;')}" placeholder="Section instructions (optional)…">
+        </div>
+        <div class="s-panel">
+          <span class="s-panel-lbl">Section attachment</span>
+          <div class="attach-options">
+            <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> Image</button>
+            <input type="file" accept="image/*" style="display:none;" onchange="showSectionFile(this,'image')">
+            <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> PDF</button>
+            <input type="file" accept=".pdf" style="display:none;" onchange="showSectionFile(this,'pdf')">
+            <button class="attach-opt" type="button" onclick="this.nextElementSibling.click()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg> Audio</button>
+            <input type="file" accept="audio/*" style="display:none;" onchange="showSectionFile(this,'audio')">
+            <button class="attach-opt" type="button" onclick="toggleSectionVideoInput(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> Video link</button>
+          </div>
+          <div class="section-attach-preview attach-preview"></div>
+          <div class="s-attach-note" style="display:none;">* This file will display at the top of this section for students</div>
+        </div>
+        <div class="s-panel">
+          <label class="s-toggle-row">
+            <input type="checkbox" class="s-pool-toggle" ${q.poolEnabled ? 'checked' : ''} onchange="togglePoolFields(this)">
+            <span class="s-toggle-lbl">Question pool</span>
+          </label>
+          <div class="s-pool-fields" style="display:${q.poolEnabled ? 'flex' : 'none'};">
+            <label class="s-field-row"><span class="s-field-lbl">Total questions in pool</span><input type="number" class="s-num-input s-pool-total" min="1" value="${q.pool_total || 5}"></label>
+            <label class="s-field-row"><span class="s-field-lbl">Questions to serve per student</span><input type="number" class="s-num-input s-pool-draw" min="1" value="${q.pool_draw || 3}"></label>
+          </div>
+        </div>
+        <div class="s-panel" style="padding-bottom:10px;">
+          <label class="s-toggle-row">
+            <input type="checkbox" class="s-pagebreak-toggle" ${q.page_break ? 'checked' : ''}>
+            <span class="s-toggle-lbl">Start on new page</span>
+          </label>
+        </div>
       </div>`;
     div.querySelector('.rq-section-title').addEventListener('input', e => {
       window.extractedQuestions[idx].title = e.target.value;
     });
     div.querySelector('.rq-section-instr').addEventListener('input', e => {
       window.extractedQuestions[idx].instructions = e.target.value;
+    });
+    div.querySelector('.s-pool-toggle').addEventListener('change', e => {
+      window.extractedQuestions[idx].poolEnabled = e.target.checked;
+    });
+    div.querySelector('.s-pool-total').addEventListener('input', e => {
+      window.extractedQuestions[idx].pool_total = parseInt(e.target.value) || null;
+    });
+    div.querySelector('.s-pool-draw').addEventListener('input', e => {
+      window.extractedQuestions[idx].pool_draw = parseInt(e.target.value) || null;
+    });
+    div.querySelector('.s-pagebreak-toggle').addEventListener('change', e => {
+      window.extractedQuestions[idx].page_break = e.target.checked;
     });
     return div;
   }
@@ -2198,7 +2365,11 @@ ${currentUserEmail}`;
         max_points:       q.max_points || (q.type === 'open' ? 5 : q.type === 'mcq' ? 1 : null),
         title:            q.title || null,
         instructions:     q.instructions || null,
-        points:           q.points || null
+        points:           q.points || null,
+        poolEnabled:      q.poolEnabled  || false,
+        pool_total:       q.pool_total   || null,
+        pool_draw:        q.pool_draw    || null,
+        page_break:       q.page_break   || false,
       };
       if (q.media?.src) {
         if (q.media.type === 'video') {
