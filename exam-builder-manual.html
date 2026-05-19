@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>New Exam — Build Manually</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
@@ -123,6 +125,13 @@
     .q-input { width: 100%; font-size: 0.87rem; font-family: inherit; border: 1px solid var(--line); padding: 9px 12px; color: var(--black); outline: none; resize: vertical; min-height: 42px; line-height: 1.5; margin-bottom: 12px; transition: border-color var(--transition); }
     .q-input:focus { border-color: var(--blue); }
     .q-card.open-type .q-input:focus { border-color: var(--purple); }
+    .ql-teacher-wrap .ql-toolbar  { border:2px solid var(--line); border-bottom:none; border-radius:0; font-family:inherit; }
+    .ql-teacher-wrap .ql-container { border:2px solid var(--line); border-radius:0; font-family:inherit; font-size:0.87rem; min-height:200px; }
+    .ql-teacher-wrap .ql-editor   { min-height:180px; font-family:inherit; font-size:inherit; line-height:1.5; padding:9px 12px; }
+    .ql-teacher-wrap:focus-within .ql-toolbar,
+    .ql-teacher-wrap:focus-within .ql-container { border-color:var(--blue); }
+    .q-card.open-type .ql-teacher-wrap:focus-within .ql-toolbar,
+    .q-card.open-type .ql-teacher-wrap:focus-within .ql-container { border-color:var(--purple); }
 
     .opts { display: flex; flex-direction: column; gap: 6px; }
     .opt-row { display: flex; align-items: center; gap: 8px; cursor: pointer; transition: background var(--transition); }
@@ -605,7 +614,23 @@
             ${attachBlockHtml()}
           </div>`;
       }
+      initCardQuill(el);
       return el;
+    }
+
+    function initCardQuill(card) {
+      const ta = card.querySelector('.q-input');
+      if (!ta) return;  // section cards have no .q-input
+      const wrap = document.createElement('div');
+      wrap.className = 'ql-teacher-wrap';
+      ta.parentNode.insertBefore(wrap, ta);
+      ta.style.display = 'none';
+      const quill = new Quill(wrap, {
+        theme: 'snow',
+        modules: { toolbar: [['bold','italic','underline','strike'],[{list:'ordered'},{list:'bullet'}],['clean']] },
+      });
+      quill.on('text-change', () => { ta.value = quill.root.innerHTML; });
+      card._quill = quill;
     }
 
     // ── List manipulation ────────────────────────────────────────
@@ -615,7 +640,8 @@
       const card = buildCard(type);
       addDragToCard(card);
       list.insertBefore(card, addR);
-      card.querySelector('input,textarea')?.focus();
+      if (card._quill) card._quill.focus();
+      else card.querySelector('input,textarea')?.focus();
       addR.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       updateStats();
     }
