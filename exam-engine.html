@@ -1207,6 +1207,7 @@
       if (n === PAGES.length - 1) {
         nextBtn.textContent = UI.submitBtn || 'Envoyer ma copie →';
         nextBtn.onclick = () => {
+          console.log('submit onclick fired', { examSubmitted, n, pagesLen: PAGES.length });
           if (examSubmitted) return;
           const visibleUnans = [...document.querySelectorAll('.q-card')]
             .filter(c => c.style.display !== 'none' && !c.classList.contains('answered')).length;
@@ -1484,7 +1485,8 @@
   });
 
   async function submitExam(autoReason) {
-    if (examSubmitted) return;
+    console.log('submitExam called', { attemptId, sessionToken, examSubmitted, autoReason });
+    if (examSubmitted) { console.log('submitExam: already submitted, returning'); return; }
     examSubmitted = true;
     examActive = false;
     clearInterval(timerInterval);
@@ -1493,7 +1495,7 @@
     const btn = document.getElementById('submitBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours — merci de patienter…'; }
 
-    console.log('submitExam called', { attemptId, sessionToken, examSubmitted });
+    console.log('submitExam: past guard');
 
     if (!attemptId || !sessionToken) {
       console.error('submitExam: missing session credentials');
