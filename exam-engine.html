@@ -801,6 +801,7 @@
       attemptId    = startRes.attempt_id;
       sessionToken = startRes.session_token;
       EXAM.id      = startRes.exam_id;
+      console.log('exam started', { attemptId, sessionToken });
       localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
       localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
@@ -1492,6 +1493,8 @@
     const btn = document.getElementById('submitBtn');
     if (btn) { btn.disabled = true; btn.textContent = 'Envoi en cours — merci de patienter…'; }
 
+    console.log('submitExam called', { attemptId, sessionToken, examSubmitted });
+
     if (!attemptId || !sessionToken) {
       console.error('submitExam: missing session credentials');
       examSubmitted = false;
@@ -1501,6 +1504,7 @@
       return;
     }
 
+    console.log('credentials OK, calling exam-submit');
     logEvent('Exam submitted', autoReason || 'Student clicked submit');
     console.log('submitExam started', { student: studentName, email: studentEmail });
 
@@ -1597,8 +1601,9 @@
         pool_selection: Object.keys(POOL_SELECTION).length > 0 ? POOL_SELECTION : null,
       });
       serverConfirmed = true;
+      console.log('exam-submit response received');
     } catch (err) {
-      console.error('Failed to submit attempt:', err);
+      console.error('exam-submit failed', err);
     }
 
     if (!serverConfirmed) {
@@ -1617,6 +1622,7 @@
     localStorage.removeItem('examSessionToken_' + EXAM.share_id);
 
     // Show success
+    console.log('showing success screen');
     document.getElementById('examScreen').style.display    = 'none';
     document.getElementById('successScreen').style.display = 'block';
     document.getElementById('timer').style.display = 'none';
