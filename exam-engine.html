@@ -917,7 +917,7 @@
         if (item.option_a) { // instructions stored in option_a for sections
           const instr = document.createElement('div');
           instr.style.cssText = 'font-size:0.82rem;color:#475569;margin-top:4px;';
-          instr.innerHTML = (item.option_a || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+          instr.innerHTML = item.option_a || '';
           sec.appendChild(instr);
         }
         const meta = document.createElement('div');
@@ -992,7 +992,7 @@
       // Question text
       const qText = document.createElement('div');
       qText.className = 'q-text';
-      qText.innerHTML = (q.question_text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      qText.innerHTML = q.question_text || '';
       div.appendChild(qText);
 
       if (q.type === 'open') {
