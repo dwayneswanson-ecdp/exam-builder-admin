@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>testflo — Importer un examen</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
   <script>
     // Forward password recovery links to dashboard.html
     const _h = Object.fromEntries(new URLSearchParams(window.location.hash.slice(1)));
@@ -301,6 +303,13 @@
 
     .rq-q-input { width: 100%; border: 1px solid var(--line); padding: 10px 12px; font-size: 0.88rem; font-family: inherit; color: var(--black); resize: vertical; min-height: 60px; outline: none; margin-bottom: 12px; transition: border-color var(--transition); line-height: 1.5; }
     .rq-q-input:focus { border-color: var(--blue); }
+    .ql-ai-wrap .ql-toolbar  { border:2px solid var(--line); border-bottom:none; border-radius:0; font-family:inherit; }
+    .ql-ai-wrap .ql-container { border:2px solid var(--line); border-radius:0; font-family:inherit; font-size:0.88rem; min-height:200px; }
+    .ql-ai-wrap .ql-editor   { min-height:180px; font-family:inherit; font-size:inherit; line-height:1.5; padding:10px 12px; }
+    .ql-ai-wrap:focus-within .ql-toolbar,
+    .ql-ai-wrap:focus-within .ql-container { border-color:var(--blue); }
+    .rq-card.open-type .ql-ai-wrap:focus-within .ql-toolbar,
+    .rq-card.open-type .ql-ai-wrap:focus-within .ql-container { border-color:#7c3aed; }
 
     .rq-options { display: flex; flex-direction: column; gap: 6px; }
     .rq-cb { width: 18px; height: 18px; border: 1.5px solid var(--line); background: var(--white); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all var(--transition); overflow: visible; }
@@ -1537,14 +1546,18 @@
     body.className = 'rq-body';
 
     // Question text
-    const qInput = document.createElement('textarea');
-    qInput.className = 'rq-q-input';
-    qInput.value = q.question;
-    qInput.rows = 2;
-    qInput.addEventListener('input', () => {
-      window.extractedQuestions[idx].question = qInput.value;
+    const qWrap = document.createElement('div');
+    qWrap.className = 'ql-ai-wrap';
+    body.appendChild(qWrap);
+
+    const qQuill = new Quill(qWrap, {
+      theme: 'snow',
+      modules: { toolbar: [['bold','italic','underline','strike'],[{list:'ordered'},{list:'bullet'}],['clean']] },
     });
-    body.appendChild(qInput);
+    if (q.question) qQuill.clipboard.dangerouslyPasteHTML(q.question);
+    qQuill.on('text-change', () => {
+      window.extractedQuestions[idx].question = qQuill.root.innerHTML;
+    });
 
     if (isMCQ) {
       const optsDiv = document.createElement('div');
