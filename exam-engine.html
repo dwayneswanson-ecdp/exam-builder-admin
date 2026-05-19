@@ -140,6 +140,23 @@
     .q-audio-time { font-size: 0.82rem; font-weight: 600; color: #475569; font-family: inherit; margin-left: auto; white-space: nowrap; }
     /* ── Page navigation ── */
     .answer-persist-notice { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 0.82rem; padding: 10px 14px; margin-top: 16px; line-height: 1.5; }
+
+    /* ── Section two-column layout ── */
+    .sec-page-title { font-size:1rem; font-weight:700; color:#0f172a; padding:14px 20px 4px; background:#f1f5f9; border-left:4px solid #2563eb; }
+    .sec-page-instr  { font-size:0.82rem; color:#475569; padding:4px 20px 10px; background:#f1f5f9; border-left:4px solid #2563eb; margin-bottom:0; }
+    @media (min-width: 769px) {
+      #sectionSplitRow.has-attachment { display:flex; align-items:stretch; }
+      #sectionSplitRow.has-attachment #sectionMediaTop  { width:50%; height:600px; overflow-y:auto; border-right:1px solid #e2e8f0; flex-shrink:0; }
+      #sectionSplitRow.has-attachment #questionsContainer { width:50%; height:600px; overflow-y:auto; padding:0 16px; }
+      #sectionSplitRow.has-attachment #sectionMediaTop .q-media { height:100%; margin-bottom:0; }
+      #sectionSplitRow.has-attachment #sectionMediaTop .q-media embed { width:100%; height:100%; display:block; }
+    }
+    @media (max-width: 768px) {
+      #sectionSplitRow.has-attachment #sectionMediaTop { width:100%; height:400px; overflow-y:auto; border-bottom:1px solid #e2e8f0; }
+      #sectionSplitRow.has-attachment #sectionMediaTop .q-media { height:100%; margin-bottom:0; }
+      #sectionSplitRow.has-attachment #sectionMediaTop .q-media embed { width:100%; height:100%; display:block; }
+      #sectionSplitRow.has-attachment #questionsContainer { width:100%; height:auto; }
+    }
     #pageNav { display: none; align-items: center; gap: 10px; margin-top: 12px; }
     .page-nav-btn { padding: 12px 24px; font-size: 0.88rem; font-weight: 700; font-family: inherit; border: 1.5px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; transition: all 180ms ease; }
     .page-nav-btn:hover { border-color: var(--blue); color: var(--blue); }
@@ -344,8 +361,11 @@
     <section id="examScreen" style="display:none;">
       <div class="progress-label" id="progressLabel"></div>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
-      <div id="sectionMediaTop"></div>
-      <div id="questionsContainer"></div>
+      <div id="sectionPageHeader"></div>
+      <div id="sectionSplitRow">
+        <div id="sectionMediaTop"></div>
+        <div id="questionsContainer"></div>
+      </div>
       <div class="q-nav" id="qNav"></div>
       <div class="q-progress-mobile" id="qProgressMobile"></div>
       <div id="answerPersistNotice" class="answer-persist-notice" style="display:none;"></div>
@@ -1235,10 +1255,30 @@
       div.style.display = (onPage && div.dataset.isPageBreak !== '1') ? '' : 'none';
     });
 
-    // Section attachment above questions
-    const mediaTop = document.getElementById('sectionMediaTop');
-    mediaTop.innerHTML = '';
-    if (page.leadSection) renderSectionMedia(page.leadSection, mediaTop);
+    // Section attachment — two-column layout when attachment present
+    const mediaTop   = document.getElementById('sectionMediaTop');
+    const splitRow   = document.getElementById('sectionSplitRow');
+    const pageHeader = document.getElementById('sectionPageHeader');
+    mediaTop.innerHTML   = '';
+    pageHeader.innerHTML = '';
+    splitRow.classList.remove('has-attachment');
+
+    if (page.leadSection && page.leadSection.section_media_src) {
+      const h = document.createElement('div');
+      h.className = 'sec-page-title';
+      h.textContent = page.leadSection.question_text || '';
+      pageHeader.appendChild(h);
+      if (page.leadSection.option_a) {
+        const p = document.createElement('div');
+        p.className = 'sec-page-instr';
+        p.innerHTML = page.leadSection.option_a || '';
+        pageHeader.appendChild(p);
+      }
+      renderSectionMedia(page.leadSection, mediaTop);
+      splitRow.classList.add('has-attachment');
+    } else if (page.leadSection) {
+      renderSectionMedia(page.leadSection, mediaTop);
+    }
 
     // Answer persistence notice — always visible during exam
     const notice = document.getElementById('answerPersistNotice');
