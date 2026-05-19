@@ -10,6 +10,8 @@
   <title>Exam</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
   <style>
     html, body {
       translate: none !important; -webkit-user-select: none; user-select: none;
@@ -43,6 +45,11 @@
     input[type="text"], input[type="email"], select, textarea { width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); font-size: 0.95rem; font-family: inherit; background: var(--white); color: var(--ink); transition: border-color var(--transition); }
     input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); }
     textarea { min-height: 180px; resize: vertical; -webkit-user-select: text; user-select: text; }
+    .ql-student-wrap .ql-toolbar  { border:2px solid #e2e8f0; border-bottom:none; border-radius:0; font-family:inherit; }
+    .ql-student-wrap .ql-container { border:2px solid #e2e8f0; border-radius:0; font-family:'Inter',system-ui,sans-serif; font-size:0.95rem; min-height:300px; }
+    .ql-student-wrap .ql-editor   { min-height:280px; font-family:inherit; font-size:inherit; line-height:1.7; padding:12px 14px; -webkit-user-select:text; user-select:text; }
+    .ql-student-wrap:focus-within .ql-toolbar,
+    .ql-student-wrap:focus-within .ql-container { border-color:#2563eb; }
 
     /* ── Buttons ── */
     button { background: var(--blue); color: #fff; border: none; padding: 13px 28px; cursor: pointer; font-size: 0.9rem; font-weight: 700; font-family: inherit; letter-spacing: 0.03em; transition: background var(--transition); }
@@ -995,22 +1002,46 @@
         note.textContent = 'Réponse rédigée — correction par l\'enseignant';
         div.appendChild(note);
 
-        const ta = document.createElement('textarea');
-        ta.placeholder = 'Écrivez votre réponse ici…';
-        ta.dataset.qidx = idx;
-        ta.setAttribute('autocomplete','off'); ta.setAttribute('autocorrect','off'); ta.setAttribute('autocapitalize','off'); ta.spellcheck = false;
-        ta.addEventListener('input', () => {
-          updateWordCount(ta, div);
-          div.classList.toggle('answered', ta.value.trim().length > 0);
+        const Delta = Quill.import('delta');
+        const editorWrap = document.createElement('div');
+        editorWrap.className = 'ql-student-wrap';
+        div.appendChild(editorWrap);
+
+        const quill = new Quill(editorWrap, {
+          theme: 'snow',
+          modules: { toolbar: [['bold','italic','underline'],[{list:'ordered'},{list:'bullet'}]] },
+        });
+
+        // Block all paste; log it
+        quill.clipboard.addMatcher(Node.ELEMENT_NODE, () => new Delta());
+        quill.root.addEventListener('paste', e => { e.preventDefault(); logEvent('Paste attempt blocked', 'q' + idx); });
+
+        // Suppress false anti-cheat on editor focus
+        quill.on('selection-change', range => { if (range) armSafeBlur(2000); });
+
+        // Copy logging
+        quill.root.addEventListener('copy', () => {
+          logEvent('Answer copied from text box', `q${idx} – ${(window.getSelection()?.toString().length||0)} chars`);
+        });
+
+        // Disable spellcheck / autocorrect / translate on editor element
+        const qlEditor = editorWrap.querySelector('.ql-editor');
+        if (qlEditor) {
+          qlEditor.setAttribute('spellcheck','false');
+          qlEditor.setAttribute('autocorrect','off');
+          qlEditor.setAttribute('autocapitalize','off');
+          qlEditor.setAttribute('translate','no');
+        }
+
+        // Word count + answered state on content change
+        quill.on('text-change', () => {
+          const text = quill.getText().trim();
+          div.classList.toggle('answered', text.length > 0);
           updateProgress();
+          updateQuillWordCount(quill, div);
         });
-        ta.addEventListener('paste', e => { e.preventDefault(); logEvent('Paste attempt blocked', 'q' + idx); });
-        ta.addEventListener('cut',   e => { e.preventDefault(); logEvent('Cut attempt blocked',   'q' + idx); });
-        ta.addEventListener('copy',  e => {
-          const len = window.getSelection()?.toString().length || 0;
-          logEvent('Answer copied from text box', `q${idx} – ${len} characters`);
-        });
-        div.appendChild(ta);
+
+        div._quill = quill;
 
         const wcRow = document.createElement('div');
         wcRow.className = 'word-count-row';
@@ -1257,6 +1288,17 @@
     if (countEl) countEl.textContent = 'Mots : ' + words;
     if (hintEl) {
       hintEl.className = 'wc-hint ' + (words === 0 ? 'hint-neutral' : words >= 50 ? 'hint-ok' : 'hint-neutral');
+      hintEl.textContent = words === 0 ? 'Rédigez votre réponse' : words + ' mots';
+    }
+  }
+
+  function updateQuillWordCount(quill, card) {
+    const words = quill.getText().trim().split(/\s+/).filter(Boolean).length;
+    const countEl = card.querySelector('.wc-count');
+    const hintEl  = card.querySelector('.wc-hint');
+    if (countEl) countEl.textContent = 'Mots : ' + words;
+    if (hintEl) {
+      hintEl.className = 'wc-hint ' + (words >= 50 ? 'hint-ok' : 'hint-neutral');
       hintEl.textContent = words === 0 ? 'Rédigez votre réponse' : words + ' mots';
     }
   }
@@ -1555,8 +1597,10 @@
 
     QUESTIONS.forEach((q, idx) => {
       if (q.type === 'open') {
-        const ta = document.querySelector(`textarea[data-qidx="${idx}"]`);
-        answers['q' + idx] = ta ? ta.value.trim() : '';
+        const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
+        const quill = card ? card._quill : null;
+        const text = quill ? quill.getText().trim() : '';
+        answers['q' + idx] = text ? quill.root.innerHTML : '';
       } else {
         const checked = document.querySelector(`input[name="q${idx}"]:checked`);
         const selectedLabel = checked ? checked.closest('label') : null;
@@ -1574,7 +1618,7 @@
     let openRowsHTML = '';
     QUESTIONS.forEach((q, idx) => {
       if (q.type === 'open') {
-        const resp = (answers['q' + idx] || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+        const resp = answers['q' + idx] || '';  // HTML from Quill — no escaping needed
         openRowsHTML += `
           <div style="margin-bottom:20px;">
             <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:6px;">Q${idx+1}: ${q.question_text}</div>
