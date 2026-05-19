@@ -7,7 +7,6 @@
   <title>Review Exam — testflo</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -662,8 +661,6 @@
       if (examErr) throw examErr;
       const examId = examRows[0].id;
 
-      console.log('Section files stored:', _sectionFiles);
-      console.log('_sectionFiles at publish time:', JSON.stringify(Object.keys(_sectionFiles).map(k => ({ idx: k, name: _sectionFiles[k]?.file?.name, type: _sectionFiles[k]?.type }))));
       for (let i = 0; i < items.length; i++) {
         const q = items[i];
         let mediaSrc  = null;
@@ -683,10 +680,8 @@
         let sectionMediaType = null;
 
         if (q.type === 'section') {
-          console.log('Publishing section index:', i, 'type:', q.type);
           const stored = _sectionFiles[i];
           if (stored) {
-            console.log('Uploading section file:', stored.file.name, stored.type);
             const { file, type } = stored;
             const ext  = file.name.split('.').pop();
             const path = `${examId}/sec${i + 1}-${Date.now()}.${ext}`;
@@ -697,9 +692,7 @@
               const { data: urlData } = sb.storage.from('exam-attachments').getPublicUrl(path);
               sectionMediaSrc  = urlData.publicUrl;
               sectionMediaType = type;
-              console.log('Upload result: SUCCESS:', sectionMediaSrc);
             } else {
-              console.log('Upload result: ERROR:', upErr.message);
               console.warn('Section attachment upload error:', upErr);
             }
           }
@@ -729,30 +722,10 @@
         if (qErr) console.warn('Question insert error:', qErr);
       }
 
-      // Send failsafe email to teacher
-      try {
-        const isLocal  = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
-        const baseUrl  = isLocal ? 'http://localhost:3000/exam-engine.html' : 'https://exam.test-flo.com/exam-engine.html';
-        const shareUrl = baseUrl + '?id=' + shareId;
-        emailjs.init({ publicKey: 'Bb0oPYBiZGQcyIz5r' });
-        emailjs.send('service_opm4h6b', 'template_x7bkb1l', {
-          to_email:    ob.teacherEmail || session.user.email,
-          to_name:     ob.teacherName  || session.user.email,
-          subject:     'Exam published: ' + (ob.title || 'New Exam'),
-          exam_title:  ob.title || 'New Exam',
-          exam_link:   shareUrl,
-          codes:       groups.length ? groups.map(g => g.name + ': ' + g.code).join('\n') : accessCode,
-          teacher_name: ob.teacherName || session.user.email
-        });
-      } catch(e) { /* failsafe — don't block on email error */ }
-
       localStorage.removeItem('examReview');
       localStorage.setItem('newExamId', examId);
 
       showToast('✓ ' + (ob.title || Lang.t('examDefault')) + ' ' + Lang.t('publishedSuccess'));
-      console.log('Publish complete — section files:', JSON.stringify(Object.keys(_sectionFiles)));
-      console.log('section_media_src written:', typeof sectionMediaSrc !== 'undefined' ? sectionMediaSrc : '(out of scope — see loop logs above)');
-      alert('Publish complete. Check console before clicking OK.');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
 
     } catch(err) {
