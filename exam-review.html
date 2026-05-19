@@ -662,6 +662,7 @@
       if (examErr) throw examErr;
       const examId = examRows[0].id;
 
+      console.log('Section files stored:', _sectionFiles);
       for (let i = 0; i < items.length; i++) {
         const q = items[i];
         let mediaSrc  = null;
@@ -681,8 +682,10 @@
         let sectionMediaType = null;
 
         if (q.type === 'section') {
+          console.log('Publishing section index:', i, 'type:', q.type);
           const stored = _sectionFiles[i];
           if (stored) {
+            console.log('Uploading section file:', stored.file.name, stored.type);
             const { file, type } = stored;
             const ext  = file.name.split('.').pop();
             const path = `${examId}/sec${i + 1}-${Date.now()}.${ext}`;
@@ -693,7 +696,9 @@
               const { data: urlData } = sb.storage.from('exam-attachments').getPublicUrl(path);
               sectionMediaSrc  = urlData.publicUrl;
               sectionMediaType = type;
+              console.log('Upload result: SUCCESS:', sectionMediaSrc);
             } else {
+              console.log('Upload result: ERROR:', upErr.message);
               console.warn('Section attachment upload error:', upErr);
             }
           }
