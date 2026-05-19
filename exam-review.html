@@ -663,6 +663,7 @@
       const examId = examRows[0].id;
 
       console.log('Section files stored:', _sectionFiles);
+      console.log('_sectionFiles at publish time:', JSON.stringify(Object.keys(_sectionFiles).map(k => ({ idx: k, name: _sectionFiles[k]?.file?.name, type: _sectionFiles[k]?.type }))));
       for (let i = 0; i < items.length; i++) {
         const q = items[i];
         let mediaSrc  = null;
@@ -749,6 +750,9 @@
       localStorage.setItem('newExamId', examId);
 
       showToast('✓ ' + (ob.title || Lang.t('examDefault')) + ' ' + Lang.t('publishedSuccess'));
+      console.log('Publish complete — section files:', JSON.stringify(Object.keys(_sectionFiles)));
+      console.log('section_media_src written:', typeof sectionMediaSrc !== 'undefined' ? sectionMediaSrc : '(out of scope — see loop logs above)');
+      alert('Publish complete. Check console before clicking OK.');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1800);
 
     } catch(err) {
