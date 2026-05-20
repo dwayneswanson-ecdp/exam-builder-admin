@@ -2311,8 +2311,11 @@
       const btn = document.getElementById('inviteSendBtn');
       btn.disabled = true; btn.textContent = Lang.t('sending');
       const { data: { session } } = await sb.auth.getSession();
-      const link = buildExamLink();
-      const code = currentExam.access_code || '';
+      const activeGrp = activeGroup !== 'all' ? activeGroup : null;
+      const link = buildExamLink(activeGrp);
+      let groupCodes = {};
+      try { groupCodes = JSON.parse(currentExam.group_codes || '{}'); } catch(e) {}
+      const code = (activeGrp && groupCodes[activeGrp]) ? groupCodes[activeGrp] : (currentExam.access_code || '');
       let sent = 0, failed = 0;
       for (const email of emails) {
         try {
