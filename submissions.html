@@ -1574,7 +1574,7 @@
           const res = await fetch(SEND_EMAIL_FN, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-            body: JSON.stringify({ type: 'results', reply_to: currentTeacher?.email?.trim() || '', teacher_email: currentTeacher?.email?.trim() || '', ...params, ...(isDetailedMode() ? { questions: buildQuestionsPayload(a) } : {}) }),
+            body: JSON.stringify({ type: 'results', reply_to: currentTeacher?.email?.trim() || '', teacher_email: currentTeacher?.email?.trim() || '', ...params, ...(isDetailedMode() ? { questions: buildQuestionsPayload(a), pool_selection: a.pool_selection || null } : {}) }),
           });
           if (!res.ok) throw new Error(await res.text());
           const now = new Date().toISOString();
@@ -2084,7 +2084,7 @@
       for (let i = 0; i < examQuestions.length; i++) {
         const q = examQuestions[i];
         while (secPtr < sortedSecs.length && sortedSecs[secPtr].position < q.position) {
-          result.push({ text: sortedSecs[secPtr].question_text || '', type: 'section' });
+          result.push({ text: sortedSecs[secPtr].question_text || '', type: 'section', id: sortedSecs[secPtr].id });
           secPtr++;
         }
         result.push({
@@ -2101,7 +2101,7 @@
         });
       }
       while (secPtr < sortedSecs.length) {
-        result.push({ text: sortedSecs[secPtr].question_text || '', type: 'section' });
+        result.push({ text: sortedSecs[secPtr].question_text || '', type: 'section', id: sortedSecs[secPtr].id });
         secPtr++;
       }
       return result;
@@ -2136,7 +2136,7 @@
             score_total: String(totalMax_s), score_converted: String(scoreConverted),
             teacher_name: currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
             institution_name: currentInstitution?.name || '',
-            ...(isDetailedMode() ? { questions: buildQuestionsPayload(a) } : {}),
+            ...(isDetailedMode() ? { questions: buildQuestionsPayload(a), pool_selection: a.pool_selection || null } : {}),
           }),
         });
         if (!res.ok) throw new Error(await res.text());
@@ -2223,7 +2223,7 @@
             score_total: String(totalMax_fp), score_converted: String(scoreConverted),
             teacher_name: currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
             institution_name: currentInstitution?.name || '',
-            ...(isDetailedMode() ? { questions: buildQuestionsPayload(a) } : {}),
+            ...(isDetailedMode() ? { questions: buildQuestionsPayload(a), pool_selection: a.pool_selection || null } : {}),
           }),
         });
         if (!res.ok) throw new Error(await res.text());

@@ -180,23 +180,13 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
   // ── Question table ────────────────────────────────────────────────────────
   let questionTable = '';
   if (questions && questions.length > 0) {
-    // FIX 1 — Pool filtering
-    // pool_selection: { sectionId: [qIdx, ...] } where qIdx is 0-based array index
+    // Pool filtering — pool_selection: { sectionId: [qIdx, ...] } keyed by section DB id
     const poolSel = p.pool_selection && typeof p.pool_selection === 'object'
       ? p.pool_selection as Record<string, number[]>
       : null;
     const poolActive = poolSel !== null && Object.keys(poolSel).length > 0;
 
-    // Build a flat set of all allowed indices across all pool sections
-    const poolAllowedSet: Set<number> = new Set();
-    if (poolActive) {
-      for (const idxArr of Object.values(poolSel!)) {
-        if (Array.isArray(idxArr)) idxArr.forEach(i => poolAllowedSet.add(i));
-      }
-    }
-
-    // FIX 2 — Section grouping
-    // Check if any item has type === 'section' (section header rows may appear in payload)
+    // Section grouping
     const hasSections = questions.some(q => q.type === 'section');
 
     // Helper to render a single MCQ row
@@ -290,25 +280,28 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
     }
 
     if (hasSections) {
-      // FIX 2 — Group by teacher-defined sections
-      // Walk questions array; section items start a new group
-      type SectionGroup = { title: string; items: { q: Record<string, unknown>; globalIdx: number }[] };
+      // Group by teacher-defined sections; track section ID for per-section pool filtering
+      type SectionGroup = { title: string; sectionId: string | null; items: { q: Record<string, unknown>; globalIdx: number }[] };
       const groups: SectionGroup[] = [];
-      let currentGroup: SectionGroup = { title: '', items: [] };
-      let globalQIdx = 0; // tracks non-section question index
+      let currentGroup: SectionGroup = { title: '', sectionId: null, items: [] };
+      let globalQIdx = 0;
 
       for (const item of questions) {
         if (item.type === 'section') {
           if (currentGroup.items.length > 0 || currentGroup.title) {
             groups.push(currentGroup);
           }
-          currentGroup = { title: String(item.text || item.question_text || ''), items: [] };
+          const sId = typeof item.id === 'string' ? item.id : null;
+          currentGroup = { title: String(item.text || item.question_text || ''), sectionId: sId, items: [] };
         } else {
-          // FIX 1 — apply pool filter using globalQIdx
           const idx = typeof (item as Record<string, unknown>).idx === 'number'
             ? (item as Record<string, unknown>).idx as number
             : globalQIdx;
-          if (!poolActive || poolAllowedSet.has(idx)) {
+          // Section-aware pool filtering: only apply when this section has a pool entry.
+          // Non-pool sections (no key in poolSel) are always included.
+          const sectionDrawn = poolSel && currentGroup.sectionId ? poolSel[currentGroup.sectionId] : null;
+          const include = sectionDrawn ? sectionDrawn.includes(idx) : true;
+          if (include) {
             currentGroup.items.push({ q: item, globalIdx: idx });
           }
           globalQIdx++;
@@ -382,16 +375,8 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
         questionTable += `<div style="padding:8px 16px;font-size:0.72rem;color:#94a3b8;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">${note}</div>`;
       }
     } else {
-      // No sections — original MCQ/Open grouping with pool filter applied
-      let globalQIdx = 0;
-      const filteredQuestions = questions.filter((q) => {
-        if (q.type === 'section') return false;
-        const idx = typeof (q as Record<string, unknown>).idx === 'number'
-          ? (q as Record<string, unknown>).idx as number
-          : globalQIdx;
-        globalQIdx++;
-        return !poolActive || poolAllowedSet.has(idx);
-      });
+      // No sections — pool_selection cannot apply without sections; render all questions
+      const filteredQuestions = questions.filter(q => q.type !== 'section');
 
       const mcqQs  = filteredQuestions.filter(q => q.type === 'mcq');
       const openQs = filteredQuestions.filter(q => q.type === 'open');
