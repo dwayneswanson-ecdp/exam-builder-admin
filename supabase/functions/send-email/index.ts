@@ -83,6 +83,23 @@ function emailShell(content: string, lang: string) {
 </body></html>`;
 }
 
+// ── Strip HTML (Quill output) ─────────────────────────────────────────────────
+
+function stripHtml(html: string): string {
+  return (html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<li>/gi, '• ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // ── Results email ─────────────────────────────────────────────────────────────
 
 function resultsHtml(p: Record<string, unknown>, lang: string) {
@@ -188,12 +205,12 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
       const correctIdx  = typeof q.correct_index === 'number' ? q.correct_index : -1;
       const studentIdx  = typeof q.student_answer === 'number' ? q.student_answer : -1;
       const isCorrect   = studentIdx !== -1 && studentIdx === correctIdx;
-      const correctText = correctIdx >= 0 ? (options[correctIdx] ?? '—') : '—';
-      const studentText = studentIdx >= 0 ? (options[studentIdx] ?? (lang === "en" ? "No answer" : "Sans réponse")) : (lang === "en" ? "No answer" : "Sans réponse");
+      const correctText = correctIdx >= 0 ? (stripHtml(String(options[correctIdx] ?? '')) || '—') : '—';
+      const studentText = studentIdx >= 0 ? (stripHtml(String(options[studentIdx] ?? '')) || (lang === "en" ? "No answer" : "Sans réponse")) : (lang === "en" ? "No answer" : "Sans réponse");
       const rowBg       = rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
       // FIX 3 — fallback to Q{position} when text is empty
       const pos = typeof q.position === 'number' ? q.position : (rowIdx + 1);
-      const qText = String(q.text || q.question_text || '').trim() || `Q${pos}`;
+      const qText = stripHtml(String(q.text || q.question_text || '')) || `Q${pos}`;
       return `
       <tr style="background:${rowBg};">
         <td style="padding:10px 14px;font-size:0.78rem;color:#1e293b;border-bottom:1px solid #e2e8f0;vertical-align:top;max-width:220px;">${esc(qText)}</td>
@@ -208,9 +225,10 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
       const scoreLabel = q.open_score != null
         ? `<p style="margin:8px 0 0;font-size:0.78rem;font-weight:700;color:#475569;">${T.openScore} : <strong>${q.open_score} / ${q.max_points ?? '?'}</strong></p>`
         : '';
-      const responseBlock = q.student_response
+      const strippedResponse = stripHtml(String(q.student_response || ''));
+      const responseBlock = strippedResponse
         ? `<p style="margin:0 0 4px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;">${T.openResponse}</p>
-           <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;font-style:italic;white-space:pre-wrap;">${esc(String(q.student_response))}</p>`
+           <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;font-style:italic;white-space:pre-wrap;">${esc(strippedResponse)}</p>`
         : '';
       const commentBlock = q.comment
         ? `<p style="margin:0 0 4px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;">${T.openComment}</p>
@@ -219,7 +237,7 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
       const rowBg = rowIdx % 2 === 0 ? '#ffffff' : '#f8fafc';
       // FIX 3 — fallback to Q{position} when text is empty
       const pos = typeof q.position === 'number' ? q.position : (rowIdx + 1);
-      const qText = String(q.text || q.question_text || '').trim() || `Q${pos}`;
+      const qText = stripHtml(String(q.text || q.question_text || '')) || `Q${pos}`;
       return `
       <tr style="background:${rowBg};">
         <td style="padding:14px;font-size:0.82rem;color:#1e293b;border-bottom:1px solid #e2e8f0;font-weight:600;vertical-align:top;width:40%;">${esc(qText)}</td>
