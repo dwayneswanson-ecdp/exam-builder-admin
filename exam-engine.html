@@ -291,6 +291,7 @@
         <select id="inputGroup" style="margin-bottom:16px;cursor:pointer;">
           <option value="">Sélectionner votre groupe</option>
         </select>
+        <div id="groupFixed" style="display:none;width:100%;padding:12px 14px;border:1.5px solid var(--line);font-size:0.95rem;font-family:inherit;background:var(--surface);color:var(--ink);margin-bottom:16px;"></div>
       </div>
 
       <label id="labelCode">Code d'accès</label>
@@ -1768,12 +1769,21 @@
     // Populate groups dropdown
     const groups = (window._examGroupsRaw || '').split(',').map(g => g.trim()).filter(Boolean);
     if (groups.length > 0) {
-      const select = document.getElementById('inputGroup');
-      const row    = document.getElementById('groupRow');
+      const select  = document.getElementById('inputGroup');
+      const fixed   = document.getElementById('groupFixed');
+      const row     = document.getElementById('groupRow');
+      const isFixed = !!(urlGroup && groups.includes(urlGroup));
       if (select) {
         select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
           groups.map(g => `<option value="${g}">${g}</option>`).join('');
-        if (urlGroup && groups.includes(urlGroup)) select.value = urlGroup;
+        if (isFixed) {
+          select.value = urlGroup;
+          select.style.display = 'none';
+          if (fixed) { fixed.textContent = urlGroup; fixed.style.display = 'block'; }
+        } else {
+          select.style.display = '';
+          if (fixed) fixed.style.display = 'none';
+        }
       }
       if (row) row.style.display = 'block';
     }
