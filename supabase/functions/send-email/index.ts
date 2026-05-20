@@ -73,7 +73,7 @@ function emailShell(content: string, lang: string) {
 <body style="font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:32px 16px;">
 <div style="max-width:600px;margin:0 auto;">
   <div style="background:#0f172a;padding:24px 32px;">
-    <span style="font-family:Arial,sans-serif;font-size:16px;font-weight:700;letter-spacing:0.08em;color:#ffffff;">testflo</span>
+    <span style="font-family:Inter,Arial,sans-serif;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">testflo</span>
   </div>
   ${content}
   <div style="padding:20px 0;text-align:center;font-size:11px;color:#94a3b8;">
@@ -240,10 +240,10 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
       <thead>
         <tr style="background:#f8fafc;">
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQuestion}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colStudentAns}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colCorrectAns}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;">${T.colResult}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:40%;">${T.colQuestion}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:25%;">${T.colStudentAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:25%;">${T.colCorrectAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;width:10%;">${T.colResult}</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -326,10 +326,10 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
     <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
       <thead>
         <tr style="background:#f8fafc;">
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colQuestion}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colStudentAns}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;">${T.colCorrectAns}</th>
-          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;">${T.colResult}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:40%;">${T.colQuestion}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:25%;">${T.colStudentAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:left;border-bottom:1px solid #e2e8f0;width:25%;">${T.colCorrectAns}</th>
+          <th style="padding:10px 14px;font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;text-align:center;border-bottom:1px solid #e2e8f0;width:10%;">${T.colResult}</th>
         </tr>
       </thead>
       <tbody>${mcqRowsHtml}</tbody>
