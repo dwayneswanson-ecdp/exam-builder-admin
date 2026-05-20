@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CC2 Layout Mockup — Part B Reading Comprehension</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:    #0f172a;
+      --ink:     #1e293b;
+      --slate:   #475569;
+      --muted:   #94a3b8;
+      --line:    #e2e8f0;
+      --surface: #f8fafc;
+      --white:   #ffffff;
+      --blue:    #2563eb;
+      --green:   #16a34a;
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      padding-top: 56px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Fixed Header ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--navy); padding: 0 24px; height: 56px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .exam-title {
+      font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.85); white-space: nowrap;
+    }
+    .timer {
+      font-weight: 700; font-size: 0.88rem; padding: 6px 16px;
+      background: rgba(255,255,255,0.1); color: #fff;
+      border: 1px solid rgba(255,255,255,0.15); letter-spacing: 0.04em;
+    }
+
+    /* ── Main Content ── */
+    main {
+      /* 24px each side = ~1/4 inch */
+      padding: 24px 24px 80px;
+    }
+
+    /* ── Progress ── */
+    .progress-label {
+      font-size: 0.78rem; color: var(--slate); font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .progress-bar-wrap {
+      background: var(--line); height: 4px; margin-bottom: 20px;
+    }
+    .progress-bar-fill { background: var(--blue); height: 100%; width: 0%; }
+
+    /* ── Section Header (full width above columns) ── */
+    .section-page-title {
+      font-size: 1rem; font-weight: 700; color: var(--ink);
+      padding: 14px 20px 4px;
+      background: #f1f5f9;
+      border-left: 4px solid var(--blue);
+    }
+    .section-page-instr {
+      font-size: 0.82rem; color: var(--slate);
+      padding: 4px 20px 10px;
+      background: #f1f5f9;
+      border-left: 4px solid var(--blue);
+      margin-bottom: 0;
+    }
+
+    /* ── Two-Column Split Row ── */
+    .split-row {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      width: 100%;
+      /* No extra margin — main's 24px padding provides the screen edge gap */
+    }
+
+    /* ── Left Column: PDF / Article ── */
+    .col-left {
+      width: 55%;
+      flex-shrink: 0;
+      height: 600px;
+      overflow-y: auto;
+      border: 1.5px solid var(--line);
+      border-right: none; /* thin divider between columns */
+      background: var(--white);
+    }
+    /* The 1px divider sits as the left border of the right column */
+    .col-right {
+      width: 45%;
+      height: 600px;
+      overflow-y: auto;
+      border: 1.5px solid var(--line);
+      background: var(--white);
+      padding: 16px 20px;
+    }
+
+    /* ── PDF Article Content ── */
+    .pdf-toolbar {
+      background: #f1f5f9; border-bottom: 1px solid var(--line);
+      padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--muted); position: sticky; top: 0; z-index: 1;
+    }
+    .pdf-toolbar .pdf-filename { color: var(--slate); }
+    .pdf-toolbar .pdf-pages   { margin-left: auto; }
+    .article-body {
+      padding: 24px 28px;
+      font-size: 0.88rem;
+      line-height: 1.9;
+      color: var(--ink);
+    }
+    .article-headline {
+      font-size: 1.15rem; font-weight: 800; color: var(--ink);
+      margin-bottom: 4px; line-height: 1.35;
+    }
+    .article-byline {
+      font-size: 0.72rem; color: var(--muted); font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .article-body p { margin-bottom: 14px; }
+    .article-body .article-subhead {
+      font-weight: 700; color: var(--ink); font-size: 0.9rem;
+      margin-top: 20px; margin-bottom: 8px;
+    }
+
+    /* ── Questions Column ── */
+    .col-label {
+      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: var(--muted); margin-bottom: 14px;
+    }
+    .q-card {
+      border: 1.5px solid var(--line);
+      padding: 16px;
+      margin-bottom: 14px;
+      background: var(--white);
+    }
+    .q-eyebrow {
+      font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--blue); margin-bottom: 8px;
+    }
+    .q-text {
+      font-size: 0.88rem; font-weight: 600; color: var(--ink);
+      margin-bottom: 12px; line-height: 1.5;
+    }
+    .q-option {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 8px 10px; margin-bottom: 6px;
+      border: 1.5px solid var(--line); cursor: pointer;
+      font-size: 0.84rem; color: var(--slate);
+      transition: border-color 120ms ease;
+    }
+    .q-option:hover { border-color: #93c5fd; }
+    .q-option.selected { border-color: var(--blue); background: #eff6ff; color: var(--ink); }
+    .q-radio {
+      width: 16px; height: 16px; border: 2px solid var(--muted);
+      border-radius: 50%; flex-shrink: 0; margin-top: 1px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .q-option.selected .q-radio {
+      border-color: var(--blue); background: var(--blue);
+    }
+    .q-option.selected .q-radio::after {
+      content: ''; width: 6px; height: 6px;
+      background: white; border-radius: 50%;
+    }
+
+    /* ── Answer Persistence Notice ── */
+    .answer-persist {
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      color: #1e40af; font-size: 0.82rem;
+      padding: 10px 14px; margin-top: 12px; line-height: 1.5;
+    }
+
+    /* ── Page Navigation ── */
+    .page-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 16px; gap: 12px;
+    }
+    .nav-btn {
+      padding: 12px 24px; font-size: 0.88rem; font-weight: 700;
+      font-family: inherit; border: 1.5px solid var(--line);
+      background: var(--white); color: var(--ink); cursor: pointer;
+    }
+    .nav-btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+    .nav-btn:hover { background: var(--surface); }
+    .nav-btn.primary:hover { background: #1d4ed8; }
+
+    /* ── Mockup Badge ── */
+    .mockup-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fef3c7; border: 1px solid #fde68a;
+      color: #92400e; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 4px 10px; margin-bottom: 16px;
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      main { padding: 16px 16px 80px; }
+      .split-row { flex-direction: column; }
+      .col-left {
+        width: 100%; height: 500px;
+        overflow-y: auto; -webkit-overflow-scrolling: touch;
+        border: 1.5px solid var(--line); border-bottom: none;
+      }
+      .col-right { width: 100%; height: auto; border: 1.5px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed Header -->
+  <header>
+    <div class="exam-title">CC2 English Exam — Team Management</div>
+    <div class="timer">42:17</div>
+  </header>
+
+  <main>
+
+    <!-- Mockup label -->
+    <div class="mockup-badge">
+      ⚠ Layout Mockup — No exam logic
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-label">0 / 16 questions answered</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" style="width:0%"></div>
+    </div>
+
+    <!-- Section header — full width, above both columns -->
+    <div class="section-page-title">PART B — Reading Comprehension</div>
+    <div class="section-page-instr">
+      Read the full article carefully before answering the questions. Each question is worth 1 point.
+      Select the best answer based on the content of the article.
+    </div>
+
+    <!-- Two-column split row -->
+    <div class="split-row">
+
+      <!-- LEFT: PDF / Article viewer -->
+      <div class="col-left">
+        <div class="pdf-toolbar">
+          <span>📄</span>
+          <span class="pdf-filename">nyt-team-management.pdf</span>
+          <span class="pdf-pages">Page 1 of 2</span>
+        </div>
+        <div class="article-body">
+          <div class="article-headline">When the Team Stops Talking to Each Other</div>
+          <div class="article-byline">NYT · Business · May 2026</div>
+
+          <p>When Marcus Chen took over as director of product at a mid-sized software company in Austin, he inherited a team that looked strong on paper: talented engineers, experienced designers, and a clear roadmap. What he did not inherit, however, was a functional communication structure.</p>
+
+          <p>"Everyone was doing their job," Chen said in a recent interview. "But no one was talking to anyone else. Deadlines were missed not because people weren't working, but because no one knew what the others were doing."</p>
+
+          <p>Chen's situation is not unusual. Across industries, managers are confronting a paradox: teams that are individually productive but collectively stalled. Researchers call it the <em>coordination gap</em> — the space between what individuals accomplish and what groups achieve together.</p>
+
+          <div class="article-subhead">The Hidden Cost of Silence</div>
+
+          <p>A 2024 study by the Harvard Business Review found that teams with poor communication habits lost an average of 7.4 hours per week to duplicated work, misaligned priorities, and rework caused by insufficient handoffs. That translates to nearly one full workday per employee, per week.</p>
+
+          <p>The study surveyed 1,200 knowledge workers across six countries and found that the biggest barrier to effective team communication was not technology — nearly all teams had access to Slack, Zoom, or equivalent tools. The barrier was cultural: teams had developed norms of silence, where raising concerns or asking for help was perceived as a sign of weakness or incompetence.</p>
+
+          <p>"There's a workplace stigma around not knowing things," said Dr. Priya Kapoor, one of the study's lead researchers. "So people stay quiet, they make assumptions, and those assumptions compound into much larger problems down the line."</p>
+
+          <div class="article-subhead">What Effective Managers Do Differently</div>
+
+          <p>The managers whose teams performed best shared several habits. They held short, structured daily check-ins — not to micromanage, but to surface blockers early. They explicitly rewarded team members who flagged problems before they escalated. And they modeled vulnerability themselves, openly discussing their own uncertainties in front of their reports.</p>
+
+          <p>"If I don't know the answer in a meeting, I say so," said Elena Vasquez, a senior engineering manager at a fintech firm in London. "I used to think that made me look weak. Now I think it makes the whole team more honest."</p>
+
+          <p>Accountability, the researchers found, was the most misunderstood lever. Managers often conflated accountability with punishment — holding people responsible after things went wrong. But the highest-performing teams defined accountability differently: as a shared commitment to transparency before things go wrong.</p>
+
+          <div class="article-subhead">The Role of Workload and Morale</div>
+
+          <p>Excessive workload was cited as the single largest contributor to communication breakdown. When team members are stretched too thin, they default to heads-down execution, cutting corners on communication to protect their own output. Paradoxically, this siloed approach increases total workload across the team by creating the coordination failures described above.</p>
+
+          <p>Morale played a secondary but significant role. Teams with low morale communicated 40% less frequently than teams with high morale, even when their workloads were identical. This suggests that the relationship between communication and morale is bidirectional: poor communication damages morale, and low morale further reduces communication.</p>
+
+          <p>Chen eventually turned his team around by introducing what he calls a "no-blame postmortem" culture — a weekly meeting where the team reviews what did not go as planned, without assigning individual fault. Six months in, project delivery improved by 34%, and employee satisfaction scores rose significantly.</p>
+
+          <p>"The article I'd read on team management all talked about alignment and stakeholder buy-in," Chen said, laughing. "But the real fix was much simpler: I just got people to talk to each other again."</p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Questions -->
+      <div class="col-right">
+        <div class="col-label">Questions — Part B · 10 questions · 10 pts</div>
+
+        <!-- Q1 -->
+        <div class="q-card">
+          <div class="q-eyebrow">Question 1 · MCQ · 1 pt</div>
+          <div class="q-text">According to the article, what did Marcus Chen identify as the main problem with his team?</div>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>The team lacked technical skills</span>
+          </label>
+          <label class="q-option selected" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>Team members were not communicating with each other</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>The project roadmap was unclear</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>Deadlines were set too tightly</span>
+          </label>
+        </div>
+
+        <!-- Q2 -->
+        <div class="q-card">
+          <div class="q-eyebrow">Question 2 · MCQ · 1 pt</div>
+          <div class="q-text">What term do researchers use to describe the gap between individual and collective team performance?</div>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>The productivity paradox</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>The silence barrier</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>The coordination gap</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>The alignment deficit</span>
+          </label>
+        </div>
+
+        <!-- Q3 -->
+        <div class="q-card">
+          <div class="q-eyebrow">Question 3 · MCQ · 1 pt</div>
+          <div class="q-text">According to the HBR study, how many hours per week did teams with poor communication lose on average?</div>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>3.2 hours</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>5.0 hours</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>7.4 hours</span>
+          </label>
+          <label class="q-option" onclick="selectOption(this)">
+            <div class="q-radio"></div>
+            <span>10.2 hours</span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Answer persistence notice -->
+    <div class="answer-persist">
+      Your answers are saved as you go. You can go back and change your responses at any time before submitting.
+    </div>
+
+    <!-- Page navigation -->
+    <div class="page-nav">
+      <button class="nav-btn">← Part A</button>
+      <button class="nav-btn primary">Part C →</button>
+    </div>
+
+  </main>
+
+  <script>
+    function selectOption(el) {
+      const card = el.closest('.q-card');
+      card.querySelectorAll('.q-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+  </script>
+
+</body>
+</html>
