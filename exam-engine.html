@@ -619,6 +619,7 @@
       // Populate groups dropdown (language-aware — re-populated in applyUIStrings too)
       window._examGroupsRaw = EXAM.groups;
       applyUIStrings(uiLang);
+      lockGroupFromUrl();
 
       // Acknowledge checkbox enables start button
       document.getElementById('confirmAcknowledge').addEventListener('change', function() {
@@ -1766,6 +1767,18 @@
   }
 
   // ── Zone 1: pre-exam language picker ──────────────────────────
+  function lockGroupFromUrl() {
+    if (!urlGroup) return;
+    const select = document.getElementById('inputGroup');
+    if (!select) return;
+    const vals = Array.from(select.options).map(o => o.value);
+    if (!vals.includes(urlGroup)) return;
+    select.value = urlGroup;
+    select.style.display = 'none';
+    const fixed = document.getElementById('groupFixed');
+    if (fixed) { fixed.textContent = urlGroup; fixed.style.display = 'block'; }
+  }
+
   function applyUIStrings(lang) {
     const UI = getUIStrings(lang);
     window.UI = UI;
@@ -1773,21 +1786,14 @@
     // Populate groups dropdown
     const groups = (window._examGroupsRaw || '').split(',').map(g => g.trim()).filter(Boolean);
     if (groups.length > 0) {
-      const select  = document.getElementById('inputGroup');
-      const fixed   = document.getElementById('groupFixed');
-      const row     = document.getElementById('groupRow');
-      const isFixed = !!(urlGroup && groups.includes(urlGroup));
+      const select = document.getElementById('inputGroup');
+      const row    = document.getElementById('groupRow');
       if (select) {
         select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
           groups.map(g => `<option value="${g}">${g}</option>`).join('');
-        if (isFixed) {
-          select.value = urlGroup;
-          select.style.display = 'none';
-          if (fixed) { fixed.textContent = urlGroup; fixed.style.display = 'block'; }
-        } else {
-          select.style.display = '';
-          if (fixed) fixed.style.display = 'none';
-        }
+        select.style.display = '';
+        const fixed = document.getElementById('groupFixed');
+        if (fixed) fixed.style.display = 'none';
       }
       if (row) row.style.display = 'block';
     }
@@ -1849,6 +1855,7 @@
     document.getElementById('plpFR').classList.toggle('active', lang === 'fr');
     document.getElementById('plpEN').classList.toggle('active', lang === 'en');
     applyUIStrings(lang);
+    lockGroupFromUrl();
   }
 
   // ── Zone 2: anti-translation observer ─────────────────────────
