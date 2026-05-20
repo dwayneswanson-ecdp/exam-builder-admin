@@ -49,7 +49,7 @@
     /* ── Main Content ── */
     main {
       /* 24px each side = ~1/4 inch */
-      padding: 24px 24px 80px;
+      padding: 24px 48px 80px;
     }
 
     /* ── Progress ── */
@@ -81,7 +81,7 @@
     .split-row {
       display: flex;
       align-items: stretch;
-      gap: 0;
+      gap: 24px;
       width: 100%;
       /* No extra margin — main's 24px padding provides the screen edge gap */
     }
@@ -93,7 +93,6 @@
       height: 600px;
       overflow-y: auto;
       border: 1.5px solid var(--line);
-      border-right: none; /* thin divider between columns */
       background: var(--white);
     }
     /* The 1px divider sits as the left border of the right column */
