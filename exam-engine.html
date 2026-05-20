@@ -1243,9 +1243,43 @@
     } else if (type === 'pdf') {
       fetch(src)
         .then(r => r.blob())
-        .then(blob => {
+        .then(async blob => {
           const blobUrl = URL.createObjectURL(blob);
-          mediaDiv.innerHTML = `<embed src="${blobUrl}" type="application/pdf" style="width:100%;height:100%;display:block;">`;
+          const isMobile = window.matchMedia('(max-width: 768px)').matches;
+          if (isMobile) {
+            // Lazy-load PDF.js only on mobile, only when a PDF is present
+            if (!window.pdfjsLib) {
+              await new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+                s.onload = resolve; s.onerror = reject;
+                document.head.appendChild(s);
+              });
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            }
+            const pdf = await window.pdfjsLib.getDocument(blobUrl).promise;
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = 'width:100%;';
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+              const page = await pdf.getPage(pageNum);
+              const baseViewport = page.getViewport({ scale: 1 });
+              const containerWidth = mediaDiv.clientWidth || window.innerWidth;
+              const scale = (containerWidth / baseViewport.width) * (window.devicePixelRatio || 1);
+              const viewport = page.getViewport({ scale });
+              const canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              canvas.style.cssText = 'width:100%;display:block;margin-bottom:2px;';
+              await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+              wrapper.appendChild(canvas);
+            }
+            mediaDiv.style.height = 'auto';
+            mediaDiv.appendChild(wrapper);
+          } else {
+            // Desktop: native browser PDF viewer — unchanged
+            mediaDiv.innerHTML = `<embed src="${blobUrl}" type="application/pdf" style="width:100%;height:100%;display:block;">`;
+          }
         })
         .catch(() => {
           mediaDiv.innerHTML = `<div style="padding:16px;background:#fef9c3;border:1px solid #fde68a;font-size:0.9rem;color:#92400e;">Le document PDF n'a pas pu être affiché.</div>`;
