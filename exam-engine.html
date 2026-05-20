@@ -488,6 +488,7 @@
   let POOL_SELECTION = {}; // { sectionId: [nonSectionQIdx, ...] } — fixed at exam start
   let isReconnect = false;
   let VISIBLE_TOTAL = 0; // count of questions visible after pool selection
+  let urlGroup = null;   // pre-selected group from ?group= URL param
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
   // ============================================================
@@ -519,6 +520,7 @@
   async function boot() {
     const params = new URLSearchParams(window.location.search);
     const shareId = params.get('id');
+    urlGroup = params.get('group') || null;
 
     if (!shareId) {
       showError('Aucun identifiant d\'épreuve dans l\'URL. Vérifiez le lien avec votre enseignant.');
@@ -1768,8 +1770,11 @@
     if (groups.length > 0) {
       const select = document.getElementById('inputGroup');
       const row    = document.getElementById('groupRow');
-      if (select) select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
-        groups.map(g => `<option value="${g}">${g}</option>`).join('');
+      if (select) {
+        select.innerHTML = `<option value="">${UI.selectGroup}</option>` +
+          groups.map(g => `<option value="${g}">${g}</option>`).join('');
+        if (urlGroup && groups.includes(urlGroup)) select.value = urlGroup;
+      }
       if (row) row.style.display = 'block';
     }
 

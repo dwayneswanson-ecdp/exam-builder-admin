@@ -1788,11 +1788,12 @@
 
     // ── Exam Access card ─────────────────────────────────────────
 
-    function buildExamLink() {
+    function buildExamLink(group) {
       const base = window.location.protocol === 'file:'
         ? 'http://localhost:3000'
         : window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '') || '');
-      return base + '/exam-engine.html?id=' + (currentExam.share_id || '');
+      const link = base + '/exam-engine.html?id=' + (currentExam.share_id || '');
+      return group ? link + '&group=' + encodeURIComponent(group) : link;
     }
 
     function renderAccessCard() {
@@ -1829,12 +1830,16 @@
       const list = document.getElementById('groupsList');
       list.innerHTML = groups.map(function(g) {
         const code = codes[g] || '';
+        const gLink = buildExamLink(g);
         return `<div class="group-row" data-group="${escHtml(g)}" data-code="${escHtml(code)}">
           <input type="checkbox" class="group-check" checked onchange="rebuildDraft()">
           <span class="group-name-lbl">${escHtml(g)}</span>
           <span class="group-code-lbl">${escHtml(code)}</span>
           <button class="group-icon-btn" title="Copy code" onclick="copyAccessText('${escHtml(code)}', this)">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+          <button class="group-icon-btn" title="Copy group link" onclick="copyAccessText('${escHtml(gLink)}', this)">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
           </button>
           <button class="group-icon-btn del" title="Remove group" onclick="removeGroupRow(this)">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1853,12 +1858,16 @@
       row.className = 'group-row';
       row.dataset.group = name;
       row.dataset.code  = code;
+      const gLink = buildExamLink(name);
       row.innerHTML = `
         <input type="checkbox" class="group-check" checked onchange="rebuildDraft()">
         <span class="group-name-lbl">${escHtml(name)}</span>
         <span class="group-code-lbl">${escHtml(code)}</span>
         <button class="group-icon-btn" title="Copy code" onclick="copyAccessText('${escHtml(code)}', this)">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+        <button class="group-icon-btn" title="Copy group link" onclick="copyAccessText('${escHtml(gLink)}', this)">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
         </button>
         <button class="group-icon-btn del" title="Remove group" onclick="removeGroupRow(this)">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
