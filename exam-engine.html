@@ -1238,6 +1238,10 @@
   function showPage(n) {
     if (n < 0 || n >= PAGES.length) return;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    const qc = document.getElementById('questionsContainer');
+    if (qc) qc.scrollTop = 0;
+    const sm = document.getElementById('sectionMediaTop');
+    if (sm) sm.scrollTop = 0;
     currentPage = n;
     const page = PAGES[n];
     const container = document.getElementById('questionsContainer');
