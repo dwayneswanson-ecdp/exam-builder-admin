@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     // ── 1. Fetch exam (service role — client never sees this query) ──────────
     const examRes = await dbGet(
       `exams?share_id=eq.${encodeURIComponent(share_id)}&status=eq.published` +
-      `&select=id,title,duration_mins,access_code,lang,instructions&limit=1`
+      `&select=id,title,duration_mins,access_code,group_codes,groups,lang,instructions&limit=1`
     );
 
     if (!examRes.ok || !examRes.data || examRes.data.length === 0) {
@@ -68,9 +68,23 @@ Deno.serve(async (req) => {
     const exam = examRes.data[0];
 
     // ── 2. Validate access code server-side ──────────────────────────────────
-    const codeMatch =
-      String(exam.access_code ?? "").trim().toLowerCase() ===
-      String(access_code).trim().toLowerCase();
+    let groupCodes: Record<string, string> | null = null;
+    try {
+      if (exam.group_codes) {
+        groupCodes = typeof exam.group_codes === "string"
+          ? JSON.parse(exam.group_codes)
+          : exam.group_codes;
+      }
+    } catch (_) { groupCodes = null; }
+
+    let codeMatch = false;
+    if (group_name && groupCodes && groupCodes[group_name]) {
+      codeMatch = String(groupCodes[group_name]).trim().toLowerCase() ===
+                  String(access_code).trim().toLowerCase();
+    } else {
+      codeMatch = String(exam.access_code ?? "").trim().toLowerCase() ===
+                  String(access_code).trim().toLowerCase();
+    }
 
     if (!codeMatch) {
       return respond({ error: "Invalid access code" }, 401);
