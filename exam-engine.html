@@ -1206,6 +1206,7 @@
     const mediaDiv = document.createElement('div');
     mediaDiv.className = 'q-media';
     mediaDiv.style.marginBottom = '16px';
+    mediaDiv.style.height = '100%';
     if (type === 'image') {
       mediaDiv.innerHTML = `<img src="${src}" alt="Section media">`;
     } else if (type === 'audio') {
@@ -1244,7 +1245,7 @@
         .then(r => r.blob())
         .then(blob => {
           const blobUrl = URL.createObjectURL(blob);
-          mediaDiv.innerHTML = `<embed src="${blobUrl}" type="application/pdf" style="width:100%;height:480px;display:block;">`;
+          mediaDiv.innerHTML = `<embed src="${blobUrl}" type="application/pdf" style="width:100%;height:100%;display:block;">`;
         })
         .catch(() => {
           mediaDiv.innerHTML = `<div style="padding:16px;background:#fef9c3;border:1px solid #fde68a;font-size:0.9rem;color:#92400e;">Le document PDF n'a pas pu être affiché.</div>`;
