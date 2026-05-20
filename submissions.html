@@ -982,6 +982,7 @@
     let mcqTotal         = 0;
     let openMaxTotal     = 0;
     let examQuestions    = [];
+    let examSections     = []; // section items with question_text, for email payload
     let scheduledState   = false;
     let activeGroup      = 'all'; // 'all' or a group name string
     let _lastRefresh     = Date.now();
@@ -1088,11 +1089,12 @@
 
       // Load section metadata for pool scoring
       const { data: sectionItems } = await sb.from('questions')
-        .select('id, pool_draw, pool_total, position')
+        .select('id, pool_draw, pool_total, position, question_text')
         .eq('exam_id', examId)
         .eq('type', 'section')
         .order('position');
-      const sectionMeta = sectionItems || [];
+      examSections = sectionItems || [];
+      const sectionMeta = examSections;
 
       // Recompute totals accounting for pool sections
       let poolAdjustedMcq  = mcqTotal;
@@ -2076,17 +2078,33 @@
       const answers      = attempt.answers_json  || {};
       const openComments = attempt.open_comments || {};
       const openScores   = attempt.open_scores   || {};
-      return examQuestions.map((q, idx) => ({
-        text:             q.question_text || '',
-        type:             q.type,
-        max_points:       q.max_points ?? (q.type === 'mcq' ? 1 : 5),
-        options:          q.type === 'mcq' ? [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean) : null,
-        correct_index:    q.correct_index ?? null,
-        student_answer:   q.type === 'mcq' ? (parseInt(answers['q' + idx], 10) ?? null) : null,
-        student_response: q.type === 'open' ? (answers['q' + idx] || '') : null,
-        comment:          openComments[idx] || '',
-        open_score:       q.type === 'open' ? (openScores[idx] != null ? parseFloat(openScores[idx]) : null) : null,
-      }));
+      const sortedSecs   = [...examSections].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      const result = [];
+      let secPtr = 0;
+      for (let i = 0; i < examQuestions.length; i++) {
+        const q = examQuestions[i];
+        while (secPtr < sortedSecs.length && sortedSecs[secPtr].position < q.position) {
+          result.push({ text: sortedSecs[secPtr].question_text || '', type: 'section' });
+          secPtr++;
+        }
+        result.push({
+          text:             q.question_text || '',
+          type:             q.type,
+          position:         q.position,
+          max_points:       q.max_points ?? (q.type === 'mcq' ? 1 : 5),
+          options:          q.type === 'mcq' ? [q.option_a, q.option_b, q.option_c, q.option_d].filter(Boolean) : null,
+          correct_index:    q.correct_index ?? null,
+          student_answer:   q.type === 'mcq' ? (parseInt(answers['q' + i], 10) ?? null) : null,
+          student_response: q.type === 'open' ? (answers['q' + i] || '') : null,
+          comment:          openComments[i] || '',
+          open_score:       q.type === 'open' ? (openScores[i] != null ? parseFloat(openScores[i]) : null) : null,
+        });
+      }
+      while (secPtr < sortedSecs.length) {
+        result.push({ text: sortedSecs[secPtr].question_text || '', type: 'section' });
+        secPtr++;
+      }
+      return result;
     }
 
     function isDetailedMode() {
