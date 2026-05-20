@@ -876,6 +876,23 @@
       }
     } catch (err) {
       console.error('exam-questions failed:', err);
+      if (isReconnect && err.message === 'Unauthorized') {
+        localStorage.removeItem('examAttemptId_'    + EXAM.share_id);
+        localStorage.removeItem('examSessionToken_' + EXAM.share_id);
+        localStorage.removeItem('examShuffleCache_' + EXAM.share_id);
+        localStorage.removeItem('examDeadline_'     + EXAM.share_id);
+        attemptId    = null;
+        sessionToken = null;
+        isReconnect  = false;
+        const msg = uiLang === 'en'
+          ? 'Your previous session has expired. Please start again.'
+          : 'Votre session précédente a expiré. Veuillez recommencer.';
+        document.getElementById('loginSub').textContent        = msg;
+        document.getElementById('rulesScreen').style.display   = 'none';
+        document.getElementById('loginScreen').style.display   = 'block';
+        document.getElementById('preLangPicker').style.display = 'flex';
+        return;
+      }
       showError('Impossible de charger les questions. Vérifiez votre connexion et réessayez.');
       return;
     }
