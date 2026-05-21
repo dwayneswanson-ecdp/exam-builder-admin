@@ -862,7 +862,11 @@
 
     // Load questions via edge function — requires session_token, never sends correct_index
     try {
-      const qData = await efFetch('exam-questions', { attempt_id: attemptId, session_token: sessionToken });
+      let qData = null;
+      for (let _attempt = 0; _attempt < 3; _attempt++) {
+        try { qData = await efFetch('exam-questions', { attempt_id: attemptId, session_token: sessionToken }); break; }
+        catch (retryErr) { if (_attempt === 2) throw retryErr; await new Promise(r => setTimeout(r, 1000)); }
+      }
       const allItems = qData.questions || [];
       window.ALL_ITEMS = allItems;
       QUESTIONS = allItems.filter(q => q.type !== 'section');
