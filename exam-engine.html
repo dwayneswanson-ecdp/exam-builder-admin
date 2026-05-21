@@ -1147,7 +1147,7 @@
   }
 
   function initPoolSelection() {
-    const cacheKey = 'poolSelectionCache_' + EXAM.share_id;
+    const cacheKey = 'poolSelectionCache_' + EXAM.share_id + '_' + attemptId;
     const cached = localStorage.getItem(cacheKey);
     if (cached) { try { POOL_SELECTION = JSON.parse(cached); return; } catch(e) {} }
     POOL_SELECTION = {};
@@ -1777,6 +1777,9 @@
         </table>` : '<p style="font-size:12px;color:#6b7280;">Aucun incident détecté.</p>'}`;
 
     // Submit to server — grading is fully server-side, score_mcq computed by exam-submit
+    // Dismiss on-screen keyboard before fetch — iOS cancels fetch during viewport resize on key close
+    if (document.activeElement) document.activeElement.blur();
+    await new Promise(r => setTimeout(r, 150));
     let serverConfirmed = false;
     try {
       await efFetch('exam-submit', {
@@ -1806,6 +1809,8 @@
     localStorage.removeItem('examAttemptId_' + EXAM.share_id);
     localStorage.removeItem('examShuffleCache_' + EXAM.share_id);
     localStorage.removeItem('examSessionToken_' + EXAM.share_id);
+    localStorage.removeItem('poolSelectionCache_' + EXAM.share_id + '_' + attemptId);
+    localStorage.removeItem('poolSelectionCache_' + EXAM.share_id);
 
     // Show success
     console.log('showing success screen');
