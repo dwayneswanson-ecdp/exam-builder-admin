@@ -13,20 +13,26 @@
 
     /* ── Sidebar ── */
     .sidebar { width: 240px; background: #0f172a; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.2s; }
-    .sidebar-logo { padding: 24px 20px 20px; font-size: 1.1rem; font-weight: 700; color: white; letter-spacing: -0.02em; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-nav { flex: 1; padding: 8px 0; overflow-y: auto; }
-    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: rgba(255,255,255,0.55); cursor: pointer; border-left: 3px solid transparent; font-size: 0.85rem; font-weight: 500; transition: background 0.1s, color 0.1s; user-select: none; }
+    .sidebar-logo { padding: 22px 20px 18px; font-size: 1.1rem; font-weight: 700; color: white; letter-spacing: -0.02em; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-nav { flex: 1; padding: 10px 0; overflow-y: auto; }
+    .nav-group-label { padding: 14px 20px 4px; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.55); cursor: pointer; border-left: 3px solid transparent; font-size: 0.82rem; font-weight: 500; transition: background 0.1s, color 0.1s; user-select: none; }
     .nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.04); }
-    .nav-item.active { color: white; background: #1e3a5f; border-left-color: #2563eb; }
+    .nav-item.active { color: white; background: rgba(37,99,235,0.18); border-left-color: #2563eb; }
     .nav-item svg { flex-shrink: 0; opacity: 0.7; }
     .nav-item.active svg { opacity: 1; }
-    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-inst { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-    .sidebar-avatar { width: 32px; height: 32px; background: #2563eb; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; }
-    .sidebar-email { font-size: 0.72rem; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-    .btn-signout { width: 100%; padding: 7px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); font-family: inherit; font-size: 0.78rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 7px; }
-    .btn-signout:hover { background: rgba(255,255,255,0.1); color: white; }
+    .nav-sub { padding-left: 36px; }
+    .nav-sub .nav-item { font-size: 0.78rem; font-weight: 400; padding: 7px 20px 7px 0; border-left: none; border-right: none; color: rgba(255,255,255,0.42); }
+    .nav-sub .nav-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.6; }
+    .nav-sub .nav-item.active { color: #93c5fd; background: transparent; }
+    .nav-sub .nav-item:hover { color: rgba(255,255,255,0.8); background: transparent; }
+    .sidebar-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-inst { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .sidebar-avatar { width: 30px; height: 30px; background: #2563eb; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; border-radius: 2px; }
+    .sidebar-email { font-size: 0.7rem; color: rgba(255,255,255,0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .btn-signout { width: 100%; padding: 6px 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); font-family: inherit; font-size: 0.75rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 7px; }
+    .btn-signout:hover { background: rgba(255,255,255,0.09); color: white; }
 
     /* ── Main ── */
     .main { margin-left: 240px; flex: 1; min-height: 100vh; }
@@ -35,42 +41,86 @@
 
     /* ── Page header ── */
     .page-header { margin-bottom: 28px; }
-    .page-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; letter-spacing: -0.02em; }
-    .page-sub { font-size: 0.82rem; color: #64748b; margin-top: 2px; }
+    .page-title { font-size: 1.25rem; font-weight: 700; color: #0f172a; letter-spacing: -0.02em; }
+    .page-sub { font-size: 0.8rem; color: #64748b; margin-top: 3px; }
 
     /* ── Stats ── */
-    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
-    .stat-card { background: white; border: 1px solid #e2e8f0; padding: 20px 24px; }
-    .stat-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
-    .stat-value { font-size: 2rem; font-weight: 700; color: #0f172a; line-height: 1; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: white; border: 1px solid #e2e8f0; padding: 18px 22px; }
+    .stat-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+    .stat-value { font-size: 1.9rem; font-weight: 700; color: #0f172a; line-height: 1; }
+
+    /* ── Action cards ── */
+    .action-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .action-card { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #e2e8f0; padding: 18px 20px; cursor: pointer; transition: box-shadow 0.1s; }
+    .action-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .action-card.amber { border-left-color: #f59e0b; }
+    .action-card.blue { border-left-color: #2563eb; }
+    .action-card.green { border-left-color: #16a34a; }
+    .action-card-title { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .action-card-sub { font-size: 0.75rem; color: #64748b; }
+    .action-card-count { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+    .action-card.amber .action-card-count { color: #d97706; }
+    .action-card.blue .action-card-count { color: #2563eb; }
+    .action-card.green .action-card-count { color: #16a34a; }
 
     /* ── Card ── */
     .card { background: white; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-    .card-header { padding: 14px 20px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
-    .card-title { font-size: 0.82rem; font-weight: 700; color: #0f172a; }
+    .card-header { padding: 13px 18px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card-title { font-size: 0.8rem; font-weight: 700; color: #0f172a; }
+
+    /* ── Subtabs ── */
+    .subtabs { display: flex; gap: 0; margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; }
+    .subtab { padding: 8px 16px; font-size: 0.78rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+    .subtab.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .subtab:hover:not(.active) { color: #0f172a; }
 
     /* ── Table ── */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
-    th { padding: 10px 14px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc; white-space: nowrap; }
-    td { padding: 12px 14px; font-size: 0.82rem; border-bottom: 1px solid #e2e8f0; color: #0f172a; vertical-align: middle; }
+    th { padding: 9px 14px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc; white-space: nowrap; }
+    td { padding: 11px 14px; font-size: 0.82rem; border-bottom: 1px solid #e2e8f0; color: #0f172a; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
+    tr:hover td { background: #fafbfc; }
+
+    /* ── Checkbox ── */
+    input[type=checkbox] { cursor: pointer; accent-color: #2563eb; width: 14px; height: 14px; }
+
+    /* ── Bulk bar ── */
+    .bulk-bar { display: none; align-items: center; gap: 12px; padding: 10px 18px; background: #eff6ff; border-bottom: 1px solid #dbeafe; font-size: 0.78rem; font-weight: 600; color: #1d4ed8; }
+    .bulk-bar.show { display: flex; }
+    .bulk-bar-count { flex: 1; }
+
+    /* ── Three-dot menu ── */
+    .dot-menu-wrap { position: relative; display: inline-block; }
+    .dot-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; color: #94a3b8; font-size: 1.1rem; line-height: 1; border-radius: 3px; }
+    .dot-btn:hover { background: #f1f5f9; color: #0f172a; }
+    .dot-menu { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #e2e8f0; min-width: 160px; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .dot-menu.open { display: block; }
+    .dot-menu-item { padding: 8px 14px; font-size: 0.78rem; cursor: pointer; color: #0f172a; white-space: nowrap; }
+    .dot-menu-item:hover { background: #f8fafc; }
+    .dot-menu-item.danger { color: #dc2626; }
+    .dot-menu-item.danger:hover { background: #fef2f2; }
 
     /* ── Badges ── */
-    .badge { display: inline-block; padding: 2px 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .badge { display: inline-block; padding: 2px 7px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 2px; }
     .badge-published { background: #dcfce7; color: #16a34a; }
     .badge-draft { background: #f1f5f9; color: #64748b; }
     .badge-submitted { background: #dbeafe; color: #1d4ed8; }
     .badge-active { background: #fef9c3; color: #a16207; }
     .badge-sent { background: #f0fdf4; color: #15803d; }
+    .badge-pending { background: #fff7ed; color: #c2410c; }
 
     /* ── Buttons ── */
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; transition: background 0.1s; }
     .btn-primary { background: #2563eb; color: white; }
     .btn-primary:hover { background: #1d4ed8; }
     .btn-ghost { background: white; color: #475569; border: 1px solid #e2e8f0; }
     .btn-ghost:hover { background: #f8fafc; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-success:hover { background: #15803d; }
+    .btn-danger { background: #dc2626; color: white; }
+    .btn-danger:hover { background: #b91c1c; }
     .btn-danger-ghost { background: white; color: #dc2626; border: 1px solid #fecaca; }
     .btn-danger-ghost:hover { background: #fef2f2; }
     .btn-sm { padding: 4px 10px; font-size: 0.72rem; }
@@ -78,47 +128,61 @@
 
     /* ── Toolbar ── */
     .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-    .search-input { flex: 1; max-width: 300px; padding: 7px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; }
+    .search-input { flex: 1; max-width: 280px; padding: 7px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; }
     .search-input:focus { border-color: #2563eb; }
-    select { padding: 7px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; background: white; outline: none; cursor: pointer; }
-    select:focus { border-color: #2563eb; }
+    select.ctrl { padding: 7px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; background: white; outline: none; cursor: pointer; }
+    select.ctrl:focus { border-color: #2563eb; }
 
     /* ── Group tabs ── */
-    .group-tabs { display: flex; gap: 0; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
-    .group-tab { padding: 8px 16px; font-size: 0.78rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .group-tabs { display: flex; gap: 0; margin-bottom: 14px; border-bottom: 1px solid #e2e8f0; flex-wrap: wrap; }
+    .group-tab { padding: 7px 14px; font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
     .group-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
     .group-tab:hover:not(.active) { color: #0f172a; }
 
-    /* ── Quick actions ── */
-    .quick-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
-
-    /* ── Empty ── */
-    .empty-state { padding: 48px 20px; text-align: center; }
-    .empty-title { font-size: 0.9rem; font-weight: 600; color: #64748b; margin-bottom: 4px; }
-    .empty-sub { font-size: 0.78rem; color: #94a3b8; }
-
     /* ── Grading queue ── */
-    .grading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 28px; }
-    .grading-card { background: white; border: 1px solid #e2e8f0; padding: 20px; }
-    .grading-card-title { font-size: 0.88rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .grading-card-meta { font-size: 0.75rem; color: #64748b; margin-bottom: 10px; }
-    .grading-badge { display: inline-block; background: #fff7ed; color: #c2410c; padding: 2px 8px; font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 12px; }
+    .grading-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .grading-card { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #f59e0b; padding: 18px 20px; }
+    .grading-card-title { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .grading-card-meta { font-size: 0.73rem; color: #64748b; margin-bottom: 12px; }
+
+    /* ── Communicate ── */
+    .comm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+    .comm-panel { background: white; border: 1px solid #e2e8f0; }
+    .comm-panel-header { padding: 13px 18px; border-bottom: 1px solid #e2e8f0; }
+    .comm-panel-title { font-size: 0.8rem; font-weight: 700; color: #0f172a; }
+    .comm-panel-body { padding: 18px; }
+    label.field-label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+    .field-group { margin-bottom: 14px; }
+    textarea.ctrl, input.ctrl { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; resize: vertical; }
+    textarea.ctrl:focus, input.ctrl:focus { border-color: #2563eb; }
+    .preview-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; font-size: 0.78rem; color: #475569; line-height: 1.6; }
+    .toggle-link { font-size: 0.75rem; color: #2563eb; cursor: pointer; text-decoration: underline; margin-left: 8px; }
 
     /* ── Settings ── */
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .settings-panel { background: white; border: 1px solid #e2e8f0; padding: 24px; }
-    .settings-panel-title { font-size: 0.82rem; font-weight: 700; color: #0f172a; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+    .settings-panel { background: white; border: 1px solid #e2e8f0; padding: 22px; }
+    .settings-panel-title { font-size: 0.8rem; font-weight: 700; color: #0f172a; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
     .settings-row { margin-bottom: 14px; }
-    .settings-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+    .settings-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px; }
     .settings-value { font-size: 0.85rem; color: #0f172a; font-weight: 500; }
     .lang-toggle { display: flex; gap: 0; margin-top: 8px; }
     .lang-btn { padding: 6px 16px; font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; background: white; color: #64748b; }
     .lang-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
+    .edit-input { width: 100%; padding: 7px 10px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.85rem; color: #0f172a; outline: none; }
+    .edit-input:focus { border-color: #2563eb; }
+
+    /* ── History ── */
+    .section-label { font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; margin-top: 4px; }
+
+    /* ── Empty / Loading ── */
+    .empty-state { padding: 40px 20px; text-align: center; }
+    .empty-title { font-size: 0.88rem; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+    .empty-sub { font-size: 0.76rem; color: #94a3b8; }
+    .loading { padding: 36px; text-align: center; color: #94a3b8; font-size: 0.82rem; }
 
     /* ── Misc ── */
-    .loading { padding: 40px; text-align: center; color: #94a3b8; font-size: 0.82rem; }
-    .action-btns { display: flex; gap: 6px; }
-    .section-label { font-size: 0.82rem; font-weight: 700; color: #0f172a; margin-bottom: 14px; }
+    .action-btns { display: flex; gap: 6px; align-items: center; }
+    .spacer { flex: 1; }
 
     /* ── Toast ── */
     .toast { position: fixed; bottom: 24px; right: 24px; background: #0f172a; color: white; padding: 10px 18px; font-size: 0.82rem; font-weight: 500; z-index: 9999; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
@@ -128,13 +192,16 @@
     .hamburger { display: none; position: fixed; top: 12px; left: 12px; z-index: 200; background: #0f172a; border: none; padding: 8px; cursor: pointer; }
     .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
 
+    @media (max-width: 900px) {
+      .comm-grid { grid-template-columns: 1fr; }
+    }
     @media (max-width: 768px) {
       .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
       .sidebar-overlay.open { display: block; }
       .main { margin-left: 0; }
       .hamburger { display: flex; }
-      .section { padding: 24px 16px; padding-top: 60px; }
+      .section { padding: 22px 14px; padding-top: 58px; }
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .settings-grid { grid-template-columns: 1fr; }
     }
@@ -150,26 +217,65 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">testflo</div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" data-section="overview" onclick="navigate('overview')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-      Overview
+
+    <div class="nav-item active" data-nav="home" onclick="navigate('home')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
     </div>
-    <div class="nav-item" data-section="exams" onclick="navigate('exams')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+
+    <div class="nav-group-label">Manage</div>
+    <div class="nav-item" data-nav="exams-all" onclick="navigate('exams-all')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       Exams
     </div>
-    <div class="nav-item" data-section="students" onclick="navigate('students')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      Students
+    <div class="nav-sub" id="examSubnav">
+      <div class="nav-item" data-nav="exams-all" onclick="navigate('exams-all')">All</div>
+      <div class="nav-item" data-nav="exams-published" onclick="navigate('exams-published')">Published</div>
+      <div class="nav-item" data-nav="exams-drafts" onclick="navigate('exams-drafts')">Drafts</div>
     </div>
-    <div class="nav-item" data-section="results" onclick="navigate('results')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Results
+    <div class="nav-item" data-nav="subs-all" onclick="navigate('subs-all')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Submissions
     </div>
-    <div class="nav-item" data-section="settings" onclick="navigate('settings')">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      Settings
+    <div class="nav-sub" id="subsSubnav">
+      <div class="nav-item" data-nav="subs-all" onclick="navigate('subs-all')">All</div>
+      <div class="nav-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue</div>
     </div>
+
+    <div class="nav-group-label">Communicate</div>
+    <div class="nav-item" data-nav="comm-invite" onclick="navigate('comm-invite')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Send Invitations
+    </div>
+    <div class="nav-item" data-nav="comm-results" onclick="navigate('comm-results')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Send Results
+    </div>
+    <div class="nav-item" data-nav="comm-retakes" onclick="navigate('comm-retakes')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+      Retakes
+    </div>
+
+    <div class="nav-group-label">History</div>
+    <div class="nav-item" data-nav="hist-results" onclick="navigate('hist-results')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Sent Results
+    </div>
+    <div class="nav-item" data-nav="hist-scheduled" onclick="navigate('hist-scheduled')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Scheduled
+    </div>
+
+    <div class="nav-group-label">Settings</div>
+    <div class="nav-item" data-nav="settings-profile" onclick="navigate('settings-profile')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Profile
+    </div>
+    <div class="nav-item" data-nav="settings-inst" onclick="navigate('settings-inst')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Institution
+    </div>
+
   </nav>
   <div class="sidebar-footer">
     <div class="sidebar-inst" id="sidebarInstName">—</div>
@@ -178,7 +284,7 @@
       <div class="sidebar-email" id="sidebarEmail"></div>
     </div>
     <button class="btn-signout" onclick="signOut()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Sign out
     </button>
   </div>
@@ -186,94 +292,232 @@
 
 <main class="main">
 
-  <!-- OVERVIEW -->
-  <section class="section active" id="section-overview">
+  <!-- HOME -->
+  <section class="section active" id="section-home">
     <div class="page-header">
-      <div class="page-title">Overview</div>
-      <div class="page-sub" id="overviewGreeting">Welcome back</div>
+      <div class="page-title" id="homeGreeting">Welcome back</div>
+      <div class="page-sub" id="homeDate"></div>
     </div>
     <div class="stats-row">
       <div class="stat-card"><div class="stat-label">Total Exams</div><div class="stat-value" id="statExams">—</div></div>
       <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-value" id="statStudents">—</div></div>
       <div class="stat-card"><div class="stat-label">Pending Grading</div><div class="stat-value" id="statPending">—</div></div>
-      <div class="stat-card"><div class="stat-label">Exams This Month</div><div class="stat-value" id="statThisMonth">—</div></div>
+      <div class="stat-card"><div class="stat-label">Results Unsent</div><div class="stat-value" id="statUnsent">—</div></div>
     </div>
+    <div class="action-cards" id="homeActionCards"></div>
     <div class="card">
       <div class="card-header"><div class="card-title">Recent Submissions</div></div>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Date</th><th>Status</th></tr></thead>
-          <tbody id="overviewTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
+          <tbody id="homeTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
         </table>
       </div>
-    </div>
-    <div class="quick-actions">
-      <a href="index.html"><button class="btn btn-primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create New Exam</button></a>
-      <button class="btn btn-ghost" onclick="navigate('results')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>View All Results</button>
     </div>
   </section>
 
   <!-- EXAMS -->
   <section class="section" id="section-exams">
-    <div class="page-header"><div class="page-title">Exams</div></div>
+    <div class="page-header"><div class="page-title" id="examsTitle">Exams</div></div>
     <div class="toolbar">
       <input class="search-input" type="text" id="examSearch" placeholder="Search exams…" oninput="filterExams()">
-      <a href="index.html"><button class="btn btn-primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Exam</button></a>
+      <div class="spacer"></div>
+      <a href="index.html"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Exam</button></a>
+    </div>
+    <div class="subtabs">
+      <div class="subtab active" id="examTab-all" onclick="setExamTab('all')">All</div>
+      <div class="subtab" id="examTab-published" onclick="setExamTab('published')">Published</div>
+      <div class="subtab" id="examTab-drafts" onclick="setExamTab('drafts')">Drafts</div>
     </div>
     <div class="card">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Title</th><th>Status</th><th>Questions</th><th>Groups</th><th>Students</th><th>Created</th><th>Actions</th></tr></thead>
-          <tbody id="examsTable"><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+          <thead><tr><th>Title</th><th>Status</th><th>Questions</th><th>Students</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody id="examsTable"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- STUDENTS -->
-  <section class="section" id="section-students">
-    <div class="page-header"><div class="page-title">Students</div></div>
+  <!-- SUBMISSIONS -->
+  <section class="section" id="section-subs">
+    <div class="page-header"><div class="page-title" id="subsTitle">Submissions</div></div>
     <div class="toolbar">
-      <select id="examSelector" onchange="onExamSelect()" style="min-width:240px;"><option value="">Select an exam…</option></select>
-      <input class="search-input" type="text" id="studentSearch" placeholder="Search students…" oninput="applyStudentFilters()">
+      <select class="ctrl" id="subsExamSelector" onchange="onSubsExamSelect()" style="min-width:230px;"><option value="">Select an exam…</option></select>
+      <input class="search-input" type="text" id="subsSearch" placeholder="Search students…" oninput="applySubsFilters()">
+      <div class="spacer"></div>
     </div>
-    <div class="group-tabs" id="groupTabs"></div>
+    <div class="subtabs">
+      <div class="subtab active" id="subsTab-all" onclick="setSubsTab('all')">All</div>
+      <div class="subtab" id="subsTab-grading" onclick="setSubsTab('grading')">Grading Queue</div>
+    </div>
+
+    <!-- All submissions view -->
+    <div id="subsAllView">
+      <div class="group-tabs" id="subsGroupTabs"></div>
+      <div class="card">
+        <div class="bulk-bar" id="subsBulkBar">
+          <span class="bulk-bar-count" id="subsBulkCount">0 selected</span>
+          <button class="btn btn-success btn-sm" onclick="bulkSendResults()">Send Results</button>
+          <button class="btn btn-danger-ghost btn-sm" onclick="bulkDelete()">Delete</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearSelection()">Cancel</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+                <th>Student</th>
+                <th>Group</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Submitted</th>
+                <th>Results</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="subsTable"><tr><td colspan="8" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to view submissions.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grading queue view -->
+    <div id="subsGradingView" style="display:none;">
+      <div class="grading-grid" id="gradingGrid"><div class="loading">Loading…</div></div>
+    </div>
+  </section>
+
+  <!-- COMMUNICATE: INVITATIONS -->
+  <section class="section" id="section-comm-invite">
+    <div class="page-header">
+      <div class="page-title">Send Invitations</div>
+      <div class="page-sub">Send exam access links to students by email</div>
+    </div>
+    <div class="comm-grid">
+      <div class="comm-panel">
+        <div class="comm-panel-header"><div class="comm-panel-title">Compose</div></div>
+        <div class="comm-panel-body">
+          <div class="field-group">
+            <label class="field-label">Exam</label>
+            <select class="ctrl" id="inviteExamSel" onchange="onInviteExamChange()" style="width:100%;"></select>
+          </div>
+          <div class="field-group" id="inviteGroupWrap" style="display:none;">
+            <label class="field-label">Group (optional)</label>
+            <select class="ctrl" id="inviteGroupSel" style="width:100%;"></select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Student Emails <span class="toggle-link" onclick="toggleInvitePreview()">Preview email</span></label>
+            <textarea class="ctrl" id="inviteEmails" rows="5" placeholder="one@example.com&#10;two@example.com"></textarea>
+          </div>
+          <div id="invitePreviewWrap" style="display:none;margin-bottom:14px;">
+            <div class="preview-box" id="invitePreviewBox"></div>
+          </div>
+          <button class="btn btn-primary" onclick="sendInvitations()" style="width:100%;">Send Invitations</button>
+        </div>
+      </div>
+      <div class="comm-panel">
+        <div class="comm-panel-header"><div class="comm-panel-title">Sent History</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Exam</th><th>Group</th><th>Sent</th></tr></thead>
+            <tbody id="inviteHistoryTable"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMUNICATE: RESULTS -->
+  <section class="section" id="section-comm-results">
+    <div class="page-header">
+      <div class="page-title">Send Results</div>
+      <div class="page-sub">Send individual score reports to students</div>
+    </div>
+    <div class="toolbar">
+      <select class="ctrl" id="resultsExamSel" onchange="loadResultsStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
+      <div class="spacer"></div>
+      <button class="btn btn-success btn-sm" id="btnSendAllResults" onclick="sendAllResults()" style="display:none;">Send to All Pending</button>
+    </div>
     <div class="card">
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th onclick="sortStudents('name')" style="cursor:pointer;">Student ↕</th>
-              <th>Group</th>
-              <th>Status</th>
-              <th onclick="sortStudents('score')" style="cursor:pointer;">Score ↕</th>
-              <th onclick="sortStudents('date')" style="cursor:pointer;">Submitted ↕</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="studentsTable"><tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to view students.</td></tr></tbody>
+          <thead><tr><th>Student</th><th>Email</th><th>Score</th><th>Status</th><th>Sent At</th><th>Action</th></tr></thead>
+          <tbody id="resultsTable"><tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
         </table>
       </div>
     </div>
   </section>
 
-  <!-- RESULTS -->
-  <section class="section" id="section-results">
-    <div class="page-header"><div class="page-title">Results</div><div class="page-sub">Grading queue and result delivery</div></div>
-    <div class="section-label">Pending Grading</div>
-    <div class="grading-grid" id="gradingQueue"><div class="loading">Loading…</div></div>
-    <div class="section-label">Send Results</div>
-    <div id="sendResultsPanel"><div class="loading">Loading…</div></div>
+  <!-- COMMUNICATE: RETAKES -->
+  <section class="section" id="section-comm-retakes">
+    <div class="page-header">
+      <div class="page-title">Retakes</div>
+      <div class="page-sub">Allow a student to retake an exam</div>
+    </div>
+    <div class="toolbar">
+      <select class="ctrl" id="retakesExamSel" onchange="loadRetakesStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
+      <input class="search-input" type="text" id="retakesSearch" placeholder="Search students…" oninput="filterRetakes()">
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Score</th><th>Submitted</th><th>Action</th></tr></thead>
+          <tbody id="retakesTable"><tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </section>
 
-  <!-- SETTINGS -->
-  <section class="section" id="section-settings">
-    <div class="page-header"><div class="page-title">Settings</div></div>
+  <!-- HISTORY: SENT RESULTS -->
+  <section class="section" id="section-hist-results">
+    <div class="page-header">
+      <div class="page-title">Sent Results</div>
+      <div class="page-sub">All result emails sent to students</div>
+    </div>
+    <div class="toolbar">
+      <input class="search-input" type="text" id="histResultsSearch" placeholder="Search…" oninput="filterHistResults()">
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Email</th><th>Exam</th><th>Score</th><th>Sent At</th></tr></thead>
+          <tbody id="histResultsTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTORY: SCHEDULED -->
+  <section class="section" id="section-hist-scheduled">
+    <div class="page-header">
+      <div class="page-title">Scheduled</div>
+      <div class="page-sub">Scheduled result deliveries</div>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Scheduled For</th><th>Action</th></tr></thead>
+          <tbody id="histScheduledTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS: PROFILE -->
+  <section class="section" id="section-settings-profile">
+    <div class="page-header"><div class="page-title">Profile</div></div>
     <div class="settings-grid">
       <div class="settings-panel">
-        <div class="settings-panel-title">Profile</div>
-        <div class="settings-row"><div class="settings-label">Name</div><div class="settings-value" id="settingName">—</div></div>
-        <div class="settings-row"><div class="settings-label">Email</div><div class="settings-value" id="settingEmail">—</div></div>
+        <div class="settings-panel-title">Personal Information</div>
+        <div class="settings-row">
+          <div class="settings-label">Full Name</div>
+          <input class="edit-input" type="text" id="settingNameInput" placeholder="Your name">
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Email</div>
+          <div class="settings-value" id="settingEmail" style="padding: 7px 0; color:#64748b;"></div>
+        </div>
         <div class="settings-row">
           <div class="settings-label">Language</div>
           <div class="lang-toggle">
@@ -281,11 +525,22 @@
             <button class="lang-btn" id="langEN" onclick="setLang('en')">EN</button>
           </div>
         </div>
+        <button class="btn btn-primary btn-sm" onclick="saveProfile()" style="margin-top:8px;">Save Changes</button>
       </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS: INSTITUTION -->
+  <section class="section" id="section-settings-inst">
+    <div class="page-header"><div class="page-title">Institution</div></div>
+    <div class="settings-grid">
       <div class="settings-panel">
-        <div class="settings-panel-title">Institution</div>
-        <div class="settings-row"><div class="settings-label">Name</div><div class="settings-value" id="settingInst">—</div></div>
-        <div class="settings-row"><div class="settings-label">Logo</div><div id="settingLogoWrap" style="margin-top:6px;"></div></div>
+        <div class="settings-panel-title">Institution Details</div>
+        <div class="settings-row"><div class="settings-label">Name</div><div class="settings-value" id="settingInstName">—</div></div>
+        <div class="settings-row">
+          <div class="settings-label">Logo</div>
+          <div id="settingLogoWrap" style="margin-top:6px;"></div>
+        </div>
         <div style="margin-top:16px;"><a href="institution.html"><button class="btn btn-ghost btn-sm">Manage Members →</button></a></div>
       </div>
     </div>
@@ -308,9 +563,12 @@
   let examStudentCounts = {};
   let examQuestionCounts = {};
   let currentAttempts = [];
-  let activeGroup = 'all';
-  let studentSortKey = 'date';
-  let studentSortAsc = false;
+  let subsActiveGroup = 'all';
+  let subsTab = 'all';
+  let examTab = 'all';
+  let selectedAttemptIds = new Set();
+  let retakesAllAttempts = [];
+  let histResultsAll = [];
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -326,10 +584,22 @@
     if (!d) return '—';
     return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
+  function formatDateTime(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
   function showToast(msg) {
     const el = document.getElementById('toast');
     el.textContent = msg; el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 3000);
+    setTimeout(() => el.classList.remove('show'), 3200);
+  }
+  function calcScore(a) {
+    const openSum = Object.values(a.open_scores || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+    return (a.score_mcq ?? 0) + openSum;
+  }
+  function fmtScore(a) {
+    if (a.score_mcq == null) return '—';
+    return String(calcScore(a));
   }
 
   // ── Sidebar ──────────────────────────────────────────────────────────
@@ -345,18 +615,42 @@
 
   // ── Navigation ───────────────────────────────────────────────────────
 
-  function navigate(section) {
+  const SECTION_MAP = {
+    'home': 'home',
+    'exams-all': 'exams', 'exams-published': 'exams', 'exams-drafts': 'exams',
+    'subs-all': 'subs', 'subs-grading': 'subs',
+    'comm-invite': 'comm-invite',
+    'comm-results': 'comm-results',
+    'comm-retakes': 'comm-retakes',
+    'hist-results': 'hist-results',
+    'hist-scheduled': 'hist-scheduled',
+    'settings-profile': 'settings-profile',
+    'settings-inst': 'settings-inst',
+  };
+
+  function navigate(nav) {
+    // update nav items
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    const navEl = document.querySelector(`[data-section="${section}"]`);
-    if (navEl) navEl.classList.add('active');
+    document.querySelectorAll(`[data-nav="${nav}"]`).forEach(el => el.classList.add('active'));
+    // show section
+    const sectionId = SECTION_MAP[nav];
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-    document.getElementById(`section-${section}`).classList.add('active');
+    document.getElementById(`section-${sectionId}`).classList.add('active');
     closeSidebar();
-    if (section === 'overview') loadOverview();
-    else if (section === 'exams') loadExams();
-    else if (section === 'students') loadStudents();
-    else if (section === 'results') loadResults();
-    else if (section === 'settings') loadSettings();
+    // per-section init
+    if (nav === 'home') loadHome();
+    else if (nav === 'exams-all') { examTab = 'all'; setExamTab('all'); }
+    else if (nav === 'exams-published') { examTab = 'published'; setExamTab('published'); }
+    else if (nav === 'exams-drafts') { examTab = 'drafts'; setExamTab('drafts'); }
+    else if (nav === 'subs-all') { setSubsTab('all'); }
+    else if (nav === 'subs-grading') { setSubsTab('grading'); }
+    else if (nav === 'comm-invite') loadCommInvite();
+    else if (nav === 'comm-results') loadCommResults();
+    else if (nav === 'comm-retakes') loadCommRetakes();
+    else if (nav === 'hist-results') loadHistResults();
+    else if (nav === 'hist-scheduled') loadHistScheduled();
+    else if (nav === 'settings-profile') loadSettingsProfile();
+    else if (nav === 'settings-inst') loadSettingsInst();
   }
 
   // ── Init ─────────────────────────────────────────────────────────────
@@ -395,15 +689,19 @@
       (qRes.data || []).forEach(r => { examQuestionCounts[r.exam_id] = (examQuestionCounts[r.exam_id] || 0) + 1; });
     }
 
-    const sel = document.getElementById('examSelector');
-    allExams.forEach(e => {
-      const opt = document.createElement('option');
-      opt.value = e.id;
-      opt.textContent = e.title || '(Untitled)';
-      sel.appendChild(opt);
+    // Populate exam selectors
+    ['subsExamSelector','inviteExamSel','resultsExamSel','retakesExamSel'].forEach(id => {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      allExams.forEach(e => {
+        const opt = document.createElement('option');
+        opt.value = e.id;
+        opt.textContent = e.title || '(Untitled)';
+        sel.appendChild(opt);
+      });
     });
 
-    navigate('overview');
+    navigate('home');
   }
 
   async function signOut() {
@@ -411,47 +709,71 @@
     window.location.href = 'dashboard.html';
   }
 
-  // ── OVERVIEW ─────────────────────────────────────────────────────────
+  // ── HOME ─────────────────────────────────────────────────────────────
 
-  async function loadOverview() {
+  async function loadHome() {
     const name = currentTeacher.full_name || currentTeacher.email || '';
-    const firstName = name.trim().split(/\s+/).pop() || name;
-    document.getElementById('overviewGreeting').textContent = `Welcome back, ${firstName}`;
+    const firstName = name.trim().split(/\s+/)[0] || name;
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('homeGreeting').textContent = `${greeting}, ${firstName}`;
+    document.getElementById('homeDate').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
     const totalStudents = Object.values(examStudentCounts).reduce((a, b) => a + b, 0);
-    const now = new Date();
-    const thisMonth = allExams.filter(e => {
-      const d = new Date(e.created_at);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    }).length;
-
     document.getElementById('statExams').textContent = allExams.length;
     document.getElementById('statStudents').textContent = totalStudents;
-    document.getElementById('statThisMonth').textContent = thisMonth;
 
-    let pendingCount = 0;
+    let pendingCount = 0, unsentCount = 0;
     if (allExams.length) {
       const examIds = allExams.map(e => e.id);
-      const { data: openQs } = await sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds);
-      const openExamIds = [...new Set((openQs || []).map(q => q.exam_id))];
-      if (openExamIds.length) {
-        const { count } = await sb.from('exam_attempts')
-          .select('id', { count: 'exact', head: true }).in('exam_id', openExamIds).eq('status','submitted');
-        pendingCount = count || 0;
-      }
+      const [openQsRes, attRes] = await Promise.all([
+        sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
+        sb.from('exam_attempts').select('exam_id,status,results_sent_at').in('exam_id', examIds).eq('status','submitted')
+      ]);
+      const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
+      (attRes.data||[]).forEach(a => {
+        if (openExamIds.has(a.exam_id)) pendingCount++;
+        if (!a.results_sent_at) unsentCount++;
+      });
     }
     document.getElementById('statPending').textContent = pendingCount;
+    document.getElementById('statUnsent').textContent = unsentCount;
 
+    // Action cards
+    const cards = [];
+    if (pendingCount > 0) {
+      cards.push(`<div class="action-card amber" onclick="navigate('subs-grading')">
+        <div class="action-card-count">${pendingCount}</div>
+        <div class="action-card-title">Awaiting Grading</div>
+        <div class="action-card-sub">Open-ended answers to review</div>
+      </div>`);
+    }
+    if (unsentCount > 0) {
+      cards.push(`<div class="action-card blue" onclick="navigate('comm-results')">
+        <div class="action-card-count">${unsentCount}</div>
+        <div class="action-card-title">Results Unsent</div>
+        <div class="action-card-sub">Students waiting for their scores</div>
+      </div>`);
+    }
+    if (cards.length === 0) {
+      cards.push(`<div class="action-card green">
+        <div class="action-card-count">✓</div>
+        <div class="action-card-title">All Caught Up</div>
+        <div class="action-card-sub">No pending grading or unsent results</div>
+      </div>`);
+    }
+    document.getElementById('homeActionCards').innerHTML = cards.join('');
+
+    // Recent submissions table
     let rows = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions yet.</td></tr>`;
     if (allExams.length) {
       const examIds = allExams.map(e => e.id);
       const { data: recent } = await sb.from('exam_attempts')
-        .select('*').in('exam_id', examIds).order('submitted_at', { ascending: false }).limit(10);
+        .select('*').in('exam_id', examIds).order('submitted_at', { ascending: false }).limit(8);
       if (recent && recent.length) {
         const examMap = {};
         allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
         rows = recent.map(a => {
-          const score = a.score_mcq != null ? String(a.score_mcq) : '—';
           const badge = a.results_sent_at
             ? `<span class="badge badge-sent">Sent</span>`
             : a.status === 'submitted'
@@ -460,48 +782,56 @@
           return `<tr>
             <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
             <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
-            <td>${score}</td>
+            <td>${fmtScore(a)}</td>
             <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
             <td>${badge}</td>
           </tr>`;
         }).join('');
       }
     }
-    document.getElementById('overviewTable').innerHTML = rows;
+    document.getElementById('homeTable').innerHTML = rows;
   }
 
   // ── EXAMS ────────────────────────────────────────────────────────────
 
-  function loadExams() { renderExamsTable(allExams); }
+  function setExamTab(tab) {
+    examTab = tab;
+    ['all','published','drafts'].forEach(t => {
+      document.getElementById(`examTab-${t}`).classList.toggle('active', t === tab);
+    });
+    filterExams();
+  }
 
   function filterExams() {
-    const q = document.getElementById('examSearch').value.toLowerCase();
-    renderExamsTable(allExams.filter(e => (e.title||'').toLowerCase().includes(q)));
+    const q = (document.getElementById('examSearch').value || '').toLowerCase();
+    let list = allExams.filter(e => (e.title||'').toLowerCase().includes(q));
+    if (examTab === 'published') list = list.filter(e => e.status === 'published');
+    else if (examTab === 'drafts') list = list.filter(e => e.status !== 'published');
+    const titles = { all: 'All Exams', published: 'Published Exams', drafts: 'Draft Exams' };
+    document.getElementById('examsTitle').textContent = titles[examTab] || 'Exams';
+    renderExamsTable(list);
   }
 
   function renderExamsTable(exams) {
     const tbody = document.getElementById('examsTable');
     if (!exams.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin-bottom:10px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
         <div class="empty-title">No exams found</div><div class="empty-sub">Create your first exam to get started.</div>
       </div></td></tr>`;
       return;
     }
     tbody.innerHTML = exams.map(e => {
-      const groups = e.groups ? e.groups.split(',').filter(Boolean).length : 0;
       const badge = e.status === 'published'
         ? `<span class="badge badge-published">Published</span>`
         : `<span class="badge badge-draft">Draft</span>`;
       return `<tr>
-        <td style="font-weight:600;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title||'(Untitled)')}</td>
+        <td style="font-weight:600;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title||'(Untitled)')}</td>
         <td>${badge}</td>
         <td style="color:#64748b;">${examQuestionCounts[e.id]||0}</td>
-        <td style="color:#64748b;">${groups||'—'}</td>
         <td style="color:#64748b;">${examStudentCounts[e.id]||0}</td>
         <td style="color:#64748b;">${formatDate(e.created_at)}</td>
         <td><div class="action-btns">
-          <a href="submissions.html?exam=${e.id}"><button class="btn btn-ghost btn-sm">Edit</button></a>
+          <a href="submissions.html?exam=${e.id}"><button class="btn btn-ghost btn-sm">Manage</button></a>
           <a href="exam-engine.html?id=${esc(e.share_id)}" target="_blank"><button class="btn btn-ghost btn-sm">Preview</button></a>
           <button class="btn btn-danger-ghost btn-sm" onclick="deleteExam('${e.id}','${esc((e.title||'').replace(/'/g,"\\'"))}')">Delete</button>
         </div></td>
@@ -518,73 +848,500 @@
     allExams = allExams.filter(e => e.id !== examId);
     delete examStudentCounts[examId];
     delete examQuestionCounts[examId];
-    const opt = document.querySelector(`#examSelector option[value="${examId}"]`);
-    if (opt) opt.remove();
-    renderExamsTable(allExams);
+    filterExams();
     showToast('Exam deleted.');
   }
 
-  // ── STUDENTS ─────────────────────────────────────────────────────────
+  // ── SUBMISSIONS ──────────────────────────────────────────────────────
 
-  function loadStudents() { /* exam selector pre-populated in init */ }
+  function setSubsTab(tab) {
+    subsTab = tab;
+    ['all','grading'].forEach(t => {
+      document.getElementById(`subsTab-${t}`).classList.toggle('active', t === tab);
+    });
+    document.getElementById('subsAllView').style.display = tab === 'all' ? 'block' : 'none';
+    document.getElementById('subsGradingView').style.display = tab === 'grading' ? 'block' : 'none';
+    const titles = { all: 'All Submissions', grading: 'Grading Queue' };
+    document.getElementById('subsTitle').textContent = titles[tab] || 'Submissions';
+    if (tab === 'grading') renderGradingQueue();
+  }
 
-  async function onExamSelect() {
-    const examId = document.getElementById('examSelector').value;
+  async function onSubsExamSelect() {
+    const examId = document.getElementById('subsExamSelector').value;
+    clearSelection();
     if (!examId) {
       currentAttempts = [];
-      document.getElementById('groupTabs').innerHTML = '';
-      document.getElementById('studentsTable').innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to view students.</td></tr>`;
+      document.getElementById('subsGroupTabs').innerHTML = '';
+      document.getElementById('subsTable').innerHTML = `<tr><td colspan="8" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to view submissions.</td></tr>`;
       return;
     }
-    document.getElementById('studentsTable').innerHTML = `<tr><td colspan="6" class="loading">Loading…</td></tr>`;
+    document.getElementById('subsTable').innerHTML = `<tr><td colspan="8" class="loading">Loading…</td></tr>`;
     const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).order('student_name');
     currentAttempts = data || [];
-    activeGroup = 'all';
-    renderGroupTabs();
-    applyStudentFilters();
+    subsActiveGroup = 'all';
+    renderSubsGroupTabs();
+    applySubsFilters();
   }
 
-  function renderGroupTabs() {
+  function renderSubsGroupTabs() {
     const groups = [...new Set(currentAttempts.map(a => a.group_name).filter(Boolean))];
-    const tabs = document.getElementById('groupTabs');
+    const tabs = document.getElementById('subsGroupTabs');
     if (!groups.length) { tabs.innerHTML = ''; return; }
-    tabs.innerHTML = `<div class="group-tab active" onclick="setGroupTab('all',this)">All</div>` +
-      groups.map(g => `<div class="group-tab" onclick="setGroupTab('${esc(g)}',this)">${esc(g)}</div>`).join('');
+    tabs.innerHTML = `<div class="group-tab active" onclick="setSubsGroupTab('all',this)">All</div>` +
+      groups.map(g => `<div class="group-tab" onclick="setSubsGroupTab('${esc(g)}',this)">${esc(g)}</div>`).join('');
   }
 
-  function setGroupTab(group, el) {
-    activeGroup = group;
-    document.querySelectorAll('.group-tab').forEach(t => t.classList.remove('active'));
+  function setSubsGroupTab(group, el) {
+    subsActiveGroup = group;
+    document.querySelectorAll('#subsGroupTabs .group-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-    applyStudentFilters();
+    clearSelection();
+    applySubsFilters();
   }
 
-  function sortStudents(key) {
-    studentSortAsc = studentSortKey === key ? !studentSortAsc : true;
-    studentSortKey = key;
-    applyStudentFilters();
-  }
-
-  function applyStudentFilters() {
-    const q = document.getElementById('studentSearch').value.toLowerCase();
+  function applySubsFilters() {
+    const q = (document.getElementById('subsSearch').value || '').toLowerCase();
     let list = [...currentAttempts];
-    if (activeGroup !== 'all') list = list.filter(a => a.group_name === activeGroup);
+    if (subsActiveGroup !== 'all') list = list.filter(a => a.group_name === subsActiveGroup);
     if (q) list = list.filter(a => (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q));
-    list.sort((a, b) => {
-      let va, vb;
-      if (studentSortKey === 'name') { va = a.student_name||''; vb = b.student_name||''; }
-      else if (studentSortKey === 'score') { va = a.score_mcq ?? -1; vb = b.score_mcq ?? -1; }
-      else { va = a.submitted_at||''; vb = b.submitted_at||''; }
-      if (va < vb) return studentSortAsc ? -1 : 1;
-      if (va > vb) return studentSortAsc ? 1 : -1;
-      return 0;
-    });
-    renderStudentsTable(list);
+    renderSubsTable(list);
   }
 
-  function renderStudentsTable(attempts) {
-    const examId = document.getElementById('examSelector').value;
-    const tbody = document.getElementById('studentsTable');
+  function renderSubsTable(attempts) {
+    const tbody = document.getElementById('subsTable');
+    if (!attempts.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions found.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = attempts.map(a => {
+      const badge = a.status === 'submitted'
+        ? `<span class="badge badge-submitted">Submitted</span>`
+        : `<span class="badge badge-active">Active</span>`;
+      const sentBadge = a.results_sent_at
+        ? `<span class="badge badge-sent">Sent ${formatDate(a.results_sent_at)}</span>`
+        : `<span class="badge badge-pending">Unsent</span>`;
+      const checked = selectedAttemptIds.has(a.id) ? 'checked' : '';
+      return `<tr>
+        <td><input type="checkbox" ${checked} onchange="toggleAttemptSelect('${a.id}',this)"></td>
+        <td>
+          <div style="font-weight:600;">${esc(a.student_name||'—')}</div>
+          <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
+        </td>
+        <td style="color:#64748b;">${esc(a.group_name||'—')}</td>
+        <td>${badge}</td>
+        <td>${fmtScore(a)}</td>
+        <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
+        <td>${sentBadge}</td>
+        <td>
+          <div class="dot-menu-wrap">
+            <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
+            <div class="dot-menu">
+              <a href="student-review.html?attempt=${a.id}&exam=${document.getElementById('subsExamSelector').value}"><div class="dot-menu-item">View Response</div></a>
+              <div class="dot-menu-item" onclick="sendSingleResult('${a.id}')">Send Results</div>
+              <div class="dot-menu-item" onclick="sendRetake('${a.id}')">Send Retake</div>
+              <div class="dot-menu-item danger" onclick="deleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}')">Delete</div>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function toggleDotMenu(btn) {
+    const menu = btn.nextElementSibling;
+    const isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    if (!isOpen) menu.classList.add('open');
+  }
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.dot-menu-wrap')) {
+      document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    }
+  });
+
+  // ── Selection / Bulk ─────────────────────────────────────────────────
+
+  function toggleAttemptSelect(id, cb) {
+    if (cb.checked) selectedAttemptIds.add(id);
+    else selectedAttemptIds.delete(id);
+    updateBulkBar();
+  }
+
+  function toggleSelectAll(masterCb) {
+    const rows = document.querySelectorAll('#subsTable input[type=checkbox]');
+    rows.forEach(cb => {
+      cb.checked = masterCb.checked;
+      const id = cb.closest('tr')?.querySelector('[onchange*="toggleAttemptSelect"]')?.getAttribute('onchange')?.match(/'([^']+)'/)?.[1];
+      if (id) {
+        if (masterCb.checked) selectedAttemptIds.add(id);
+        else selectedAttemptIds.delete(id);
+      }
+    });
+    updateBulkBar();
+  }
+
+  function clearSelection() {
+    selectedAttemptIds.clear();
+    document.querySelectorAll('#subsTable input[type=checkbox]').forEach(cb => cb.checked = false);
+    const sa = document.getElementById('selectAll');
+    if (sa) sa.checked = false;
+    updateBulkBar();
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById('subsBulkBar');
+    const count = selectedAttemptIds.size;
+    bar.classList.toggle('show', count > 0);
+    document.getElementById('subsBulkCount').textContent = `${count} selected`;
+  }
+
+  async function bulkSendResults() {
+    if (!selectedAttemptIds.size) return;
+    if (!confirm(`Send results to ${selectedAttemptIds.size} student(s)?`)) return;
+    const ids = [...selectedAttemptIds];
+    let sent = 0;
+    for (const id of ids) {
+      const ok = await _doSendResult(id);
+      if (ok) sent++;
+    }
+    showToast(`Results sent to ${sent} student(s).`);
+    clearSelection();
+    await onSubsExamSelect();
+  }
+
+  async function bulkDelete() {
+    if (!selectedAttemptIds.size) return;
+    if (!confirm(`Delete ${selectedAttemptIds.size} submission(s)? This cannot be undone.`)) return;
+    for (const id of [...selectedAttemptIds]) {
+      await sb.from('exam_attempts').delete().eq('id', id);
+    }
+    showToast(`${selectedAttemptIds.size} submission(s) deleted.`);
+    clearSelection();
+    await onSubsExamSelect();
+  }
+
+  async function sendSingleResult(attemptId) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const ok = await _doSendResult(attemptId);
+    showToast(ok ? 'Result sent.' : 'Error sending result.');
+    await onSubsExamSelect();
+  }
+
+  async function _doSendResult(attemptId) {
+    const attempt = currentAttempts.find(a => a.id === attemptId);
+    if (!attempt) return false;
+    const exam = allExams.find(e => e.id === attempt.exam_id) || {};
+    const { data: { session } } = await sb.auth.getSession();
+    try {
+      const res = await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          type: 'results',
+          to_email: attempt.student_email,
+          to_name: attempt.student_name,
+          exam_title: exam.title || '',
+          score: fmtScore(attempt),
+          lang: exam.lang || 'fr',
+          teacher_name: currentTeacher.full_name || currentTeacher.email,
+          teacher_email: currentTeacher.email,
+          institution_name: currentInstitution?.name || '',
+          attempt_id: attemptId,
+        })
+      });
+      if (res.ok) {
+        await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attemptId);
+        const idx = currentAttempts.findIndex(a => a.id === attemptId);
+        if (idx >= 0) currentAttempts[idx].results_sent_at = new Date().toISOString();
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  async function deleteAttempt(attemptId, studentName) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    if (!confirm(`Delete ${studentName}'s submission? This cannot be undone.`)) return;
+    const { error } = await sb.from('exam_attempts').delete().eq('id', attemptId);
+    if (error) { showToast('Error deleting submission.'); return; }
+    currentAttempts = currentAttempts.filter(a => a.id !== attemptId);
+    applySubsFilters();
+    showToast('Submission deleted.');
+  }
+
+  async function sendRetake(attemptId) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = currentAttempts.find(a => a.id === attemptId);
+    if (!attempt) return;
+    if (!confirm(`Send a retake link to ${attempt.student_name}?`)) return;
+    const token = crypto.randomUUID();
+    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
+    if (error) { showToast('Error generating retake.'); return; }
+    const exam = allExams.find(e => e.id === attempt.exam_id) || {};
+    const { data: { session } } = await sb.auth.getSession();
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
+    await fetch(SEND_EMAIL_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({
+        type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
+        exam_title: exam.title || '', retake_link: retakeLink,
+        access_code: exam.access_code || '', lang: exam.lang || 'fr',
+        teacher_name: currentTeacher.full_name || currentTeacher.email,
+        teacher_email: currentTeacher.email,
+        institution_name: currentInstitution?.name || ''
+      })
+    });
+    showToast(`Retake link sent to ${attempt.student_name}.`);
+  }
+
+  // ── GRADING QUEUE ─────────────────────────────────────────────────────
+
+  async function renderGradingQueue() {
+    const el = document.getElementById('gradingGrid');
+    if (!allExams.length) { el.innerHTML = '<div style="color:#94a3b8;font-size:0.82rem;">No exams yet.</div>'; return; }
+    el.innerHTML = '<div class="loading">Loading…</div>';
+    const examIds = allExams.map(e => e.id);
+    const [openQsRes, attRes] = await Promise.all([
+      sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
+      sb.from('exam_attempts').select('id,exam_id').in('exam_id', examIds).eq('status','submitted')
+    ]);
+    const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
+    const attMap = {};
+    (attRes.data||[]).forEach(a => { if (!attMap[a.exam_id]) attMap[a.exam_id] = 0; attMap[a.exam_id]++; });
+    const gradingExams = allExams.filter(e => openExamIds.has(e.id) && (attMap[e.id]||0) > 0);
+    if (!gradingExams.length) {
+      el.innerHTML = '<div style="background:white;border:1px solid #e2e8f0;padding:24px;color:#64748b;font-size:0.82rem;border-left:4px solid #e2e8f0;">No pending grading.</div>';
+      return;
+    }
+    el.innerHTML = gradingExams.map(e => {
+      const count = attMap[e.id] || 0;
+      return `<div class="grading-card">
+        <div class="grading-card-title">${esc(e.title||'(Untitled)')}</div>
+        <div class="grading-card-meta">${count} submission${count!==1?'s':''} awaiting review</div>
+        <a href="submissions.html?exam=${e.id}&tab=submissions"><button class="btn btn-primary btn-sm">Grade Now →</button></a>
+      </div>`;
+    }).join('');
+  }
+
+  // ── COMMUNICATE: INVITATIONS ──────────────────────────────────────────
+
+  function loadCommInvite() {
+    loadInviteHistory();
+  }
+
+  function onInviteExamChange() {
+    const examId = document.getElementById('inviteExamSel').value;
+    const exam = allExams.find(e => e.id === examId);
+    const groupWrap = document.getElementById('inviteGroupWrap');
+    const groupSel = document.getElementById('inviteGroupSel');
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam?.group_codes || '{}'); } catch(e) {}
+    const groups = Object.keys(groupCodes);
+    if (groups.length) {
+      groupSel.innerHTML = '<option value="">— Default (all groups)</option>' +
+        groups.map(g => `<option value="${g}">${esc(g)}</option>`).join('');
+      groupWrap.style.display = 'block';
+    } else {
+      groupWrap.style.display = 'none';
+    }
+  }
+
+  let invitePreviewVisible = false;
+  function toggleInvitePreview() {
+    invitePreviewVisible = !invitePreviewVisible;
+    const wrap = document.getElementById('invitePreviewWrap');
+    wrap.style.display = invitePreviewVisible ? 'block' : 'none';
+    if (invitePreviewVisible) renderInvitePreview();
+  }
+
+  function renderInvitePreview() {
+    const examId = document.getElementById('inviteExamSel').value;
+    const exam = allExams.find(e => e.id === examId);
+    if (!exam) { document.getElementById('invitePreviewBox').textContent = 'Select an exam first.'; return; }
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const link = `${base}/exam-engine.html?id=${exam.share_id}`;
+    document.getElementById('invitePreviewBox').innerHTML = `
+      <strong>Subject:</strong> Invitation — ${esc(exam.title||'')}<br><br>
+      You have been invited to take an exam on testflo.<br><br>
+      <strong>Exam:</strong> ${esc(exam.title||'')}<br>
+      ${exam.access_code ? `<strong>Access code:</strong> ${esc(exam.access_code)}<br>` : ''}
+      <strong>Link:</strong> <a href="${esc(link)}" style="color:#2563eb;">${esc(link)}</a><br><br>
+      — ${esc(currentTeacher.full_name||currentTeacher.email)}
+    `;
+  }
+
+  async function sendInvitations() {
+    const examId = document.getElementById('inviteExamSel').value;
+    if (!examId) { showToast('Please select an exam.'); return; }
+    const exam = allExams.find(e => e.id === examId) || {};
+    const groupVal = document.getElementById('inviteGroupSel').value;
+    const emailsRaw = document.getElementById('inviteEmails').value;
+    const emails = emailsRaw.split(/[\n,;]+/).map(e => e.trim()).filter(e => e.includes('@'));
+    if (!emails.length) { showToast('Please enter at least one email.'); return; }
+    const { data: { session } } = await sb.auth.getSession();
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    const code = groupVal && groupCodes[groupVal] ? groupCodes[groupVal] : (exam.access_code || '');
+    const link = `${base}/exam-engine.html?id=${exam.share_id}${groupVal ? '&group='+encodeURIComponent(groupVal) : ''}`;
+    let sent = 0;
+    for (const email of emails) {
+      try {
+        await fetch(SEND_EMAIL_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            type: 'invite', to_email: email, to_name: '',
+            exam_title: exam.title || '', exam_link: link, access_code: code,
+            lang: exam.lang || 'fr',
+            teacher_name: currentTeacher.full_name || currentTeacher.email,
+            teacher_email: currentTeacher.email,
+            institution_name: currentInstitution?.name || ''
+          })
+        });
+        sent++;
+      } catch(e) {}
+    }
+    document.getElementById('inviteEmails').value = '';
+    showToast(`Invitations sent to ${sent} student(s).`);
+    loadInviteHistory();
+  }
+
+  async function loadInviteHistory() {
+    const tbody = document.getElementById('inviteHistoryTable');
+    if (!allExams.length) { tbody.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No history yet.</td></tr>`; return; }
+    const examIds = allExams.map(e => e.id);
+    const { data } = await sb.from('exam_attempts')
+      .select('student_name,student_email,exam_id,group_name,created_at').in('exam_id', examIds)
+      .order('created_at', { ascending: false }).limit(30);
+    if (!data || !data.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No history yet.</td></tr>`;
+      return;
+    }
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    tbody.innerHTML = data.map(a => `<tr>
+      <td style="font-weight:500;">${esc(a.student_name||a.student_email||'—')}</td>
+      <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+      <td style="color:#64748b;">${esc(a.group_name||'—')}</td>
+      <td style="color:#64748b;">${formatDate(a.created_at)}</td>
+    </tr>`).join('');
+  }
+
+  // ── COMMUNICATE: RESULTS ──────────────────────────────────────────────
+
+  function loadCommResults() {
+    document.getElementById('resultsTable').innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+  }
+
+  async function loadResultsStudents() {
+    const examId = document.getElementById('resultsExamSel').value;
+    const tbody = document.getElementById('resultsTable');
+    const btnAll = document.getElementById('btnSendAllResults');
+    if (!examId) {
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+      btnAll.style.display = 'none';
+      return;
+    }
+    tbody.innerHTML = `<tr><td colspan="6" class="loading">Loading…</td></tr>`;
+    const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).eq('status','submitted').order('student_name');
+    const attempts = data || [];
+    if (!attempts.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submitted attempts.</td></tr>`;
+      btnAll.style.display = 'none';
+      return;
+    }
+    const unsent = attempts.filter(a => !a.results_sent_at);
+    btnAll.style.display = unsent.length ? 'inline-flex' : 'none';
+    tbody.innerHTML = attempts.map(a => {
+      const sentBadge = a.results_sent_at
+        ? `<span class="badge badge-sent">Sent</span>`
+        : `<span class="badge badge-pending">Unsent</span>`;
+      const action = a.results_sent_at
+        ? `<button class="btn btn-ghost btn-sm" onclick="resendResult('${a.id}')">Resend</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="sendOneResult('${a.id}')">Send</button>`;
+      return `<tr>
+        <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+        <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
+        <td>${fmtScore(a)}</td>
+        <td>${sentBadge}</td>
+        <td style="color:#64748b;">${formatDateTime(a.results_sent_at)}</td>
+        <td>${action}</td>
+      </tr>`;
+    }).join('');
+    // store for send functions
+    window._resultsAttempts = attempts;
+  }
+
+  async function sendOneResult(attemptId) {
+    const attempt = (window._resultsAttempts||[]).find(a => a.id === attemptId);
+    if (!attempt) return;
+    const exam = allExams.find(e => e.id === attempt.exam_id) || {};
+    const { data: { session } } = await sb.auth.getSession();
+    try {
+      await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
+          exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
+          teacher_name: currentTeacher.full_name||currentTeacher.email,
+          teacher_email: currentTeacher.email,
+          institution_name: currentInstitution?.name||'', attempt_id: attemptId,
+        })
+      });
+      await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attemptId);
+      showToast(`Result sent to ${attempt.student_name}.`);
+      loadResultsStudents();
+    } catch(e) { showToast('Error sending result.'); }
+  }
+
+  async function resendResult(attemptId) {
+    await sb.from('exam_attempts').update({ results_sent_at: null }).eq('id', attemptId);
+    const idx = (window._resultsAttempts||[]).findIndex(a => a.id === attemptId);
+    if (idx >= 0) window._resultsAttempts[idx].results_sent_at = null;
+    await sendOneResult(attemptId);
+  }
+
+  async function sendAllResults() {
+    const unsent = (window._resultsAttempts||[]).filter(a => !a.results_sent_at);
+    if (!unsent.length) return;
+    if (!confirm(`Send results to ${unsent.length} student(s)?`)) return;
+    for (const a of unsent) await sendOneResult(a.id);
+    showToast(`Results sent to ${unsent.length} student(s).`);
+  }
+
+  // ── COMMUNICATE: RETAKES ──────────────────────────────────────────────
+
+  function loadCommRetakes() {}
+
+  async function loadRetakesStudents() {
+    const examId = document.getElementById('retakesExamSel').value;
+    const tbody = document.getElementById('retakesTable');
+    if (!examId) {
+      retakesAllAttempts = [];
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = `<tr><td colspan="6" class="loading">Loading…</td></tr>`;
+    const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).order('student_name');
+    retakesAllAttempts = data || [];
+    filterRetakes();
+  }
+
+  function filterRetakes() {
+    const q = (document.getElementById('retakesSearch').value || '').toLowerCase();
+    const list = q ? retakesAllAttempts.filter(a =>
+      (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
+    ) : [...retakesAllAttempts];
+    renderRetakesTable(list);
+  }
+
+  function renderRetakesTable(attempts) {
+    const tbody = document.getElementById('retakesTable');
     if (!attempts.length) {
       tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
       return;
@@ -593,32 +1350,23 @@
       const badge = a.status === 'submitted'
         ? `<span class="badge badge-submitted">Submitted</span>`
         : `<span class="badge badge-active">Active</span>`;
-      const score = a.score_mcq != null ? String(a.score_mcq) : '—';
       return `<tr>
-        <td>
-          <div style="font-weight:600;">${esc(a.student_name||'—')}</div>
-          <div style="font-size:0.72rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
-        </td>
-        <td style="color:#64748b;">${esc(a.group_name||'—')}</td>
+        <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+        <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
         <td>${badge}</td>
-        <td>${score}</td>
+        <td>${fmtScore(a)}</td>
         <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-        <td><div class="action-btns">
-          <a href="student-review.html?attempt=${a.id}&exam=${examId}"><button class="btn btn-ghost btn-sm">View</button></a>
-          <button class="btn btn-ghost btn-sm" onclick="sendRetake('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}')">Retake</button>
-          <button class="btn btn-danger-ghost btn-sm" onclick="deleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}')">Delete</button>
-        </div></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="sendRetakeFromComm('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}','${a.exam_id}')">Send Retake</button></td>
       </tr>`;
     }).join('');
   }
 
-  async function sendRetake(attemptId, studentName, studentEmail) {
+  async function sendRetakeFromComm(attemptId, studentName, studentEmail, examId) {
     if (!confirm(`Send a retake link to ${studentName}?`)) return;
     const token = crypto.randomUUID();
     const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
     if (error) { showToast('Error generating retake.'); return; }
-    const attempt = currentAttempts.find(a => a.id === attemptId);
-    const exam = allExams.find(e => e.id === attempt?.exam_id) || {};
+    const exam = allExams.find(e => e.id === examId) || {};
     const { data: { session } } = await sb.auth.getSession();
     const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
     const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
@@ -637,88 +1385,90 @@
     showToast(`Retake link sent to ${studentName}.`);
   }
 
-  async function deleteAttempt(attemptId, studentName) {
-    if (!confirm(`Delete ${studentName}'s submission? This cannot be undone.`)) return;
-    const { error } = await sb.from('exam_attempts').delete().eq('id', attemptId);
-    if (error) { showToast('Error deleting submission.'); return; }
-    currentAttempts = currentAttempts.filter(a => a.id !== attemptId);
-    applyStudentFilters();
-    showToast('Submission deleted.');
-  }
+  // ── HISTORY ───────────────────────────────────────────────────────────
 
-  // ── RESULTS ──────────────────────────────────────────────────────────
-
-  async function loadResults() {
-    const queueEl = document.getElementById('gradingQueue');
-    const sendEl = document.getElementById('sendResultsPanel');
-    if (!allExams.length) {
-      queueEl.innerHTML = '<div style="color:#94a3b8;font-size:0.82rem;">No exams yet.</div>';
-      sendEl.innerHTML = '';
-      return;
-    }
+  async function loadHistResults() {
+    const tbody = document.getElementById('histResultsTable');
+    if (!allExams.length) { tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No data yet.</td></tr>`; return; }
+    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
     const examIds = allExams.map(e => e.id);
-    const [openQsRes, attRes] = await Promise.all([
-      sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
-      sb.from('exam_attempts').select('id,exam_id,status,results_sent_at,student_name').in('exam_id', examIds).eq('status','submitted')
-    ]);
-    const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
-    const attemptsMap = {};
-    (attRes.data||[]).forEach(a => {
-      if (!attemptsMap[a.exam_id]) attemptsMap[a.exam_id] = [];
-      attemptsMap[a.exam_id].push(a);
-    });
-
-    const gradingExams = allExams.filter(e => openExamIds.has(e.id) && (attemptsMap[e.id]||[]).length > 0);
-    if (!gradingExams.length) {
-      queueEl.innerHTML = '<div style="background:white;border:1px solid #e2e8f0;padding:24px;color:#64748b;font-size:0.82rem;">No pending grading.</div>';
-    } else {
-      queueEl.innerHTML = gradingExams.map(e => {
-        const count = (attemptsMap[e.id]||[]).length;
-        return `<div class="grading-card">
-          <div class="grading-card-title">${esc(e.title||'(Untitled)')}</div>
-          <div class="grading-card-meta">${count} submission${count!==1?'s':''}</div>
-          <div class="grading-badge">${count} to grade</div><br>
-          <a href="submissions.html?exam=${e.id}&tab=submissions"><button class="btn btn-primary btn-sm">Grade Now →</button></a>
-        </div>`;
-      }).join('');
-    }
-
-    const examsWithSubs = allExams.filter(e => (attemptsMap[e.id]||[]).length > 0);
-    if (!examsWithSubs.length) {
-      sendEl.innerHTML = '<div style="color:#94a3b8;font-size:0.82rem;">No submissions to send results for.</div>';
-      return;
-    }
-    sendEl.innerHTML = `<div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>Exam</th><th>Submitted</th><th>Sent</th><th>Pending</th><th>Action</th></tr></thead>
-      <tbody>${examsWithSubs.map(e => {
-        const atts = attemptsMap[e.id]||[];
-        const sent = atts.filter(a => a.results_sent_at).length;
-        const pending = atts.length - sent;
-        return `<tr>
-          <td style="font-weight:600;">${esc(e.title||'(Untitled)')}</td>
-          <td>${atts.length}</td>
-          <td style="color:#16a34a;">${sent}</td>
-          <td style="color:${pending>0?'#c2410c':'#64748b'};">${pending}</td>
-          <td><a href="submissions.html?exam=${e.id}&tab=submissions"><button class="btn btn-ghost btn-sm">Open →</button></a></td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table></div></div>`;
+    const { data } = await sb.from('exam_attempts')
+      .select('*').in('exam_id', examIds).not('results_sent_at','is',null)
+      .order('results_sent_at', { ascending: false }).limit(100);
+    histResultsAll = data || [];
+    filterHistResults();
   }
 
-  // ── SETTINGS ─────────────────────────────────────────────────────────
+  function filterHistResults() {
+    const q = (document.getElementById('histResultsSearch').value || '').toLowerCase();
+    const list = q ? histResultsAll.filter(a =>
+      (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
+    ) : [...histResultsAll];
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    const tbody = document.getElementById('histResultsTable');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No results sent yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(a => `<tr>
+      <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+      <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
+      <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+      <td>${fmtScore(a)}</td>
+      <td style="color:#64748b;">${formatDateTime(a.results_sent_at)}</td>
+    </tr>`).join('');
+  }
 
-  function loadSettings() {
+  async function loadHistScheduled() {
+    const tbody = document.getElementById('histScheduledTable');
+    if (!allExams.length) { tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No data yet.</td></tr>`; return; }
+    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+    const examIds = allExams.map(e => e.id);
+    const { data } = await sb.from('exam_attempts')
+      .select('*').in('exam_id', examIds).not('scheduled_send_at','is',null).is('results_sent_at', null)
+      .order('scheduled_send_at', { ascending: true });
+    const scheduled = data || [];
+    if (!scheduled.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No scheduled deliveries.</td></tr>`;
+      return;
+    }
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    tbody.innerHTML = scheduled.map(a => `<tr>
+      <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+      <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+      <td>${fmtScore(a)}</td>
+      <td style="color:#64748b;">${formatDateTime(a.scheduled_send_at)}</td>
+      <td><button class="btn btn-danger-ghost btn-sm" onclick="cancelScheduled('${a.id}')">Cancel</button></td>
+    </tr>`).join('');
+  }
+
+  async function cancelScheduled(attemptId) {
+    if (!confirm('Cancel this scheduled delivery?')) return;
+    await sb.from('exam_attempts').update({ scheduled_send_at: null }).eq('id', attemptId);
+    showToast('Scheduled delivery cancelled.');
+    loadHistScheduled();
+  }
+
+  // ── SETTINGS ──────────────────────────────────────────────────────────
+
+  function loadSettingsProfile() {
     const t = currentTeacher;
-    document.getElementById('settingName').textContent = t.full_name || '—';
+    document.getElementById('settingNameInput').value = t.full_name || '';
     document.getElementById('settingEmail').textContent = t.email || '—';
     const lang = t.lang || 'fr';
     document.getElementById('langFR').classList.toggle('active', lang === 'fr');
     document.getElementById('langEN').classList.toggle('active', lang === 'en');
-    document.getElementById('settingInst').textContent = currentInstitution?.name || '—';
-    const logoWrap = document.getElementById('settingLogoWrap');
-    logoWrap.innerHTML = currentInstitution?.logo_url
-      ? `<img src="${esc(currentInstitution.logo_url)}" alt="Logo" style="max-height:48px;max-width:160px;object-fit:contain;">`
-      : `<span style="font-size:0.78rem;color:#94a3b8;">No logo uploaded</span>`;
+  }
+
+  async function saveProfile() {
+    const newName = document.getElementById('settingNameInput').value.trim();
+    const { error } = await sb.from('teachers').update({ full_name: newName }).eq('id', currentTeacher.id);
+    if (error) { showToast('Error saving profile.'); return; }
+    currentTeacher.full_name = newName;
+    document.getElementById('sidebarInitials').textContent = getInitials(newName || currentTeacher.email);
+    showToast('Profile saved.');
   }
 
   async function setLang(lang) {
@@ -727,6 +1477,14 @@
     await sb.from('teachers').update({ lang }).eq('id', currentTeacher.id);
     currentTeacher.lang = lang;
     showToast(`Language set to ${lang.toUpperCase()}.`);
+  }
+
+  function loadSettingsInst() {
+    document.getElementById('settingInstName').textContent = currentInstitution?.name || '—';
+    const logoWrap = document.getElementById('settingLogoWrap');
+    logoWrap.innerHTML = currentInstitution?.logo_url
+      ? `<img src="${esc(currentInstitution.logo_url)}" alt="Logo" style="max-height:48px;max-width:160px;object-fit:contain;">`
+      : `<span style="font-size:0.78rem;color:#94a3b8;">No logo uploaded</span>`;
   }
 
   // ── Boot ─────────────────────────────────────────────────────────────
