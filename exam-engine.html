@@ -1018,8 +1018,10 @@
             if (src.includes('watch?v=')) embedUrl = 'https://www.youtube.com/embed/' + src.split('watch?v=')[1].split('&')[0];
             else if (src.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/' + src.split('youtu.be/')[1];
             mediaDiv.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+            mediaDiv.addEventListener('mouseover', () => armSafeBlur(8000));
           } else {
             mediaDiv.innerHTML = `<video controls src="${src}" style="width:100%;"></video>`;
+            mediaDiv.querySelector('video').addEventListener('play', () => armSafeBlur(3000));
           }
         } else if (q.media_type === 'pdf') {
           fetch(q.media_src)
@@ -1241,8 +1243,10 @@
         if (src.includes('watch?v=')) embedUrl = 'https://www.youtube.com/embed/'+src.split('watch?v=')[1].split('&')[0];
         else if (src.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/'+src.split('youtu.be/')[1];
         mediaDiv.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+        mediaDiv.addEventListener('mouseover', () => armSafeBlur(8000));
       } else {
         mediaDiv.innerHTML = `<video controls src="${src}" style="width:100%;display:block;"></video>`;
+        mediaDiv.querySelector('video').addEventListener('play', () => armSafeBlur(3000));
       }
     } else if (type === 'pdf') {
       fetch(src)
