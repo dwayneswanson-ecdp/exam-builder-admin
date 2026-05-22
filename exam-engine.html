@@ -1281,9 +1281,9 @@
             mediaDiv.style.height = 'auto';
             mediaDiv.appendChild(wrapper);
           } else {
-            // Desktop: native browser PDF viewer — unchanged
-            mediaDiv.innerHTML = `<embed src="${blobUrl}" type="application/pdf" style="width:100%;height:100%;display:block;">`;
-            mediaDiv.addEventListener('mousedown', () => armSafeBlur(8000));
+            // Desktop: iframe suppresses Chrome sidebar (#navpanes=0) and toolbar (#toolbar=0)
+            mediaDiv.innerHTML = `<iframe src="${blobUrl}#navpanes=0&toolbar=0" style="width:100%;height:100%;display:block;border:none;"></iframe>`;
+            mediaDiv.addEventListener('mouseover', () => armSafeBlur(8000));
           }
         })
         .catch(() => {
