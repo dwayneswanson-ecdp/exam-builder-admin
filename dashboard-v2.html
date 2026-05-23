@@ -26,6 +26,28 @@
     .nav-sub .nav-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.6; }
     .nav-sub .nav-item.active { color: #93c5fd; background: transparent; }
     .nav-sub .nav-item:hover { color: rgba(255,255,255,0.8); background: transparent; }
+    /* ── Collapsible nav sections ── */
+    .nav-section-toggle { display: flex; align-items: center; padding: 14px 20px 6px; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); cursor: pointer; user-select: none; transition: color 0.15s; }
+    .nav-section-toggle:hover { color: rgba(255,255,255,0.5); }
+    .nav-section-toggle.open { color: rgba(255,255,255,0.45); }
+    .nav-section-toggle .nav-arrow { margin-left: auto; transition: transform 0.2s ease; opacity: 0.5; }
+    .nav-section-toggle.open .nav-arrow { transform: rotate(90deg); }
+    .nav-section-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
+    .nav-section-body.open { max-height: 400px; }
+    .nav-parent-toggle { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.55); cursor: pointer; font-size: 0.82rem; font-weight: 500; transition: background 0.1s, color 0.1s; user-select: none; border-left: 3px solid transparent; }
+    .nav-parent-toggle:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.04); }
+    .nav-parent-toggle.open { color: rgba(255,255,255,0.8); }
+    .nav-parent-toggle.active { color: white; border-left-color: #2563eb; background: rgba(37,99,235,0.12); }
+    .nav-parent-toggle svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-parent-toggle.active svg { opacity: 1; }
+    .nav-parent-toggle .nav-arrow { margin-left: auto; transition: transform 0.2s ease; opacity: 0.5; }
+    .nav-parent-toggle.open .nav-arrow { transform: rotate(90deg); }
+    .nav-parent-body { max-height: 0; overflow: hidden; transition: max-height 0.2s ease; }
+    .nav-parent-body.open { max-height: 160px; }
+    .nav-sub-item { display: flex; align-items: center; gap: 8px; padding: 7px 20px 7px 46px; color: rgba(255,255,255,0.42); cursor: pointer; font-size: 0.78rem; font-weight: 400; transition: color 0.1s; user-select: none; }
+    .nav-sub-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.6; }
+    .nav-sub-item:hover { color: rgba(255,255,255,0.8); }
+    .nav-sub-item.active { color: #93c5fd; }
     .sidebar-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
     .sidebar-inst { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -78,10 +100,10 @@
     /* ── Table ── */
     .table-wrap { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
-    th { padding: 9px 14px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc; white-space: nowrap; }
-    td { padding: 11px 14px; font-size: 0.82rem; border-bottom: 1px solid #e2e8f0; color: #0f172a; vertical-align: middle; }
+    th { padding: 9px 14px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #64748b; text-align: left; border-bottom: 1px solid #e2e8f0; background: white; white-space: nowrap; }
+    td { padding: 0 14px; height: 44px; font-size: 0.82rem; border-bottom: 1px solid #e2e8f0; color: #0f172a; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #fafbfc; }
+    tr:hover td { background: #f8fafc; }
 
     /* ── Checkbox ── */
     input[type=checkbox] { cursor: pointer; accent-color: #2563eb; width: 14px; height: 14px; }
@@ -93,9 +115,9 @@
 
     /* ── Three-dot menu ── */
     .dot-menu-wrap { position: relative; display: inline-block; }
-    .dot-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; color: #94a3b8; font-size: 1.1rem; line-height: 1; border-radius: 3px; }
+    .dot-btn { background: none; border: none; cursor: pointer; padding: 4px 6px; color: #94a3b8; font-size: 1.1rem; line-height: 1; border-radius: 0; }
     .dot-btn:hover { background: #f1f5f9; color: #0f172a; }
-    .dot-menu { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #e2e8f0; min-width: 160px; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .dot-menu { display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid #e2e8f0; border-radius: 0; min-width: 160px; z-index: 50; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .dot-menu.open { display: block; }
     .dot-menu-item { padding: 8px 14px; font-size: 0.78rem; cursor: pointer; color: #0f172a; white-space: nowrap; }
     .dot-menu-item:hover { background: #f8fafc; }
@@ -103,16 +125,34 @@
     .dot-menu-item.danger:hover { background: #fef2f2; }
 
     /* ── Badges ── */
-    .badge { display: inline-block; padding: 2px 7px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 2px; }
-    .badge-published { background: #dcfce7; color: #16a34a; }
-    .badge-draft { background: #f1f5f9; color: #64748b; }
-    .badge-submitted { background: #dbeafe; color: #1d4ed8; }
-    .badge-active { background: #fef9c3; color: #a16207; }
-    .badge-sent { background: #f0fdf4; color: #15803d; }
-    .badge-pending { background: #fff7ed; color: #c2410c; }
+    .badge { display: inline-block; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 9999px; }
+    .badge-published { background: #dcfce7; color: #166534; }
+    .badge-draft { background: #fef9c3; color: #854d0e; }
+    .badge-submitted { background: #dbeafe; color: #1e40af; }
+    .badge-active { background: #fef9c3; color: #854d0e; }
+    .badge-sent { background: #dcfce7; color: #166534; }
+    .badge-pending { background: #fef9c3; color: #854d0e; }
+    .badge-graded { background: #dcfce7; color: #166534; }
+    .badge-invited { background: #dbeafe; color: #1e40af; }
+    .badge-in-progress { background: #f3e8ff; color: #6b21a8; }
+    .badge-bounced { background: #fee2e2; color: #991b1b; }
+    /* ── Drill-down ── */
+    .drill-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+    .drill-back { background: none; border: none; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+    .drill-back:hover { text-decoration: underline; }
+    .drill-crumbs { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; }
+    .drill-crumbs .crumb { color: #64748b; }
+    .drill-crumbs .crumb-link { color: #2563eb; cursor: pointer; }
+    .drill-crumbs .crumb-link:hover { text-decoration: underline; }
+    .drill-crumbs .sep { color: #cbd5e1; }
+    .tr-click { cursor: pointer; }
+    .tr-click:hover td { background: #f1f5f9; }
+    .tr-hover:hover td { background: #f8fafc; }
+    .tr-hover .dot-menu-wrap { visibility: hidden; }
+    .tr-hover:hover .dot-menu-wrap { visibility: visible; }
 
     /* ── Buttons ── */
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; transition: background 0.1s; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; border-radius: 0; transition: background 0.1s; }
     .btn-primary { background: #2563eb; color: white; }
     .btn-primary:hover { background: #1d4ed8; }
     .btn-ghost { background: white; color: #475569; border: 1px solid #e2e8f0; }
@@ -128,9 +168,9 @@
 
     /* ── Toolbar ── */
     .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-    .search-input { flex: 1; max-width: 280px; padding: 7px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; }
+    .search-input { flex: 1; max-width: 280px; padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; }
     .search-input:focus { border-color: #2563eb; }
-    select.ctrl { padding: 7px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; background: white; outline: none; cursor: pointer; }
+    select.ctrl { padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 0; font-family: inherit; font-size: 0.82rem; color: #0f172a; background: white; outline: none; cursor: pointer; }
     select.ctrl:focus { border-color: #2563eb; }
 
     /* ── Group tabs ── */
@@ -153,7 +193,7 @@
     .comm-panel-body { padding: 18px; }
     label.field-label { display: block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
     .field-group { margin-bottom: 14px; }
-    textarea.ctrl, input.ctrl { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; resize: vertical; }
+    textarea.ctrl, input.ctrl { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; resize: vertical; }
     textarea.ctrl:focus, input.ctrl:focus { border-color: #2563eb; }
     .preview-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; font-size: 0.78rem; color: #475569; line-height: 1.6; }
     .toggle-link { font-size: 0.75rem; color: #2563eb; cursor: pointer; text-decoration: underline; margin-left: 8px; }
@@ -166,9 +206,9 @@
     .settings-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8; margin-bottom: 5px; }
     .settings-value { font-size: 0.85rem; color: #0f172a; font-weight: 500; }
     .lang-toggle { display: flex; gap: 0; margin-top: 8px; }
-    .lang-btn { padding: 6px 16px; font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; background: white; color: #64748b; }
+    .lang-btn { padding: 6px 16px; font-family: inherit; font-size: 0.78rem; font-weight: 600; cursor: pointer; border: 1px solid #e2e8f0; border-radius: 0; background: white; color: #64748b; }
     .lang-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
-    .edit-input { width: 100%; padding: 7px 10px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 0.85rem; color: #0f172a; outline: none; }
+    .edit-input { width: 100%; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 0; font-family: inherit; font-size: 0.85rem; color: #0f172a; outline: none; }
     .edit-input:focus { border-color: #2563eb; }
 
     /* ── History ── */
@@ -223,57 +263,79 @@
       Home
     </div>
 
-    <div class="nav-group-label">Manage</div>
-    <div class="nav-item" data-nav="exams-all" onclick="navigate('exams-all')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Exams
+    <div class="nav-section-toggle" data-section="manage" onclick="toggleSection('manage')">
+      <span>Manage</span>
+      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
-    <div class="nav-sub" id="examSubnav">
-      <div class="nav-item" data-nav="exams-all" onclick="navigate('exams-all')">All</div>
-      <div class="nav-item" data-nav="exams-published" onclick="navigate('exams-published')">Published</div>
-      <div class="nav-item" data-nav="exams-drafts" onclick="navigate('exams-drafts')">Drafts</div>
-    </div>
-    <div class="nav-item" data-nav="subs-all" onclick="navigate('subs-all')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      Submissions
-    </div>
-    <div class="nav-sub" id="subsSubnav">
-      <div class="nav-item" data-nav="subs-all" onclick="navigate('subs-all')">All</div>
-      <div class="nav-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue</div>
-    </div>
-
-    <div class="nav-group-label">Communicate</div>
-    <div class="nav-item" data-nav="comm-invite" onclick="navigate('comm-invite')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      Send Invitations
-    </div>
-    <div class="nav-item" data-nav="comm-results" onclick="navigate('comm-results')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Send Results
-    </div>
-    <div class="nav-item" data-nav="comm-retakes" onclick="navigate('comm-retakes')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-      Retakes
+    <div class="nav-section-body" id="nav-section-manage">
+      <div class="nav-parent-toggle" data-parent="exams" onclick="toggleParent('exams')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Exams
+        <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="nav-parent-body" id="nav-parent-exams">
+        <div class="nav-sub-item" data-nav="exams-all" onclick="navigate('exams-all')">All Exams</div>
+        <div class="nav-sub-item" data-nav="exams-published" onclick="navigate('exams-published')">Published</div>
+        <div class="nav-sub-item" data-nav="exams-drafts" onclick="navigate('exams-drafts')">Drafts</div>
+      </div>
+      <div class="nav-parent-toggle" data-parent="subs" onclick="toggleParent('subs')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Submissions
+        <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="nav-parent-body" id="nav-parent-subs">
+        <div class="nav-sub-item" data-nav="subs-all" onclick="navigate('subs-all')">All</div>
+        <div class="nav-sub-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue</div>
+      </div>
     </div>
 
-    <div class="nav-group-label">History</div>
-    <div class="nav-item" data-nav="hist-results" onclick="navigate('hist-results')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      Sent Results
+    <div class="nav-section-toggle" data-section="communicate" onclick="toggleSection('communicate')">
+      <span>Communicate</span>
+      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
-    <div class="nav-item" data-nav="hist-scheduled" onclick="navigate('hist-scheduled')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Scheduled
+    <div class="nav-section-body" id="nav-section-communicate">
+      <div class="nav-item" data-nav="comm-invite" onclick="navigate('comm-invite')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Send Invitations
+      </div>
+      <div class="nav-item" data-nav="comm-results" onclick="navigate('comm-results')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Send Results
+      </div>
+      <div class="nav-item" data-nav="comm-retakes" onclick="navigate('comm-retakes')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Retakes
+      </div>
     </div>
 
-    <div class="nav-group-label">Settings</div>
-    <div class="nav-item" data-nav="settings-profile" onclick="navigate('settings-profile')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      Profile
+    <div class="nav-section-toggle" data-section="history" onclick="toggleSection('history')">
+      <span>History</span>
+      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
-    <div class="nav-item" data-nav="settings-inst" onclick="navigate('settings-inst')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-      Institution
+    <div class="nav-section-body" id="nav-section-history">
+      <div class="nav-item" data-nav="hist-results" onclick="navigate('hist-results')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Sent Results
+      </div>
+      <div class="nav-item" data-nav="hist-scheduled" onclick="navigate('hist-scheduled')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Scheduled
+      </div>
+    </div>
+
+    <div class="nav-section-toggle" data-section="settings" onclick="toggleSection('settings')">
+      <span>Settings</span>
+      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+    <div class="nav-section-body" id="nav-section-settings">
+      <div class="nav-item" data-nav="settings-profile" onclick="navigate('settings-profile')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </div>
+      <div class="nav-item" data-nav="settings-inst" onclick="navigate('settings-inst')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+        Institution
+      </div>
     </div>
 
   </nav>
@@ -298,19 +360,16 @@
       <div class="page-title" id="homeGreeting">Welcome back</div>
       <div class="page-sub" id="homeDate"></div>
     </div>
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Total Exams</div><div class="stat-value" id="statExams">—</div></div>
-      <div class="stat-card"><div class="stat-label">Total Students</div><div class="stat-value" id="statStudents">—</div></div>
-      <div class="stat-card"><div class="stat-label">Pending Grading</div><div class="stat-value" id="statPending">—</div></div>
-      <div class="stat-card"><div class="stat-label">Results Unsent</div><div class="stat-value" id="statUnsent">—</div></div>
-    </div>
     <div class="action-cards" id="homeActionCards"></div>
-    <div class="card">
-      <div class="card-header"><div class="card-title">Recent Submissions</div></div>
+    <div class="card" style="margin-top:24px;">
+      <div class="card-header">
+        <div class="card-title">Recent Exams</div>
+        <a href="index.html"><button class="btn btn-ghost btn-sm">+ Create Exam</button></a>
+      </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Date</th><th>Status</th></tr></thead>
-          <tbody id="homeTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
+          <thead><tr><th>Title</th><th>Status</th><th>Questions</th><th>Groups</th><th>Submitted</th><th>Last Activity</th></tr></thead>
+          <tbody id="homeExamsTable"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -318,25 +377,94 @@
 
   <!-- EXAMS -->
   <section class="section" id="section-exams">
-    <div class="page-header"><div class="page-title" id="examsTitle">Exams</div></div>
-    <div class="toolbar">
-      <input class="search-input" type="text" id="examSearch" placeholder="Search exams…" oninput="filterExams()">
-      <div class="spacer"></div>
-      <a href="index.html"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Exam</button></a>
-    </div>
-    <div class="subtabs">
-      <div class="subtab active" id="examTab-all" onclick="setExamTab('all')">All</div>
-      <div class="subtab" id="examTab-published" onclick="setExamTab('published')">Published</div>
-      <div class="subtab" id="examTab-drafts" onclick="setExamTab('drafts')">Drafts</div>
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Title</th><th>Status</th><th>Questions</th><th>Students</th><th>Created</th><th>Actions</th></tr></thead>
-          <tbody id="examsTable"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
-        </table>
+
+    <!-- L1: Exam list -->
+    <div id="exams-l1">
+      <div class="page-header"><div class="page-title" id="examsTitle">Exams</div></div>
+      <div class="toolbar">
+        <input class="search-input" type="text" id="examSearch" placeholder="Search exams…" oninput="filterExams()">
+        <div class="spacer"></div>
+        <a href="index.html"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Exam</button></a>
+      </div>
+      <div class="subtabs">
+        <div class="subtab active" id="examTab-all" onclick="setExamTab('all')">All</div>
+        <div class="subtab" id="examTab-published" onclick="setExamTab('published')">Published</div>
+        <div class="subtab" id="examTab-drafts" onclick="setExamTab('drafts')">Drafts</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Status</th><th>Questions</th><th>Groups</th><th>Submitted</th><th>Last Activity</th></tr></thead>
+            <tbody id="examsTable"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+    <!-- L2: Groups view -->
+    <div id="exams-l2" style="display:none;">
+      <div class="drill-nav">
+        <button class="drill-back" onclick="examDrillBack(1)">← Back to Exams</button>
+        <div class="drill-crumbs">
+          <span class="crumb-link" onclick="examDrillBack(1)">Exams</span>
+          <span class="sep">›</span>
+          <span class="crumb" id="drillL2ExamTitle"></span>
+        </div>
+      </div>
+      <div class="page-header"><div class="page-title" id="drillL2Title"></div></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Group</th><th>Submitted</th><th>Graded</th><th>Pending Grading</th></tr></thead>
+            <tbody id="drillGroupsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- L3: Students view -->
+    <div id="exams-l3" style="display:none;">
+      <div class="drill-nav">
+        <button class="drill-back" onclick="examDrillBack(2)">← Back to Groups</button>
+        <div class="drill-crumbs">
+          <span class="crumb-link" onclick="examDrillBack(1)">Exams</span>
+          <span class="sep">›</span>
+          <span class="crumb-link" id="drillL3ExamCrumb" onclick="examDrillBack(2)"></span>
+          <span class="sep">›</span>
+          <span class="crumb" id="drillL3GroupCrumb"></span>
+        </div>
+      </div>
+      <div class="page-header"><div class="page-title" id="drillL3Title"></div></div>
+      <div class="toolbar">
+        <input class="search-input" type="text" id="drillSearch" placeholder="Search students…" oninput="filterDrillStudents()">
+      </div>
+      <div class="card">
+        <div class="bulk-bar" id="drillBulkBar">
+          <span class="bulk-bar-count" id="drillBulkCount">0 selected</span>
+          <button class="btn btn-success btn-sm" onclick="drillBulkSendResults()">Send Results</button>
+          <button class="btn btn-ghost btn-sm" onclick="drillBulkResendLinks()">Resend Links</button>
+          <button class="btn btn-danger-ghost btn-sm" onclick="drillBulkDelete()">Delete</button>
+          <button class="btn btn-ghost btn-sm" onclick="drillClearSelection()">Cancel</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" id="drillSelectAll" onchange="drillToggleSelectAll(this)"></th>
+                <th>Student</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Submitted</th>
+                <th>Results Sent</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="drillStudentsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <!-- SUBMISSIONS -->
@@ -384,7 +512,7 @@
 
     <!-- Grading queue view -->
     <div id="subsGradingView" style="display:none;">
-      <div class="grading-grid" id="gradingGrid"><div class="loading">Loading…</div></div>
+      <div id="gradingContent"><div class="loading">Loading…</div></div>
     </div>
   </section>
 
@@ -403,15 +531,12 @@
             <select class="ctrl" id="inviteExamSel" onchange="onInviteExamChange()" style="width:100%;"></select>
           </div>
           <div class="field-group" id="inviteGroupWrap" style="display:none;">
-            <label class="field-label">Group (optional)</label>
-            <select class="ctrl" id="inviteGroupSel" style="width:100%;"></select>
+            <label class="field-label">Group</label>
+            <div class="group-tabs" id="inviteGroupTabs"></div>
           </div>
           <div class="field-group">
-            <label class="field-label">Student Emails <span class="toggle-link" onclick="toggleInvitePreview()">Preview email</span></label>
+            <label class="field-label">Student Emails — one per line or comma-separated</label>
             <textarea class="ctrl" id="inviteEmails" rows="5" placeholder="one@example.com&#10;two@example.com"></textarea>
-          </div>
-          <div id="invitePreviewWrap" style="display:none;margin-bottom:14px;">
-            <div class="preview-box" id="invitePreviewBox"></div>
           </div>
           <button class="btn btn-primary" onclick="sendInvitations()" style="width:100%;">Send Invitations</button>
         </div>
@@ -420,7 +545,7 @@
         <div class="comm-panel-header"><div class="comm-panel-title">Sent History</div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Student</th><th>Exam</th><th>Group</th><th>Sent</th></tr></thead>
+            <thead><tr><th>Email</th><th>Exam</th><th>Sent At</th><th>Status</th></tr></thead>
             <tbody id="inviteHistoryTable"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody>
           </table>
         </div>
@@ -432,18 +557,21 @@
   <section class="section" id="section-comm-results">
     <div class="page-header">
       <div class="page-title">Send Results</div>
-      <div class="page-sub">Send individual score reports to students</div>
+      <div class="page-sub">Send score reports to students who have been graded</div>
     </div>
     <div class="toolbar">
       <select class="ctrl" id="resultsExamSel" onchange="loadResultsStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
       <div class="spacer"></div>
-      <button class="btn btn-success btn-sm" id="btnSendAllResults" onclick="sendAllResults()" style="display:none;">Send to All Pending</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:500;color:#475569;cursor:pointer;">
+        <input type="checkbox" id="resultsIncludeBreakdown"> Include Q&amp;A breakdown
+      </label>
+      <button class="btn btn-success btn-sm" id="btnSendAllResults" onclick="sendAllResults()" style="display:none;">Send All</button>
     </div>
     <div class="card">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Student</th><th>Email</th><th>Score</th><th>Status</th><th>Sent At</th><th>Action</th></tr></thead>
-          <tbody id="resultsTable"><tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+          <thead><tr><th>Student</th><th>Email</th><th>Score</th><th>Submitted</th><th>Action</th></tr></thead>
+          <tbody id="resultsTable"><tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -462,8 +590,8 @@
     <div class="card">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Score</th><th>Submitted</th><th>Action</th></tr></thead>
-          <tbody id="retakesTable"><tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+          <thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Score</th><th>Submitted</th><th>Retake</th><th>Action</th></tr></thead>
+          <tbody id="retakesTable"><tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -569,6 +697,15 @@
   let selectedAttemptIds = new Set();
   let retakesAllAttempts = [];
   let histResultsAll = [];
+  let examGroupCounts = {};
+  let examSubmittedCounts = {};
+  let examLastActivity = {};
+  let drillCurrentExam = null;
+  let drillCurrentGroup = null;
+  let drillCurrentAttempts = [];
+  let drillSelectedIds = new Set();
+  let pendingDrillExam = null;
+  let inviteActiveGroup = '';
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -628,16 +765,70 @@
     'settings-inst': 'settings-inst',
   };
 
+  const NAV_SECTION_MAP = {
+    'home': null,
+    'exams-all': 'manage', 'exams-published': 'manage', 'exams-drafts': 'manage',
+    'subs-all': 'manage', 'subs-grading': 'manage',
+    'comm-invite': 'communicate', 'comm-results': 'communicate', 'comm-retakes': 'communicate',
+    'hist-results': 'history', 'hist-scheduled': 'history',
+    'settings-profile': 'settings', 'settings-inst': 'settings',
+  };
+
+  const NAV_PARENT_MAP = {
+    'exams-all': 'exams', 'exams-published': 'exams', 'exams-drafts': 'exams',
+    'subs-all': 'subs', 'subs-grading': 'subs',
+  };
+
+  const ALL_SECTIONS = ['manage', 'communicate', 'history', 'settings'];
+
+  function toggleSection(sectionId) {
+    const body = document.getElementById(`nav-section-${sectionId}`);
+    const toggle = document.querySelector(`[data-section="${sectionId}"]`);
+    const isOpen = body.classList.contains('open');
+    ALL_SECTIONS.forEach(s => {
+      document.getElementById(`nav-section-${s}`).classList.remove('open');
+      const t = document.querySelector(`[data-section="${s}"]`);
+      if (t) t.classList.remove('open');
+    });
+    if (!isOpen) {
+      body.classList.add('open');
+      toggle.classList.add('open');
+    }
+  }
+
+  function toggleParent(parentId) {
+    const body = document.getElementById(`nav-parent-${parentId}`);
+    const toggle = document.querySelector(`[data-parent="${parentId}"]`);
+    if (body && toggle) {
+      body.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+  }
+
   function navigate(nav) {
-    // update nav items
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-item, .nav-sub-item, .nav-parent-toggle').forEach(el => el.classList.remove('active'));
     document.querySelectorAll(`[data-nav="${nav}"]`).forEach(el => el.classList.add('active'));
-    // show section
+    const sectionKey = NAV_SECTION_MAP[nav];
+    ALL_SECTIONS.forEach(s => {
+      document.getElementById(`nav-section-${s}`).classList.remove('open');
+      const t = document.querySelector(`[data-section="${s}"]`);
+      if (t) t.classList.remove('open');
+    });
+    if (sectionKey) {
+      document.getElementById(`nav-section-${sectionKey}`).classList.add('open');
+      const t = document.querySelector(`[data-section="${sectionKey}"]`);
+      if (t) t.classList.add('open');
+      const parentKey = NAV_PARENT_MAP[nav];
+      if (parentKey) {
+        document.getElementById(`nav-parent-${parentKey}`).classList.add('open');
+        const pt = document.querySelector(`[data-parent="${parentKey}"]`);
+        if (pt) { pt.classList.add('open'); pt.classList.add('active'); }
+      }
+    }
     const sectionId = SECTION_MAP[nav];
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
     document.getElementById(`section-${sectionId}`).classList.add('active');
     closeSidebar();
-    // per-section init
     if (nav === 'home') loadHome();
     else if (nav === 'exams-all') { examTab = 'all'; setExamTab('all'); }
     else if (nav === 'exams-published') { examTab = 'published'; setExamTab('published'); }
@@ -682,10 +873,22 @@
     if (allExams.length) {
       const examIds = allExams.map(e => e.id);
       const [attRes, qRes] = await Promise.all([
-        sb.from('exam_attempts').select('exam_id').in('exam_id', examIds),
+        sb.from('exam_attempts').select('exam_id, group_name, status, submitted_at').in('exam_id', examIds),
         sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds)
       ]);
-      (attRes.data || []).forEach(r => { examStudentCounts[r.exam_id] = (examStudentCounts[r.exam_id] || 0) + 1; });
+      const _groupSets = {};
+      (attRes.data || []).forEach(r => {
+        examStudentCounts[r.exam_id] = (examStudentCounts[r.exam_id] || 0) + 1;
+        if (r.status === 'submitted') examSubmittedCounts[r.exam_id] = (examSubmittedCounts[r.exam_id] || 0) + 1;
+        if (r.group_name) {
+          if (!_groupSets[r.exam_id]) _groupSets[r.exam_id] = new Set();
+          _groupSets[r.exam_id].add(r.group_name);
+        }
+        if (r.submitted_at && (!examLastActivity[r.exam_id] || r.submitted_at > examLastActivity[r.exam_id])) {
+          examLastActivity[r.exam_id] = r.submitted_at;
+        }
+      });
+      Object.keys(_groupSets).forEach(id => { examGroupCounts[id] = _groupSets[id].size; });
       (qRes.data || []).forEach(r => { examQuestionCounts[r.exam_id] = (examQuestionCounts[r.exam_id] || 0) + 1; });
     }
 
@@ -719,10 +922,6 @@
     document.getElementById('homeGreeting').textContent = `${greeting}, ${firstName}`;
     document.getElementById('homeDate').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    const totalStudents = Object.values(examStudentCounts).reduce((a, b) => a + b, 0);
-    document.getElementById('statExams').textContent = allExams.length;
-    document.getElementById('statStudents').textContent = totalStudents;
-
     let pendingCount = 0, unsentCount = 0;
     if (allExams.length) {
       const examIds = allExams.map(e => e.id);
@@ -736,60 +935,38 @@
         if (!a.results_sent_at) unsentCount++;
       });
     }
-    document.getElementById('statPending').textContent = pendingCount;
-    document.getElementById('statUnsent').textContent = unsentCount;
 
-    // Action cards
-    const cards = [];
-    if (pendingCount > 0) {
-      cards.push(`<div class="action-card amber" onclick="navigate('subs-grading')">
+    document.getElementById('homeActionCards').innerHTML = `
+      <div class="action-card ${pendingCount > 0 ? 'amber' : 'green'}" onclick="navigate('subs-grading')">
         <div class="action-card-count">${pendingCount}</div>
-        <div class="action-card-title">Awaiting Grading</div>
-        <div class="action-card-sub">Open-ended answers to review</div>
-      </div>`);
-    }
-    if (unsentCount > 0) {
-      cards.push(`<div class="action-card blue" onclick="navigate('comm-results')">
+        <div class="action-card-title">to grade</div>
+        <div class="action-card-sub">Open-ended answers awaiting review</div>
+      </div>
+      <div class="action-card ${unsentCount > 0 ? 'blue' : 'green'}" onclick="navigate('comm-results')">
         <div class="action-card-count">${unsentCount}</div>
-        <div class="action-card-title">Results Unsent</div>
+        <div class="action-card-title">results to send</div>
         <div class="action-card-sub">Students waiting for their scores</div>
-      </div>`);
-    }
-    if (cards.length === 0) {
-      cards.push(`<div class="action-card green">
-        <div class="action-card-count">✓</div>
-        <div class="action-card-title">All Caught Up</div>
-        <div class="action-card-sub">No pending grading or unsent results</div>
-      </div>`);
-    }
-    document.getElementById('homeActionCards').innerHTML = cards.join('');
+      </div>`;
 
-    // Recent submissions table
-    let rows = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions yet.</td></tr>`;
-    if (allExams.length) {
-      const examIds = allExams.map(e => e.id);
-      const { data: recent } = await sb.from('exam_attempts')
-        .select('*').in('exam_id', examIds).order('submitted_at', { ascending: false }).limit(8);
-      if (recent && recent.length) {
-        const examMap = {};
-        allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-        rows = recent.map(a => {
-          const badge = a.results_sent_at
-            ? `<span class="badge badge-sent">Sent</span>`
-            : a.status === 'submitted'
-              ? `<span class="badge badge-submitted">Submitted</span>`
-              : `<span class="badge badge-active">Active</span>`;
-          return `<tr>
-            <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
-            <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
-            <td>${fmtScore(a)}</td>
-            <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-            <td>${badge}</td>
-          </tr>`;
-        }).join('');
-      }
+    const tbody = document.getElementById('homeExamsTable');
+    const recent5 = allExams.slice(0, 5);
+    if (!recent5.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No exams yet. <a href="index.html" style="color:#2563eb;">Create your first exam →</a></td></tr>`;
+    } else {
+      tbody.innerHTML = recent5.map(e => {
+        const badge = e.status === 'published'
+          ? `<span class="badge badge-published">Published</span>`
+          : `<span class="badge badge-draft">Draft</span>`;
+        return `<tr class="tr-click" onclick="pendingDrillExam='${e.id}';navigate('exams-all')">
+          <td style="font-weight:600;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title||'(Untitled)')}</td>
+          <td>${badge}</td>
+          <td style="color:#64748b;">${examQuestionCounts[e.id]||0}</td>
+          <td style="color:#64748b;">${examGroupCounts[e.id]||0}</td>
+          <td style="color:#64748b;">${examSubmittedCounts[e.id]||0}</td>
+          <td style="color:#64748b;">${examLastActivity[e.id] ? formatDate(examLastActivity[e.id]) : '—'}</td>
+        </tr>`;
+      }).join('');
     }
-    document.getElementById('homeTable').innerHTML = rows;
   }
 
   // ── EXAMS ────────────────────────────────────────────────────────────
@@ -799,7 +976,11 @@
     ['all','published','drafts'].forEach(t => {
       document.getElementById(`examTab-${t}`).classList.toggle('active', t === tab);
     });
+    document.getElementById('exams-l1').style.display = 'block';
+    document.getElementById('exams-l2').style.display = 'none';
+    document.getElementById('exams-l3').style.display = 'none';
     filterExams();
+    if (pendingDrillExam) { const id = pendingDrillExam; pendingDrillExam = null; setTimeout(() => drillToExam(id), 0); }
   }
 
   function filterExams() {
@@ -824,19 +1005,322 @@
       const badge = e.status === 'published'
         ? `<span class="badge badge-published">Published</span>`
         : `<span class="badge badge-draft">Draft</span>`;
-      return `<tr>
+      return `<tr class="tr-click" onclick="drillToExam('${e.id}')">
         <td style="font-weight:600;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title||'(Untitled)')}</td>
         <td>${badge}</td>
         <td style="color:#64748b;">${examQuestionCounts[e.id]||0}</td>
-        <td style="color:#64748b;">${examStudentCounts[e.id]||0}</td>
-        <td style="color:#64748b;">${formatDate(e.created_at)}</td>
-        <td><div class="action-btns">
-          <a href="submissions.html?exam=${e.id}"><button class="btn btn-ghost btn-sm">Manage</button></a>
-          <a href="exam-engine.html?id=${esc(e.share_id)}" target="_blank"><button class="btn btn-ghost btn-sm">Preview</button></a>
-          <button class="btn btn-danger-ghost btn-sm" onclick="deleteExam('${e.id}','${esc((e.title||'').replace(/'/g,"\\'"))}')">Delete</button>
-        </div></td>
+        <td style="color:#64748b;">${examGroupCounts[e.id]||0}</td>
+        <td style="color:#64748b;">${examSubmittedCounts[e.id]||0}</td>
+        <td style="color:#64748b;">${examLastActivity[e.id] ? formatDate(examLastActivity[e.id]) : '—'}</td>
       </tr>`;
     }).join('');
+  }
+
+  // ── Drill level 1 → 2 ────────────────────────────────────────────────
+
+  async function drillToExam(examId) {
+    const exam = allExams.find(e => e.id === examId);
+    if (!exam) return;
+    drillCurrentExam = exam;
+    drillCurrentAttempts = [];
+    drillSelectedIds = new Set();
+    const title = exam.title || '(Untitled)';
+    document.getElementById('exams-l1').style.display = 'none';
+    document.getElementById('exams-l2').style.display = 'block';
+    document.getElementById('exams-l3').style.display = 'none';
+    document.getElementById('drillL2Title').textContent = title;
+    document.getElementById('drillL2ExamTitle').textContent = title;
+    document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+    const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId)
+      .order('submitted_at', { ascending: false });
+    drillCurrentAttempts = data || [];
+    renderDrillGroups(drillCurrentAttempts);
+  }
+
+  function renderDrillGroups(attempts) {
+    const tbody = document.getElementById('drillGroupsTable');
+    if (!attempts.length) {
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who take this exam will appear here.</div></div></td></tr>`;
+      return;
+    }
+    const groupMap = {};
+    attempts.forEach(a => {
+      const g = a.group_name || '(Default)';
+      if (!groupMap[g]) groupMap[g] = { name: g, submitted: 0, graded: 0, pending: 0 };
+      if (a.status === 'submitted') {
+        groupMap[g].submitted++;
+        if (a.score_mcq !== null) groupMap[g].graded++;
+        else groupMap[g].pending++;
+      }
+    });
+    tbody.innerHTML = Object.values(groupMap).map(g => `<tr class="tr-click" onclick="drillToGroup(${JSON.stringify(g.name)})">
+      <td style="font-weight:600;">${esc(g.name)}</td>
+      <td style="color:#64748b;">${g.submitted}</td>
+      <td style="color:#64748b;">${g.graded}</td>
+      <td style="color:#64748b;">${g.pending}</td>
+    </tr>`).join('');
+  }
+
+  // ── Drill level 2 → 3 ────────────────────────────────────────────────
+
+  function drillToGroup(groupName) {
+    if (!drillCurrentExam) return;
+    drillCurrentGroup = groupName;
+    drillSelectedIds = new Set();
+    const examTitle = drillCurrentExam.title || '(Untitled)';
+    document.getElementById('exams-l1').style.display = 'none';
+    document.getElementById('exams-l2').style.display = 'none';
+    document.getElementById('exams-l3').style.display = 'block';
+    document.getElementById('drillL3Title').textContent = groupName;
+    document.getElementById('drillL3ExamCrumb').textContent = examTitle;
+    document.getElementById('drillL3GroupCrumb').textContent = groupName;
+    document.getElementById('drillSearch').value = '';
+    drillUpdateBulkBar();
+    filterDrillStudents();
+  }
+
+  function examDrillBack(toLevel) {
+    document.getElementById('exams-l1').style.display = toLevel === 1 ? 'block' : 'none';
+    document.getElementById('exams-l2').style.display = toLevel === 2 ? 'block' : 'none';
+    document.getElementById('exams-l3').style.display = 'none';
+    if (toLevel === 1) { drillCurrentExam = null; drillCurrentAttempts = []; drillCurrentGroup = null; }
+    drillSelectedIds = new Set();
+    drillUpdateBulkBar();
+  }
+
+  // ── Drill L3 render ───────────────────────────────────────────────────
+
+  function fmtStudentName(name) {
+    if (!name) return '—';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length < 2) return name;
+    return parts[parts.length - 1].toUpperCase() + ' ' + parts.slice(0, -1).join(' ');
+  }
+
+  function drillStatusBadge(a) {
+    if (a.status === 'submitted') {
+      return a.score_mcq !== null
+        ? `<span class="badge badge-graded">Graded</span>`
+        : `<span class="badge badge-submitted">Submitted</span>`;
+    }
+    if (a.status === 'active') return `<span class="badge badge-in-progress">In Progress</span>`;
+    return `<span class="badge badge-invited">Invited</span>`;
+  }
+
+  function filterDrillStudents() {
+    const q = (document.getElementById('drillSearch').value || '').toLowerCase();
+    let list = drillCurrentGroup
+      ? drillCurrentAttempts.filter(a => (a.group_name || '(Default)') === drillCurrentGroup)
+      : [...drillCurrentAttempts];
+    if (q) list = list.filter(a =>
+      (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
+    );
+    renderDrillStudents(list);
+  }
+
+  function renderDrillStudents(attempts) {
+    const tbody = document.getElementById('drillStudentsTable');
+    if (!attempts.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
+      return;
+    }
+    const examId = drillCurrentExam?.id || '';
+    tbody.innerHTML = attempts.map(a => {
+      const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
+      return `<tr class="tr-hover">
+        <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="drillToggleSelect('${a.id}',this)"></td>
+        <td>
+          <div style="font-weight:600;">${esc(fmtStudentName(a.student_name))}</div>
+          <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
+        </td>
+        <td>${drillStatusBadge(a)}</td>
+        <td style="color:#64748b;">${a.score_mcq !== null ? String(calcScore(a)) : '—'}</td>
+        <td style="color:#64748b;">${a.submitted_at ? formatDate(a.submitted_at) : '—'}</td>
+        <td style="color:#64748b;">${a.results_sent_at ? formatDate(a.results_sent_at) : '—'}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="dot-menu-wrap">
+            <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
+            <div class="dot-menu">
+              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(examId)}"><div class="dot-menu-item">View Submission</div></a>
+              <div class="dot-menu-item" onclick="drillSendResults('${a.id}')">Send Results</div>
+              <div class="dot-menu-item" onclick="drillResendLink('${a.id}')">Resend Exam Link</div>
+              <div class="dot-menu-item" onclick="drillAllowRetake('${a.id}')">Allow Retake</div>
+              <div style="height:1px;background:#e2e8f0;margin:4px 0;"></div>
+              <div class="dot-menu-item danger" onclick="drillDeleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}')">Delete Submission</div>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Drill selection ───────────────────────────────────────────────────
+
+  function drillToggleSelect(id, cb) {
+    if (cb.checked) drillSelectedIds.add(id);
+    else drillSelectedIds.delete(id);
+    drillUpdateBulkBar();
+  }
+
+  function drillToggleSelectAll(masterCb) {
+    document.querySelectorAll('#drillStudentsTable input[type=checkbox]').forEach(cb => {
+      cb.checked = masterCb.checked;
+      const m = cb.getAttribute('onchange')?.match(/'([^']+)'/);
+      if (m) { if (masterCb.checked) drillSelectedIds.add(m[1]); else drillSelectedIds.delete(m[1]); }
+    });
+    drillUpdateBulkBar();
+  }
+
+  function drillClearSelection() {
+    drillSelectedIds.clear();
+    document.querySelectorAll('#drillStudentsTable input[type=checkbox]').forEach(cb => cb.checked = false);
+    const sa = document.getElementById('drillSelectAll');
+    if (sa) sa.checked = false;
+    drillUpdateBulkBar();
+  }
+
+  function drillUpdateBulkBar() {
+    const bar = document.getElementById('drillBulkBar');
+    const count = drillSelectedIds.size;
+    if (bar) bar.classList.toggle('show', count > 0);
+    const el = document.getElementById('drillBulkCount');
+    if (el) el.textContent = `${count} selected`;
+  }
+
+  // ── Drill actions ─────────────────────────────────────────────────────
+
+  async function _drillDoSendResult(attempt) {
+    const exam = drillCurrentExam || allExams.find(e => e.id === attempt.exam_id) || {};
+    const { data: { session } } = await sb.auth.getSession();
+    try {
+      const res = await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
+          exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
+          teacher_name: currentTeacher.full_name||currentTeacher.email,
+          teacher_email: currentTeacher.email,
+          institution_name: currentInstitution?.name||'', attempt_id: attempt.id,
+        })
+      });
+      if (res.ok) {
+        await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attempt.id);
+        const idx = drillCurrentAttempts.findIndex(a => a.id === attempt.id);
+        if (idx >= 0) drillCurrentAttempts[idx].results_sent_at = new Date().toISOString();
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  async function drillSendResults(attemptId) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
+    if (!attempt) return;
+    const ok = await _drillDoSendResult(attempt);
+    showToast(ok ? 'Result sent.' : 'Error sending result.');
+    filterDrillStudents();
+  }
+
+  async function drillResendLink(attemptId, silent = false) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
+    if (!attempt || !drillCurrentExam) return false;
+    const exam = drillCurrentExam;
+    const { data: { session } } = await sb.auth.getSession();
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    const g = attempt.group_name || '';
+    const code = g && groupCodes[g] ? groupCodes[g] : (exam.access_code || '');
+    const link = `${base}/exam-engine.html?id=${exam.share_id}${g ? '&group='+encodeURIComponent(g) : ''}`;
+    try {
+      await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          type: 'invite', to_email: attempt.student_email, to_name: attempt.student_name,
+          exam_title: exam.title||'', exam_link: link, access_code: code, lang: exam.lang||'fr',
+          teacher_name: currentTeacher.full_name||currentTeacher.email,
+          teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
+        })
+      });
+      if (!silent) showToast(`Exam link resent to ${attempt.student_name}.`);
+      return true;
+    } catch(e) { if (!silent) showToast('Error sending link.'); return false; }
+  }
+
+  async function drillAllowRetake(attemptId) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
+    if (!attempt || !drillCurrentExam) return;
+    if (!confirm(`Send a retake link to ${attempt.student_name}?`)) return;
+    const token = crypto.randomUUID();
+    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
+    if (error) { showToast('Error generating retake.'); return; }
+    const exam = drillCurrentExam;
+    const { data: { session } } = await sb.auth.getSession();
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
+    await fetch(SEND_EMAIL_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({
+        type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
+        exam_title: exam.title||'', retake_link: retakeLink,
+        access_code: exam.access_code||'', lang: exam.lang||'fr',
+        teacher_name: currentTeacher.full_name||currentTeacher.email,
+        teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
+      })
+    });
+    showToast(`Retake link sent to ${attempt.student_name}.`);
+  }
+
+  async function drillDeleteAttempt(attemptId, studentName) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    if (!confirm(`Delete ${studentName}'s submission? This cannot be undone.`)) return;
+    const { error } = await sb.from('exam_attempts').delete().eq('id', attemptId);
+    if (error) { showToast('Error deleting submission.'); return; }
+    drillCurrentAttempts = drillCurrentAttempts.filter(a => a.id !== attemptId);
+    drillSelectedIds.delete(attemptId);
+    drillUpdateBulkBar();
+    filterDrillStudents();
+    showToast('Submission deleted.');
+  }
+
+  async function drillBulkSendResults() {
+    if (!drillSelectedIds.size) return;
+    if (!confirm(`Send results to ${drillSelectedIds.size} student(s)?`)) return;
+    let sent = 0;
+    for (const id of [...drillSelectedIds]) {
+      const a = drillCurrentAttempts.find(x => x.id === id);
+      if (a && await _drillDoSendResult(a)) sent++;
+    }
+    showToast(`Results sent to ${sent} student(s).`);
+    drillClearSelection();
+    filterDrillStudents();
+  }
+
+  async function drillBulkResendLinks() {
+    if (!drillSelectedIds.size) return;
+    if (!confirm(`Resend exam links to ${drillSelectedIds.size} student(s)?`)) return;
+    let sent = 0;
+    for (const id of [...drillSelectedIds]) { if (await drillResendLink(id, true)) sent++; }
+    showToast(`Links resent to ${sent} student(s).`);
+    drillClearSelection();
+  }
+
+  async function drillBulkDelete() {
+    if (!drillSelectedIds.size) return;
+    if (!confirm(`Delete ${drillSelectedIds.size} submission(s)? This cannot be undone.`)) return;
+    for (const id of [...drillSelectedIds]) {
+      await sb.from('exam_attempts').delete().eq('id', id);
+      drillCurrentAttempts = drillCurrentAttempts.filter(a => a.id !== id);
+    }
+    showToast(`${drillSelectedIds.size} submission(s) deleted.`);
+    drillClearSelection();
+    filterDrillStudents();
   }
 
   async function deleteExam(examId, title) {
@@ -848,6 +1332,9 @@
     allExams = allExams.filter(e => e.id !== examId);
     delete examStudentCounts[examId];
     delete examQuestionCounts[examId];
+    delete examGroupCounts[examId];
+    delete examSubmittedCounts[examId];
+    delete examLastActivity[examId];
     filterExams();
     showToast('Exam deleted.');
   }
@@ -1100,30 +1587,43 @@
   // ── GRADING QUEUE ─────────────────────────────────────────────────────
 
   async function renderGradingQueue() {
-    const el = document.getElementById('gradingGrid');
-    if (!allExams.length) { el.innerHTML = '<div style="color:#94a3b8;font-size:0.82rem;">No exams yet.</div>'; return; }
+    const el = document.getElementById('gradingContent');
+    const empty = `<div class="empty-state"><div class="empty-title">All caught up!</div><div class="empty-sub">No open-ended answers awaiting review.</div></div>`;
+    if (!allExams.length) { el.innerHTML = empty; return; }
     el.innerHTML = '<div class="loading">Loading…</div>';
     const examIds = allExams.map(e => e.id);
     const [openQsRes, attRes] = await Promise.all([
       sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
-      sb.from('exam_attempts').select('id,exam_id').in('exam_id', examIds).eq('status','submitted')
+      sb.from('exam_attempts')
+        .select('id,exam_id,student_name,submitted_at,score_mcq')
+        .in('exam_id', examIds).eq('status','submitted')
+        .order('submitted_at', { ascending: false })
     ]);
     const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
-    const attMap = {};
-    (attRes.data||[]).forEach(a => { if (!attMap[a.exam_id]) attMap[a.exam_id] = 0; attMap[a.exam_id]++; });
-    const gradingExams = allExams.filter(e => openExamIds.has(e.id) && (attMap[e.id]||0) > 0);
-    if (!gradingExams.length) {
-      el.innerHTML = '<div style="background:white;border:1px solid #e2e8f0;padding:24px;color:#64748b;font-size:0.82rem;border-left:4px solid #e2e8f0;">No pending grading.</div>';
-      return;
-    }
-    el.innerHTML = gradingExams.map(e => {
-      const count = attMap[e.id] || 0;
-      return `<div class="grading-card">
-        <div class="grading-card-title">${esc(e.title||'(Untitled)')}</div>
-        <div class="grading-card-meta">${count} submission${count!==1?'s':''} awaiting review</div>
-        <a href="submissions.html?exam=${e.id}&tab=submissions"><button class="btn btn-primary btn-sm">Grade Now →</button></a>
-      </div>`;
-    }).join('');
+    const pending = (attRes.data||[]).filter(a => openExamIds.has(a.exam_id) && a.score_mcq === null);
+    if (!pending.length) { el.innerHTML = empty; return; }
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    const byExam = {};
+    pending.forEach(a => {
+      if (!byExam[a.exam_id]) byExam[a.exam_id] = { title: examMap[a.exam_id], rows: [] };
+      byExam[a.exam_id].rows.push(a);
+    });
+    el.innerHTML = Object.values(byExam).map(g => `
+      <div style="margin-bottom:20px;">
+        <div style="font-size:0.78rem;font-weight:700;color:#0f172a;margin-bottom:8px;">
+          ${esc(g.title)} <span style="font-weight:400;color:#94a3b8;">(${g.rows.length} pending)</span>
+        </div>
+        <div class="card"><div class="table-wrap"><table>
+          <thead><tr><th>Student</th><th>Exam</th><th>Submitted</th><th>Action</th></tr></thead>
+          <tbody>${g.rows.map(a => `<tr>
+            <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+            <td style="color:#64748b;">${esc(g.title)}</td>
+            <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
+            <td><a href="student-review.html?attempt=${esc(a.id)}"><button class="btn btn-primary btn-sm">Grade →</button></a></td>
+          </tr>`).join('')}</tbody>
+        </table></div></div>
+      </div>`).join('');
   }
 
   // ── COMMUNICATE: INVITATIONS ──────────────────────────────────────────
@@ -1136,48 +1636,31 @@
     const examId = document.getElementById('inviteExamSel').value;
     const exam = allExams.find(e => e.id === examId);
     const groupWrap = document.getElementById('inviteGroupWrap');
-    const groupSel = document.getElementById('inviteGroupSel');
+    const groupTabs = document.getElementById('inviteGroupTabs');
     let groupCodes = {};
     try { groupCodes = JSON.parse(exam?.group_codes || '{}'); } catch(e) {}
     const groups = Object.keys(groupCodes);
+    inviteActiveGroup = '';
     if (groups.length) {
-      groupSel.innerHTML = '<option value="">— Default (all groups)</option>' +
-        groups.map(g => `<option value="${g}">${esc(g)}</option>`).join('');
+      groupTabs.innerHTML = `<div class="group-tab active" onclick="setInviteGroup('',this)">All</div>` +
+        groups.map(g => `<div class="group-tab" onclick="setInviteGroup('${esc(g)}',this)">${esc(g)}</div>`).join('');
       groupWrap.style.display = 'block';
     } else {
       groupWrap.style.display = 'none';
     }
   }
 
-  let invitePreviewVisible = false;
-  function toggleInvitePreview() {
-    invitePreviewVisible = !invitePreviewVisible;
-    const wrap = document.getElementById('invitePreviewWrap');
-    wrap.style.display = invitePreviewVisible ? 'block' : 'none';
-    if (invitePreviewVisible) renderInvitePreview();
-  }
-
-  function renderInvitePreview() {
-    const examId = document.getElementById('inviteExamSel').value;
-    const exam = allExams.find(e => e.id === examId);
-    if (!exam) { document.getElementById('invitePreviewBox').textContent = 'Select an exam first.'; return; }
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
-    const link = `${base}/exam-engine.html?id=${exam.share_id}`;
-    document.getElementById('invitePreviewBox').innerHTML = `
-      <strong>Subject:</strong> Invitation — ${esc(exam.title||'')}<br><br>
-      You have been invited to take an exam on testflo.<br><br>
-      <strong>Exam:</strong> ${esc(exam.title||'')}<br>
-      ${exam.access_code ? `<strong>Access code:</strong> ${esc(exam.access_code)}<br>` : ''}
-      <strong>Link:</strong> <a href="${esc(link)}" style="color:#2563eb;">${esc(link)}</a><br><br>
-      — ${esc(currentTeacher.full_name||currentTeacher.email)}
-    `;
+  function setInviteGroup(group, el) {
+    inviteActiveGroup = group;
+    document.querySelectorAll('#inviteGroupTabs .group-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
   }
 
   async function sendInvitations() {
     const examId = document.getElementById('inviteExamSel').value;
     if (!examId) { showToast('Please select an exam.'); return; }
     const exam = allExams.find(e => e.id === examId) || {};
-    const groupVal = document.getElementById('inviteGroupSel').value;
+    const groupVal = inviteActiveGroup;
     const emailsRaw = document.getElementById('inviteEmails').value;
     const emails = emailsRaw.split(/[\n,;]+/).map(e => e.trim()).filter(e => e.includes('@'));
     if (!emails.length) { showToast('Please enter at least one email.'); return; }
@@ -1215,26 +1698,34 @@
     if (!allExams.length) { tbody.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No history yet.</td></tr>`; return; }
     const examIds = allExams.map(e => e.id);
     const { data } = await sb.from('exam_attempts')
-      .select('student_name,student_email,exam_id,group_name,created_at').in('exam_id', examIds)
-      .order('created_at', { ascending: false }).limit(30);
+      .select('student_email,exam_id,created_at,status').in('exam_id', examIds)
+      .order('created_at', { ascending: false }).limit(50);
     if (!data || !data.length) {
       tbody.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No history yet.</td></tr>`;
       return;
     }
     const examMap = {};
     allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-    tbody.innerHTML = data.map(a => `<tr>
-      <td style="font-weight:500;">${esc(a.student_name||a.student_email||'—')}</td>
-      <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
-      <td style="color:#64748b;">${esc(a.group_name||'—')}</td>
-      <td style="color:#64748b;">${formatDate(a.created_at)}</td>
-    </tr>`).join('');
+    tbody.innerHTML = data.map(a => {
+      const statusBadge = a.status === 'submitted'
+        ? `<span class="badge badge-submitted">Submitted</span>`
+        : a.status === 'active'
+          ? `<span class="badge badge-in-progress">In Progress</span>`
+          : `<span class="badge badge-invited">Invited</span>`;
+      return `<tr>
+        <td style="font-size:0.75rem;">${esc(a.student_email||'—')}</td>
+        <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+        <td style="color:#64748b;">${formatDate(a.created_at)}</td>
+        <td>${statusBadge}</td>
+      </tr>`;
+    }).join('');
   }
 
   // ── COMMUNICATE: RESULTS ──────────────────────────────────────────────
 
   function loadCommResults() {
-    document.getElementById('resultsTable').innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+    document.getElementById('resultsTable').innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+    document.getElementById('btnSendAllResults').style.display = 'none';
   }
 
   async function loadResultsStudents() {
@@ -1242,44 +1733,36 @@
     const tbody = document.getElementById('resultsTable');
     const btnAll = document.getElementById('btnSendAllResults');
     if (!examId) {
-      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
       btnAll.style.display = 'none';
       return;
     }
-    tbody.innerHTML = `<tr><td colspan="6" class="loading">Loading…</td></tr>`;
-    const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).eq('status','submitted').order('student_name');
+    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+    const { data } = await sb.from('exam_attempts')
+      .select('*').eq('exam_id', examId).eq('status', 'submitted')
+      .is('results_sent_at', null).order('student_name');
     const attempts = data || [];
+    window._resultsAttempts = attempts;
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submitted attempts.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">All results have been sent.</td></tr>`;
       btnAll.style.display = 'none';
       return;
     }
-    const unsent = attempts.filter(a => !a.results_sent_at);
-    btnAll.style.display = unsent.length ? 'inline-flex' : 'none';
-    tbody.innerHTML = attempts.map(a => {
-      const sentBadge = a.results_sent_at
-        ? `<span class="badge badge-sent">Sent</span>`
-        : `<span class="badge badge-pending">Unsent</span>`;
-      const action = a.results_sent_at
-        ? `<button class="btn btn-ghost btn-sm" onclick="resendResult('${a.id}')">Resend</button>`
-        : `<button class="btn btn-primary btn-sm" onclick="sendOneResult('${a.id}')">Send</button>`;
-      return `<tr>
-        <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
-        <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
-        <td>${fmtScore(a)}</td>
-        <td>${sentBadge}</td>
-        <td style="color:#64748b;">${formatDateTime(a.results_sent_at)}</td>
-        <td>${action}</td>
-      </tr>`;
-    }).join('');
-    // store for send functions
-    window._resultsAttempts = attempts;
+    btnAll.style.display = 'inline-flex';
+    tbody.innerHTML = attempts.map(a => `<tr>
+      <td style="font-weight:500;">${esc(fmtStudentName(a.student_name||'—'))}</td>
+      <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
+      <td>${fmtScore(a)}</td>
+      <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
+      <td><button class="btn btn-primary btn-sm" onclick="sendOneResult('${a.id}')">Send</button></td>
+    </tr>`).join('');
   }
 
-  async function sendOneResult(attemptId) {
+  async function sendOneResult(attemptId, skipReload) {
     const attempt = (window._resultsAttempts||[]).find(a => a.id === attemptId);
     if (!attempt) return;
     const exam = allExams.find(e => e.id === attempt.exam_id) || {};
+    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
     const { data: { session } } = await sb.auth.getSession();
     try {
       await fetch(SEND_EMAIL_FN, {
@@ -1290,28 +1773,27 @@
           exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
           teacher_name: currentTeacher.full_name||currentTeacher.email,
           teacher_email: currentTeacher.email,
-          institution_name: currentInstitution?.name||'', attempt_id: attemptId,
+          institution_name: currentInstitution?.name||'',
+          attempt_id: attemptId, include_breakdown: includeBreakdown,
         })
       });
       await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attemptId);
-      showToast(`Result sent to ${attempt.student_name}.`);
-      loadResultsStudents();
-    } catch(e) { showToast('Error sending result.'); }
-  }
-
-  async function resendResult(attemptId) {
-    await sb.from('exam_attempts').update({ results_sent_at: null }).eq('id', attemptId);
-    const idx = (window._resultsAttempts||[]).findIndex(a => a.id === attemptId);
-    if (idx >= 0) window._resultsAttempts[idx].results_sent_at = null;
-    await sendOneResult(attemptId);
+      if (!skipReload) {
+        showToast(`Result sent to ${attempt.student_name}.`);
+        loadResultsStudents();
+      }
+    } catch(e) { if (!skipReload) showToast('Error sending result.'); }
   }
 
   async function sendAllResults() {
-    const unsent = (window._resultsAttempts||[]).filter(a => !a.results_sent_at);
+    const unsent = window._resultsAttempts || [];
     if (!unsent.length) return;
     if (!confirm(`Send results to ${unsent.length} student(s)?`)) return;
-    for (const a of unsent) await sendOneResult(a.id);
+    document.getElementById('btnSendAllResults').disabled = true;
+    for (const a of unsent) await sendOneResult(a.id, true);
+    document.getElementById('btnSendAllResults').disabled = false;
     showToast(`Results sent to ${unsent.length} student(s).`);
+    loadResultsStudents();
   }
 
   // ── COMMUNICATE: RETAKES ──────────────────────────────────────────────
@@ -1323,10 +1805,10 @@
     const tbody = document.getElementById('retakesTable');
     if (!examId) {
       retakesAllAttempts = [];
-      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
       return;
     }
-    tbody.innerHTML = `<tr><td colspan="6" class="loading">Loading…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="loading">Loading…</td></tr>`;
     const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).order('student_name');
     retakesAllAttempts = data || [];
     filterRetakes();
@@ -1343,20 +1825,24 @@
   function renderRetakesTable(attempts) {
     const tbody = document.getElementById('retakesTable');
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
       return;
     }
     tbody.innerHTML = attempts.map(a => {
-      const badge = a.status === 'submitted'
+      const statusBadge = a.status === 'submitted'
         ? `<span class="badge badge-submitted">Submitted</span>`
         : `<span class="badge badge-active">Active</span>`;
+      const retakeBadge = a.retake_token
+        ? `<span class="badge badge-invited">Sent</span>`
+        : `<span style="color:#94a3b8;">—</span>`;
       return `<tr>
-        <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+        <td style="font-weight:500;">${esc(fmtStudentName(a.student_name||'—'))}</td>
         <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
-        <td>${badge}</td>
+        <td>${statusBadge}</td>
         <td>${fmtScore(a)}</td>
         <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-        <td><button class="btn btn-ghost btn-sm" onclick="sendRetakeFromComm('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}','${a.exam_id}')">Send Retake</button></td>
+        <td>${retakeBadge}</td>
+        <td><button class="btn btn-ghost btn-sm" onclick="sendRetakeFromComm('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}','${a.exam_id}')">Allow Retake</button></td>
       </tr>`;
     }).join('');
   }
