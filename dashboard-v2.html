@@ -415,7 +415,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Group</th><th>Access Code</th><th>Submitted</th><th>Graded</th><th>Pending</th></tr></thead>
+            <thead><tr><th>Group</th><th>Submitted</th><th>Graded</th><th>Pending</th></tr></thead>
             <tbody id="drillGroupsTable"></tbody>
           </table>
         </div>
@@ -437,6 +437,18 @@
       <div class="page-header"><div class="page-title" id="drillL3Title"></div></div>
       <div class="toolbar">
         <input class="search-input" type="text" id="drillSearch" placeholder="Search students…" oninput="filterDrillStudents()">
+      </div>
+      <div id="drillInfoBar" style="background:#f8fafc;border:1px solid #e2e8f0;padding:10px 16px;font-size:0.82rem;display:flex;gap:24px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+        <span>
+          <span style="color:#64748b;font-weight:600;">Access code:</span>
+          <span id="drillInfoCode" style="font-family:monospace;margin:0 5px;color:#0f172a;">—</span>
+          <button onclick="copyToClipboard(_drillGroupCode)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy access code">📋</button>
+        </span>
+        <span>
+          <span style="color:#64748b;font-weight:600;">Exam link:</span>
+          <span id="drillInfoLink" style="color:#2563eb;font-size:0.78rem;margin:0 5px;"></span>
+          <button onclick="copyToClipboard(_drillGroupLink)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy exam link">📋</button>
+        </span>
       </div>
       <div class="card">
         <div class="bulk-bar" id="drillBulkBar">
@@ -706,6 +718,8 @@
   let drillSelectedIds = new Set();
   let pendingDrillExam = null;
   let inviteActiveGroup = '';
+  let _drillGroupCode = '';
+  let _drillGroupLink = '';
 
   // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -1030,7 +1044,7 @@
     document.getElementById('exams-l3').style.display = 'none';
     document.getElementById('drillL2Title').textContent = title;
     document.getElementById('drillL2ExamTitle').textContent = title;
-    document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+    document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
     const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId)
       .order('submitted_at', { ascending: false });
     drillCurrentAttempts = data || [];
@@ -1040,12 +1054,9 @@
   function renderDrillGroups(attempts) {
     const tbody = document.getElementById('drillGroupsTable');
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who take this exam will appear here.</div></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who take this exam will appear here.</div></div></td></tr>`;
       return;
     }
-    let groupCodes = {};
-    try { groupCodes = JSON.parse(drillCurrentExam?.group_codes || '{}'); } catch(e) {}
-    const examFallbackCode = drillCurrentExam?.access_code || '';
     const groupMap = {};
     attempts.forEach(a => {
       const g = a.group_name || '(Default)';
@@ -1056,24 +1067,17 @@
         else groupMap[g].pending++;
       }
     });
-    tbody.innerHTML = Object.values(groupMap).map(g => {
-      const code = groupCodes[g.name] || examFallbackCode || '';
-      const codeCell = code
-        ? `<span style="font-family:monospace;font-size:0.8rem;color:#0f172a;">${esc(code)}</span>
-           <button onclick="copyGroupCode('${esc(code)}');event.stopPropagation();" style="background:none;border:none;cursor:pointer;padding:0 0 0 5px;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy">📋</button>`
-        : `<span style="color:#94a3b8;">—</span>`;
-      return `<tr class="tr-click" onclick="drillToGroup(${JSON.stringify(g.name)})">
-        <td style="font-weight:600;">${esc(g.name)}</td>
-        <td>${codeCell}</td>
-        <td style="color:#64748b;">${g.submitted}</td>
-        <td style="color:#64748b;">${g.graded}</td>
-        <td style="color:#64748b;">${g.pending}</td>
-      </tr>`;
-    }).join('');
+    tbody.innerHTML = Object.values(groupMap).map(g => `<tr class="tr-click" onclick="drillToGroup(${JSON.stringify(g.name)})">
+      <td style="font-weight:600;">${esc(g.name)}</td>
+      <td style="color:#64748b;">${g.submitted}</td>
+      <td style="color:#64748b;">${g.graded}</td>
+      <td style="color:#64748b;">${g.pending}</td>
+    </tr>`).join('');
   }
 
-  function copyGroupCode(code) {
-    navigator.clipboard.writeText(code).then(() => showToast('Access code copied.'));
+  function copyToClipboard(val) {
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => showToast('Copied.'));
   }
 
   // ── Drill level 2 → 3 ────────────────────────────────────────────────
@@ -1090,6 +1094,18 @@
     document.getElementById('drillL3ExamCrumb').textContent = examTitle;
     document.getElementById('drillL3GroupCrumb').textContent = groupName;
     document.getElementById('drillSearch').value = '';
+
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
+    _drillGroupCode = groupCodes[groupName] || drillCurrentExam.access_code || '';
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const isDefault = !groupName || groupName === '(Default)';
+    _drillGroupLink = `${base}/exam-engine.html?id=${drillCurrentExam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}`;
+    const codeEl = document.getElementById('drillInfoCode');
+    const linkEl = document.getElementById('drillInfoLink');
+    if (codeEl) codeEl.textContent = _drillGroupCode || '—';
+    if (linkEl) linkEl.textContent = _drillGroupLink;
+
     drillUpdateBulkBar();
     filterDrillStudents();
   }
