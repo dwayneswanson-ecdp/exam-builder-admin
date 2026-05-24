@@ -1118,7 +1118,7 @@
         else groupMap[g].pending++;
       }
     });
-    tbody.innerHTML = Object.values(groupMap).map(g => `<tr class="tr-click" onclick="drillToGroup(${JSON.stringify(g.name)})">
+    tbody.innerHTML = Object.values(groupMap).map(g => `<tr class="tr-click" onclick="drillToGroup('${g.name.replace(/'/g, "\\'")}')">
       <td style="font-weight:600;">${esc(g.name)}</td>
       <td style="color:#64748b;">${g.submitted}</td>
       <td style="color:#64748b;">${g.graded}</td>
@@ -1479,7 +1479,7 @@
       if (!b.lastActivity) return -1;
       return b.lastActivity.localeCompare(a.lastActivity);
     });
-    tbody.innerHTML = groups.map(g => `<tr class="tr-click" onclick="drillSubsToGroup(${JSON.stringify(g.name)})">
+    tbody.innerHTML = groups.map(g => `<tr class="tr-click" onclick="drillSubsToGroup('${g.name.replace(/'/g, "\\'")}')">
       <td style="font-weight:600;">${esc(g.name)}</td>
       <td style="color:#64748b;">${g.examIds.size}</td>
       <td style="color:#64748b;">${g.submitted}</td>
