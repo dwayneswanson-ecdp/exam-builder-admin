@@ -1608,7 +1608,7 @@
               <div class="dot-menu-item" onclick="subsL3ResendLink('${a.id}')">Resend Exam Link</div>
               <div class="dot-menu-item" onclick="subsL3AllowRetake('${a.id}')">Allow Retake</div>
               <div style="height:1px;background:#e2e8f0;margin:4px 0;"></div>
-              <div class="dot-menu-item danger" onclick="subsL3DeleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g, \\\'\\\'))}')">Delete Submission</div>
+              <div class="dot-menu-item danger" onclick="subsL3DeleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g,"\'"))}')">Delete Submission</div>
             </div>
           </div>
         </td>
