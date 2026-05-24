@@ -268,7 +268,7 @@
       <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
     <div class="nav-section-body" id="nav-section-manage">
-      <div class="nav-parent-toggle" data-parent="exams" onclick="toggleParent('exams')">
+      <div class="nav-parent-toggle" data-parent="exams" onclick="navigate('exams-all')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         Exams
         <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -415,7 +415,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Group</th><th>Submitted</th><th>Graded</th><th>Pending Grading</th></tr></thead>
+            <thead><tr><th>Group</th><th>Access Code</th><th>Submitted</th><th>Graded</th><th>Pending</th></tr></thead>
             <tbody id="drillGroupsTable"></tbody>
           </table>
         </div>
@@ -1030,7 +1030,7 @@
     document.getElementById('exams-l3').style.display = 'none';
     document.getElementById('drillL2Title').textContent = title;
     document.getElementById('drillL2ExamTitle').textContent = title;
-    document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+    document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
     const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId)
       .order('submitted_at', { ascending: false });
     drillCurrentAttempts = data || [];
@@ -1040,9 +1040,12 @@
   function renderDrillGroups(attempts) {
     const tbody = document.getElementById('drillGroupsTable');
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who take this exam will appear here.</div></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who take this exam will appear here.</div></div></td></tr>`;
       return;
     }
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(drillCurrentExam?.group_codes || '{}'); } catch(e) {}
+    const examFallbackCode = drillCurrentExam?.access_code || '';
     const groupMap = {};
     attempts.forEach(a => {
       const g = a.group_name || '(Default)';
@@ -1053,12 +1056,24 @@
         else groupMap[g].pending++;
       }
     });
-    tbody.innerHTML = Object.values(groupMap).map(g => `<tr class="tr-click" onclick="drillToGroup(${JSON.stringify(g.name)})">
-      <td style="font-weight:600;">${esc(g.name)}</td>
-      <td style="color:#64748b;">${g.submitted}</td>
-      <td style="color:#64748b;">${g.graded}</td>
-      <td style="color:#64748b;">${g.pending}</td>
-    </tr>`).join('');
+    tbody.innerHTML = Object.values(groupMap).map(g => {
+      const code = groupCodes[g.name] || examFallbackCode || '';
+      const codeCell = code
+        ? `<span style="font-family:monospace;font-size:0.8rem;color:#0f172a;">${esc(code)}</span>
+           <button onclick="copyGroupCode('${esc(code)}');event.stopPropagation();" style="background:none;border:none;cursor:pointer;padding:0 0 0 5px;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy">📋</button>`
+        : `<span style="color:#94a3b8;">—</span>`;
+      return `<tr class="tr-click" onclick="drillToGroup(${JSON.stringify(g.name)})">
+        <td style="font-weight:600;">${esc(g.name)}</td>
+        <td>${codeCell}</td>
+        <td style="color:#64748b;">${g.submitted}</td>
+        <td style="color:#64748b;">${g.graded}</td>
+        <td style="color:#64748b;">${g.pending}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function copyGroupCode(code) {
+    navigator.clipboard.writeText(code).then(() => showToast('Access code copied.'));
   }
 
   // ── Drill level 2 → 3 ────────────────────────────────────────────────
