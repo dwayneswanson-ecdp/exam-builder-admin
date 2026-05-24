@@ -481,51 +481,102 @@
 
   <!-- SUBMISSIONS -->
   <section class="section" id="section-subs">
-    <div class="page-header"><div class="page-title" id="subsTitle">Submissions</div></div>
-    <div class="toolbar">
-      <select class="ctrl" id="subsExamSelector" onchange="onSubsExamSelect()" style="min-width:230px;"><option value="">Select an exam…</option></select>
-      <input class="search-input" type="text" id="subsSearch" placeholder="Search students…" oninput="applySubsFilters()">
-      <div class="spacer"></div>
-    </div>
-    <div class="subtabs">
-      <div class="subtab active" id="subsTab-all" onclick="setSubsTab('all')">All</div>
-      <div class="subtab" id="subsTab-grading" onclick="setSubsTab('grading')">Grading Queue</div>
+
+    <!-- Grading queue view -->
+    <div id="subsGradingView" style="display:none;">
+      <div class="page-header"><div class="page-title">Grading Queue</div></div>
+      <div id="gradingContent"><div class="loading">Loading…</div></div>
     </div>
 
-    <!-- All submissions view -->
-    <div id="subsAllView">
-      <div class="group-tabs" id="subsGroupTabs"></div>
+    <!-- L1: Groups -->
+    <div id="subs-l1">
+      <div class="page-header"><div class="page-title">Submissions</div></div>
       <div class="card">
-        <div class="bulk-bar" id="subsBulkBar">
-          <span class="bulk-bar-count" id="subsBulkCount">0 selected</span>
-          <button class="btn btn-success btn-sm" onclick="bulkSendResults()">Send Results</button>
-          <button class="btn btn-danger-ghost btn-sm" onclick="bulkDelete()">Delete</button>
-          <button class="btn btn-ghost btn-sm" onclick="clearSelection()">Cancel</button>
-        </div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th style="width:32px;"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
-                <th>Student</th>
-                <th>Group</th>
-                <th>Status</th>
-                <th>Score</th>
-                <th>Submitted</th>
-                <th>Results</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="subsTable"><tr><td colspan="8" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to view submissions.</td></tr></tbody>
+            <thead><tr><th>Group</th><th>Exams</th><th>Submitted</th><th>Pending Grading</th><th>Last Activity</th></tr></thead>
+            <tbody id="subsGroupsTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- Grading queue view -->
-    <div id="subsGradingView" style="display:none;">
-      <div id="gradingContent"><div class="loading">Loading…</div></div>
+    <!-- L2: Exams for group -->
+    <div id="subs-l2" style="display:none;">
+      <div class="drill-nav">
+        <button class="drill-back" onclick="subsDrillBack(1)">← Back to Groups</button>
+        <div class="drill-crumbs">
+          <span class="crumb-link" onclick="subsDrillBack(1)">Submissions</span>
+          <span class="sep">›</span>
+          <span class="crumb" id="subsL2GroupCrumb"></span>
+        </div>
+      </div>
+      <div class="page-header"><div class="page-title" id="subsL2Title"></div></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Exam Title</th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Last Activity</th></tr></thead>
+            <tbody id="subsExamsTable"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
+
+    <!-- L3: Students -->
+    <div id="subs-l3" style="display:none;">
+      <div class="drill-nav">
+        <button class="drill-back" onclick="subsDrillBack(2)">← Back to Exams</button>
+        <div class="drill-crumbs">
+          <span class="crumb-link" onclick="subsDrillBack(1)">Submissions</span>
+          <span class="sep">›</span>
+          <span class="crumb-link" id="subsL3GroupCrumb" onclick="subsDrillBack(2)"></span>
+          <span class="sep">›</span>
+          <span class="crumb" id="subsL3ExamCrumb"></span>
+        </div>
+      </div>
+      <div class="page-header"><div class="page-title" id="subsL3Title"></div></div>
+      <div class="toolbar">
+        <input class="search-input" type="text" id="subsL3Search" placeholder="Search students…" oninput="filterSubsL3Students()">
+      </div>
+      <div id="subsL3InfoBar" style="background:#f8fafc;border:1px solid #e2e8f0;padding:10px 16px;font-size:0.82rem;display:flex;gap:24px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+        <span>
+          <span style="color:#64748b;font-weight:600;">Access code:</span>
+          <span id="subsL3InfoCode" style="font-family:monospace;margin:0 5px;color:#0f172a;">—</span>
+          <button onclick="copyToClipboard(_subsGroupCode)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy access code">📋</button>
+        </span>
+        <span>
+          <span style="color:#64748b;font-weight:600;">Exam link:</span>
+          <span id="subsL3InfoLink" style="color:#2563eb;font-size:0.78rem;margin:0 5px;"></span>
+          <button onclick="copyToClipboard(_subsGroupLink)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy exam link">📋</button>
+        </span>
+      </div>
+      <div class="card">
+        <div class="bulk-bar" id="subsL3BulkBar">
+          <span class="bulk-bar-count" id="subsL3BulkCount">0 selected</span>
+          <button class="btn btn-success btn-sm" onclick="subsL3BulkSendResults()">Send Results</button>
+          <button class="btn btn-ghost btn-sm" onclick="subsL3BulkResendLinks()">Resend Links</button>
+          <button class="btn btn-danger-ghost btn-sm" onclick="subsL3BulkDelete()">Delete</button>
+          <button class="btn btn-ghost btn-sm" onclick="subsL3ClearSelection()">Cancel</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" id="subsL3SelectAll" onchange="subsL3ToggleSelectAll(this)"></th>
+                <th>Student</th>
+                <th>Status</th>
+                <th>Score</th>
+                <th>Submitted</th>
+                <th>Results Sent</th>
+                <th style="width:40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="subsL3Table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <!-- COMMUNICATE: INVITATIONS -->
@@ -907,7 +958,7 @@
     }
 
     // Populate exam selectors
-    ['subsExamSelector','inviteExamSel','resultsExamSel','retakesExamSel'].forEach(id => {
+    ['inviteExamSel','resultsExamSel','retakesExamSel'].forEach(id => {
       const sel = document.getElementById(id);
       if (!sel) return;
       allExams.forEach(e => {
@@ -1370,99 +1421,368 @@
     showToast('Exam deleted.');
   }
 
-  // ── SUBMISSIONS ──────────────────────────────────────────────────────
+  // ── SUBMISSIONS ────────────────────────────────────────────────
+
+  let subsAllAttempts = [];
+  let subsCurrentGroup = null;
+  let subsCurrentExam = null;
+  let subsL3Attempts = [];
+  let subsL3SelectedIds = new Set();
+  let _subsGroupCode = '';
+  let _subsGroupLink = '';
 
   function setSubsTab(tab) {
     subsTab = tab;
-    ['all','grading'].forEach(t => {
-      document.getElementById(`subsTab-${t}`).classList.toggle('active', t === tab);
-    });
-    document.getElementById('subsAllView').style.display = tab === 'all' ? 'block' : 'none';
     document.getElementById('subsGradingView').style.display = tab === 'grading' ? 'block' : 'none';
-    const titles = { all: 'All Submissions', grading: 'Grading Queue' };
-    document.getElementById('subsTitle').textContent = titles[tab] || 'Submissions';
+    document.getElementById('subs-l1').style.display = tab === 'all' ? 'block' : 'none';
+    document.getElementById('subs-l2').style.display = 'none';
+    document.getElementById('subs-l3').style.display = 'none';
     if (tab === 'grading') renderGradingQueue();
+    else if (tab === 'all') loadSubsGroups();
   }
 
-  async function onSubsExamSelect() {
-    const examId = document.getElementById('subsExamSelector').value;
-    clearSelection();
-    if (!examId) {
-      currentAttempts = [];
-      document.getElementById('subsGroupTabs').innerHTML = '';
-      document.getElementById('subsTable').innerHTML = `<tr><td colspan="8" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to view submissions.</td></tr>`;
+  async function loadSubsGroups() {
+    const tbody = document.getElementById('subsGroupsTable');
+    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+    if (!allExams.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who complete exams will appear here.</div></div></td></tr>`;
       return;
     }
-    document.getElementById('subsTable').innerHTML = `<tr><td colspan="8" class="loading">Loading…</td></tr>`;
-    const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).order('student_name');
-    currentAttempts = data || [];
-    subsActiveGroup = 'all';
-    renderSubsGroupTabs();
-    applySubsFilters();
+    const examIds = allExams.map(e => e.id);
+    const { data } = await sb.from('exam_attempts').select('*').in('exam_id', examIds).order('submitted_at', { ascending: false });
+    subsAllAttempts = data || [];
+    renderSubsGroups();
   }
 
-  function renderSubsGroupTabs() {
-    const groups = [...new Set(currentAttempts.map(a => a.group_name).filter(Boolean))];
-    const tabs = document.getElementById('subsGroupTabs');
-    if (!groups.length) { tabs.innerHTML = ''; return; }
-    tabs.innerHTML = `<div class="group-tab active" onclick="setSubsGroupTab('all',this)">All</div>` +
-      groups.map(g => `<div class="group-tab" onclick="setSubsGroupTab('${esc(g)}',this)">${esc(g)}</div>`).join('');
+  function renderSubsGroups() {
+    const tbody = document.getElementById('subsGroupsTable');
+    if (!subsAllAttempts.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who complete exams will appear here.</div></div></td></tr>`;
+      return;
+    }
+    const groupMap = {};
+    subsAllAttempts.forEach(a => {
+      const g = a.group_name || '(Default)';
+      if (!groupMap[g]) groupMap[g] = { name: g, examIds: new Set(), submitted: 0, pending: 0, lastActivity: null };
+      groupMap[g].examIds.add(a.exam_id);
+      if (a.status === 'submitted') {
+        groupMap[g].submitted++;
+        if (a.score_mcq === null) groupMap[g].pending++;
+      }
+      if (a.submitted_at && (!groupMap[g].lastActivity || a.submitted_at > groupMap[g].lastActivity)) {
+        groupMap[g].lastActivity = a.submitted_at;
+      }
+    });
+    const groups = Object.values(groupMap).sort((a, b) => {
+      if (!a.lastActivity && !b.lastActivity) return 0;
+      if (!a.lastActivity) return 1;
+      if (!b.lastActivity) return -1;
+      return b.lastActivity.localeCompare(a.lastActivity);
+    });
+    tbody.innerHTML = groups.map(g => `<tr class="tr-click" onclick="drillSubsToGroup(${JSON.stringify(g.name)})">
+      <td style="font-weight:600;">${esc(g.name)}</td>
+      <td style="color:#64748b;">${g.examIds.size}</td>
+      <td style="color:#64748b;">${g.submitted}</td>
+      <td style="color:#64748b;">${g.pending}</td>
+      <td style="color:#64748b;">${g.lastActivity ? formatDate(g.lastActivity) : '—'}</td>
+    </tr>`).join('');
   }
 
-  function setSubsGroupTab(group, el) {
-    subsActiveGroup = group;
-    document.querySelectorAll('#subsGroupTabs .group-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    clearSelection();
-    applySubsFilters();
+  function drillSubsToGroup(groupName) {
+    subsCurrentGroup = groupName;
+    document.getElementById('subs-l1').style.display = 'none';
+    document.getElementById('subs-l2').style.display = 'block';
+    document.getElementById('subs-l3').style.display = 'none';
+    document.getElementById('subsL2GroupCrumb').textContent = groupName;
+    document.getElementById('subsL2Title').textContent = groupName;
+    renderSubsL2Exams();
   }
 
-  function applySubsFilters() {
-    const q = (document.getElementById('subsSearch').value || '').toLowerCase();
-    let list = [...currentAttempts];
-    if (subsActiveGroup !== 'all') list = list.filter(a => a.group_name === subsActiveGroup);
-    if (q) list = list.filter(a => (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q));
-    renderSubsTable(list);
+  function renderSubsL2Exams() {
+    const tbody = document.getElementById('subsExamsTable');
+    const groupName = subsCurrentGroup;
+    const groupAttempts = subsAllAttempts.filter(a => (a.group_name || '(Default)') === groupName);
+    const examMap = {};
+    groupAttempts.forEach(a => {
+      if (!examMap[a.exam_id]) examMap[a.exam_id] = { examId: a.exam_id, submitted: 0, graded: 0, pending: 0, lastActivity: null };
+      if (a.status === 'submitted') {
+        examMap[a.exam_id].submitted++;
+        if (a.score_mcq !== null) examMap[a.exam_id].graded++;
+        else examMap[a.exam_id].pending++;
+      }
+      if (a.submitted_at && (!examMap[a.exam_id].lastActivity || a.submitted_at > examMap[a.exam_id].lastActivity)) {
+        examMap[a.exam_id].lastActivity = a.submitted_at;
+      }
+    });
+    const rows = Object.values(examMap).sort((a, b) => {
+      if (!a.lastActivity && !b.lastActivity) return 0;
+      if (!a.lastActivity) return 1;
+      if (!b.lastActivity) return -1;
+      return b.lastActivity.localeCompare(a.lastActivity);
+    });
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No exams for this group</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(r => {
+      const exam = allExams.find(e => e.id === r.examId);
+      const title = exam?.title || '(Untitled)';
+      return `<tr class="tr-click" onclick="drillSubsToExam('${r.examId}')">
+        <td style="font-weight:600;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(title)}</td>
+        <td style="color:#64748b;">${r.submitted}</td>
+        <td style="color:#64748b;">${r.graded}</td>
+        <td style="color:#64748b;">${r.pending}</td>
+        <td style="color:#64748b;">${r.lastActivity ? formatDate(r.lastActivity) : '—'}</td>
+      </tr>`;
+    }).join('');
   }
 
-  function renderSubsTable(attempts) {
-    const tbody = document.getElementById('subsTable');
+  function drillSubsToExam(examId) {
+    const exam = allExams.find(e => e.id === examId);
+    if (!exam) return;
+    subsCurrentExam = exam;
+    subsL3SelectedIds = new Set();
+    const groupName = subsCurrentGroup;
+    const examTitle = exam.title || '(Untitled)';
+    document.getElementById('subs-l1').style.display = 'none';
+    document.getElementById('subs-l2').style.display = 'none';
+    document.getElementById('subs-l3').style.display = 'block';
+    document.getElementById('subsL3GroupCrumb').textContent = groupName;
+    document.getElementById('subsL3ExamCrumb').textContent = examTitle;
+    document.getElementById('subsL3Title').textContent = examTitle;
+    document.getElementById('subsL3Search').value = '';
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    _subsGroupCode = groupCodes[groupName] || exam.access_code || '';
+    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const isDefault = !groupName || groupName === '(Default)';
+    _subsGroupLink = `${base}/exam-engine.html?id=${exam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}`;
+    document.getElementById('subsL3InfoCode').textContent = _subsGroupCode || '—';
+    document.getElementById('subsL3InfoLink').textContent = _subsGroupLink;
+    subsL3Attempts = subsAllAttempts.filter(a => a.exam_id === examId && (a.group_name || '(Default)') === groupName);
+    subsL3UpdateBulkBar();
+    filterSubsL3Students();
+  }
+
+  function subsDrillBack(toLevel) {
+    document.getElementById('subs-l1').style.display = toLevel === 1 ? 'block' : 'none';
+    document.getElementById('subs-l2').style.display = toLevel === 2 ? 'block' : 'none';
+    document.getElementById('subs-l3').style.display = 'none';
+    if (toLevel === 1) { subsCurrentGroup = null; subsCurrentExam = null; subsL3Attempts = []; }
+    subsL3SelectedIds = new Set();
+    subsL3UpdateBulkBar();
+  }
+
+  function filterSubsL3Students() {
+    const q = (document.getElementById('subsL3Search').value || '').toLowerCase();
+    const list = q ? subsL3Attempts.filter(a =>
+      (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
+    ) : [...subsL3Attempts];
+    renderSubsL3(list);
+  }
+
+  function renderSubsL3(attempts) {
+    const tbody = document.getElementById('subsL3Table');
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="8" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
       return;
     }
     tbody.innerHTML = attempts.map(a => {
-      const badge = a.status === 'submitted'
-        ? `<span class="badge badge-submitted">Submitted</span>`
-        : `<span class="badge badge-active">Active</span>`;
-      const sentBadge = a.results_sent_at
-        ? `<span class="badge badge-sent">Sent ${formatDate(a.results_sent_at)}</span>`
-        : `<span class="badge badge-pending">Unsent</span>`;
-      const checked = selectedAttemptIds.has(a.id) ? 'checked' : '';
-      return `<tr>
-        <td><input type="checkbox" ${checked} onchange="toggleAttemptSelect('${a.id}',this)"></td>
+      const checked = subsL3SelectedIds.has(a.id) ? 'checked' : '';
+      return `<tr class="tr-hover">
+        <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="subsL3ToggleSelect('${a.id}',this)"></td>
         <td>
-          <div style="font-weight:600;">${esc(a.student_name||'—')}</div>
+          <div style="font-weight:600;">${esc(fmtStudentName(a.student_name))}</div>
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
-        <td style="color:#64748b;">${esc(a.group_name||'—')}</td>
-        <td>${badge}</td>
-        <td>${fmtScore(a)}</td>
-        <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-        <td>${sentBadge}</td>
-        <td>
+        <td>${drillStatusBadge(a)}</td>
+        <td style="color:#64748b;">${a.score_mcq !== null ? String(calcScore(a)) : '—'}</td>
+        <td style="color:#64748b;">${a.submitted_at ? formatDate(a.submitted_at) : '—'}</td>
+        <td style="color:#64748b;">${a.results_sent_at ? formatDate(a.results_sent_at) : '—'}</td>
+        <td onclick="event.stopPropagation()">
           <div class="dot-menu-wrap">
             <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
             <div class="dot-menu">
-              <a href="student-review.html?attempt=${a.id}&exam=${document.getElementById('subsExamSelector').value}"><div class="dot-menu-item">View Response</div></a>
-              <div class="dot-menu-item" onclick="sendSingleResult('${a.id}')">Send Results</div>
-              <div class="dot-menu-item" onclick="sendRetake('${a.id}')">Send Retake</div>
-              <div class="dot-menu-item danger" onclick="deleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}')">Delete</div>
+              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}" ><div class="dot-menu-item">View Submission</div></a>
+              <div class="dot-menu-item" onclick="subsL3SendResults('${a.id}')">Send Results</div>
+              <div class="dot-menu-item" onclick="subsL3ResendLink('${a.id}')">Resend Exam Link</div>
+              <div class="dot-menu-item" onclick="subsL3AllowRetake('${a.id}')">Allow Retake</div>
+              <div style="height:1px;background:#e2e8f0;margin:4px 0;"></div>
+              <div class="dot-menu-item danger" onclick="subsL3DeleteAttempt('${a.id}','${esc((a.student_name||'').replace(/'/g, \\\'\\\'))}')">Delete Submission</div>
             </div>
           </div>
         </td>
       </tr>`;
     }).join('');
+  }
+
+  function subsL3ToggleSelect(id, cb) {
+    if (cb.checked) subsL3SelectedIds.add(id);
+    else subsL3SelectedIds.delete(id);
+    subsL3UpdateBulkBar();
+  }
+
+  function subsL3ToggleSelectAll(masterCb) {
+    document.querySelectorAll('#subsL3Table input[type=checkbox]').forEach(cb => {
+      cb.checked = masterCb.checked;
+      const m = cb.getAttribute('onchange')?.match(/'([^']+)'/);
+      if (m) { if (masterCb.checked) subsL3SelectedIds.add(m[1]); else subsL3SelectedIds.delete(m[1]); }
+    });
+    subsL3UpdateBulkBar();
+  }
+
+  function subsL3ClearSelection() {
+    subsL3SelectedIds.clear();
+    document.querySelectorAll('#subsL3Table input[type=checkbox]').forEach(cb => cb.checked = false);
+    const sa = document.getElementById('subsL3SelectAll');
+    if (sa) sa.checked = false;
+    subsL3UpdateBulkBar();
+  }
+
+  function subsL3UpdateBulkBar() {
+    const bar = document.getElementById('subsL3BulkBar');
+    const count = subsL3SelectedIds.size;
+    if (bar) bar.classList.toggle('show', count > 0);
+    const el = document.getElementById('subsL3BulkCount');
+    if (el) el.textContent = `${count} selected`;
+  }
+
+  async function _subsDoSendResult(attempt) {
+    const exam = subsCurrentExam || allExams.find(e => e.id === attempt.exam_id) || {};
+    const { data: { session } } = await sb.auth.getSession();
+    try {
+      const res = await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
+          exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
+          teacher_name: currentTeacher.full_name||currentTeacher.email,
+          teacher_email: currentTeacher.email,
+          institution_name: currentInstitution?.name||'', attempt_id: attempt.id,
+        })
+      });
+      if (res.ok) {
+        await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attempt.id);
+        const idx = subsL3Attempts.findIndex(a => a.id === attempt.id);
+        if (idx >= 0) subsL3Attempts[idx].results_sent_at = new Date().toISOString();
+        const idx2 = subsAllAttempts.findIndex(a => a.id === attempt.id);
+        if (idx2 >= 0) subsAllAttempts[idx2].results_sent_at = new Date().toISOString();
+        return true;
+      }
+    } catch(e) {}
+    return false;
+  }
+
+  async function subsL3SendResults(attemptId) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = subsL3Attempts.find(a => a.id === attemptId);
+    if (!attempt) return;
+    const ok = await _subsDoSendResult(attempt);
+    showToast(ok ? 'Result sent.' : 'Error sending result.');
+    filterSubsL3Students();
+  }
+
+  async function subsL3ResendLink(attemptId, silent = false) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = subsL3Attempts.find(a => a.id === attemptId);
+    if (!attempt || !subsCurrentExam) return false;
+    const exam = subsCurrentExam;
+    const { data: { session } } = await sb.auth.getSession();
+    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    const g = attempt.group_name || '';
+    const code = g && groupCodes[g] ? groupCodes[g] : (exam.access_code || '');
+    const link = `${base}/exam-engine.html?id=${exam.share_id}${g ? '&group='+encodeURIComponent(g) : ''}`;
+    try {
+      await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          type: 'invite', to_email: attempt.student_email, to_name: attempt.student_name,
+          exam_title: exam.title||'', exam_link: link, access_code: code, lang: exam.lang||'fr',
+          teacher_name: currentTeacher.full_name||currentTeacher.email,
+          teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
+        })
+      });
+      if (!silent) showToast(`Exam link resent to ${attempt.student_name}.`);
+      return true;
+    } catch(e) { if (!silent) showToast('Error sending link.'); return false; }
+  }
+
+  async function subsL3AllowRetake(attemptId) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    const attempt = subsL3Attempts.find(a => a.id === attemptId);
+    if (!attempt || !subsCurrentExam) return;
+    if (!confirm(`Send a retake link to ${attempt.student_name}?`)) return;
+    const token = crypto.randomUUID();
+    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
+    if (error) { showToast('Error generating retake.'); return; }
+    const exam = subsCurrentExam;
+    const { data: { session } } = await sb.auth.getSession();
+    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
+    await fetch(SEND_EMAIL_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({
+        type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
+        exam_title: exam.title||'', retake_link: retakeLink,
+        access_code: exam.access_code||'', lang: exam.lang||'fr',
+        teacher_name: currentTeacher.full_name||currentTeacher.email,
+        teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
+      })
+    });
+    showToast(`Retake link sent to ${attempt.student_name}.`);
+  }
+
+  async function subsL3DeleteAttempt(attemptId, studentName) {
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    if (!confirm(`Delete ${studentName}'s submission? This cannot be undone.`)) return;
+    const { error } = await sb.from('exam_attempts').delete().eq('id', attemptId);
+    if (error) { showToast('Error deleting submission.'); return; }
+    subsL3Attempts = subsL3Attempts.filter(a => a.id !== attemptId);
+    subsAllAttempts = subsAllAttempts.filter(a => a.id !== attemptId);
+    subsL3SelectedIds.delete(attemptId);
+    subsL3UpdateBulkBar();
+    filterSubsL3Students();
+    showToast('Submission deleted.');
+  }
+
+  async function subsL3BulkSendResults() {
+    if (!subsL3SelectedIds.size) return;
+    if (!confirm(`Send results to ${subsL3SelectedIds.size} student(s)?`)) return;
+    let sent = 0;
+    for (const id of [...subsL3SelectedIds]) {
+      const a = subsL3Attempts.find(x => x.id === id);
+      if (a && await _subsDoSendResult(a)) sent++;
+    }
+    showToast(`Results sent to ${sent} student(s).`);
+    subsL3ClearSelection();
+    filterSubsL3Students();
+  }
+
+  async function subsL3BulkResendLinks() {
+    if (!subsL3SelectedIds.size) return;
+    if (!confirm(`Resend exam links to ${subsL3SelectedIds.size} student(s)?`)) return;
+    let sent = 0;
+    for (const id of [...subsL3SelectedIds]) { if (await subsL3ResendLink(id, true)) sent++; }
+    showToast(`Links resent to ${sent} student(s).`);
+    subsL3ClearSelection();
+  }
+
+  async function subsL3BulkDelete() {
+    if (!subsL3SelectedIds.size) return;
+    if (!confirm(`Delete ${subsL3SelectedIds.size} submission(s)? This cannot be undone.`)) return;
+    for (const id of [...subsL3SelectedIds]) {
+      await sb.from('exam_attempts').delete().eq('id', id);
+      subsL3Attempts = subsL3Attempts.filter(a => a.id !== id);
+      subsAllAttempts = subsAllAttempts.filter(a => a.id !== id);
+    }
+    showToast(`${subsL3SelectedIds.size} submission(s) deleted.`);
+    subsL3ClearSelection();
+    filterSubsL3Students();
   }
 
   function toggleDotMenu(btn) {
@@ -1477,143 +1797,6 @@
       document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
     }
   });
-
-  // ── Selection / Bulk ─────────────────────────────────────────────────
-
-  function toggleAttemptSelect(id, cb) {
-    if (cb.checked) selectedAttemptIds.add(id);
-    else selectedAttemptIds.delete(id);
-    updateBulkBar();
-  }
-
-  function toggleSelectAll(masterCb) {
-    const rows = document.querySelectorAll('#subsTable input[type=checkbox]');
-    rows.forEach(cb => {
-      cb.checked = masterCb.checked;
-      const id = cb.closest('tr')?.querySelector('[onchange*="toggleAttemptSelect"]')?.getAttribute('onchange')?.match(/'([^']+)'/)?.[1];
-      if (id) {
-        if (masterCb.checked) selectedAttemptIds.add(id);
-        else selectedAttemptIds.delete(id);
-      }
-    });
-    updateBulkBar();
-  }
-
-  function clearSelection() {
-    selectedAttemptIds.clear();
-    document.querySelectorAll('#subsTable input[type=checkbox]').forEach(cb => cb.checked = false);
-    const sa = document.getElementById('selectAll');
-    if (sa) sa.checked = false;
-    updateBulkBar();
-  }
-
-  function updateBulkBar() {
-    const bar = document.getElementById('subsBulkBar');
-    const count = selectedAttemptIds.size;
-    bar.classList.toggle('show', count > 0);
-    document.getElementById('subsBulkCount').textContent = `${count} selected`;
-  }
-
-  async function bulkSendResults() {
-    if (!selectedAttemptIds.size) return;
-    if (!confirm(`Send results to ${selectedAttemptIds.size} student(s)?`)) return;
-    const ids = [...selectedAttemptIds];
-    let sent = 0;
-    for (const id of ids) {
-      const ok = await _doSendResult(id);
-      if (ok) sent++;
-    }
-    showToast(`Results sent to ${sent} student(s).`);
-    clearSelection();
-    await onSubsExamSelect();
-  }
-
-  async function bulkDelete() {
-    if (!selectedAttemptIds.size) return;
-    if (!confirm(`Delete ${selectedAttemptIds.size} submission(s)? This cannot be undone.`)) return;
-    for (const id of [...selectedAttemptIds]) {
-      await sb.from('exam_attempts').delete().eq('id', id);
-    }
-    showToast(`${selectedAttemptIds.size} submission(s) deleted.`);
-    clearSelection();
-    await onSubsExamSelect();
-  }
-
-  async function sendSingleResult(attemptId) {
-    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
-    const ok = await _doSendResult(attemptId);
-    showToast(ok ? 'Result sent.' : 'Error sending result.');
-    await onSubsExamSelect();
-  }
-
-  async function _doSendResult(attemptId) {
-    const attempt = currentAttempts.find(a => a.id === attemptId);
-    if (!attempt) return false;
-    const exam = allExams.find(e => e.id === attempt.exam_id) || {};
-    const { data: { session } } = await sb.auth.getSession();
-    try {
-      const res = await fetch(SEND_EMAIL_FN, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-        body: JSON.stringify({
-          type: 'results',
-          to_email: attempt.student_email,
-          to_name: attempt.student_name,
-          exam_title: exam.title || '',
-          score: fmtScore(attempt),
-          lang: exam.lang || 'fr',
-          teacher_name: currentTeacher.full_name || currentTeacher.email,
-          teacher_email: currentTeacher.email,
-          institution_name: currentInstitution?.name || '',
-          attempt_id: attemptId,
-        })
-      });
-      if (res.ok) {
-        await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attemptId);
-        const idx = currentAttempts.findIndex(a => a.id === attemptId);
-        if (idx >= 0) currentAttempts[idx].results_sent_at = new Date().toISOString();
-        return true;
-      }
-    } catch(e) {}
-    return false;
-  }
-
-  async function deleteAttempt(attemptId, studentName) {
-    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
-    if (!confirm(`Delete ${studentName}'s submission? This cannot be undone.`)) return;
-    const { error } = await sb.from('exam_attempts').delete().eq('id', attemptId);
-    if (error) { showToast('Error deleting submission.'); return; }
-    currentAttempts = currentAttempts.filter(a => a.id !== attemptId);
-    applySubsFilters();
-    showToast('Submission deleted.');
-  }
-
-  async function sendRetake(attemptId) {
-    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
-    const attempt = currentAttempts.find(a => a.id === attemptId);
-    if (!attempt) return;
-    if (!confirm(`Send a retake link to ${attempt.student_name}?`)) return;
-    const token = crypto.randomUUID();
-    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
-    if (error) { showToast('Error generating retake.'); return; }
-    const exam = allExams.find(e => e.id === attempt.exam_id) || {};
-    const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
-    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
-    await fetch(SEND_EMAIL_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({
-        type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
-        exam_title: exam.title || '', retake_link: retakeLink,
-        access_code: exam.access_code || '', lang: exam.lang || 'fr',
-        teacher_name: currentTeacher.full_name || currentTeacher.email,
-        teacher_email: currentTeacher.email,
-        institution_name: currentInstitution?.name || ''
-      })
-    });
-    showToast(`Retake link sent to ${attempt.student_name}.`);
-  }
 
   // ── GRADING QUEUE ─────────────────────────────────────────────────────
 
