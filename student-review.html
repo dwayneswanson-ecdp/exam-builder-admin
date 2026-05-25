@@ -102,7 +102,9 @@
     .open-q-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
     .open-q-text { font-size: 0.88rem; font-weight: 600; color: var(--black); line-height: 1.6; margin-bottom: 16px; }
     .answer-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
-    .answer-text { font-size: 0.85rem; color: var(--ink); line-height: 1.75; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 20px; white-space: pre-wrap; }
+    .answer-text { font-size: 0.85rem; color: var(--ink); line-height: 1.75; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); margin-bottom: 20px; }
+    .ql-rendered p { margin: 0 0 8px 0; }
+    .ql-rendered ol, .ql-rendered ul { padding-left: 20px; margin: 0 0 8px 0; }
     .criteria-toggle { font-size: 0.72rem; font-weight: 600; color: var(--slate); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 14px; user-select: none; letter-spacing: 0.02em; }
     .criteria-toggle:hover { color: var(--black); }
     .criteria-block { background: var(--surface); border: 1px solid var(--line); padding: 12px 16px; margin-bottom: 16px; font-size: 0.82rem; color: var(--slate); line-height: 1.7; white-space: pre-wrap; }
@@ -355,7 +357,7 @@
         const studentAns  = isNaN(selectedIdx) ? '—' : getOptionText(q, selectedIdx);
         const correctAns  = getOptionText(q, q.correct_index);
         return poolBanner + `<tr>
-          <td><span class="q-num">Q${globalIdx + 1}</span>${escHtml(q.question_text)}</td>
+          <td class="ql-rendered"><span class="q-num">Q${globalIdx + 1}</span>${q.question_text || ''}</td>
           <td>${escHtml(studentAns)}</td>
           <td>${escHtml(correctAns)}</td>
           <td class="result-col">${isCorrect ? '✅' : '❌'}</td>
@@ -389,9 +391,9 @@
 
         return openPoolBanner + `<div class="open-q" data-qidx="${globalIdx}">
           <div class="open-q-label">Question ${globalIdx + 1}</div>
-          <div class="open-q-text">${escHtml(q.question_text)}</div>
+          <div class="open-q-text ql-rendered">${q.question_text || ''}</div>
           <div class="answer-label">${Lang.t('studentAnswer')}</div>
-          <div class="answer-text">${escHtml(rawAnswer) || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
+          <div class="answer-text ql-rendered">${rawAnswer || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
           ${criteriaHtml}
           <div class="score-ai-row">
             <div class="score-field">
@@ -634,7 +636,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
-          <div class="ai-hint" style="font-style:italic;color:#64748b;font-size:0.75rem;margin-bottom:6px;">${escHtml(q.question_text)}</div>
+          <div class="ai-hint ql-rendered" style="font-style:italic;color:#64748b;font-size:0.75rem;margin-bottom:6px;">${q.question_text || ''}</div>
           <div class="ai-hint">${Lang.t('aiHintWarn')}</div>
           <div class="ai-text">${escHtml(rationale)}</div>
           <div class="ai-actions">
