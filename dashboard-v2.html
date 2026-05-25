@@ -656,20 +656,62 @@
       <div class="page-title">Send Results</div>
       <div class="page-sub">Send score reports to students who have been graded</div>
     </div>
-    <div class="toolbar">
-      <select class="ctrl" id="resultsExamSel" onchange="loadResultsStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
-      <div class="spacer"></div>
-      <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:500;color:#475569;cursor:pointer;">
-        <input type="checkbox" id="resultsIncludeBreakdown"> Include Q&amp;A breakdown
-      </label>
-      <button class="btn btn-success btn-sm" id="btnSendAllResults" onclick="sendAllResults()" style="display:none;">Send All</button>
+    <!-- Top bar -->
+    <div style="background:white;border:1px solid #e2e8f0;padding:16px;margin-bottom:20px;">
+      <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label class="field-label">Exam</label>
+          <select class="ctrl" id="resultsExamSel" onchange="onResultsExamChange()" style="width:100%;border-radius:0;border:1px solid #e2e8f0;"></select>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:500;color:#475569;cursor:pointer;align-self:flex-end;padding-bottom:6px;">
+          <input type="checkbox" id="resultsIncludeBreakdown" checked onchange="refreshResultsPreview()"> Include detailed Q&amp;A breakdown
+        </label>
+      </div>
+      <div id="resultsGroupWrap" style="display:none;margin-top:12px;">
+        <label class="field-label">Group</label>
+        <div class="group-tabs" id="resultsGroupTabs"></div>
+      </div>
     </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student</th><th>Email</th><th>Score</th><th>Submitted</th><th>Action</th></tr></thead>
-          <tbody id="resultsTable"><tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
-        </table>
+    <!-- Two-column body -->
+    <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
+      <!-- Left: email preview -->
+      <div>
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Email Preview</div>
+        <iframe id="resultsPreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
+      </div>
+      <!-- Right: checklist + history -->
+      <div>
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send Results</div>
+        <div class="card" style="padding:18px;margin-bottom:0;">
+          <div class="table-wrap" style="max-height:300px;overflow-y:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:32px;"><input type="checkbox" id="resultsSelectAll" onchange="resultsToggleSelectAll(this)"></th>
+                  <th>Student</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="resultsCheckTable"><tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+            </table>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#64748b;margin-top:10px;cursor:pointer;">
+            <input type="checkbox" id="resultsShowAll" onchange="renderResultsChecklist()"> Show all students
+          </label>
+          <button class="btn btn-primary" onclick="sendToSelected()" style="width:100%;margin-top:12px;">Send to Selected</button>
+          <div id="resultsFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
+        </div>
+        <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
+        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send History</div>
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Student</th><th>Sent At</th><th>Status</th></tr></thead>
+              <tbody id="resultsHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -803,6 +845,9 @@
   let drillSelectedIds = new Set();
   let pendingDrillExam = null;
   let inviteActiveGroup = '';
+  let resultsActiveGroup = '';
+  let _resultsAllAttempts = [];
+  let _resultsSelectedIds = new Set();
   let _drillGroupCode = '';
   let _drillGroupLink = '';
 
@@ -1251,11 +1296,17 @@
 
   function drillGoToResults() {
     const examId = drillCurrentExam?.id;
+    const groupName = drillCurrentGroup;
     navigate('comm-results');
     const sel = document.getElementById('resultsExamSel');
     if (sel && examId) {
       sel.value = examId;
-      loadResultsStudents();
+      onResultsExamChange();
+      if (groupName && groupName !== '(Default)') {
+        document.querySelectorAll('#resultsGroupTabs .group-tab').forEach(tab => {
+          if (tab.textContent.trim() === groupName) tab.click();
+        });
+      }
     }
   }
 
@@ -2154,42 +2205,241 @@
   // ── COMMUNICATE: RESULTS ──────────────────────────────────────────────
 
   function loadCommResults() {
-    document.getElementById('resultsTable').innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
-    document.getElementById('btnSendAllResults').style.display = 'none';
+    refreshResultsPreview();
+    loadResultsHistory();
   }
 
-  async function loadResultsStudents() {
+  function onResultsExamChange() {
     const examId = document.getElementById('resultsExamSel').value;
-    const tbody = document.getElementById('resultsTable');
-    const btnAll = document.getElementById('btnSendAllResults');
-    if (!examId) {
-      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
-      btnAll.style.display = 'none';
-      return;
+    const exam = allExams.find(e => e.id === examId);
+    const groupWrap = document.getElementById('resultsGroupWrap');
+    const groupTabs = document.getElementById('resultsGroupTabs');
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam?.group_codes || '{}'); } catch(e) {}
+    const groups = Object.keys(groupCodes);
+    resultsActiveGroup = '';
+    _resultsAllAttempts = [];
+    _resultsSelectedIds = new Set();
+    if (groups.length) {
+      groupTabs.innerHTML = `<div class="group-tab active" onclick="setResultsGroup('',this)">All</div>` +
+        groups.map(g => `<div class="group-tab" onclick="setResultsGroup('${esc(g)}',this)">${esc(g)}</div>`).join('');
+      groupWrap.style.display = 'block';
+    } else {
+      groupWrap.style.display = 'none';
     }
-    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+    if (examId) {
+      loadResultsAttempts(examId);
+    } else {
+      renderResultsChecklist();
+      refreshResultsPreview();
+      loadResultsHistory();
+    }
+  }
+
+  function setResultsGroup(group, el) {
+    resultsActiveGroup = group;
+    document.querySelectorAll('#resultsGroupTabs .group-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    _resultsSelectedIds = new Set();
+    renderResultsChecklist();
+    refreshResultsPreview();
+    loadResultsHistory();
+  }
+
+  async function loadResultsAttempts(examId) {
     const { data } = await sb.from('exam_attempts')
-      .select('*').eq('exam_id', examId).eq('status', 'submitted')
-      .is('results_sent_at', null).order('student_name');
-    const attempts = data || [];
-    window._resultsAttempts = attempts;
+      .select('*').eq('exam_id', examId).eq('status', 'submitted').order('student_name');
+    _resultsAllAttempts = data || [];
+    renderResultsChecklist();
+    refreshResultsPreview();
+    loadResultsHistory();
+  }
+
+  function renderResultsChecklist() {
+    const tbody = document.getElementById('resultsCheckTable');
+    if (!tbody) return;
+    _resultsSelectedIds = new Set();
+    const sa = document.getElementById('resultsSelectAll');
+    if (sa) sa.checked = false;
+    const showAll = document.getElementById('resultsShowAll')?.checked || false;
+    let attempts = resultsActiveGroup
+      ? _resultsAllAttempts.filter(a => (a.group_name || '(Default)') === resultsActiveGroup)
+      : [..._resultsAllAttempts];
+    if (!showAll) attempts = attempts.filter(a => a.score_mcq !== null && !a.results_sent_at);
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">All results have been sent.</td></tr>`;
-      btnAll.style.display = 'none';
+      tbody.innerHTML = `<tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">${showAll ? 'No students yet.' : 'All results sent, or no graded students.'}</td></tr>`;
       return;
     }
-    btnAll.style.display = 'inline-flex';
-    tbody.innerHTML = attempts.map(a => `<tr>
-      <td style="font-weight:500;">${esc(fmtStudentName(a.student_name||'—'))}</td>
-      <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
-      <td>${fmtScore(a)}</td>
-      <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-      <td><button class="btn btn-primary btn-sm" onclick="sendOneResult('${a.id}')">Send</button></td>
+    tbody.innerHTML = attempts.map(a => {
+      const isGraded = a.score_mcq !== null;
+      const isSent = !!a.results_sent_at;
+      const isPending = !isGraded;
+      const disabled = (isPending || isSent) ? 'disabled' : '';
+      const badge = isSent
+        ? `<span class="badge" style="background:#e2e8f0;color:#64748b;">Already sent</span>`
+        : isPending
+          ? `<span class="badge" style="background:#fef9c3;color:#a16207;">Pending grading</span>`
+          : `<span class="badge badge-graded">Graded</span>`;
+      return `<tr style="opacity:${disabled ? '0.55' : '1'};">
+        <td><input type="checkbox" data-id="${a.id}" ${disabled} onchange="resultsToggleSelect(this)"></td>
+        <td style="font-size:0.82rem;font-weight:500;">${esc(fmtStudentName(a.student_name||'—'))}</td>
+        <td style="font-size:0.82rem;color:#64748b;">${fmtScore(a)}</td>
+        <td>${badge}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function resultsToggleSelect(cb) {
+    if (cb.checked) _resultsSelectedIds.add(cb.dataset.id);
+    else _resultsSelectedIds.delete(cb.dataset.id);
+  }
+
+  function resultsToggleSelectAll(masterCb) {
+    document.querySelectorAll('#resultsCheckTable input[type=checkbox]:not([disabled])').forEach(cb => {
+      cb.checked = masterCb.checked;
+      if (masterCb.checked) _resultsSelectedIds.add(cb.dataset.id);
+      else _resultsSelectedIds.delete(cb.dataset.id);
+    });
+  }
+
+  function buildResultsPreviewHTML() {
+    const examId = document.getElementById('resultsExamSel')?.value;
+    const exam = allExams.find(e => e.id === examId);
+    if (!exam) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:sans-serif;font-size:0.85rem;padding:40px;">Select an exam to preview the results email.</div>';
+    const preview = resultsActiveGroup
+      ? _resultsAllAttempts.find(a => a.score_mcq !== null && (a.group_name || '(Default)') === resultsActiveGroup)
+      : _resultsAllAttempts.find(a => a.score_mcq !== null);
+    const teacherName = currentTeacher?.full_name || currentTeacher?.email || 'Your teacher';
+    const teacherEmail = currentTeacher?.email || '';
+    const examTitle = exam.title || '(Untitled)';
+    const studentName = preview ? esc(fmtStudentName(preview.student_name || 'Student')) : 'Student Name';
+    const score = preview ? fmtScore(preview) : '—';
+    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
+    const breakdownBlock = includeBreakdown ? `
+      <div style="margin-bottom:20px;">
+        <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Question Breakdown</div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+          <thead><tr style="background:#f8fafc;">
+            <th style="padding:6px 10px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Question</th>
+            <th style="padding:6px 10px;text-align:right;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Score</th>
+          </tr></thead>
+          <tbody>
+            <tr><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;">Q1 — Multiple choice</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">4 / 5</td></tr>
+            <tr><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;">Q2 — Open question</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">8 / 10</td></tr>
+            <tr><td style="padding:6px 10px;">Q3 — Multiple choice</td><td style="padding:6px 10px;text-align:right;">3 / 5</td></tr>
+          </tbody>
+        </table>
+      </div>` : '';
+    const contactLine = teacherEmail
+      ? `Questions? Contact ${esc(teacherName)} at <a href="mailto:${teacherEmail}" style="color:#2563eb;">${esc(teacherEmail)}</a>.`
+      : `Questions? Contact ${esc(teacherName)}.`;
+    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;">
+<div style="max-width:560px;margin:0 auto;padding:24px 16px;">
+  <div style="background:#0f172a;border-radius:8px 8px 0 0;padding:20px 28px;">
+    <span style="color:white;font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;">testflo</span>
+  </div>
+  <div style="background:white;padding:28px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+    <div style="font-size:1rem;color:#0f172a;margin-bottom:4px;">Hello, <strong>${studentName}</strong>,</div>
+    <div style="font-size:0.9rem;color:#475569;margin-bottom:24px;">Here are your results for <strong style="color:#0f172a;">${esc(examTitle)}</strong>.</div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
+      <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Your Score</div>
+      <div style="font-size:2rem;font-weight:800;color:#0f172a;">${score}</div>
+    </div>
+    ${breakdownBlock}
+    <div style="font-size:0.8rem;color:#64748b;">${contactLine}</div>
+  </div>
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:16px 28px;">
+    <div style="font-size:0.75rem;color:#94a3b8;">This score report was sent via testflo.</div>
+  </div>
+</div>
+</body></html>`;
+  }
+
+  function refreshResultsPreview() {
+    const frame = document.getElementById('resultsPreviewFrame');
+    if (frame) frame.srcdoc = buildResultsPreviewHTML();
+  }
+
+  async function sendToSelected() {
+    const ids = [..._resultsSelectedIds];
+    if (!ids.length) { showToast('Select at least one student.'); return; }
+    const examId = document.getElementById('resultsExamSel').value;
+    const exam = allExams.find(e => e.id === examId) || {};
+    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
+    const feedback = document.getElementById('resultsFeedback');
+    if (feedback) feedback.innerHTML = '<div style="color:#64748b;">Sending…</div>';
+    const { data: { session } } = await sb.auth.getSession();
+    const results = [];
+    for (const id of ids) {
+      const attempt = _resultsAllAttempts.find(a => a.id === id);
+      if (!attempt) continue;
+      try {
+        const res = await fetch(SEND_EMAIL_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
+            exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
+            teacher_name: currentTeacher.full_name||currentTeacher.email,
+            teacher_email: currentTeacher.email,
+            institution_name: currentInstitution?.name||'',
+            attempt_id: attempt.id, include_breakdown: includeBreakdown
+          })
+        });
+        if (res.ok) {
+          await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', id);
+          const idx = _resultsAllAttempts.findIndex(a => a.id === id);
+          if (idx >= 0) _resultsAllAttempts[idx].results_sent_at = new Date().toISOString();
+        }
+        results.push({ name: fmtStudentName(attempt.student_name||'—'), ok: res.ok });
+      } catch(e) {
+        results.push({ name: fmtStudentName(attempt.student_name||'—'), ok: false });
+      }
+    }
+    if (feedback) {
+      feedback.innerHTML = results.map(r =>
+        `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="color:${r.ok ? '#16a34a' : '#dc2626'};">${r.ok ? '✓' : '✗'}</span>
+          <span style="font-size:0.78rem;">${esc(r.name)}</span>
+          <span style="color:${r.ok ? '#16a34a' : '#dc2626'};font-size:0.72rem;">${r.ok ? 'Sent' : 'Failed'}</span>
+        </div>`
+      ).join('');
+    }
+    const sent = results.filter(r => r.ok).length;
+    showToast(`${sent} of ${results.length} result(s) sent.`);
+    renderResultsChecklist();
+    loadResultsHistory();
+  }
+
+  async function loadResultsHistory() {
+    const tbody = document.getElementById('resultsHistoryTable');
+    if (!tbody) return;
+    const examId = document.getElementById('resultsExamSel')?.value;
+    if (!examId) {
+      tbody.innerHTML = `<tr><td colspan="3" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam to see history.</td></tr>`;
+      return;
+    }
+    const { data } = await sb.from('exam_attempts')
+      .select('student_name,results_sent_at,group_name')
+      .eq('exam_id', examId).not('results_sent_at', 'is', null)
+      .order('results_sent_at', { ascending: false }).limit(100);
+    let rows = data || [];
+    if (resultsActiveGroup) rows = rows.filter(a => (a.group_name || '(Default)') === resultsActiveGroup);
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="3" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No results sent yet.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(a => `<tr>
+      <td style="font-size:0.82rem;font-weight:500;">${esc(fmtStudentName(a.student_name||'—'))}</td>
+      <td style="color:#64748b;font-size:0.78rem;">${formatDate(a.results_sent_at)}</td>
+      <td><span class="badge badge-graded">Delivered</span></td>
     </tr>`).join('');
   }
 
+  async function loadResultsStudents() { onResultsExamChange(); }
+
   async function sendOneResult(attemptId, skipReload) {
-    const attempt = (window._resultsAttempts||[]).find(a => a.id === attemptId);
+    const attempt = _resultsAllAttempts.find(a => a.id === attemptId);
     if (!attempt) return;
     const exam = allExams.find(e => e.id === attempt.exam_id) || {};
     const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
@@ -2208,22 +2458,18 @@
         })
       });
       await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString() }).eq('id', attemptId);
-      if (!skipReload) {
-        showToast(`Result sent to ${attempt.student_name}.`);
-        loadResultsStudents();
-      }
+      if (!skipReload) { showToast('Result sent.'); loadResultsHistory(); }
     } catch(e) { if (!skipReload) showToast('Error sending result.'); }
   }
 
   async function sendAllResults() {
-    const unsent = window._resultsAttempts || [];
+    const unsent = _resultsAllAttempts.filter(a => a.score_mcq !== null && !a.results_sent_at);
     if (!unsent.length) return;
     if (!confirm(`Send results to ${unsent.length} student(s)?`)) return;
-    document.getElementById('btnSendAllResults').disabled = true;
     for (const a of unsent) await sendOneResult(a.id, true);
-    document.getElementById('btnSendAllResults').disabled = false;
     showToast(`Results sent to ${unsent.length} student(s).`);
-    loadResultsStudents();
+    renderResultsChecklist();
+    loadResultsHistory();
   }
 
   // ── COMMUNICATE: RETAKES ──────────────────────────────────────────────
