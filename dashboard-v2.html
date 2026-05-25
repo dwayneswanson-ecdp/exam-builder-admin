@@ -451,7 +451,10 @@
           <span class="crumb" id="drillL3GroupCrumb"></span>
         </div>
       </div>
-      <div class="page-header"><div class="page-title" id="drillL3Title"></div></div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="page-title" id="drillL3Title"></div>
+        <button id="drillL3SendInviteBtn" class="btn btn-primary btn-sm" style="display:none;" onclick="drillGoToInvite()">+ Send Invitations</button>
+      </div>
       <div class="toolbar">
         <input class="search-input" type="text" id="drillSearch" placeholder="Search students…" oninput="filterDrillStudents()">
       </div>
@@ -1232,6 +1235,22 @@
     showToast('Group deleted.');
   }
 
+  function drillGoToInvite() {
+    const examId = drillCurrentExam?.id;
+    const groupName = drillCurrentGroup;
+    navigate('comm-invite');
+    const sel = document.getElementById('inviteExamSel');
+    if (sel && examId) {
+      sel.value = examId;
+      onInviteExamChange();
+      if (groupName && groupName !== '(Default)') {
+        document.querySelectorAll('#inviteGroupTabs .group-tab').forEach(tab => {
+          if (tab.textContent.trim() === groupName) tab.click();
+        });
+      }
+    }
+  }
+
   // ── Drill level 2 → 3 ────────────────────────────────────────────────
 
   function drillToGroup(groupName) {
@@ -1303,10 +1322,13 @@
 
   function renderDrillStudents(attempts) {
     const tbody = document.getElementById('drillStudentsTable');
+    const inviteBtn = document.getElementById('drillL3SendInviteBtn');
     if (!attempts.length) {
       tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions yet for this group.</td></tr>`;
+      if (inviteBtn) inviteBtn.style.display = 'block';
       return;
     }
+    if (inviteBtn) inviteBtn.style.display = 'none';
     const examId = drillCurrentExam?.id || '';
     tbody.innerHTML = attempts.map(a => {
       const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
