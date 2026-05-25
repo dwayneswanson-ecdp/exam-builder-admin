@@ -1310,10 +1310,14 @@
     const examId = drillCurrentExam?.id || '';
     tbody.innerHTML = attempts.map(a => {
       const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
+      if (!a.id) console.warn('Missing attempt ID for student:', a.student_name);
+      const nameEl = a.id
+        ? `<a href="student-review.html?attempt=${a.id}" style="font-weight:600;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
+        : `<span style="font-weight:600;">${esc(fmtStudentName(a.student_name))}</span>`;
       return `<tr class="tr-hover">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="drillToggleSelect('${a.id}',this)"></td>
         <td>
-          <a href="student-review.html?attempt=${esc(a.id)}" style="font-weight:600;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>
+          ${nameEl}
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
         <td>${drillStatusBadge(a)}</td>
