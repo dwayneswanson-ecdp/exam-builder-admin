@@ -411,11 +411,28 @@
           <span class="crumb" id="drillL2ExamTitle"></span>
         </div>
       </div>
-      <div class="page-header"><div class="page-title" id="drillL2Title"></div></div>
+      <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="page-title" id="drillL2Title"></div>
+        <button class="btn btn-primary btn-sm" onclick="drillToggleAddGroup()">+ Add Group</button>
+      </div>
+      <div id="drillAddGroupForm" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:12px;">
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+          <div>
+            <label style="display:block;font-size:0.78rem;font-weight:600;color:#64748b;margin-bottom:4px;">Group name</label>
+            <input id="drillNewGroupName" type="text" class="search-input" style="width:200px;" placeholder="e.g. Class A">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.78rem;font-weight:600;color:#64748b;margin-bottom:4px;">Access code</label>
+            <input id="drillNewGroupCode" type="text" class="search-input" style="width:120px;font-family:monospace;" placeholder="6-char code">
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="drillSaveGroup()">Save Group</button>
+          <a onclick="drillToggleAddGroup()" style="cursor:pointer;font-size:0.82rem;color:#64748b;align-self:center;margin-left:4px;">Cancel</a>
+        </div>
+      </div>
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Group</th><th>Submitted</th><th>Graded</th><th>Pending</th></tr></thead>
+            <thead><tr><th>Group</th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Created</th><th style="width:40px;"></th></tr></thead>
             <tbody id="drillGroupsTable"></tbody>
           </table>
         </div>
@@ -1104,10 +1121,7 @@
 
   function renderDrillGroups(attempts) {
     const tbody = document.getElementById('drillGroupsTable');
-    if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who take this exam will appear here.</div></div></td></tr>`;
-      return;
-    }
+    const examCreated = drillCurrentExam?.created_at || null;
     const groupMap = {};
     attempts.forEach(a => {
       const g = a.group_name || '(Default)';
@@ -1118,17 +1132,104 @@
         else groupMap[g].pending++;
       }
     });
-    tbody.innerHTML = Object.values(groupMap).map(g => `<tr class="tr-click" onclick="drillToGroup('${g.name.replace(/'/g, "\\'")}')">
+    let definedGroups = [];
+    try { definedGroups = JSON.parse(drillCurrentExam.groups || '[]'); } catch(e) {}
+    if (!Array.isArray(definedGroups)) definedGroups = [];
+    definedGroups.forEach(g => {
+      if (!groupMap[g]) groupMap[g] = { name: g, submitted: 0, graded: 0, pending: 0 };
+    });
+    const rows = Object.values(groupMap);
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-title">No groups yet</div><div class="empty-sub">Add a group or wait for students to submit.</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = rows.map(g => `<tr class="tr-click" onclick="drillToGroup('${g.name.replace(/'/g, "\\'")}')">
       <td style="font-weight:600;">${esc(g.name)}</td>
       <td style="color:#64748b;">${g.submitted}</td>
       <td style="color:#64748b;">${g.graded}</td>
       <td style="color:#64748b;">${g.pending}</td>
+      <td style="color:#64748b;">${formatDate(examCreated)}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="dot-menu-wrap">
+          <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
+          <div class="dot-menu">
+            <div class="dot-menu-item danger" onclick="drillDeleteGroup('${g.name.replace(/'/g, "\\'")}')">Delete Group</div>
+          </div>
+        </div>
+      </td>
     </tr>`).join('');
   }
 
   function copyToClipboard(val) {
     if (!val) return;
     navigator.clipboard.writeText(val).then(() => showToast('Copied.'));
+  }
+
+  function drillToggleAddGroup() {
+    const form = document.getElementById('drillAddGroupForm');
+    const visible = form.style.display !== 'none';
+    form.style.display = visible ? 'none' : 'block';
+    if (!visible) {
+      document.getElementById('drillNewGroupName').value = '';
+      document.getElementById('drillNewGroupCode').value = genGroupCode();
+      setTimeout(() => document.getElementById('drillNewGroupName').focus(), 0);
+    }
+  }
+
+  function genGroupCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  async function drillSaveGroup() {
+    const name = (document.getElementById('drillNewGroupName').value || '').trim();
+    const code = (document.getElementById('drillNewGroupCode').value || '').trim().toUpperCase();
+    if (!name) { showToast('Enter a group name.'); return; }
+    if (!drillCurrentExam) return;
+    let groups = [];
+    try { groups = JSON.parse(drillCurrentExam.groups || '[]'); } catch(e) {}
+    if (!Array.isArray(groups)) groups = [];
+    if (groups.includes(name)) { showToast('Group already exists.'); return; }
+    groups.push(name);
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
+    if (code) groupCodes[name] = code;
+    const { error } = await sb.from('exams').update({
+      groups: JSON.stringify(groups),
+      group_codes: JSON.stringify(groupCodes)
+    }).eq('id', drillCurrentExam.id);
+    if (error) { showToast('Error saving group.'); return; }
+    drillCurrentExam.groups = JSON.stringify(groups);
+    drillCurrentExam.group_codes = JSON.stringify(groupCodes);
+    const examIdx = allExams.findIndex(e => e.id === drillCurrentExam.id);
+    if (examIdx >= 0) { allExams[examIdx].groups = drillCurrentExam.groups; allExams[examIdx].group_codes = drillCurrentExam.group_codes; }
+    document.getElementById('drillAddGroupForm').style.display = 'none';
+    renderDrillGroups(drillCurrentAttempts);
+    showToast('Group saved.');
+  }
+
+  async function drillDeleteGroup(groupName) {
+    if (!confirm(`Delete group "${groupName}"? This does not delete student submissions.`)) return;
+    if (!drillCurrentExam) return;
+    let groups = [];
+    try { groups = JSON.parse(drillCurrentExam.groups || '[]'); } catch(e) {}
+    groups = groups.filter(g => g !== groupName);
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
+    delete groupCodes[groupName];
+    const { error } = await sb.from('exams').update({
+      groups: JSON.stringify(groups),
+      group_codes: JSON.stringify(groupCodes)
+    }).eq('id', drillCurrentExam.id);
+    if (error) { showToast('Error deleting group.'); return; }
+    drillCurrentExam.groups = JSON.stringify(groups);
+    drillCurrentExam.group_codes = JSON.stringify(groupCodes);
+    const examIdx = allExams.findIndex(e => e.id === drillCurrentExam.id);
+    if (examIdx >= 0) { allExams[examIdx].groups = drillCurrentExam.groups; allExams[examIdx].group_codes = drillCurrentExam.group_codes; }
+    renderDrillGroups(drillCurrentAttempts);
+    showToast('Group deleted.');
   }
 
   // ── Drill level 2 → 3 ────────────────────────────────────────────────
@@ -1203,7 +1304,7 @@
   function renderDrillStudents(attempts) {
     const tbody = document.getElementById('drillStudentsTable');
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions yet for this group.</td></tr>`;
       return;
     }
     const examId = drillCurrentExam?.id || '';
@@ -1212,7 +1313,7 @@
       return `<tr class="tr-hover">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="drillToggleSelect('${a.id}',this)"></td>
         <td>
-          <div style="font-weight:600;">${esc(fmtStudentName(a.student_name))}</div>
+          <a href="student-review.html?attempt=${esc(a.id)}" style="font-weight:600;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
         <td>${drillStatusBadge(a)}</td>
@@ -1223,7 +1324,6 @@
           <div class="dot-menu-wrap">
             <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
             <div class="dot-menu">
-              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(examId)}"><div class="dot-menu-item">View Submission</div></a>
               <div class="dot-menu-item" onclick="drillSendResults('${a.id}')">Send Results</div>
               <div class="dot-menu-item" onclick="drillResendLink('${a.id}')">Resend Exam Link</div>
               <div class="dot-menu-item" onclick="drillAllowRetake('${a.id}')">Allow Retake</div>
