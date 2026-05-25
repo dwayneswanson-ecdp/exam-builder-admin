@@ -1390,10 +1390,14 @@
   function fmtStudentName(name) {
     if (!name) return '—';
     const parts = name.trim().split(/\s+/);
-    if (parts.length < 2) return name.toUpperCase();
-    const last  = parts[parts.length - 1].toUpperCase();
-    const first = parts.slice(0, -1).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
-    return `${last} ${first}`;
+    if (parts.length < 2) return parts[0].toUpperCase();
+    // Names stored as "LASTNAME Firstname" (French convention — leading all-caps = family name)
+    const splitIdx = parts.findIndex(p => p !== p.toUpperCase());
+    const lastParts  = splitIdx > 0 ? parts.slice(0, splitIdx) : [parts[0]];
+    const firstParts = splitIdx > 0 ? parts.slice(splitIdx)    : parts.slice(1);
+    const last  = lastParts.join(' ').toUpperCase();
+    const first = firstParts.map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+    return first ? `${last} ${first}` : last;
   }
 
   function drillStatusBadge(a) {
