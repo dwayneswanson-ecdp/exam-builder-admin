@@ -136,6 +136,7 @@
     .badge-invited { background: #dbeafe; color: #1e40af; }
     .badge-in-progress { background: #f3e8ff; color: #6b21a8; }
     .badge-bounced { background: #fee2e2; color: #991b1b; }
+    .badge-sched { background: #f3e8ff; color: #6b21a8; }
     /* ── Drill-down ── */
     .drill-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
     .drill-back { background: none; border: none; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
@@ -150,6 +151,7 @@
     .tr-hover:hover td { background: #f8fafc; }
     .tr-hover .dot-menu-wrap { visibility: hidden; }
     .tr-hover:hover .dot-menu-wrap { visibility: visible; }
+    .student-row:hover td { background: transparent; }
 
     /* ── Buttons ── */
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; border-radius: 0; transition: background 0.1s; }
@@ -486,11 +488,10 @@
             <thead>
               <tr>
                 <th style="width:32px;"><input type="checkbox" id="drillSelectAll" onchange="drillToggleSelectAll(this)"></th>
-                <th>Student</th>
+                <th></th>
                 <th>Status</th>
-                <th>Score</th>
                 <th>Submitted</th>
-                <th>Results Sent</th>
+                <th style="text-align:right;">Score</th>
                 <th style="width:40px;"></th>
               </tr>
             </thead>
@@ -586,11 +587,10 @@
             <thead>
               <tr>
                 <th style="width:32px;"><input type="checkbox" id="subsL3SelectAll" onchange="subsL3ToggleSelectAll(this)"></th>
-                <th>Student</th>
+                <th></th>
                 <th>Status</th>
-                <th>Score</th>
                 <th>Submitted</th>
-                <th>Results Sent</th>
+                <th style="text-align:right;">Score</th>
                 <th style="width:40px;"></th>
               </tr>
             </thead>
@@ -842,6 +842,7 @@
   let drillCurrentExam = null;
   let drillCurrentGroup = null;
   let drillCurrentAttempts = [];
+  let drillCurrentScoreMax = null;
   let drillSelectedIds = new Set();
   let pendingDrillExam = null;
   let inviteActiveGroup = '';
@@ -864,6 +865,21 @@
   function formatDate(d) {
     if (!d) return '—';
     return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+  function formatSubmittedDT(d) {
+    if (!d) return '—';
+    const dt = new Date(d);
+    const day = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    const time = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    return day + ' · ' + time;
+  }
+  function studentStatusBadge(a) {
+    if (a.bounce_at) return `<span class="badge badge-bounced">Bounced</span>`;
+    if (a.results_sent_at) return `<span class="badge badge-sent">Sent</span>`;
+    if (a.scheduled_send_at) return `<span class="badge badge-sched">Scheduled</span>`;
+    if (a.status === 'submitted') return `<span class="badge badge-pending">Pending</span>`;
+    if (a.status === 'active') return `<span class="badge badge-in-progress">In Progress</span>`;
+    return `<span class="badge badge-invited">Invited</span>`;
   }
   function formatDateTime(d) {
     if (!d) return '—';
@@ -1175,9 +1191,12 @@
     document.getElementById('drillL2Title').textContent = title;
     document.getElementById('drillL2ExamTitle').textContent = title;
     document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
-    const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId)
-      .order('submitted_at', { ascending: false });
+    const [{ data }, { data: qs }] = await Promise.all([
+      sb.from('exam_attempts').select('*').eq('exam_id', examId).order('submitted_at', { ascending: false }),
+      sb.from('questions').select('type,max_points').eq('exam_id', examId).neq('type','section')
+    ]);
     drillCurrentAttempts = data || [];
+    drillCurrentScoreMax = (qs||[]).reduce((s, q) => s + (q.type === 'mcq' ? 1 : (q.max_points || 5)), 0) || null;
     renderDrillGroups(drillCurrentAttempts);
   }
 
@@ -1360,7 +1379,7 @@
     document.getElementById('exams-l1').style.display = toLevel === 1 ? 'block' : 'none';
     document.getElementById('exams-l2').style.display = toLevel === 2 ? 'block' : 'none';
     document.getElementById('exams-l3').style.display = 'none';
-    if (toLevel === 1) { drillCurrentExam = null; drillCurrentAttempts = []; drillCurrentGroup = null; }
+    if (toLevel === 1) { drillCurrentExam = null; drillCurrentAttempts = []; drillCurrentGroup = null; drillCurrentScoreMax = null; }
     drillSelectedIds = new Set();
     drillUpdateBulkBar();
   }
@@ -1405,26 +1424,31 @@
     }
     if (inviteBtn) inviteBtn.style.display = 'none';
     const examId = drillCurrentExam?.id || '';
+    const scoreMax = drillCurrentScoreMax || '?';
     tbody.innerHTML = attempts.map(a => {
       const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
       if (!a.id) console.warn('Missing attempt ID for student:', a.student_name);
       const nameEl = a.id
-        ? `<a href="student-review.html?attempt=${a.id}" style="font-weight:600;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
-        : `<span style="font-weight:600;">${esc(fmtStudentName(a.student_name))}</span>`;
-      return `<tr class="tr-hover">
+        ? `<a href="student-review.html?attempt=${a.id}&exam=${esc(examId)}" style="font-weight:700;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
+        : `<span style="font-weight:700;">${esc(fmtStudentName(a.student_name))}</span>`;
+      const sc = calcScore(a);
+      const scoreText = a.score_mcq !== null
+        ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
+        : `— / ${scoreMax}`;
+      return `<tr class="student-row">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="drillToggleSelect('${a.id}',this)"></td>
         <td>
           ${nameEl}
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
-        <td>${drillStatusBadge(a)}</td>
-        <td style="color:#64748b;">${a.score_mcq !== null ? String(calcScore(a)) : '—'}</td>
-        <td style="color:#64748b;">${a.submitted_at ? formatDate(a.submitted_at) : '—'}</td>
-        <td style="color:#64748b;">${a.results_sent_at ? formatDate(a.results_sent_at) : '—'}</td>
+        <td>${studentStatusBadge(a)}</td>
+        <td style="color:#94a3b8;font-size:0.78rem;">${formatSubmittedDT(a.submitted_at)}</td>
+        <td style="font-weight:700;text-align:right;">${scoreText}</td>
         <td onclick="event.stopPropagation()">
           <div class="dot-menu-wrap">
-            <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
+            <button class="dot-btn" onclick="toggleDotMenu(this)">⋮</button>
             <div class="dot-menu">
+              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(examId)}"><div class="dot-menu-item">View Submission</div></a>
               <div class="dot-menu-item" onclick="drillSendResults('${a.id}')">Send Results</div>
               <div class="dot-menu-item" onclick="drillResendLink('${a.id}')">Resend Exam Link</div>
               <div class="dot-menu-item" onclick="drillAllowRetake('${a.id}')">Allow Retake</div>
@@ -1628,6 +1652,7 @@
   let subsCurrentGroup = null;
   let subsCurrentExam = null;
   let subsL3Attempts = [];
+  let subsL3ScoreMax = null;
   let subsL3SelectedIds = new Set();
   let _subsGroupCode = '';
   let _subsGroupLink = '';
@@ -1738,7 +1763,7 @@
     }).join('');
   }
 
-  function drillSubsToExam(examId) {
+  async function drillSubsToExam(examId) {
     const exam = allExams.find(e => e.id === examId);
     if (!exam) return;
     subsCurrentExam = exam;
@@ -1761,6 +1786,8 @@
     document.getElementById('subsL3InfoCode').textContent = _subsGroupCode || '—';
     document.getElementById('subsL3InfoLink').textContent = _subsGroupLink;
     subsL3Attempts = subsAllAttempts.filter(a => a.exam_id === examId && (a.group_name || '(Default)') === groupName);
+    const { data: qs } = await sb.from('questions').select('type,max_points').eq('exam_id', examId).neq('type','section');
+    subsL3ScoreMax = (qs||[]).reduce((s, q) => s + (q.type === 'mcq' ? 1 : (q.max_points || 5)), 0) || null;
     subsL3UpdateBulkBar();
     filterSubsL3Students();
   }
@@ -1769,7 +1796,7 @@
     document.getElementById('subs-l1').style.display = toLevel === 1 ? 'block' : 'none';
     document.getElementById('subs-l2').style.display = toLevel === 2 ? 'block' : 'none';
     document.getElementById('subs-l3').style.display = 'none';
-    if (toLevel === 1) { subsCurrentGroup = null; subsCurrentExam = null; subsL3Attempts = []; }
+    if (toLevel === 1) { subsCurrentGroup = null; subsCurrentExam = null; subsL3Attempts = []; subsL3ScoreMax = null; }
     subsL3SelectedIds = new Set();
     subsL3UpdateBulkBar();
   }
@@ -1788,23 +1815,27 @@
       tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
       return;
     }
+    const scoreMax = subsL3ScoreMax || '?';
     tbody.innerHTML = attempts.map(a => {
       const checked = subsL3SelectedIds.has(a.id) ? 'checked' : '';
-      return `<tr class="tr-hover">
+      const sc = calcScore(a);
+      const scoreText = a.score_mcq !== null
+        ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
+        : `— / ${scoreMax}`;
+      return `<tr class="student-row">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="subsL3ToggleSelect('${a.id}',this)"></td>
         <td>
-          <div style="font-weight:600;">${esc(fmtStudentName(a.student_name))}</div>
+          <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}" style="font-weight:700;color:#2563eb;text-decoration:none;display:block;">${esc(fmtStudentName(a.student_name))}</a>
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
-        <td>${drillStatusBadge(a)}</td>
-        <td style="color:#64748b;">${a.score_mcq !== null ? String(calcScore(a)) : '—'}</td>
-        <td style="color:#64748b;">${a.submitted_at ? formatDate(a.submitted_at) : '—'}</td>
-        <td style="color:#64748b;">${a.results_sent_at ? formatDate(a.results_sent_at) : '—'}</td>
+        <td>${studentStatusBadge(a)}</td>
+        <td style="color:#94a3b8;font-size:0.78rem;">${formatSubmittedDT(a.submitted_at)}</td>
+        <td style="font-weight:700;text-align:right;">${scoreText}</td>
         <td onclick="event.stopPropagation()">
           <div class="dot-menu-wrap">
-            <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
+            <button class="dot-btn" onclick="toggleDotMenu(this)">⋮</button>
             <div class="dot-menu">
-              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}" ><div class="dot-menu-item">View Submission</div></a>
+              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}"><div class="dot-menu-item">View Submission</div></a>
               <div class="dot-menu-item" onclick="subsL3SendResults('${a.id}')">Send Results</div>
               <div class="dot-menu-item" onclick="subsL3ResendLink('${a.id}')">Resend Exam Link</div>
               <div class="dot-menu-item" onclick="subsL3AllowRetake('${a.id}')">Allow Retake</div>
