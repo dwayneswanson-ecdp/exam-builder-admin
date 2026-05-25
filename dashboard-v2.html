@@ -131,7 +131,7 @@
     .badge-submitted { background: #dbeafe; color: #1e40af; }
     .badge-active { background: #fef9c3; color: #854d0e; }
     .badge-sent { background: #dcfce7; color: #166534; }
-    .badge-pending { background: #fef9c3; color: #854d0e; }
+    .badge-pending { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
     .badge-graded { background: #dcfce7; color: #166534; }
     .badge-invited { background: #dbeafe; color: #1e40af; }
     .badge-in-progress { background: #f3e8ff; color: #6b21a8; }
@@ -152,6 +152,7 @@
     .tr-hover .dot-menu-wrap { visibility: hidden; }
     .tr-hover:hover .dot-menu-wrap { visibility: visible; }
     .student-row:hover td { background: transparent; }
+    .student-table th { color: #94a3b8; }
 
     /* ── Buttons ── */
     .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; font-family: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; border-radius: 0; transition: background 0.1s; }
@@ -484,7 +485,7 @@
           <button class="btn btn-ghost btn-sm" onclick="drillClearSelection()">Cancel</button>
         </div>
         <div class="table-wrap">
-          <table>
+          <table class="student-table">
             <thead>
               <tr>
                 <th style="width:32px;"><input type="checkbox" id="drillSelectAll" onchange="drillToggleSelectAll(this)"></th>
@@ -583,7 +584,7 @@
           <button class="btn btn-ghost btn-sm" onclick="subsL3ClearSelection()">Cancel</button>
         </div>
         <div class="table-wrap">
-          <table>
+          <table class="student-table">
             <thead>
               <tr>
                 <th style="width:32px;"><input type="checkbox" id="subsL3SelectAll" onchange="subsL3ToggleSelectAll(this)"></th>
@@ -1389,8 +1390,10 @@
   function fmtStudentName(name) {
     if (!name) return '—';
     const parts = name.trim().split(/\s+/);
-    if (parts.length < 2) return name;
-    return parts[parts.length - 1].toUpperCase() + ' ' + parts.slice(0, -1).join(' ');
+    if (parts.length < 2) return name.toUpperCase();
+    const last  = parts[parts.length - 1].toUpperCase();
+    const first = parts.slice(0, -1).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+    return `${last} ${first}`;
   }
 
   function drillStatusBadge(a) {
@@ -1411,6 +1414,7 @@
     if (q) list = list.filter(a =>
       (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
     );
+    list.sort((a, b) => fmtStudentName(a.student_name).localeCompare(fmtStudentName(b.student_name)));
     renderDrillStudents(list);
   }
 
@@ -1429,8 +1433,8 @@
       const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
       if (!a.id) console.warn('Missing attempt ID for student:', a.student_name);
       const nameEl = a.id
-        ? `<a href="student-review.html?attempt=${a.id}&exam=${esc(examId)}" style="font-weight:700;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
-        : `<span style="font-weight:700;">${esc(fmtStudentName(a.student_name))}</span>`;
+        ? `<a href="student-review.html?attempt=${a.id}&exam=${esc(examId)}" style="font-weight:500;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
+        : `<span style="font-weight:500;">${esc(fmtStudentName(a.student_name))}</span>`;
       const sc = calcScore(a);
       const scoreText = a.score_mcq !== null
         ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
@@ -1443,7 +1447,7 @@
         </td>
         <td>${studentStatusBadge(a)}</td>
         <td style="color:#94a3b8;font-size:0.78rem;">${formatSubmittedDT(a.submitted_at)}</td>
-        <td style="font-weight:700;text-align:right;">${scoreText}</td>
+        <td style="font-weight:700;color:#0f172a;text-align:right;">${scoreText}</td>
         <td onclick="event.stopPropagation()">
           <div class="dot-menu-wrap">
             <button class="dot-btn" onclick="toggleDotMenu(this)">⋮</button>
@@ -1806,6 +1810,7 @@
     const list = q ? subsL3Attempts.filter(a =>
       (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
     ) : [...subsL3Attempts];
+    list.sort((a, b) => fmtStudentName(a.student_name).localeCompare(fmtStudentName(b.student_name)));
     renderSubsL3(list);
   }
 
@@ -1825,12 +1830,12 @@
       return `<tr class="student-row">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="subsL3ToggleSelect('${a.id}',this)"></td>
         <td>
-          <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}" style="font-weight:700;color:#2563eb;text-decoration:none;display:block;">${esc(fmtStudentName(a.student_name))}</a>
+          <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}" style="font-weight:500;color:#2563eb;text-decoration:none;display:block;">${esc(fmtStudentName(a.student_name))}</a>
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
         <td>${studentStatusBadge(a)}</td>
         <td style="color:#94a3b8;font-size:0.78rem;">${formatSubmittedDT(a.submitted_at)}</td>
-        <td style="font-weight:700;text-align:right;">${scoreText}</td>
+        <td style="font-weight:700;color:#0f172a;text-align:right;">${scoreText}</td>
         <td onclick="event.stopPropagation()">
           <div class="dot-menu-wrap">
             <button class="dot-btn" onclick="toggleDotMenu(this)">⋮</button>
