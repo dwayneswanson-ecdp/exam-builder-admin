@@ -453,7 +453,10 @@
       </div>
       <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
         <div class="page-title" id="drillL3Title"></div>
-        <button id="drillL3SendInviteBtn" class="btn btn-primary btn-sm" style="display:none;" onclick="drillGoToInvite()">+ Send Invitations</button>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="drillL3SendInviteBtn" class="btn btn-primary btn-sm" style="display:none;" onclick="drillGoToInvite()">+ Send Invitations</button>
+          <button onclick="drillGoToResults()" style="background:#2563eb;color:white;border:none;border-radius:0;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;">Send Results →</button>
+        </div>
       </div>
       <div class="toolbar">
         <input class="search-input" type="text" id="drillSearch" placeholder="Search students…" oninput="filterDrillStudents()">
@@ -1244,6 +1247,16 @@
     if (examIdx >= 0) { allExams[examIdx].groups = drillCurrentExam.groups; allExams[examIdx].group_codes = drillCurrentExam.group_codes; }
     renderDrillGroups(drillCurrentAttempts);
     showToast('Group deleted.');
+  }
+
+  function drillGoToResults() {
+    const examId = drillCurrentExam?.id;
+    navigate('comm-results');
+    const sel = document.getElementById('resultsExamSel');
+    if (sel && examId) {
+      sel.value = examId;
+      loadResultsStudents();
+    }
   }
 
   function drillGoToInvite() {
