@@ -474,6 +474,7 @@
   let safeBlurUntil = 0;
   let exitCountdownTimer = null;
   let exitSecondsRemaining = 0;
+  let lastSubmitAttempt = 0;
   let timerInterval = null;
   let examDeadline = null;
   const sessionEvents = [];
@@ -1018,7 +1019,7 @@
             if (src.includes('watch?v=')) embedUrl = 'https://www.youtube.com/embed/' + src.split('watch?v=')[1].split('&')[0];
             else if (src.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/' + src.split('youtu.be/')[1];
             mediaDiv.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
-            mediaDiv.addEventListener('mouseover', () => armSafeBlur(8000));
+            mediaDiv.addEventListener('click', () => armSafeBlur(4000));
           } else {
             mediaDiv.innerHTML = `<video controls src="${src}" style="width:100%;"></video>`;
             mediaDiv.querySelector('video').addEventListener('play', () => armSafeBlur(3000));
@@ -1243,7 +1244,7 @@
         if (src.includes('watch?v=')) embedUrl = 'https://www.youtube.com/embed/'+src.split('watch?v=')[1].split('&')[0];
         else if (src.includes('youtu.be/')) embedUrl = 'https://www.youtube.com/embed/'+src.split('youtu.be/')[1];
         mediaDiv.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
-        mediaDiv.addEventListener('mouseover', () => armSafeBlur(8000));
+        mediaDiv.addEventListener('click', () => armSafeBlur(4000));
       } else {
         mediaDiv.innerHTML = `<video controls src="${src}" style="width:100%;display:block;"></video>`;
         mediaDiv.querySelector('video').addEventListener('play', () => armSafeBlur(3000));
@@ -1287,7 +1288,7 @@
           } else {
             // Desktop: iframe suppresses Chrome sidebar (#navpanes=0) and toolbar (#toolbar=0)
             mediaDiv.innerHTML = `<iframe src="${blobUrl}#navpanes=0&toolbar=0" style="width:100%;height:100%;display:block;border:none;"></iframe>`;
-            mediaDiv.addEventListener('mouseover', () => armSafeBlur(8000));
+            mediaDiv.addEventListener('click', () => armSafeBlur(4000));
           }
         })
         .catch(() => {
@@ -1373,6 +1374,8 @@
         nextBtn.onclick = () => {
           console.log('submit onclick fired', { examSubmitted, n, pagesLen: PAGES.length });
           if (examSubmitted) return;
+          if (lastSubmitAttempt !== 0 && Date.now() - lastSubmitAttempt < 30000) return;
+          lastSubmitAttempt = Date.now();
           const visibleUnans = [...document.querySelectorAll('.q-card')]
             .filter(c => c.style.display !== 'none' && !c.classList.contains('answered')).length;
           if (visibleUnans > 0) {
@@ -1485,8 +1488,24 @@
   // ============================================================
   //  ANTI-CHEAT
   // ============================================================
-  function armSafeBlur(ms = 1200) { safeBlurUntil = Date.now() + ms; }
-  function logEvent(label, detail) { sessionEvents.push({ time: new Date().toLocaleTimeString('fr-FR'), label, detail }); }
+  function armSafeBlur(ms = 1200) {
+    const MAX_SAFE = 4000;
+    safeBlurUntil = Date.now() + Math.min(ms, MAX_SAFE);
+  }
+  function suspendAntiCheat(ms, reason) {
+    antiCheatSuspendedUntil = Date.now() + ms;
+    if (ms > 5000) logEvent('Anti-cheat suspendu', `${reason} — ${ms}ms`);
+  }
+  function logEvent(label, detail) {
+    sessionEvents.push({ time: new Date().toLocaleTimeString('fr-FR'), label, detail });
+    const beaconWorthy = ['violation', 'anti-cheat', 'copie', 'collage', 'paste', 'copy', 'suspendu', 'terminé', 'soumis'];
+    if (attemptId && beaconWorthy.some(k => (label + (detail || '')).toLowerCase().includes(k))) {
+      navigator.sendBeacon(
+        `${EF_BASE}/log-event`,
+        JSON.stringify({ attempt_id: attemptId, time: Date.now(), label, detail })
+      );
+    }
+  }
 
   function setOverlayActive(active) {
     document.body.classList.toggle('overlay-active', active);
@@ -1554,7 +1573,7 @@
 
   document.getElementById('exitOverlayStay').addEventListener('click', () => {
     if (exitCountdownTimer) { clearInterval(exitCountdownTimer); exitCountdownTimer = null; }
-    antiCheatSuspendedUntil = Date.now() + 2000;
+    suspendAntiCheat(2000, 'exitOverlayStay');
     exitPromptOpen = false;
     document.getElementById('exitOverlay').style.display = 'none';
     setOverlayActive(false);
@@ -1651,6 +1670,8 @@
   // ============================================================
   document.getElementById('submitBtn').addEventListener('click', () => {
     if (examSubmitted) return;
+    if (lastSubmitAttempt !== 0 && Date.now() - lastSubmitAttempt < 30000) return;
+    lastSubmitAttempt = Date.now();
     const unanswered = QUESTIONS.length - document.querySelectorAll('.q-card.answered').length;
     if (unanswered > 0) {
       showUnansweredModal(unanswered); return;
@@ -1659,7 +1680,6 @@
   });
 
   function showUnansweredModal(count) {
-    antiCheatSuspendedUntil = Date.now() + 120000;
     const ui = window.UI || getUIStrings('fr');
     document.getElementById('unansweredModalTitle').textContent  = ui.unansweredTitle;
     document.getElementById('unansweredModalMsg').textContent    = ui.unansweredMsg.replace('{n}', count);
@@ -1668,11 +1688,11 @@
     document.getElementById('unansweredModal').style.display = 'flex';
   }
   document.getElementById('unansweredModalCancel').addEventListener('click', () => {
-    antiCheatSuspendedUntil = Date.now() + 2000;
+    suspendAntiCheat(2000, 'unansweredModalCancel');
     document.getElementById('unansweredModal').style.display = 'none';
   });
   document.getElementById('unansweredModalSubmit').addEventListener('click', () => {
-    antiCheatSuspendedUntil = Date.now() + 2000;
+    suspendAntiCheat(2000, 'unansweredModalSubmit');
     document.getElementById('unansweredModal').style.display = 'none';
     submitExam();
   });

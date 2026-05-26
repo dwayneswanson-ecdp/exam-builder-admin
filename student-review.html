@@ -518,6 +518,56 @@
               <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.75rem;color:#64748b;">${escHtml(e.detail||'')}</td>
             </tr>`;
           }).join('');
+
+          // Inference stats
+          const ev = e => ((e.label || '') + ' ' + (e.detail || '')).toLowerCase();
+          const violationCount  = log.filter(e => ev(e).includes('violation') || ev(e).includes('anti-cheat')).length;
+          const pasteCount      = log.filter(e => ev(e).includes('paste') || ev(e).includes('collage') || ev(e).includes('copie')).length;
+          const autoSubmitted   = log.some(e => ev(e).includes('auto') || ev(e).includes('terminé') || ev(e).includes('automatique'));
+          const modalAbuse      = log.filter(e => ev(e).includes('modal')).length > 1;
+          const suspicionCount  = log.filter(e => ev(e).includes('suspendu')).length;
+          const isEN            = (typeof Lang !== 'undefined' ? Lang.get() : 'fr') === 'en';
+
+          let bg, border, bodyText;
+          const titleText = isEN ? 'SESSION ANALYSIS' : 'ANALYSE DE SESSION';
+
+          if (violationCount >= 3 || (autoSubmitted && pasteCount > 0)) {
+            bg = '#fef2f2'; border = '#fecaca';
+            const parts = [
+              violationCount > 0 ? (isEN ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected`        : `${violationCount} sortie${violationCount !== 1 ? 's' : ''} détectée${violationCount !== 1 ? 's' : ''}`) : '',
+              pasteCount > 0     ? (isEN ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}`                 : `${pasteCount} tentative${pasteCount !== 1 ? 's' : ''} de collage`) : '',
+              autoSubmitted      ? (isEN ? 'auto-submitted'                                                             : 'soumission automatique') : '',
+            ].filter(Boolean);
+            bodyText = isEN
+              ? `🔴 High-risk behaviour — ${parts.join(', ')}.`
+              : `🔴 Comportement à haut risque — ${parts.join(', ')}.`;
+          } else if (violationCount >= 2 || pasteCount > 0 || modalAbuse) {
+            bg = '#fefce8'; border = '#fde68a';
+            const parts = [
+              violationCount > 0 ? (isEN ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected`        : `${violationCount} sortie${violationCount !== 1 ? 's' : ''} détectée${violationCount !== 1 ? 's' : ''}`) : '',
+              pasteCount > 0     ? (isEN ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}`                 : `${pasteCount} tentative${pasteCount !== 1 ? 's' : ''} de collage`) : '',
+              modalAbuse         ? (isEN ? 'repeated modal use'                                                         : 'modale utilisée plusieurs fois') : '',
+            ].filter(Boolean);
+            bodyText = isEN
+              ? `🟡 Moderately suspicious behaviour — ${parts.join(', ')}.`
+              : `🟡 Comportement modérément suspect — ${parts.join(', ')}.`;
+          } else {
+            bg = '#f0fdf4'; border = '#bbf7d0';
+            bodyText = isEN ? '🟢 No suspicious behaviour detected.' : '🟢 Aucun comportement suspect détecté.';
+          }
+
+          const suspLine = suspicionCount > 0
+            ? (isEN
+                ? ` ${suspicionCount} anti-cheat suspension${suspicionCount !== 1 ? 's' : ''} logged.`
+                : ` ${suspicionCount} suspension${suspicionCount !== 1 ? 's' : ''} anti-triche enregistrée${suspicionCount !== 1 ? 's' : ''}.`)
+            : '';
+
+          const inferenceBlock = `
+            <div style="background:${bg};border:1px solid ${border};padding:12px 16px;font-size:0.82rem;margin-top:12px;border-radius:0;">
+              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">─────────────────────────────────<br>${titleText}</div>
+              <div style="line-height:1.5;">${bodyText}${suspLine}</div>
+            </div>`;
+
           return `<div class="section-card" style="margin-top:16px;">
             <div class="section-head" style="cursor:pointer;user-select:none;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
               <span class="section-title" style="${hasSuspicious?'color:#dc2626;':''}">${hasSuspicious ? '⚠ ' : ''}Session journal (${log.length} event${log.length!==1?'s':''})</span>
@@ -532,6 +582,7 @@
                 </tr></thead>
                 <tbody>${rows}</tbody>
               </table>
+              ${inferenceBlock}
             </div>
           </div>`;
         })()}
