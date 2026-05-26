@@ -85,3 +85,17 @@ teachers need EXECUTE. No data from other users is accessible via this function.
 | Minimum password length | Increased from 6 to 12 characters |
 | Secure password change | Enabled — requires recent login session to change password |
 | Require current password when updating | Enabled — prevents account takeover via password change |
+
+---
+
+## Known Anti-Cheat Limitations
+
+### Volume key press triggers false-positive blur violation
+
+**Observed:** Students adjusting headphone or keyboard volume during the exam received anti-cheat warnings. The OS intercepts volume key presses and displays a system-level HUD overlay, briefly stealing focus from the browser and firing `window.blur`.
+
+**Partial fix available:** On Windows and Linux, volume keys reach the browser as `keydown` events (`AudioVolumeUp`, `AudioVolumeDown`, `AudioVolumeMute`). Detecting these and calling `armSafeBlur(2000)` would suppress the subsequent blur.
+
+**Limitation:** On macOS, volume keys are intercepted entirely by the OS before reaching the browser. The browser never sees the keydown event — no JavaScript fix is possible for that path.
+
+**Status:** Not yet implemented. Low priority unless exams are consistently run on Windows where the partial fix covers the majority of cases.

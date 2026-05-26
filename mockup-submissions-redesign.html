@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submissions Redesign — Mockup v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; min-height: 100vh; color: #1e293b; padding-bottom: 100px; }
+
+    .header { background: #0f172a; padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .header-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn { display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.5); font-size: 0.78rem; font-weight: 600; background: none; border: none; cursor: pointer; font-family: inherit; }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.1); }
+    .header-logo { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .header-badge { font-size: 0.62rem; font-weight: 700; background: #2563eb; color: #fff; padding: 2px 8px; border-radius: 999px; }
+    .header-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+
+    .page { max-width: 960px; margin: 0 auto; padding: 28px 24px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* Hero */
+    .hero { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .hero-left { flex: 1; min-width: 0; }
+    .hero-title { font-size: 1.2rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 3px; }
+    .hero-meta { font-size: 0.78rem; color: #94a3b8; }
+    .hero-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .stats-row { display: flex; gap: 8px; }
+    .stat-pill { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; text-align: center; min-width: 72px; transition: all 0.2s; }
+    .stat-val { font-size: 1.1rem; font-weight: 800; color: #0f172a; line-height: 1; transition: all 0.2s; }
+    .stat-val.orange { color: #d97706; }
+    .stat-val.green  { color: #16a34a; }
+    .stat-val.red    { color: #dc2626; }
+    .stat-lbl { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; margin-top: 3px; }
+
+    /* Group scope — shown below exam title as plain text, no bubble */
+    .hero-group-scope { font-size: 0.88rem; font-weight: 700; color: #2563eb; margin-top: 4px; display: none; letter-spacing: -0.01em; }
+    .hero-group-scope.visible { display: block; }
+
+    /* Overflow menu — matches row kebab style exactly */
+    .overflow-wrap { position: relative; }
+    .hero-overflow { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: none; border-radius: 7px; background: none; cursor: pointer; color: #94a3b8; }
+    .hero-overflow:hover { background: #f1f5f9; color: #475569; }
+    .overflow-menu { display: none; position: absolute; right: 0; top: calc(100% + 6px); background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 8px 24px rgba(15,23,42,.12); min-width: 200px; padding: 4px 0; z-index: 200; }
+    .overflow-menu.open { display: block; }
+    .overflow-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px 14px; font-size: 0.82rem; font-weight: 500; color: #374151; background: none; border: none; cursor: pointer; font-family: inherit; text-align: left; white-space: nowrap; }
+    .overflow-item:hover { background: #f8fafc; }
+    .overflow-item.danger { color: #dc2626; }
+    .overflow-item.danger:hover { background: #fef2f2; }
+    .overflow-item .scope-hint { font-size: 0.68rem; color: #94a3b8; margin-left: auto; font-weight: 400; }
+    .overflow-item .scope-hint.blue { color: #2563eb; font-weight: 600; }
+    .overflow-divider { height: 1px; background: #f1f5f9; margin: 3px 0; }
+
+    /* Task frame */
+    .task-frame { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .task-frame-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; cursor: pointer; user-select: none; transition: background 0.1s; }
+    .task-frame-head:hover { background: #fafafa; }
+    .task-frame-q { font-size: 0.88rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+    .task-frame-q .dot { width: 8px; height: 8px; border-radius: 999px; background: #2563eb; flex-shrink: 0; }
+    .task-frame-hint { font-size: 0.75rem; color: #94a3b8; font-weight: 400; margin-left: 18px; margin-top: 1px; }
+    .task-frame-actions { display: flex; align-items: center; gap: 10px; }
+    .task-tag { font-size: 0.68rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+    .task-tag.blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .chevron { color: #94a3b8; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+    .task-frame-body { border-top: 1px solid #f1f5f9; padding: 20px 24px; background: #fafafa; }
+
+    .access-rows { display: flex; flex-direction: column; gap: 10px; }
+    .access-row { display: flex; align-items: flex-start; gap: 14px; }
+    .access-lbl { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; width: 88px; flex-shrink: 0; padding-top: 9px; }
+    .access-val { flex: 1; display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 7px 12px; }
+    .access-val-text { font-size: 0.8rem; color: #475569; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .copy-btn { font-size: 0.68rem; font-weight: 700; color: #64748b; background: #f1f5f9; border: none; border-radius: 4px; padding: 3px 8px; cursor: pointer; flex-shrink: 0; }
+    .group-codes { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .group-code-row { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2e8f0; border-radius: 7px; padding: 6px 12px; }
+    .gc-name { font-size: 0.78rem; font-weight: 600; color: #475569; min-width: 72px; }
+    .gc-code { font-family: 'Courier New', monospace; font-size: 0.82rem; font-weight: 700; color: #0f172a; flex: 1; }
+    .access-footer { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+    .btn-sm { display: inline-flex; align-items: center; gap: 5px; font-size: 0.75rem; font-weight: 600; font-family: inherit; border-radius: 7px; padding: 6px 12px; cursor: pointer; border: none; }
+    .btn-outline-sm { background: #fff; border: 1px solid #e2e8f0; color: #475569; }
+    .btn-blue-sm { background: #eff6ff; border: 1px solid #bfdbfe; color: #2563eb; }
+
+    /* Group tabs */
+    .group-tabs { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 16px; flex-wrap: wrap; }
+    .gtab-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; margin-right: 6px; flex-shrink: 0; }
+    .gtab { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 5px 13px; cursor: pointer; background: #fff; color: #475569; transition: all 0.12s; }
+    .gtab.active { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .gtab-count { font-size: 0.68rem; font-weight: 700; border-radius: 999px; padding: 1px 6px; }
+    .gtab.active .gtab-count { background: rgba(255,255,255,0.25); }
+    .gtab:not(.active) .gtab-count { background: #f1f5f9; color: #94a3b8; }
+
+    /* Panel */
+    .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+    .panel-search-row { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .search-wrap { flex: 1; position: relative; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+    .search-input { width: 100%; font-size: 0.82rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 7px 12px 7px 32px; outline: none; background: #fff; }
+    .sort-select { font-size: 0.78rem; font-family: inherit; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 7px 10px; outline: none; background: #fff; color: #475569; }
+    .panel-header { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px 44px; align-items: center; gap: 12px; padding: 10px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .col-lbl { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; }
+    .sel-all { grid-column: 1/3; display: flex; align-items: center; gap: 8px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #94a3b8; }
+    .sub-row { display: grid; grid-template-columns: 36px 1fr 110px 120px 80px 44px; align-items: center; gap: 12px; padding: 13px 20px; border-bottom: 1px solid #f1f5f9; transition: background 0.1s; }
+    .sub-row:last-child { border-bottom: none; }
+    .sub-row:hover { background: #fafafa; }
+    .sub-name { font-size: 0.88rem; font-weight: 700; color: #2563eb; cursor: pointer; }
+    .sub-email { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+    .sub-date { font-size: 0.73rem; color: #94a3b8; }
+    .sub-score { font-size: 0.88rem; font-weight: 800; color: #0f172a; text-align: right; }
+    .badge { font-size: 0.65rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; display: inline-block; }
+    .badge-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+    .badge-sent    { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .kebab { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: none; border-radius: 7px; background: none; cursor: pointer; color: #94a3b8; }
+    .kebab:hover { background: #f1f5f9; }
+    input[type="checkbox"] { accent-color: #2563eb; width: 15px; height: 15px; cursor: pointer; }
+
+    /* Sticky footer */
+    .sticky-footer { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e2e8f0; z-index: 200; box-shadow: 0 -4px 20px rgba(15,23,42,.07); }
+    .sticky-footer-inner { max-width: 960px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .footer-q { font-size: 0.9rem; font-weight: 700; color: #0f172a; }
+    .footer-hint { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; transition: all 0.2s; }
+    .footer-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .btn-primary { display: inline-flex; align-items: center; gap: 6px; background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; }
+    .btn-outline { display: inline-flex; align-items: center; gap: 6px; background: #fff; color: #475569; border: 1px solid #e2e8f0; border-radius: 8px; padding: 9px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; font-family: inherit; }
+
+    /* Mockup banner */
+    .mockup-banner { background: #0f172a; color: rgba(255,255,255,0.7); text-align: center; font-size: 0.75rem; font-weight: 600; padding: 8px; letter-spacing: 0.05em; }
+    .annotation { display: inline-block; background: #fef08a; border: 1px solid #fde047; border-radius: 4px; font-size: 0.65rem; font-weight: 700; color: #713f12; padding: 1px 6px; margin-left: 8px; vertical-align: middle; }
+  </style>
+</head>
+<body>
+
+<div class="mockup-banner">MOCKUP v2 — Click the group tabs to see stats + PDF scope update live</div>
+
+<header class="header">
+  <div class="header-left">
+    <button class="back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      My Exams
+    </button>
+    <div class="header-divider"></div>
+    <span class="header-logo">Exam Builder</span>
+    <div class="header-divider"></div>
+    <span class="header-badge">Teacher</span>
+  </div>
+  <span class="header-name">Dwayne Swanson</span>
+</header>
+
+<div class="page">
+
+  <!-- 1. HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-title">Économie Internationale — Semestre 1</div>
+      <div class="hero-group-scope" id="heroGroupScope"></div>
+      <div class="hero-meta">90 min · Published 12 Jan 2026</div>
+    </div>
+    <div class="hero-right">
+      <div class="stats-row">
+        <div class="stat-pill">
+          <div class="stat-val" id="statTotal">24</div>
+          <div class="stat-lbl">Submitted</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val orange" id="statPending">9</div>
+          <div class="stat-lbl">Pending</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val green" id="statSent">14</div>
+          <div class="stat-lbl">Sent</div>
+        </div>
+        <div class="stat-pill">
+          <div class="stat-val red" id="statBounced">1</div>
+          <div class="stat-lbl">Bounced</div>
+        </div>
+      </div>
+      <!-- Overflow menu -->
+      <div class="overflow-wrap">
+        <button class="hero-overflow" onclick="toggleOverflow(event)" title="More options">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+        <div class="overflow-menu" id="overflowMenu">
+          <button class="overflow-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF report
+            <span class="scope-hint blue" id="pdfScopeHint">All groups</span>
+          </button>
+          <div class="overflow-divider"></div>
+          <button class="overflow-item danger">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            Delete exam
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. TASK FRAME — Exam access -->
+  <div class="task-frame">
+    <div class="task-frame-head" onclick="toggleFrame('access', this)">
+      <div>
+        <div class="task-frame-q">
+          <span class="dot"></span>
+          Ready to send exam access to your students?
+        </div>
+        <div class="task-frame-hint">Exam link · group access codes · draft student email</div>
+      </div>
+      <div class="task-frame-actions">
+        <svg class="chevron open" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+    <div class="task-frame-body" id="access-body">
+      <div class="access-rows">
+        <div class="access-row">
+          <span class="access-lbl">Exam link</span>
+          <div class="access-val">
+            <span class="access-val-text">https://…/exam-engine.html?id=abc123</span>
+            <button class="copy-btn">Copy</button>
+          </div>
+        </div>
+        <div class="access-row">
+          <span class="access-lbl">Group codes</span>
+          <div class="group-codes">
+            <div class="group-code-row">
+              <span class="gc-name">Groupe A</span>
+              <span class="gc-code">GRPA-2026</span>
+              <button class="copy-btn">Copy</button>
+            </div>
+            <div class="group-code-row">
+              <span class="gc-name">Groupe B</span>
+              <span class="gc-code">GRPB-2026</span>
+              <button class="copy-btn">Copy</button>
+            </div>
+            <div class="group-code-row">
+              <span class="gc-name">Groupe C</span>
+              <span class="gc-code">GRPC-2026</span>
+              <button class="copy-btn">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="access-footer">
+        <button class="btn-sm btn-outline-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Preview exam
+        </button>
+        <button class="btn-sm btn-blue-sm">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Draft student email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. GROUP TABS — clicking updates stats + PDF scope -->
+  <div class="group-tabs">
+    <span class="gtab-lbl">Group</span>
+    <button class="gtab active" onclick="selectGroup(this,'all','All groups',24,9,14,1)">
+      All <span class="gtab-count">24</span>
+    </button>
+    <button class="gtab" onclick="selectGroup(this,'a','Groupe A',8,3,5,0)">
+      Groupe A <span class="gtab-count">8</span>
+    </button>
+    <button class="gtab" onclick="selectGroup(this,'b','Groupe B',9,4,4,1)">
+      Groupe B <span class="gtab-count">9</span>
+    </button>
+    <button class="gtab" onclick="selectGroup(this,'c','Groupe C',7,2,5,0)">
+      Groupe C <span class="gtab-count">7</span>
+    </button>
+  </div>
+
+  <!-- 4. STUDENT LIST -->
+  <div class="panel">
+    <div class="panel-search-row">
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" type="text" placeholder="Search student…">
+      </div>
+      <select class="sort-select">
+        <option>Name A→Z</option>
+        <option>Latest first</option>
+        <option>Score ↓</option>
+      </select>
+    </div>
+    <div class="panel-header">
+      <div class="sel-all"><input type="checkbox"> Select All</div>
+      <div class="col-lbl">Status</div>
+      <div class="col-lbl">Submitted</div>
+      <div class="col-lbl" style="text-align:right;">Score</div>
+      <div></div>
+    </div>
+    <div class="sub-row">
+      <input type="checkbox">
+      <div><div class="sub-name">DUPONT Alice</div><div class="sub-email">alice.dupont@escp.eu · Groupe A</div></div>
+      <div><span class="badge badge-pending">Pending</span></div>
+      <div class="sub-date">3 May · 09:14</div>
+      <div class="sub-score">12 / 15</div>
+      <div style="display:flex;justify-content:flex-end;"><button class="kebab"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button></div>
+    </div>
+    <div class="sub-row">
+      <input type="checkbox" disabled>
+      <div><div class="sub-name">MARTIN Jules</div><div class="sub-email">jules.martin@escp.eu · Groupe B</div></div>
+      <div><span class="badge badge-sent">Sent</span></div>
+      <div class="sub-date">2 May · 14:32</div>
+      <div class="sub-score">9.5 / 15</div>
+      <div style="display:flex;justify-content:flex-end;"><button class="kebab"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button></div>
+    </div>
+    <div class="sub-row">
+      <input type="checkbox">
+      <div><div class="sub-name">BERNARD Sophie</div><div class="sub-email">s.bernard@escp.eu · Groupe A</div></div>
+      <div><span class="badge badge-pending">Pending</span></div>
+      <div class="sub-date">3 May · 11:05</div>
+      <div class="sub-score">— / 15</div>
+      <div style="display:flex;justify-content:flex-end;"><button class="kebab"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button></div>
+    </div>
+    <div class="sub-row">
+      <input type="checkbox" disabled>
+      <div><div class="sub-name">LECLERC Thomas</div><div class="sub-email">t.leclerc@escp.eu · Groupe C</div></div>
+      <div><span class="badge badge-sent">Sent</span></div>
+      <div class="sub-date">1 May · 16:48</div>
+      <div class="sub-score">14 / 15</div>
+      <div style="display:flex;justify-content:flex-end;"><button class="kebab"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button></div>
+    </div>
+    <div class="sub-row">
+      <input type="checkbox">
+      <div><div class="sub-name">ROUSSEAU Marie</div><div class="sub-email">m.rousseau@escp.eu · Groupe C</div></div>
+      <div><span class="badge badge-pending">Pending</span></div>
+      <div class="sub-date">3 May · 08:59</div>
+      <div class="sub-score">11 / 15</div>
+      <div style="display:flex;justify-content:flex-end;"><button class="kebab"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></button></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 5. STICKY FOOTER -->
+<div class="sticky-footer">
+  <div class="sticky-footer-inner">
+    <div>
+      <div class="footer-q">Ready to send results to your students?</div>
+      <div class="footer-hint" id="footerHint">9 pending across all groups · select students above, then send</div>
+    </div>
+    <div class="footer-actions">
+      <button class="btn-outline">Schedule send</button>
+      <button class="btn-primary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send now
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Group tab selection — updates stats, PDF scope label, footer hint
+  function selectGroup(btn, group, label, total, pending, sent, bounced) {
+    document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Update stats pills
+    document.getElementById('statTotal').textContent   = total;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('statSent').textContent    = sent;
+    document.getElementById('statBounced').textContent = bounced;
+
+    // Update PDF scope hint in overflow menu
+    const hint = document.getElementById('pdfScopeHint');
+    hint.textContent = label;
+    hint.className = group === 'all' ? 'scope-hint' : 'scope-hint blue';
+
+    // Show group name below exam title as plain text
+    const scope = document.getElementById('heroGroupScope');
+    if (group === 'all') {
+      scope.classList.remove('visible');
+      scope.textContent = '';
+    } else {
+      scope.textContent = label;
+      scope.classList.add('visible');
+    }
+
+    // Update sticky footer hint
+    const footerHint = document.getElementById('footerHint');
+    if (group === 'all') {
+      footerHint.textContent = `${pending} pending across all groups · select students above, then send`;
+    } else {
+      footerHint.textContent = `${pending} pending in ${label} · select students above, then send`;
+    }
+  }
+
+  // Collapsible task frames
+  function toggleFrame(id, head) {
+    const body = document.getElementById(id + '-body');
+    const chevron = head.querySelector('.chevron');
+    const isOpen = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    chevron.classList.toggle('open', !isOpen);
+  }
+
+  // Overflow menu
+  function toggleOverflow(e) {
+    e.stopPropagation();
+    document.getElementById('overflowMenu').classList.toggle('open');
+  }
+  document.addEventListener('click', () => {
+    document.getElementById('overflowMenu').classList.remove('open');
+  });
+</script>
+</body>
+</html>

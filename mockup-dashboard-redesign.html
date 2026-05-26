@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Design Direction Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:    #0a0a0a;
+      --navy:     #0f172a;
+      --ink:      #1e293b;
+      --slate:    #475569;
+      --muted:    #94a3b8;
+      --line:     #e2e8f0;
+      --surface:  #f8fafc;
+      --white:    #ffffff;
+      --blue:     #2563eb;
+      --blue-dim: #eff6ff;
+      --green:    #16a34a;
+      --amber:    #d97706;
+      --red:      #dc2626;
+      --radius:   0px;
+      --transition: 180ms ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────────── */
+    .header {
+      background: var(--navy);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .header-left { display: flex; align-items: center; gap: 32px; }
+    .wordmark {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+    .header-nav { display: flex; align-items: center; gap: 0; }
+    .nav-link {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      padding: 0 16px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color var(--transition);
+      border-bottom: 2px solid transparent;
+    }
+    .nav-link:hover { color: rgba(255,255,255,0.75); }
+    .nav-link.active { color: var(--white); border-bottom-color: var(--white); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .header-teacher {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.45);
+    }
+    .header-avatar {
+      width: 28px; height: 28px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.7);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── PAGE ───────────────────────────────────────────────────── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px; }
+
+    /* ── PAGE TITLE ROW ─────────────────────────────────────────── */
+    .page-title-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+    .page-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .page-subtitle {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+      letter-spacing: 0.01em;
+    }
+    .btn-new {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--black);
+      color: var(--white);
+      border: 1px solid var(--black);
+      padding: 10px 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background var(--transition), border-color var(--transition);
+    }
+    .btn-new:hover { background: var(--blue); border-color: var(--blue); }
+
+    /* ── OVERVIEW STRIP ─────────────────────────────────────────── */
+    .overview-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+      margin-bottom: 40px;
+    }
+    .overview-cell {
+      padding: 20px 24px;
+      border-right: 1px solid var(--line);
+    }
+    .overview-cell:last-child { border-right: none; }
+    .overview-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .overview-val {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .overview-val.accent { color: var(--blue); }
+    .overview-val.amber  { color: var(--amber); }
+    .overview-val.green  { color: var(--green); }
+
+    /* ── SECTION HEADER ─────────────────────────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    .section-action {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--slate);
+      background: none;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .section-action:hover { color: var(--black); }
+
+    /* ── EXAM LIST ──────────────────────────────────────────────── */
+    .exam-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--line); }
+
+    .exam-row {
+      display: grid;
+      grid-template-columns: 1fr 140px 140px 140px 120px 44px;
+      align-items: center;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--line);
+      transition: background var(--transition);
+      cursor: pointer;
+      gap: 16px;
+    }
+    .exam-row:last-child { border-bottom: none; }
+    .exam-row:hover { background: var(--surface); }
+
+    .exam-row-header {
+      display: grid;
+      grid-template-columns: 1fr 140px 140px 140px 120px 44px;
+      align-items: center;
+      padding: 9px 24px;
+      gap: 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+    .row-col-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .exam-title-col {}
+    .exam-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--black);
+      letter-spacing: -0.01em;
+      margin-bottom: 3px;
+    }
+    .exam-name:hover { color: var(--blue); }
+    .exam-info {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+    }
+    .exam-tags { display: flex; gap: 6px; margin-top: 5px; }
+    .tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      color: var(--slate);
+    }
+    .tag.published { border-color: var(--green); color: var(--green); }
+    .tag.draft     { border-color: var(--muted); color: var(--muted); }
+
+    .stat-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .stat-number {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .stat-number.amber { color: var(--amber); }
+    .stat-number.green { color: var(--green); }
+    .stat-sub {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .date-col {
+      font-size: 0.75rem;
+      color: var(--slate);
+      letter-spacing: 0.01em;
+    }
+
+    .action-col {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .row-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--muted);
+      transition: color var(--transition), background var(--transition);
+    }
+    .row-action-btn:hover { color: var(--slate); background: var(--line); }
+
+    /* ── INSTITUTION BADGE ──────────────────────────────────────── */
+    .inst-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      border: 1px solid var(--line);
+      margin-bottom: 40px;
+      background: var(--surface);
+    }
+    .inst-logo-box {
+      width: 36px; height: 36px;
+      background: var(--navy);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .inst-logo-box span {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.8);
+      text-transform: uppercase;
+    }
+    .inst-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.01em;
+    }
+    .inst-meta {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+    .inst-role {
+      margin-left: auto;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      padding: 3px 9px;
+    }
+
+    /* ── EMPTY STATE ─────────────────────────────────────────────── */
+    .empty {
+      padding: 60px 24px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-top: none;
+    }
+    .empty-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .empty-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── MOCKUP BANNER ───────────────────────────────────────────── */
+    .mockup-banner {
+      background: var(--navy);
+      color: rgba(255,255,255,0.5);
+      text-align: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 7px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* Hover lift on exam row */
+    .exam-row:hover .exam-name { color: var(--blue); }
+  </style>
+</head>
+<body>
+
+<div class="mockup-banner">Design direction mockup — not functional · For review only</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <span class="wordmark">Exam Builder</span>
+    <nav class="header-nav">
+      <button class="nav-link active">Exams</button>
+      <button class="nav-link">Students</button>
+      <button class="nav-link">Settings</button>
+    </nav>
+  </div>
+  <div class="header-right">
+    <span class="header-teacher">Dwayne Swanson</span>
+    <div class="header-avatar">DS</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- PAGE TITLE -->
+  <div class="page-title-row">
+    <div>
+      <div class="page-title">My Exams</div>
+      <div class="page-subtitle">ESCP Business School · Spring 2026</div>
+    </div>
+    <button class="btn-new">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New exam
+    </button>
+  </div>
+
+  <!-- INSTITUTION -->
+  <div class="inst-bar">
+    <div class="inst-logo-box"><span>ESCP</span></div>
+    <div>
+      <div class="inst-name">ESCP Business School</div>
+      <div class="inst-meta">Paris · London · Berlin</div>
+    </div>
+    <div class="inst-role">Teacher</div>
+  </div>
+
+  <!-- OVERVIEW NUMBERS -->
+  <div class="overview-strip">
+    <div class="overview-cell">
+      <div class="overview-label">Active exams</div>
+      <div class="overview-val accent">4</div>
+    </div>
+    <div class="overview-cell">
+      <div class="overview-label">Total submissions</div>
+      <div class="overview-val">127</div>
+    </div>
+    <div class="overview-cell">
+      <div class="overview-label">Pending review</div>
+      <div class="overview-val amber">23</div>
+    </div>
+    <div class="overview-cell">
+      <div class="overview-label">Results sent</div>
+      <div class="overview-val green">104</div>
+    </div>
+  </div>
+
+  <!-- EXAM LIST -->
+  <div class="section-header">
+    <span class="section-label">All exams</span>
+    <button class="section-action">
+      Sort by date
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+  </div>
+
+  <div class="exam-list">
+    <!-- Column headers -->
+    <div class="exam-row-header">
+      <div class="row-col-label">Exam</div>
+      <div class="row-col-label">Submissions</div>
+      <div class="row-col-label">Pending</div>
+      <div class="row-col-label">Results sent</div>
+      <div class="row-col-label">Published</div>
+      <div></div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="exam-row">
+      <div class="exam-title-col">
+        <div class="exam-name">Économie Internationale — Semestre 1</div>
+        <div class="exam-info">90 min · 3 groups</div>
+        <div class="exam-tags">
+          <span class="tag published">Published</span>
+        </div>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number">47</span>
+        <span class="stat-sub">students</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number amber">9</span>
+        <span class="stat-sub">pending</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number green">38</span>
+        <span class="stat-sub">sent</span>
+      </div>
+      <div class="date-col">12 Jan 2026</div>
+      <div class="action-col">
+        <button class="row-action-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="exam-row">
+      <div class="exam-title-col">
+        <div class="exam-name">Finance d'Entreprise — Contrôle Final</div>
+        <div class="exam-info">120 min · 2 groups</div>
+        <div class="exam-tags">
+          <span class="tag published">Published</span>
+        </div>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number">34</span>
+        <span class="stat-sub">students</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number amber">14</span>
+        <span class="stat-sub">pending</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number green">20</span>
+        <span class="stat-sub">sent</span>
+      </div>
+      <div class="date-col">3 Feb 2026</div>
+      <div class="action-col">
+        <button class="row-action-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="exam-row">
+      <div class="exam-title-col">
+        <div class="exam-name">Microéconomie — Partiel Mi-Semestre</div>
+        <div class="exam-info">60 min · No groups</div>
+        <div class="exam-tags">
+          <span class="tag published">Published</span>
+        </div>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number">28</span>
+        <span class="stat-sub">students</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number amber">0</span>
+        <span class="stat-sub">pending</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number green">28</span>
+        <span class="stat-sub">sent</span>
+      </div>
+      <div class="date-col">18 Nov 2025</div>
+      <div class="action-col">
+        <button class="row-action-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Row 4 — Draft -->
+    <div class="exam-row" style="opacity:0.55;">
+      <div class="exam-title-col">
+        <div class="exam-name">Stratégie Globale — Semestre 2</div>
+        <div class="exam-info">90 min · Not published yet</div>
+        <div class="exam-tags">
+          <span class="tag draft">Draft</span>
+        </div>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number" style="color:var(--muted);">—</span>
+        <span class="stat-sub">students</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number" style="color:var(--muted);">—</span>
+        <span class="stat-sub">pending</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-number" style="color:var(--muted);">—</span>
+        <span class="stat-sub">sent</span>
+      </div>
+      <div class="date-col" style="color:var(--muted);">Not published</div>
+      <div class="action-col">
+        <button class="row-action-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>
