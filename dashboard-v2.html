@@ -153,6 +153,10 @@
     .drill-crumbs .sep { color: #cbd5e1; }
     .tr-click { cursor: pointer; }
     .tr-click:hover td { background: #f1f5f9; }
+    .th-sort { cursor: pointer; user-select: none; white-space: nowrap; }
+    .th-sort:hover { background: #f8fafc; }
+    .th-sort-icon { margin-left: 4px; color: #cbd5e1; font-size: 0.8em; vertical-align: middle; }
+    .th-sort-icon.active { color: #0f172a; }
     .tr-hover:hover td { background: #f8fafc; }
     .tr-hover .dot-menu-wrap { visibility: hidden; }
     .tr-hover:hover .dot-menu-wrap { visibility: visible; }
@@ -406,7 +410,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Title</th><th>Status</th><th>Questions</th><th>Groups</th><th>Submitted</th><th>Last Activity</th></tr></thead>
+            <thead id="examsTableHead"><tr><th>Title</th><th>Status</th><th>Questions</th><th>Groups</th><th>Submitted</th><th>Last Activity</th></tr></thead>
             <tbody id="examsTable"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
           </table>
         </div>
@@ -825,6 +829,7 @@
   let subsActiveGroup = 'all';
   let subsTab = 'all';
   let examTab = 'all';
+  let examSortCol = null, examSortDir = 'asc', examSortClicks = 0;
   let selectedAttemptIds = new Set();
   let retakesAllAttempts = [];
   let histResultsAll = [];
@@ -1156,6 +1161,7 @@
 
   function setExamTab(tab) {
     examTab = tab;
+    examSortCol = null; examSortDir = 'asc'; examSortClicks = 0;
     ['all','published','drafts'].forEach(t => {
       document.getElementById(`examTab-${t}`).classList.toggle('active', t === tab);
     });
@@ -1173,7 +1179,48 @@
     else if (examTab === 'drafts') list = list.filter(e => e.status !== 'published');
     const titles = { all: 'All Exams', published: 'Published Exams', drafts: 'Draft Exams' };
     document.getElementById('examsTitle').textContent = titles[examTab] || 'Exams';
+    if (examSortCol) {
+      list = [...list].sort((a, b) => {
+        let av, bv;
+        if (examSortCol === 'title') {
+          av = (a.title||'').toLowerCase(); bv = (b.title||'').toLowerCase();
+        } else if (examSortCol === 'questions') {
+          av = examQuestionCounts[a.id]||0; bv = examQuestionCounts[b.id]||0;
+        } else if (examSortCol === 'submitted') {
+          av = examSubmittedCounts[a.id]||0; bv = examSubmittedCounts[b.id]||0;
+        } else if (examSortCol === 'activity') {
+          av = examLastActivity[a.id] ? new Date(examLastActivity[a.id]).getTime() : 0;
+          bv = examLastActivity[b.id] ? new Date(examLastActivity[b.id]).getTime() : 0;
+        }
+        if (av < bv) return examSortDir === 'asc' ? -1 : 1;
+        if (av > bv) return examSortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+    renderExamsTableHead();
     renderExamsTable(list);
+  }
+
+  function renderExamsTableHead() {
+    const el = document.getElementById('examsTableHead');
+    if (!el) return;
+    function th(col, label, defaultDir) {
+      const active = examSortCol === col;
+      const icon = active ? (examSortDir === 'asc' ? '↑' : '↓') : '↕';
+      return `<th class="th-sort" onclick="sortExams('${col}','${defaultDir}')">${label}<span class="th-sort-icon${active ? ' active' : ''}">${icon}</span></th>`;
+    }
+    el.innerHTML = `<tr>${th('title','Title','asc')}<th>Status</th>${th('questions','Questions','desc')}<th>Groups</th>${th('submitted','Submitted','desc')}${th('activity','Last Activity','desc')}</tr>`;
+  }
+
+  function sortExams(col, defaultDir) {
+    if (examSortCol !== col) {
+      examSortCol = col; examSortDir = defaultDir; examSortClicks = 1;
+    } else if (examSortClicks === 1) {
+      examSortDir = defaultDir === 'asc' ? 'desc' : 'asc'; examSortClicks = 2;
+    } else {
+      examSortCol = null; examSortClicks = 0;
+    }
+    filterExams();
   }
 
   function renderExamsTable(exams) {
