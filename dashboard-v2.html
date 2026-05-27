@@ -53,6 +53,20 @@
     .sidebar-email { font-size: 0.7rem; color: rgba(255,255,255,0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
     .btn-signout { width: 100%; padding: 6px 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); font-family: inherit; font-size: 0.75rem; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 7px; }
     .btn-signout:hover { background: rgba(255,255,255,0.09); color: white; }
+    .sid-identity { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); cursor: pointer; position: relative; user-select: none; }
+    .sid-identity:hover { background: rgba(255,255,255,0.04); }
+    .sid-avatar { width: 32px; height: 32px; background: #2563eb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; flex-shrink: 0; }
+    .sid-info { flex: 1; min-width: 0; }
+    .sid-name { font-size: 0.8rem; font-weight: 600; color: rgba(255,255,255,0.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sid-role { font-size: 0.68rem; color: rgba(255,255,255,0.35); margin-top: 1px; }
+    .sid-chevron { color: rgba(255,255,255,0.3); flex-shrink: 0; transition: transform 0.15s; }
+    .sid-identity.open .sid-chevron { transform: rotate(180deg); }
+    .sid-dropdown { position: absolute; top: calc(100% + 4px); left: 12px; right: 12px; background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 200; overflow: hidden; display: none; }
+    .sid-identity.open .sid-dropdown { display: block; }
+    .sid-dd-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; font-size: 0.82rem; color: #0f172a; cursor: pointer; }
+    .sid-dd-item:hover { background: #f8fafc; }
+    .sid-dd-div { height: 1px; background: #e2e8f0; }
+    .sid-dd-danger { color: #dc2626; }
 
     /* ── Main ── */
     .main { margin-left: 240px; flex: 1; min-height: 100vh; }
@@ -352,6 +366,25 @@
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">testflo</div>
+  <div class="sid-identity" id="sidIdentity" onclick="toggleSidIdentity(event)">
+    <div class="sid-avatar" id="sidebarInitials">?</div>
+    <div class="sid-info">
+      <div class="sid-name" id="sidebarName">—</div>
+      <div class="sid-role">Administrator</div>
+    </div>
+    <svg class="sid-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    <div class="sid-dropdown" id="sidDropdown" onclick="event.stopPropagation()">
+      <div class="sid-dd-item" onclick="navigate('settings-profile');closeSidIdentity()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Profile
+      </div>
+      <div class="sid-dd-div"></div>
+      <div class="sid-dd-item sid-dd-danger" onclick="signOut()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </div>
+    </div>
+  </div>
   <nav class="sidebar-nav">
 
     <div class="nav-item active" data-nav="home" onclick="navigate('home')">
@@ -417,6 +450,7 @@
     </div>
 
     <div class="nav-section-toggle" data-section="settings">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;opacity:0.7;flex-shrink:0;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       <span>Settings</span>
     </div>
     <div class="nav-section-body" id="nav-section-settings">
@@ -424,24 +458,9 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Profile
       </div>
-      <div class="nav-item" data-nav="settings-inst" onclick="navigate('settings-inst')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        Institution
-      </div>
     </div>
 
   </nav>
-  <div class="sidebar-footer">
-    <div class="sidebar-inst" id="sidebarInstName">—</div>
-    <div class="sidebar-user">
-      <div class="sidebar-avatar" id="sidebarInitials">?</div>
-      <div class="sidebar-email" id="sidebarEmail"></div>
-    </div>
-    <button class="btn-signout" onclick="signOut()">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sign out
-    </button>
-  </div>
 </aside>
 
 <main class="main">
@@ -925,170 +944,179 @@
     <div id="histScheduledContent"></div>
   </section>
 
-  <!-- SETTINGS: PROFILE -->
+  <!-- SETTINGS: PROFILE (Personal + Institution tabs) -->
   <section class="section" id="section-settings-profile">
     <div class="page-header"><div class="page-title">Profile</div></div>
-    <div class="settings-grid">
-      <div class="settings-panel">
-        <div class="settings-panel-title">Personal Information</div>
-        <div class="settings-row">
-          <div class="settings-label">Full Name</div>
-          <input class="edit-input" type="text" id="settingNameInput" placeholder="Your name">
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Email</div>
-          <div class="settings-value" id="settingEmail" style="padding: 7px 0; color:#64748b;"></div>
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Language</div>
-          <div class="lang-toggle">
-            <button class="lang-btn active" id="langFR" onclick="setLang('fr')">FR</button>
-            <button class="lang-btn" id="langEN" onclick="setLang('en')">EN</button>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="saveProfile()" style="margin-top:8px;">Save Changes</button>
-      </div>
+    <div class="subtabs" style="margin-bottom:20px;">
+      <div class="subtab active" id="profileTab-personal" onclick="profileSwitchTab('personal')">Personal</div>
+      <div class="subtab" id="profileTab-institution" onclick="profileSwitchTab('institution')">Institution</div>
     </div>
 
-    <div class="settings-panel" style="margin-top:20px;">
-      <div class="settings-panel-title">Notification Preferences</div>
-      <div style="font-size:13px;color:#64748b;margin-top:-8px;margin-bottom:18px;">Choose when testflo sends you email notifications.</div>
-      <div class="notif-rows">
-        <div class="notif-row">
-          <div><div class="notif-label">Student submissions</div><div class="notif-desc">Email me when a student submits an exam</div></div>
-          <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
-        </div>
-        <div class="notif-row">
-          <div><div class="notif-label">Grading reminders</div><div class="notif-desc">Send a daily reminder if open-ended answers are awaiting review</div></div>
-          <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
-        </div>
-        <div class="notif-row">
-          <div><div class="notif-label">Results confirmed</div><div class="notif-desc">Email me when all students in a group have received their results</div></div>
-          <label class="toggle-switch"><input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
-        </div>
-        <div class="notif-row">
-          <div><div class="notif-label">Invitation delivery failures</div><div class="notif-desc">Alert me if an invitation email fails to deliver</div></div>
-          <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
-        </div>
-        <div class="notif-row">
-          <div><div class="notif-label">Weekly activity summary</div><div class="notif-desc">Receive a weekly summary of exam activity across your institution</div></div>
-          <label class="toggle-switch"><input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
-        </div>
-      </div>
-      <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
-        <button class="btn btn-ghost btn-sm" onclick="saveNotifPrefs()">Save preferences</button>
-        <span id="notifSavedMsg" style="font-size:0.78rem;color:#16a34a;opacity:0;transition:opacity 0.4s;"></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- SETTINGS: INSTITUTION -->
-  <section class="section" id="section-settings-inst">
-    <div class="page-header"><div class="page-title">Institution</div></div>
-    <div class="settings-grid">
-
-      <!-- Card 1: Institution Details -->
-      <div class="settings-panel">
-        <div class="settings-panel-title">Institution Details</div>
-        <div class="settings-row">
-          <div class="settings-label">Institution Name</div>
-          <input class="edit-input" type="text" id="instNameInput" placeholder="Institution name">
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Timezone</div>
-          <select class="ctrl" id="instTimezoneSelect">
-            <option value="Europe/Paris">Europe/Paris</option>
-            <option value="Europe/London">Europe/London</option>
-            <option value="Europe/Berlin">Europe/Berlin</option>
-            <option value="Europe/Madrid">Europe/Madrid</option>
-            <option value="Europe/Rome">Europe/Rome</option>
-            <option value="Europe/Amsterdam">Europe/Amsterdam</option>
-            <option value="Europe/Brussels">Europe/Brussels</option>
-            <option value="Europe/Zurich">Europe/Zurich</option>
-            <option value="Europe/Stockholm">Europe/Stockholm</option>
-            <option value="America/New_York">America/New_York</option>
-            <option value="America/Chicago">America/Chicago</option>
-            <option value="America/Denver">America/Denver</option>
-            <option value="America/Los_Angeles">America/Los_Angeles</option>
-            <option value="America/Toronto">America/Toronto</option>
-            <option value="America/Sao_Paulo">America/Sao_Paulo</option>
-            <option value="Asia/Tokyo">Asia/Tokyo</option>
-            <option value="Asia/Shanghai">Asia/Shanghai</option>
-            <option value="Asia/Singapore">Asia/Singapore</option>
-            <option value="Asia/Dubai">Asia/Dubai</option>
-            <option value="Australia/Sydney">Australia/Sydney</option>
-            <option value="Pacific/Auckland">Pacific/Auckland</option>
-            <option value="UTC">UTC</option>
-          </select>
-        </div>
-        <div class="settings-row">
-          <div class="settings-label">Default Language</div>
-          <div class="lang-toggle" style="margin-top:8px;">
-            <button class="lang-btn active" id="instLangFR" onclick="setInstLang('fr')">FR</button>
-            <button class="lang-btn" id="instLangEN" onclick="setInstLang('en')">EN</button>
+    <!-- PERSONAL TAB -->
+    <div id="profilePane-personal">
+      <div class="settings-grid">
+        <div class="settings-panel">
+          <div class="settings-panel-title">Personal Information</div>
+          <div class="settings-row">
+            <div class="settings-label">Full Name</div>
+            <input class="edit-input" type="text" id="settingNameInput" placeholder="Your name">
           </div>
-        </div>
-        <div style="display:flex;align-items:center;margin-top:20px;">
-          <button class="btn btn-primary btn-sm" onclick="saveInstDetails()">Save Changes</button>
-          <span class="inst-save-confirm" id="instDetailsSaveConfirm">✓ Institution details saved</span>
+          <div class="settings-row">
+            <div class="settings-label">Email</div>
+            <div class="settings-value" id="settingEmail" style="padding: 7px 0; color:#64748b;"></div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">Language</div>
+            <div class="lang-toggle">
+              <button class="lang-btn active" id="langFR" onclick="setLang('fr')">FR</button>
+              <button class="lang-btn" id="langEN" onclick="setLang('en')">EN</button>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveProfile()" style="margin-top:8px;">Save Changes</button>
         </div>
       </div>
-
-      <!-- Card 2: Institution Logo -->
       <div class="settings-panel" style="margin-top:20px;">
-        <div class="settings-panel-title">Institution Logo</div>
-        <div id="instLogoZoneWrap">
-          <div class="upload-zone" id="instLogoZone"
-               ondragover="instLogoDragOver(event)"
-               ondragleave="instLogoDragLeave(event)"
-               ondrop="instLogoDrop(event)">
-            <div id="instLogoZoneContent">
-              <div class="upload-zone-icon">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="settings-panel-title">Notification Preferences</div>
+        <div style="font-size:13px;color:#64748b;margin-top:-8px;margin-bottom:18px;">Choose when testflo sends you email notifications.</div>
+        <div class="notif-rows">
+          <div class="notif-row">
+            <div><div class="notif-label">Student submissions</div><div class="notif-desc">Email me when a student submits an exam</div></div>
+            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
+          </div>
+          <div class="notif-row">
+            <div><div class="notif-label">Grading reminders</div><div class="notif-desc">Send a daily reminder if open-ended answers are awaiting review</div></div>
+            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
+          </div>
+          <div class="notif-row">
+            <div><div class="notif-label">Results confirmed</div><div class="notif-desc">Email me when all students in a group have received their results</div></div>
+            <label class="toggle-switch"><input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
+          </div>
+          <div class="notif-row">
+            <div><div class="notif-label">Invitation delivery failures</div><div class="notif-desc">Alert me if an invitation email fails to deliver</div></div>
+            <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
+          </div>
+          <div class="notif-row">
+            <div><div class="notif-label">Weekly activity summary</div><div class="notif-desc">Receive a weekly summary of exam activity across your institution</div></div>
+            <label class="toggle-switch"><input type="checkbox"><span class="toggle-track"><span class="toggle-thumb"></span></span></label>
+          </div>
+        </div>
+        <div style="margin-top:18px;display:flex;align-items:center;gap:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="saveNotifPrefs()">Save preferences</button>
+          <span id="notifSavedMsg" style="font-size:0.78rem;color:#16a34a;opacity:0;transition:opacity 0.4s;"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSTITUTION TAB -->
+    <div id="profilePane-institution" style="display:none;">
+      <div class="settings-grid">
+
+        <!-- Card 1: Institution Details -->
+        <div class="settings-panel">
+          <div class="settings-panel-title">Institution Details</div>
+          <div class="settings-row">
+            <div class="settings-label">Institution Name</div>
+            <input class="edit-input" type="text" id="instNameInput" placeholder="Institution name">
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">Timezone</div>
+            <select class="ctrl" id="instTimezoneSelect">
+              <option value="Europe/Paris">Europe/Paris</option>
+              <option value="Europe/London">Europe/London</option>
+              <option value="Europe/Berlin">Europe/Berlin</option>
+              <option value="Europe/Madrid">Europe/Madrid</option>
+              <option value="Europe/Rome">Europe/Rome</option>
+              <option value="Europe/Amsterdam">Europe/Amsterdam</option>
+              <option value="Europe/Brussels">Europe/Brussels</option>
+              <option value="Europe/Zurich">Europe/Zurich</option>
+              <option value="Europe/Stockholm">Europe/Stockholm</option>
+              <option value="America/New_York">America/New_York</option>
+              <option value="America/Chicago">America/Chicago</option>
+              <option value="America/Denver">America/Denver</option>
+              <option value="America/Los_Angeles">America/Los_Angeles</option>
+              <option value="America/Toronto">America/Toronto</option>
+              <option value="America/Sao_Paulo">America/Sao_Paulo</option>
+              <option value="Asia/Tokyo">Asia/Tokyo</option>
+              <option value="Asia/Shanghai">Asia/Shanghai</option>
+              <option value="Asia/Singapore">Asia/Singapore</option>
+              <option value="Asia/Dubai">Asia/Dubai</option>
+              <option value="Australia/Sydney">Australia/Sydney</option>
+              <option value="Pacific/Auckland">Pacific/Auckland</option>
+              <option value="UTC">UTC</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div class="settings-label">Default Language</div>
+            <div class="lang-toggle" style="margin-top:8px;">
+              <button class="lang-btn active" id="instLangFR" onclick="setInstLang('fr')">FR</button>
+              <button class="lang-btn" id="instLangEN" onclick="setInstLang('en')">EN</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;margin-top:20px;">
+            <button class="btn btn-primary btn-sm" onclick="saveInstDetails()">Save Changes</button>
+            <span class="inst-save-confirm" id="instDetailsSaveConfirm">✓ Institution details saved</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Institution Logo -->
+        <div class="settings-panel" style="margin-top:20px;">
+          <div class="settings-panel-title">Institution Logo</div>
+          <div id="instLogoZoneWrap">
+            <div class="upload-zone" id="instLogoZone"
+                 ondragover="instLogoDragOver(event)"
+                 ondragleave="instLogoDragLeave(event)"
+                 ondrop="instLogoDrop(event)">
+              <div id="instLogoZoneContent">
+                <div class="upload-zone-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div class="upload-zone-label">Drag and drop your logo here</div>
+                <div class="upload-zone-or">or</div>
+                <button class="btn btn-ghost btn-sm" type="button" onclick="document.getElementById('instLogoFileInput').click()">Browse files</button>
+                <div class="upload-zone-sub" style="margin-top:8px;">PNG, JPG, SVG · max 2 MB</div>
               </div>
-              <div class="upload-zone-label">Drag and drop your logo here</div>
-              <div class="upload-zone-or">or</div>
-              <button class="btn btn-ghost btn-sm" type="button" onclick="document.getElementById('instLogoFileInput').click()">Browse files</button>
-              <div class="upload-zone-sub" style="margin-top:8px;">PNG, JPG, SVG · max 2 MB</div>
-            </div>
-            <div id="instLogoError" class="upload-error" style="display:none;"></div>
-          </div>
-        </div>
-        <div id="instLogoPreviewWrap" style="display:none;">
-          <div class="upload-preview">
-            <img id="instLogoPreviewImg" src="" alt="Logo preview">
-            <div>
-              <div class="upload-preview-name" id="instLogoFileName"></div>
-              <div class="upload-preview-meta" id="instLogoFileMeta"></div>
-              <button class="upload-remove" onclick="instLogoRemove()">Remove</button>
+              <div id="instLogoError" class="upload-error" style="display:none;"></div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-            <button class="btn btn-primary btn-sm" id="instLogoSaveBtn" onclick="instLogoSave()">Save Logo</button>
-            <span class="inst-save-confirm" id="instLogoSaveConfirm">✓ Logo saved</span>
-          </div>
-        </div>
-        <div id="instLogoSavedWrap" style="display:none;">
-          <div class="upload-preview">
-            <img id="instLogoSavedImg" src="" alt="Current logo">
-            <div>
-              <div class="upload-preview-meta">Current logo</div>
-              <button class="upload-remove" style="color:#2563eb;" onclick="instLogoChangeStart()">Change logo</button>
+          <div id="instLogoPreviewWrap" style="display:none;">
+            <div class="upload-preview">
+              <img id="instLogoPreviewImg" src="" alt="Logo preview">
+              <div>
+                <div class="upload-preview-name" id="instLogoFileName"></div>
+                <div class="upload-preview-meta" id="instLogoFileMeta"></div>
+                <button class="upload-remove" onclick="instLogoRemove()">Remove</button>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+              <button class="btn btn-primary btn-sm" id="instLogoSaveBtn" onclick="instLogoSave()">Save Logo</button>
+              <span class="inst-save-confirm" id="instLogoSaveConfirm">✓ Logo saved</span>
             </div>
           </div>
+          <div id="instLogoSavedWrap" style="display:none;">
+            <div class="upload-preview">
+              <img id="instLogoSavedImg" src="" alt="Current logo">
+              <div>
+                <div class="upload-preview-meta">Current logo</div>
+                <button class="upload-remove" style="color:#2563eb;" onclick="instLogoChangeStart()">Change logo</button>
+              </div>
+            </div>
+          </div>
+          <input type="file" id="instLogoFileInput" accept=".png,.jpg,.jpeg,.svg" style="display:none;" onchange="instLogoFileChange(event)">
         </div>
-        <input type="file" id="instLogoFileInput" accept=".png,.jpg,.jpeg,.svg" style="display:none;" onchange="instLogoFileChange(event)">
-      </div>
 
-      <!-- Card 3: Members -->
-      <div class="settings-panel" style="margin-top:20px;">
-        <div class="settings-panel-title">Members</div>
-        <p style="font-size:13px;color:#475569;margin:0 0 16px;">Manage who has access to this institution, assign roles, and invite new members.</p>
-        <a href="institution.html"><button class="btn btn-ghost btn-sm">Manage Members →</button></a>
-      </div>
+        <!-- Card 3: Members -->
+        <div class="settings-panel" style="margin-top:20px;">
+          <div class="settings-panel-title">Members</div>
+          <p style="font-size:13px;color:#475569;margin:0 0 16px;">Manage who has access to this institution, assign roles, and invite new members.</p>
+          <a href="institution.html"><button class="btn btn-ghost btn-sm">Manage Members →</button></a>
+        </div>
 
+      </div>
     </div>
   </section>
+
+  <!-- SETTINGS: INSTITUTION (redirect alias — section kept for routing compatibility) -->
+  <section class="section" id="section-settings-inst" style="display:none !important;"></section>
 
 </main>
 
@@ -1222,7 +1250,7 @@
     'hist-results': 'hist-results',
     'hist-scheduled': 'hist-scheduled',
     'settings-profile': 'settings-profile',
-    'settings-inst': 'settings-inst',
+    'settings-inst': 'settings-profile',
   };
 
   const NAV_SECTION_MAP = {
@@ -1300,8 +1328,8 @@
     else if (nav === 'comm-retakes') loadCommRetakes();
     else if (nav === 'hist-results') loadHistResults();
     else if (nav === 'hist-scheduled') loadHistScheduled();
-    else if (nav === 'settings-profile') loadSettingsProfile();
-    else if (nav === 'settings-inst') loadSettingsInst();
+    else if (nav === 'settings-profile') { loadSettingsProfile(); profileSwitchTab('personal'); }
+    else if (nav === 'settings-inst') { loadSettingsInst(); profileSwitchTab('institution'); }
   }
 
   // ── Init ─────────────────────────────────────────────────────────────
@@ -1316,14 +1344,14 @@
 
     const name = teacher.full_name || teacher.email || '';
     document.getElementById('sidebarInitials').textContent = getInitials(name);
-    document.getElementById('sidebarEmail').textContent = teacher.email || '';
+    document.getElementById('sidebarName').textContent = teacher.full_name || teacher.email || '—';
 
     const { data: instLink } = await sb.from('institution_teachers')
       .select('institution_id').eq('teacher_id', teacher.id).single();
     if (instLink?.institution_id) {
       const { data: inst } = await sb.from('institutions').select('*').eq('id', instLink.institution_id).single();
       currentInstitution = inst;
-      if (inst) document.getElementById('sidebarInstName').textContent = inst.name || '';
+      // institution name stored in currentInstitution; no sidebar display needed
     }
 
     const { data: exams } = await sb.from('exams')
@@ -4074,6 +4102,32 @@
 
   // ── SETTINGS ──────────────────────────────────────────────────────────
 
+  function profileSwitchTab(tab) {
+    ['personal','institution'].forEach(t => {
+      document.getElementById(`profileTab-${t}`).classList.toggle('active', t === tab);
+      document.getElementById(`profilePane-${t}`).style.display = t === tab ? '' : 'none';
+    });
+    if (tab === 'institution') loadSettingsInst();
+  }
+
+  function toggleSidIdentity(e) {
+    const el = document.getElementById('sidIdentity');
+    el.classList.toggle('open');
+  }
+
+  function closeSidIdentity() {
+    document.getElementById('sidIdentity').classList.remove('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const el = document.getElementById('sidIdentity');
+    if (el && !el.contains(e.target)) el.classList.remove('open');
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSidIdentity();
+  });
+
   function loadSettingsProfile() {
     const t = currentTeacher;
     document.getElementById('settingNameInput').value = t.full_name || '';
@@ -4089,6 +4143,7 @@
     if (error) { showToast('Error saving profile.'); return; }
     currentTeacher.full_name = newName;
     document.getElementById('sidebarInitials').textContent = getInitials(newName || currentTeacher.email);
+    document.getElementById('sidebarName').textContent = newName || currentTeacher.email || '—';
     showToast('Profile saved.');
   }
 
