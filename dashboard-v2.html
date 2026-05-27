@@ -212,6 +212,15 @@
     .field-group { margin-bottom: 14px; }
     textarea.ctrl, input.ctrl { width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 0; font-family: inherit; font-size: 0.82rem; color: #0f172a; outline: none; resize: vertical; }
     textarea.ctrl:focus, input.ctrl:focus { border-color: #2563eb; }
+    .tag-input-wrap { min-height: 72px; border: 1px solid #e2e8f0; padding: 6px 8px; display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-start; align-content: flex-start; cursor: text; background: white; transition: border-color 0.1s; }
+    .tag-input-wrap:focus-within { border-color: #2563eb; }
+    .tag-input-wrap.has-invalid { border-color: #dc2626; }
+    .tag-input-field { border: none; outline: none; font-size: 0.82rem; color: #0f172a; font-family: inherit; min-width: 160px; flex: 1; padding: 4px 2px; background: transparent; line-height: 1.5; }
+    .email-tag { display: inline-flex; align-items: center; gap: 3px; padding: 3px 6px 3px 10px; font-size: 12px; border-radius: 9999px; line-height: 1.4; max-width: 100%; }
+    .email-tag.valid { background: #dbeafe; color: #1e40af; }
+    .email-tag.invalid { background: #fee2e2; color: #991b1b; }
+    .email-tag-remove { background: none; border: none; cursor: pointer; padding: 0; line-height: 1; font-size: 14px; color: inherit; opacity: 0.45; flex-shrink: 0; }
+    .email-tag-remove:hover { opacity: 1; }
     .preview-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; font-size: 0.78rem; color: #475569; line-height: 1.6; }
     .toggle-link { font-size: 0.75rem; color: #2563eb; cursor: pointer; text-decoration: underline; margin-left: 8px; }
 
@@ -647,8 +656,11 @@
       <div>
         <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send Invitations</div>
         <div class="card" style="padding:18px;margin-bottom:0;">
-          <textarea class="ctrl" id="inviteEmails" style="height:160px;resize:vertical;" placeholder="Enter email addresses (one per line)"></textarea>
-          <button class="btn btn-primary" onclick="sendInvitations()" style="width:100%;margin-top:10px;">Send Invitations</button>
+          <div id="inviteTagContainer" class="tag-input-wrap" onclick="document.getElementById('inviteTagInput').focus()">
+            <input type="text" id="inviteTagInput" class="tag-input-field" placeholder="Add email addresses…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+          </div>
+          <div id="inviteRecipientCount" style="margin-top:6px;font-size:0.78rem;min-height:1.2em;"></div>
+          <button id="inviteSendBtn" class="btn btn-primary" onclick="sendInvitations()" style="width:100%;margin-top:10px;" disabled>Send Invitations</button>
           <div id="inviteFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
         </div>
         <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
@@ -849,6 +861,7 @@
   let drillSelectedIds = new Set();
   let pendingDrillExam = null;
   let inviteActiveGroup = '';
+  let _inviteTags = [];
   let resultsActiveGroup = '';
   let _resultsAllAttempts = [];
   let _resultsSelectedIds = new Set();
@@ -2376,7 +2389,113 @@
 
   // ── COMMUNICATE: INVITATIONS ──────────────────────────────────────────
 
+  // ── TAG EMAIL INPUT ───────────────────────────────────────────────────
+
+  function _isValidEmail(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+  }
+
+  function _addInviteTag(raw) {
+    const email = raw.trim().replace(/[,;]+$/, '');
+    if (!email) return;
+    if (_inviteTags.some(t => t.email.toLowerCase() === email.toLowerCase())) return;
+    _inviteTags.push({ email, valid: _isValidEmail(email) });
+    _renderInviteTags();
+  }
+
+  function _removeInviteTag(idx) {
+    _inviteTags.splice(idx, 1);
+    _renderInviteTags();
+  }
+
+  function _clearInviteTags() {
+    _inviteTags = [];
+    const input = document.getElementById('inviteTagInput');
+    if (input) input.value = '';
+    _renderInviteTags();
+  }
+
+  function _renderInviteTags() {
+    const container = document.getElementById('inviteTagContainer');
+    const input = document.getElementById('inviteTagInput');
+    if (!container || !input) return;
+
+    container.querySelectorAll('.email-tag').forEach(el => el.remove());
+
+    _inviteTags.forEach((t, i) => {
+      const tag = document.createElement('span');
+      tag.className = `email-tag ${t.valid ? 'valid' : 'invalid'}`;
+      const label = document.createElement('span');
+      label.textContent = t.email;
+      const x = document.createElement('button');
+      x.className = 'email-tag-remove';
+      x.textContent = '×';
+      x.title = 'Remove';
+      x.onclick = e => { e.stopPropagation(); _removeInviteTag(i); };
+      tag.appendChild(label);
+      tag.appendChild(x);
+      container.insertBefore(tag, input);
+    });
+
+    input.placeholder = _inviteTags.length === 0 ? 'Add email addresses…' : '';
+
+    const valid = _inviteTags.filter(t => t.valid).length;
+    const invalid = _inviteTags.filter(t => !t.valid).length;
+    container.classList.toggle('has-invalid', valid === 0 && invalid > 0);
+
+    const countEl = document.getElementById('inviteRecipientCount');
+    if (countEl) {
+      if (!_inviteTags.length) {
+        countEl.innerHTML = '';
+      } else if (invalid === 0) {
+        countEl.style.color = '#64748b';
+        countEl.textContent = `${valid} recipient${valid !== 1 ? 's' : ''}`;
+      } else if (valid === 0) {
+        countEl.style.color = '#dc2626';
+        countEl.textContent = `0 recipients · ${invalid} invalid address${invalid !== 1 ? 'es' : ''}`;
+      } else {
+        countEl.style.color = '#d97706';
+        countEl.textContent = `${valid} recipient${valid !== 1 ? 's' : ''} · ${invalid} invalid address${invalid !== 1 ? 'es' : ''}`;
+      }
+    }
+
+    const sendBtn = document.getElementById('inviteSendBtn');
+    if (sendBtn) sendBtn.disabled = valid === 0;
+  }
+
+  function _initInviteTagInput() {
+    const input = document.getElementById('inviteTagInput');
+    if (!input || input._tagReady) return;
+    input._tagReady = true;
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === 'Tab' || e.key === ',') {
+        e.preventDefault();
+        const val = input.value.trim().replace(/,$/, '');
+        if (val) { _addInviteTag(val); input.value = ''; }
+      } else if (e.key === 'Backspace' && input.value === '' && _inviteTags.length > 0) {
+        _removeInviteTag(_inviteTags.length - 1);
+      } else if (e.key === 'Escape') {
+        input.value = '';
+      }
+    });
+
+    input.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text');
+      text.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean).forEach(s => _addInviteTag(s));
+    });
+
+    input.addEventListener('blur', () => {
+      const val = input.value.trim();
+      if (val) { _addInviteTag(val); input.value = ''; }
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+
   function loadCommInvite() {
+    _initInviteTagInput();
     refreshInvitePreview();
     loadInviteHistory();
   }
@@ -2461,9 +2580,8 @@
     if (!examId) { showToast('Please select an exam.'); return; }
     const exam = allExams.find(e => e.id === examId) || {};
     const groupVal = inviteActiveGroup;
-    const emailsRaw = document.getElementById('inviteEmails').value;
-    const emails = emailsRaw.split(/[\n,;]+/).map(e => e.trim()).filter(e => e.includes('@'));
-    if (!emails.length) { showToast('Please enter at least one email.'); return; }
+    const emails = _inviteTags.filter(t => t.valid).map(t => t.email);
+    if (!emails.length) { showToast('Please add at least one valid email address.'); return; }
     const feedback = document.getElementById('inviteFeedback');
     if (feedback) feedback.innerHTML = '<div style="color:#64748b;">Sending…</div>';
     const { data: { session } } = await sb.auth.getSession();
@@ -2501,7 +2619,7 @@
         </div>`
       ).join('');
     }
-    document.getElementById('inviteEmails').value = '';
+    _clearInviteTags();
     const sent = results.filter(r => r.ok).length;
     showToast(`${sent} of ${results.length} invitation(s) sent.`);
     loadInviteHistory();
