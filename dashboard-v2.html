@@ -26,14 +26,9 @@
     .nav-sub .nav-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.6; }
     .nav-sub .nav-item.active { color: #93c5fd; background: transparent; }
     .nav-sub .nav-item:hover { color: rgba(255,255,255,0.8); background: transparent; }
-    /* ── Collapsible nav sections ── */
-    .nav-section-toggle { display: flex; align-items: center; padding: 14px 20px 6px; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); cursor: pointer; user-select: none; transition: color 0.15s; }
-    .nav-section-toggle:hover { color: rgba(255,255,255,0.5); }
-    .nav-section-toggle.open { color: rgba(255,255,255,0.45); }
-    .nav-section-toggle .nav-arrow { margin-left: auto; transition: transform 0.2s ease; opacity: 0.5; }
-    .nav-section-toggle.open .nav-arrow { transform: rotate(90deg); }
-    .nav-section-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease; }
-    .nav-section-body.open { max-height: 400px; }
+    /* ── Nav section labels (non-interactive) ── */
+    .nav-section-toggle { display: flex; align-items: center; padding: 20px 20px 6px; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); cursor: default; user-select: none; }
+    .nav-section-body { display: block; }
     .nav-parent-toggle { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.55); cursor: pointer; font-size: 0.82rem; font-weight: 500; transition: background 0.1s, color 0.1s; user-select: none; border-left: 3px solid transparent; }
     .nav-parent-toggle:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.04); }
     .nav-parent-toggle.open { color: rgba(255,255,255,0.8); }
@@ -96,6 +91,9 @@
     .subtab { padding: 8px 16px; font-size: 0.78rem; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; }
     .subtab.active { color: #2563eb; border-bottom-color: #2563eb; }
     .subtab:hover:not(.active) { color: #0f172a; }
+    .tab-count { display: inline-block; margin-left: 5px; padding: 1px 6px; font-size: 0.65rem; font-weight: 600; background: #f1f5f9; color: #94a3b8; border-radius: 9999px; line-height: 1.4; vertical-align: middle; }
+    .tab-count.empty { color: #cbd5e1; background: #f8fafc; }
+    .subtab.active .tab-count { background: #dbeafe; color: #3b82f6; }
 
     /* ── Table ── */
     .table-wrap { overflow-x: auto; }
@@ -266,9 +264,8 @@
       Home
     </div>
 
-    <div class="nav-section-toggle" data-section="manage" onclick="toggleSection('manage')">
+    <div class="nav-section-toggle" data-section="manage">
       <span>Manage</span>
-      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
     <div class="nav-section-body" id="nav-section-manage">
       <div class="nav-parent-toggle" data-parent="exams" onclick="navigate('exams-all')">
@@ -292,9 +289,8 @@
       </div>
     </div>
 
-    <div class="nav-section-toggle" data-section="communicate" onclick="toggleSection('communicate')">
+    <div class="nav-section-toggle" data-section="communicate">
       <span>Communicate</span>
-      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
     <div class="nav-section-body" id="nav-section-communicate">
       <div class="nav-item" data-nav="comm-invite" onclick="navigate('comm-invite')">
@@ -311,9 +307,8 @@
       </div>
     </div>
 
-    <div class="nav-section-toggle" data-section="history" onclick="toggleSection('history')">
+    <div class="nav-section-toggle" data-section="history">
       <span>History</span>
-      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
     <div class="nav-section-body" id="nav-section-history">
       <div class="nav-item" data-nav="hist-results" onclick="navigate('hist-results')">
@@ -326,9 +321,8 @@
       </div>
     </div>
 
-    <div class="nav-section-toggle" data-section="settings" onclick="toggleSection('settings')">
+    <div class="nav-section-toggle" data-section="settings">
       <span>Settings</span>
-      <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
     <div class="nav-section-body" id="nav-section-settings">
       <div class="nav-item" data-nav="settings-profile" onclick="navigate('settings-profile')">
@@ -390,9 +384,9 @@
         <a href="exam-onboarding.html"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Exam</button></a>
       </div>
       <div class="subtabs">
-        <div class="subtab active" id="examTab-all" onclick="setExamTab('all')">All</div>
-        <div class="subtab" id="examTab-published" onclick="setExamTab('published')">Published</div>
-        <div class="subtab" id="examTab-drafts" onclick="setExamTab('drafts')">Drafts</div>
+        <div class="subtab active" id="examTab-all" onclick="setExamTab('all')">All<span class="tab-count" id="examTabCount-all">…</span></div>
+        <div class="subtab" id="examTab-published" onclick="setExamTab('published')">Published<span class="tab-count" id="examTabCount-published">…</span></div>
+        <div class="subtab" id="examTab-drafts" onclick="setExamTab('drafts')">Drafts<span class="tab-count" id="examTabCount-drafts">…</span></div>
       </div>
       <div class="card">
         <div class="table-wrap">
@@ -507,15 +501,22 @@
   <!-- SUBMISSIONS -->
   <section class="section" id="section-subs">
 
+    <!-- Shared header + tabs (hidden during drill-down) -->
+    <div id="subs-tab-bar">
+      <div class="page-header"><div class="page-title" id="subsPageTitle">Submissions</div></div>
+      <div class="subtabs">
+        <div class="subtab active" id="subsTab-all" onclick="navigate('subs-all')">All<span class="tab-count" id="subsTabCount-all">…</span></div>
+        <div class="subtab" id="subsTab-grading" onclick="navigate('subs-grading')">Grading Queue<span class="tab-count" id="subsTabCount-grading">…</span></div>
+      </div>
+    </div>
+
     <!-- Grading queue view -->
     <div id="subsGradingView" style="display:none;">
-      <div class="page-header"><div class="page-title">Grading Queue</div></div>
       <div id="gradingContent"><div class="loading">Loading…</div></div>
     </div>
 
     <!-- L1: Groups -->
     <div id="subs-l1">
-      <div class="page-header"><div class="page-title">Submissions</div></div>
       <div class="card">
         <div class="table-wrap">
           <table>
@@ -1030,6 +1031,7 @@
     const { data: exams } = await sb.from('exams')
       .select('*').eq('teacher_id', teacher.id).order('created_at', { ascending: false });
     allExams = exams || [];
+    updateExamTabCounts();
 
     if (allExams.length) {
       const examIds = allExams.map(e => e.id);
@@ -1131,6 +1133,17 @@
   }
 
   // ── EXAMS ────────────────────────────────────────────────────────────
+
+  function updateExamTabCounts() {
+    const published = allExams.filter(e => e.status === 'published').length;
+    const drafts = allExams.filter(e => e.status !== 'published').length;
+    [['all', allExams.length], ['published', published], ['drafts', drafts]].forEach(([t, n]) => {
+      const el = document.getElementById(`examTabCount-${t}`);
+      if (!el) return;
+      el.textContent = n;
+      el.classList.toggle('empty', n === 0);
+    });
+  }
 
   function setExamTab(tab) {
     examTab = tab;
@@ -1667,6 +1680,11 @@
 
   function setSubsTab(tab) {
     subsTab = tab;
+    ['all', 'grading'].forEach(t => {
+      const el = document.getElementById(`subsTab-${t}`);
+      if (el) el.classList.toggle('active', t === tab);
+    });
+    document.getElementById('subs-tab-bar').style.display = 'block';
     document.getElementById('subsGradingView').style.display = tab === 'grading' ? 'block' : 'none';
     document.getElementById('subs-l1').style.display = tab === 'all' ? 'block' : 'none';
     document.getElementById('subs-l2').style.display = 'none';
@@ -1680,6 +1698,8 @@
     tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
     if (!allExams.length) {
       tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who complete exams will appear here.</div></div></td></tr>`;
+      const el = document.getElementById('subsTabCount-all');
+      if (el) { el.textContent = 0; el.classList.add('empty'); }
       return;
     }
     const examIds = allExams.map(e => e.id);
@@ -1713,6 +1733,8 @@
       if (!b.lastActivity) return -1;
       return b.lastActivity.localeCompare(a.lastActivity);
     });
+    const allCountEl = document.getElementById('subsTabCount-all');
+    if (allCountEl) { allCountEl.textContent = groups.length; allCountEl.classList.toggle('empty', groups.length === 0); }
     tbody.innerHTML = groups.map(g => `<tr class="tr-click" onclick="drillSubsToGroup('${g.name.replace(/'/g, "\\'")}')">
       <td style="font-weight:600;">${esc(g.name)}</td>
       <td style="color:#64748b;">${g.examIds.size}</td>
@@ -1724,6 +1746,7 @@
 
   function drillSubsToGroup(groupName) {
     subsCurrentGroup = groupName;
+    document.getElementById('subs-tab-bar').style.display = 'none';
     document.getElementById('subs-l1').style.display = 'none';
     document.getElementById('subs-l2').style.display = 'block';
     document.getElementById('subs-l3').style.display = 'none';
@@ -1801,6 +1824,7 @@
   }
 
   function subsDrillBack(toLevel) {
+    document.getElementById('subs-tab-bar').style.display = toLevel === 1 ? 'block' : 'none';
     document.getElementById('subs-l1').style.display = toLevel === 1 ? 'block' : 'none';
     document.getElementById('subs-l2').style.display = toLevel === 2 ? 'block' : 'none';
     document.getElementById('subs-l3').style.display = 'none';
@@ -2056,6 +2080,8 @@
     ]);
     const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
     const pending = (attRes.data||[]).filter(a => openExamIds.has(a.exam_id) && a.score_mcq === null);
+    const gradingCountEl = document.getElementById('subsTabCount-grading');
+    if (gradingCountEl) { gradingCountEl.textContent = pending.length; gradingCountEl.classList.toggle('empty', pending.length === 0); }
     if (!pending.length) { el.innerHTML = empty; return; }
     const examMap = {};
     allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
