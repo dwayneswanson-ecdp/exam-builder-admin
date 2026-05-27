@@ -1082,12 +1082,12 @@
       const examIds = allExams.map(e => e.id);
       const [openQsRes, attRes, schedRes] = await Promise.all([
         sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
-        sb.from('exam_attempts').select('exam_id,status,results_sent_at').in('exam_id', examIds).eq('status','submitted'),
+        sb.from('exam_attempts').select('exam_id,score_mcq,results_sent_at').in('exam_id', examIds).eq('status','submitted'),
         sb.from('exam_attempts').select('id', { count: 'exact', head: true }).in('exam_id', examIds).not('scheduled_send_at','is',null).is('results_sent_at',null)
       ]);
       const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
       (attRes.data||[]).forEach(a => {
-        if (openExamIds.has(a.exam_id)) pendingCount++;
+        if (openExamIds.has(a.exam_id) && a.score_mcq === null) pendingCount++;
         if (!a.results_sent_at) unsentCount++;
       });
       scheduledCount = schedRes.count || 0;
