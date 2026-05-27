@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; display: flex; min-height: 100vh; font-size: 14px; position: relative; }
@@ -359,6 +361,72 @@
       .stats-row { grid-template-columns: repeat(2, 1fr); }
       .settings-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Student Review ── */
+    #sr-content { display: flex; flex-direction: column; gap: 20px; }
+    .student-card { background: #ffffff; border: 1px solid #e2e8f0; padding: 28px 32px; display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; }
+    .student-name { font-size: 1.4rem; font-weight: 700; color: #0a0a0a; line-height: 1; margin-bottom: 6px; letter-spacing: -0.03em; }
+    .student-meta { font-size: 0.75rem; color: #94a3b8; margin-bottom: 10px; letter-spacing: 0.01em; }
+    .contact-row { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #475569; }
+    .contact-val { font-weight: 500; }
+    .contact-form { display: none; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+    .contact-form.visible { display: flex; }
+    .contact-input { font-size: 0.82rem; font-family: inherit; border: 1px solid #e2e8f0; padding: 5px 10px; color: #0a0a0a; outline: none; transition: border-color 180ms ease; }
+    .contact-input:focus { border-color: #2563eb; }
+    .score-block { text-align: right; flex-shrink: 0; }
+    .score-big { font-size: 2.6rem; font-weight: 700; color: #2563eb; line-height: 1; letter-spacing: -0.04em; }
+    .score-big span { font-size: 1.1rem; color: #e2e8f0; font-weight: 500; }
+    .score-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #94a3b8; margin-top: 6px; }
+    .sr-section-card { background: #ffffff; border: 1px solid #e2e8f0; overflow: hidden; }
+    .sr-section-head { padding: 14px 24px; background: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+    .sr-section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+    .sr-section-score { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; color: rgba(255,255,255,0.4); }
+    .mcq-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .mcq-table th { padding: 10px 24px; text-align: left; font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+    .mcq-table td { padding: 14px 24px; border-bottom: 1px solid #e2e8f0; vertical-align: top; color: #1e293b; line-height: 1.55; font-weight: 400; }
+    .mcq-table tr:last-child td { border-bottom: none; }
+    .mcq-table tbody tr:hover td { background: #f8fafc; }
+    .q-num { font-size: 0.6rem; color: #94a3b8; display: block; margin-bottom: 3px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .result-col { text-align: center; font-size: 1rem; width: 56px; }
+    .open-q { padding: 28px 24px; border-bottom: 1px solid #e2e8f0; }
+    .open-q:last-child { border-bottom: none; }
+    .open-q-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 8px; }
+    .open-q-text { font-size: 0.88rem; font-weight: 600; color: #0a0a0a; line-height: 1.6; margin-bottom: 16px; }
+    .answer-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 8px; }
+    .answer-text { font-size: 0.85rem; color: #1e293b; line-height: 1.75; padding: 14px 16px; background: #f8fafc; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+    .ql-rendered p { margin: 0 0 8px 0; }
+    .ql-rendered ol, .ql-rendered ul { padding-left: 20px; margin: 0 0 8px 0; }
+    .criteria-toggle { font-size: 0.72rem; font-weight: 600; color: #475569; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 14px; user-select: none; letter-spacing: 0.02em; }
+    .criteria-toggle:hover { color: #0a0a0a; }
+    .criteria-block { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; margin-bottom: 16px; font-size: 0.82rem; color: #475569; line-height: 1.7; white-space: pre-wrap; }
+    .score-ai-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    .score-field { display: flex; align-items: center; gap: 8px; }
+    .score-field-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #475569; }
+    .score-text-input { font-size: 1.1rem; font-weight: 700; font-family: inherit; border: 1px solid #e2e8f0; padding: 6px 0; width: 56px; color: #0a0a0a; outline: none; text-align: center; -moz-appearance: textfield; transition: border-color 180ms ease; }
+    .score-text-input::-webkit-outer-spin-button, .score-text-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .score-text-input:focus { border-color: #2563eb; }
+    .score-of { font-size: 0.85rem; color: #94a3b8; font-weight: 500; white-space: nowrap; }
+    .ai-suggestion { background: #faf5ff; border: 1px solid #e9d5ff; padding: 16px 18px; margin-bottom: 14px; }
+    .ai-suggestion-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .ai-suggestion-meta { display: flex; align-items: center; gap: 10px; }
+    .ai-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #7c3aed; }
+    .ai-score-chip { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; background: #7c3aed; color: #fff; padding: 3px 10px; }
+    .ai-hint { font-size: 0.72rem; color: #a78bfa; margin-bottom: 8px; font-style: italic; }
+    .ai-text { font-size: 0.82rem; color: #4c1d95; line-height: 1.65; margin-bottom: 14px; }
+    .ai-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .ai-close { background: none; border: none; cursor: pointer; color: #a78bfa; padding: 2px; line-height: 1; transition: color 180ms ease; }
+    .ai-close:hover { color: #7c3aed; }
+    @keyframes flashUpdate { 0% { background: #dbeafe; } 100% { background: transparent; } }
+    .flash { animation: flashUpdate 0.8s ease-out; }
+    .comment-section-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; margin-bottom: 8px; display: block; }
+    .comment-textarea { width: 100%; font-size: 0.83rem; font-family: inherit; border: 1px solid #e2e8f0; padding: 12px 14px; color: #1e293b; outline: none; resize: vertical; min-height: 72px; line-height: 1.65; background: #ffffff; transition: border-color 180ms ease; }
+    .comment-textarea:focus { border-color: #2563eb; }
+    .sr-bottom-actions { display: flex; align-items: center; justify-content: space-between; padding: 24px 0 0; border-top: 1px solid #e2e8f0; }
+    .sr-bottom-nav { display: flex; gap: 8px; }
+    .btn-ai { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; font-size: 0.68rem; padding: 6px 12px; font-weight: 700; letter-spacing: 0.04em; }
+    .btn-ai:hover { background: #ede9fe; }
+    .pencil-btn { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 2px; display: inline-flex; align-items: center; transition: color 180ms ease; }
+    .pencil-btn:hover { color: #2563eb; }
   </style>
 </head>
 <body>
@@ -1092,6 +1160,23 @@
   <!-- SETTINGS: INSTITUTION (redirect alias — section kept for routing compatibility) -->
   <section class="section" id="section-settings-inst" style="display:none !important;"></section>
 
+  <!-- STUDENT REVIEW -->
+  <section class="section" id="section-student-review">
+    <div class="drill-nav" id="sr-breadcrumb">
+      <div class="drill-crumbs">
+        <span class="crumb-link" onclick="srGoBack()">Review Submissions</span>
+        <span class="sep">›</span>
+        <span class="crumb" id="sr-crumb-exam">—</span>
+        <span class="sep" id="sr-crumb-group-sep" style="display:none;">›</span>
+        <span class="crumb" id="sr-crumb-group" style="display:none;">—</span>
+        <span class="sep">›</span>
+        <span class="crumb" id="sr-crumb-student">—</span>
+      </div>
+    </div>
+    <div id="sr-loading" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</div>
+    <div id="sr-content" style="display:none;"></div>
+  </section>
+
 </main>
 
 <div id="confirmModal" onclick="closeConfirmModal()">
@@ -1222,6 +1307,7 @@
     'comm-invite': 'comm', 'comm-results': 'comm', 'comm-retakes': 'comm', 'hist-scheduled': 'comm',
     'settings-profile': 'settings-profile',
     'settings-inst': 'settings-profile',
+    'student-review': 'student-review',
   };
 
   const NAV_SECTION_MAP = {
@@ -1240,6 +1326,7 @@
     'comm-invite': 'communications', 'comm-results': 'communications',
     'comm-retakes': 'communications', 'hist-scheduled': 'communications',
     'settings-profile': 'settings', 'settings-inst': 'settings',
+    'student-review': 'review-subs',
   };
 
   // nav → hash for section-level navigation
@@ -1272,6 +1359,7 @@
     if (state.view === 'studentDetail') return '#exams/' + state.examId + '/' + encodeURIComponent(state.groupName) + '/' + state.attemptId;
     if (state.view === 'subsGroupDetail') return '#submissions/groups/' + encodeURIComponent(state.groupName);
     if (state.view === 'subsExamDetail')  return '#submissions/groups/' + encodeURIComponent(state.groupName) + '/' + state.examId;
+    if (state.view === 'studentReview')   return '#submissions/review/' + state.attemptId;
     return '';
   }
 
@@ -1316,6 +1404,9 @@
       if (p.length === 3) return {view: 'subsGroupDetail', groupName};
       return {view: 'subsExamDetail', groupName, examId: p[3]};
     }
+    if (p[0] === 'submissions' && p[1] === 'review' && p.length >= 3) {
+      return {view: 'studentReview', attemptId: p[2]};
+    }
     return null;
   }
 
@@ -1344,6 +1435,8 @@
       navigate('subs-all', 'skip');
       drillSubsToGroup(state.groupName, true);
       await drillSubsToExam(state.examId, true);
+    } else if (view === 'studentReview') {
+      await openStudentReview(state.attemptId, state.examId, state.context, state.groupName, true);
     } else {
       navigate('home', 'skip');
     }
@@ -2805,7 +2898,7 @@
       return `<tr class="student-row">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="subsL3ToggleSelect('${a.id}',this)"></td>
         <td>
-          <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}" style="font-weight:500;color:#2563eb;text-decoration:none;display:block;">${esc(fmtStudentName(a.student_name))}</a>
+          <span onclick="openStudentReview('${a.id}','${esc(subsCurrentExam?.id||'')}','subs','${esc(subsCurrentGroup||'')}')" style="font-weight:500;color:#2563eb;cursor:pointer;display:block;">${esc(fmtStudentName(a.student_name))}</span>
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
         <td>${studentStatusBadge(a)}</td>
@@ -2815,7 +2908,7 @@
           <div class="dot-menu-wrap">
             <button class="dot-btn" onclick="toggleDotMenu(this)">⋮</button>
             <div class="dot-menu">
-              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(subsCurrentExam?.id||'')}"><div class="dot-menu-item">View Submission</div></a>
+              <div class="dot-menu-item" onclick="openStudentReview('${a.id}','${esc(subsCurrentExam?.id||'')}','subs','${esc(subsCurrentGroup||'')}')">View Submission</div>
               <div class="dot-menu-item" onclick="subsL3SendResults('${a.id}')">Send Results</div>
               <div class="dot-menu-item" onclick="subsL3ResendLink('${a.id}')">Resend Exam Link</div>
               <div class="dot-menu-item" onclick="subsL3AllowRetake('${a.id}')">Allow Retake</div>
@@ -3152,7 +3245,7 @@
               <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
               <td style="color:#64748b;">${esc(g.title)}</td>
               <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-              <td><a href="student-review.html?attempt=${esc(a.id)}"><button class="btn btn-primary btn-sm">Grade →</button></a></td>
+              <td><button class="btn btn-primary btn-sm" onclick="openStudentReview('${esc(a.id)}','${esc(a.exam_id||'')}','grading','')">Grade →</button></td>
             </tr>`).join('')}</tbody>
           </table></div></div>
         </div>`).join('');
@@ -4445,6 +4538,824 @@
       _instLogoFile = null;
       _instShowSaved(localUrl);
     }, 800);
+  }
+
+  // ── Student Review ───────────────────────────────────────────────────
+
+  const SR_LANG = {
+    saveBtn: 'Save changes', downloadBtn: 'Download report',
+    aiSuggest: '✦ AI suggest', gradingCriteria: 'Grading criteria',
+    studentAnswer: "Student's answer", teacherComment: 'Teacher comment',
+    errorGeneric: 'Something went wrong.', contactSaved: 'Contact updated.',
+    noAnswerToEval: 'No student answer to evaluate.', aiThinking: '✦ Thinking…',
+    saved: 'Saved.', opening: 'Opening…', aiTag: 'AI Suggestion',
+    aiHintWarn: 'Suggestion based on your grading criteria — review before accepting.',
+    aiUseScore: 'Use score ({score} / {max})', aiUseComment: 'Use comment',
+    rptSubmitted: 'Submitted on', rptTotalScore: 'Total score', rptTimeUsed: 'Time used',
+    rptOutOf: 'out of', rptGrader: 'Grader', rptAnswers: 'Answer details',
+    rptQuestion: 'Question', rptStudentAns: 'Student answer',
+    rptCorrectAns: 'Correct answer / Score', rptResult: 'Result',
+    confirmAllGrades: 'Confirm all grades',
+    noCriteriaNotice: 'Adding grading criteria would make the AI feedback more targeted and tailored',
+  };
+
+  let sr_attempt = null;
+  let sr_exam = null;
+  let sr_questions = [];
+  let sr_answerableQs = [];
+  let sr_allAttemptIds = [];
+  let sr_attemptId = null;
+  let sr_examId = null;
+  let sr_groupName = null;
+  let sr_context = null;
+  let sr_unsaved = false;
+  let sr_autoSaveTimer = null;
+
+  window.addEventListener('beforeunload', e => {
+    if (sr_unsaved) { e.preventDefault(); e.returnValue = ''; }
+  });
+
+  async function openStudentReview(attemptId, examId, context, groupName, skipPush) {
+    document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+    document.getElementById('section-student-review').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('[data-nav="review-subs"]').forEach(el => el.classList.add('active'));
+    closeSidebar();
+    if (!skipPush) {
+      history.pushState({view:'studentReview', attemptId, examId: examId||null, context: context||null, groupName: groupName||null}, '', '#submissions/review/' + attemptId);
+    }
+    await srLoad(attemptId, examId, context, groupName);
+  }
+
+  function srGoBack() {
+    history.back();
+  }
+
+  async function srLoad(attemptId, examId, context, groupName) {
+    sr_attemptId = attemptId;
+    sr_examId = examId || null;
+    sr_context = context || null;
+    sr_groupName = groupName || null;
+    sr_attempt = null; sr_exam = null; sr_questions = []; sr_answerableQs = []; sr_allAttemptIds = [];
+    sr_unsaved = false;
+    clearTimeout(sr_autoSaveTimer);
+
+    const loading = document.getElementById('sr-loading');
+    const content = document.getElementById('sr-content');
+    if (loading) { loading.style.display = 'block'; loading.textContent = 'Loading…'; }
+    if (content) content.style.display = 'none';
+
+    const srCrumbExam = document.getElementById('sr-crumb-exam');
+    const srCrumbStudent = document.getElementById('sr-crumb-student');
+    const srCrumbGroup = document.getElementById('sr-crumb-group');
+    const srCrumbGroupSep = document.getElementById('sr-crumb-group-sep');
+    if (srCrumbExam) srCrumbExam.textContent = '—';
+    if (srCrumbStudent) srCrumbStudent.textContent = '—';
+    if (srCrumbGroup) { srCrumbGroup.textContent = groupName || ''; srCrumbGroup.style.display = groupName ? '' : 'none'; }
+    if (srCrumbGroupSep) srCrumbGroupSep.style.display = groupName ? '' : 'none';
+
+    const oldBar = document.getElementById('srConfirmAllBar');
+    if (oldBar) oldBar.remove();
+
+    try {
+      const { data: attemptData } = await sb.from('exam_attempts').select('*').eq('id', attemptId).single();
+      if (!attemptData) { showToast('Submission not found.'); srGoBack(); return; }
+      sr_attempt = attemptData;
+
+      const resolvedExamId = examId || attemptData.exam_id;
+      sr_examId = resolvedExamId;
+
+      const [examRes, questionsRes, allAttemptsRes] = await Promise.all([
+        sb.from('exams').select('*').eq('id', resolvedExamId).single(),
+        sb.from('questions').select('*').eq('exam_id', resolvedExamId).order('position', { ascending: true }),
+        sb.from('exam_attempts').select('id, student_name').eq('exam_id', resolvedExamId)
+      ]);
+
+      sr_exam = examRes.data;
+      sr_questions = questionsRes.data || [];
+      sr_answerableQs = sr_questions.filter(q => q.type !== 'section');
+
+      if (!sr_exam) { showToast('Exam not found.'); srGoBack(); return; }
+
+      sr_allAttemptIds = (allAttemptsRes.data || [])
+        .sort((a, b) => (a.student_name || '').localeCompare(b.student_name || ''))
+        .map(a => a.id);
+
+      if (srCrumbExam) srCrumbExam.textContent = sr_exam.title || '—';
+      if (srCrumbStudent) srCrumbStudent.textContent = srFormatName(sr_attempt.student_name);
+      if (groupName) {
+        if (srCrumbGroup) { srCrumbGroup.textContent = groupName; srCrumbGroup.style.display = ''; }
+        if (srCrumbGroupSep) srCrumbGroupSep.style.display = '';
+      }
+
+      if (loading) loading.style.display = 'none';
+      if (content) content.style.display = '';
+
+      srRender();
+      srAutoGradeAllWithCriteria();
+
+    } catch(e) {
+      console.error('srLoad error:', e);
+      showToast('Failed to load submission.');
+      if (loading) { loading.style.display = 'block'; loading.textContent = 'Failed to load.'; }
+    }
+  }
+
+  function srRender() {
+    const answers = sr_attempt.answers_json || {};
+    const openScores = sr_attempt.open_scores || {};
+    const openComments = sr_attempt.open_comments || {};
+    const aqs = sr_answerableQs;
+    const mcqQuestions = aqs.filter(q => q.type === 'mcq');
+    const openQuestions = aqs.filter(q => q.type === 'open');
+
+    const poolSelection = sr_attempt.pool_selection || {};
+    const sectionForQ = {};
+    let _curSec = null;
+    sr_questions.forEach(q => {
+      if (q.type === 'section') { _curSec = q; }
+      else { const gi = aqs.indexOf(q); if (gi >= 0) sectionForQ[gi] = _curSec; }
+    });
+    function inPool(gi) {
+      const sec = sectionForQ[gi];
+      if (!sec || !poolSelection[sec.id]) return true;
+      return poolSelection[sec.id].includes(gi);
+    }
+
+    const openScoreSum = Object.values(openScores).reduce((s, v) => s + (parseFloat(v) || 0), 0);
+    const hasOpenScore = Object.keys(openScores).length > 0;
+    const mcqScore = sr_attempt.score_mcq || 0;
+    const scoreDisplay = hasOpenScore ? (mcqScore + openScoreSum).toFixed(1) : mcqScore;
+    const visibleMcq = mcqQuestions.filter(q => inPool(aqs.indexOf(q)));
+    const visibleOpen = openQuestions.filter(q => inPool(aqs.indexOf(q)));
+    const scoreMax = visibleMcq.length + visibleOpen.reduce((s, q) => s + (q.max_points || 5), 0);
+
+    const submittedDate = sr_attempt.submitted_at
+      ? new Date(sr_attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' · ' +
+        new Date(sr_attempt.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : '—';
+
+    const curIdx = sr_allAttemptIds.indexOf(sr_attemptId);
+    const prevId = curIdx > 0 ? sr_allAttemptIds[curIdx - 1] : null;
+    const nextId = curIdx < sr_allAttemptIds.length - 1 ? sr_allAttemptIds[curIdx + 1] : null;
+
+    const _mcqPoolSeen = new Set();
+    const mcqRows = mcqQuestions.map(q => {
+      const globalIdx = aqs.indexOf(q);
+      if (!inPool(globalIdx)) return '';
+      const sec = sectionForQ[globalIdx];
+      let poolBanner = '';
+      if (sec && poolSelection[sec.id] && !_mcqPoolSeen.has(sec.id)) {
+        _mcqPoolSeen.add(sec.id);
+        const drawn = poolSelection[sec.id].length;
+        const total = Object.values(sectionForQ).filter(s => s?.id === sec.id).length;
+        poolBanner = `<tr><td colspan="4" style="background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:0.7rem;font-weight:700;color:#1e40af;padding:8px 24px;letter-spacing:0.05em;text-transform:uppercase;">Pool — ${drawn} of ${total} questions drawn</td></tr>`;
+      }
+      const selectedIdx = parseInt(answers['q' + globalIdx], 10);
+      const isCorrect = selectedIdx === q.correct_index;
+      const studentAns = isNaN(selectedIdx) ? '—' : srGetOptionText(q, selectedIdx);
+      const correctAns = srGetOptionText(q, q.correct_index);
+      return poolBanner + `<tr>
+        <td class="ql-rendered"><span class="q-num">Q${globalIdx + 1}</span>${q.question_text || ''}</td>
+        <td>${srEscHtml(studentAns)}</td>
+        <td>${srEscHtml(correctAns)}</td>
+        <td class="result-col">${isCorrect ? '✅' : '❌'}</td>
+      </tr>`;
+    }).join('');
+
+    const _openPoolSeen = new Set();
+    const openBlocks = openQuestions.map(q => {
+      const globalIdx = aqs.indexOf(q);
+      if (!inPool(globalIdx)) return '';
+      const _openSec = sectionForQ[globalIdx];
+      let openPoolBanner = '';
+      if (_openSec && poolSelection[_openSec.id] && !_openPoolSeen.has(_openSec.id)) {
+        _openPoolSeen.add(_openSec.id);
+        const drawn = poolSelection[_openSec.id].length;
+        const total = Object.values(sectionForQ).filter(s => s?.id === _openSec.id).length;
+        openPoolBanner = `<div style="background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:0.7rem;font-weight:700;color:#1e40af;padding:8px 24px;letter-spacing:0.05em;text-transform:uppercase;">Pool — ${drawn} of ${total} questions drawn</div>`;
+      }
+      const rawAnswer = answers['q' + globalIdx] || '';
+      const savedScore = openScores[globalIdx] !== undefined ? openScores[globalIdx] : '';
+      const savedComment = openComments[globalIdx] || '';
+      const maxPts = q.max_points || 5;
+      const criteriaHtml = q.grading_criteria
+        ? `<div class="criteria-toggle" onclick="srToggleCriteria(this)">
+             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+             ${SR_LANG.gradingCriteria}
+           </div>
+           <div class="criteria-block" style="display:none;">${srEscHtml(q.grading_criteria)}</div>`
+        : '';
+      return openPoolBanner + `<div class="open-q" data-qidx="${globalIdx}">
+        <div class="open-q-label">Question ${globalIdx + 1}</div>
+        <div class="open-q-text ql-rendered">${q.question_text || ''}</div>
+        <div class="answer-label">${SR_LANG.studentAnswer}</div>
+        <div class="answer-text ql-rendered">${rawAnswer || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
+        ${criteriaHtml}
+        <div class="score-ai-row">
+          <div class="score-field">
+            <span class="score-field-label">Score</span>
+            <input type="text" class="score-text-input" value="${srEscHtml(String(savedScore))}" placeholder="—" data-qidx="${globalIdx}" oninput="srUpdateScoreChip();srMarkUnsaved()">
+            <span class="score-of">/ ${maxPts}</span>
+          </div>
+          <button class="btn btn-ai" onclick="srRequestAI(this, ${globalIdx})">${SR_LANG.aiSuggest}</button>
+        </div>
+        <div class="ai-suggestion" id="sr-ai-q${globalIdx}" style="display:none;"></div>
+        <span class="comment-section-label">Teacher comment</span>
+        <textarea class="comment-textarea" data-qidx="${globalIdx}" oninput="srMarkUnsaved()" placeholder="Add a comment — visible to the student when results are sent.">${srEscHtml(savedComment)}</textarea>
+      </div>`;
+    }).join('');
+
+    const sectionItems = sr_questions.filter(q => q.type === 'section');
+    const hasSections = sectionItems.length > 0;
+    const qSectionTitle = {};
+    let _walkTitle = null;
+    sr_questions.forEach(q => {
+      if (q.type === 'section') { _walkTitle = q.question_text || null; }
+      else { const gi = aqs.indexOf(q); if (gi >= 0) qSectionTitle[gi] = _walkTitle; }
+    });
+    let mcqSectionTitle = null;
+    for (const q of mcqQuestions) { const gi = aqs.indexOf(q); if (inPool(gi) && qSectionTitle[gi]) { mcqSectionTitle = qSectionTitle[gi]; break; } }
+    let openSectionTitle = null;
+    for (const q of openQuestions) { const gi = aqs.indexOf(q); if (inPool(gi) && qSectionTitle[gi]) { openSectionTitle = qSectionTitle[gi]; break; } }
+    const mcqHeader  = hasSections && mcqSectionTitle  ? srEscHtml(mcqSectionTitle)  : `Section 1 — ${srEscHtml(sr_exam.title)}`;
+    const openHeader = hasSections && openSectionTitle ? srEscHtml(openSectionTitle) : 'Section 2 — Open questions';
+
+    let sessionLogHtml = '';
+    const log = sr_attempt.session_log || [];
+    if (log.length > 0) {
+      const flagged = ['Screenshot', 'Copy', 'Paste', 'Anti-cheat', 'Terminat'];
+      const hasSuspicious = log.some(e => flagged.some(f => e.label?.includes(f)));
+      const logRows = log.map(e => {
+        const suspicious = flagged.some(f => e.label?.includes(f));
+        return `<tr style="${suspicious ? 'background:#fef2f2;' : ''}">
+          <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;font-size:0.75rem;color:#64748b;">${srEscHtml(e.time||'')}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.78rem;font-weight:${suspicious?'600':'400'};color:${suspicious?'#dc2626':'#1e293b'};">${srEscHtml(e.label||'')}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.75rem;color:#64748b;">${srEscHtml(e.detail||'')}</td>
+        </tr>`;
+      }).join('');
+      const ev = e => ((e.label || '') + ' ' + (e.detail || '')).toLowerCase();
+      const violationCount = log.filter(e => ev(e).includes('violation') || ev(e).includes('anti-cheat')).length;
+      const pasteCount = log.filter(e => ev(e).includes('paste') || ev(e).includes('collage') || ev(e).includes('copie')).length;
+      const autoSubmitted = log.some(e => ev(e).includes('auto') || ev(e).includes('terminé') || ev(e).includes('automatique'));
+      const modalAbuse = log.filter(e => ev(e).includes('modal')).length > 1;
+      const suspicionCount = log.filter(e => ev(e).includes('suspendu')).length;
+      let bg, border, bodyText;
+      if (violationCount >= 3 || (autoSubmitted && pasteCount > 0)) {
+        bg = '#fef2f2'; border = '#fecaca';
+        const parts = [
+          violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '',
+          pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '',
+          autoSubmitted ? 'auto-submitted' : '',
+        ].filter(Boolean);
+        bodyText = `🔴 High-risk behaviour — ${parts.join(', ')}.`;
+      } else if (violationCount >= 2 || pasteCount > 0 || modalAbuse) {
+        bg = '#fefce8'; border = '#fde68a';
+        const parts = [
+          violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '',
+          pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '',
+          modalAbuse ? 'repeated modal use' : '',
+        ].filter(Boolean);
+        bodyText = `🟡 Moderately suspicious behaviour — ${parts.join(', ')}.`;
+      } else {
+        bg = '#f0fdf4'; border = '#bbf7d0';
+        bodyText = '🟢 No suspicious behaviour detected.';
+      }
+      const suspLine = suspicionCount > 0 ? ` ${suspicionCount} anti-cheat suspension${suspicionCount !== 1 ? 's' : ''} logged.` : '';
+      const inferenceBlock = `<div style="background:${bg};border:1px solid ${border};padding:12px 16px;font-size:0.82rem;margin-top:12px;">
+        <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">SESSION ANALYSIS</div>
+        <div style="line-height:1.5;">${bodyText}${suspLine}</div>
+      </div>`;
+      sessionLogHtml = `<div class="sr-section-card">
+        <div class="sr-section-head" style="cursor:pointer;user-select:none;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <span class="sr-section-title" style="${hasSuspicious?'color:#dc2626;':''}">${hasSuspicious ? '⚠ ' : ''}Session journal (${log.length} event${log.length!==1?'s':''})</span>
+          <span style="font-size:0.72rem;color:#94a3b8;">click to expand</span>
+        </div>
+        <div style="display:none;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#f8fafc;">
+              <th style="padding:6px 10px;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Time</th>
+              <th style="padding:6px 10px;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Event</th>
+              <th style="padding:6px 10px;text-align:left;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Detail</th>
+            </tr></thead>
+            <tbody>${logRows}</tbody>
+          </table>
+          ${inferenceBlock}
+        </div>
+      </div>`;
+    }
+
+    document.getElementById('sr-content').innerHTML = `
+      <div class="student-card">
+        <div style="flex:1;">
+          <div class="student-name" id="srDisplayName">${srEscHtml(srFormatName(sr_attempt.student_name))}</div>
+          <div class="student-meta">${srEscHtml(sr_exam.title)} · ${submittedDate}</div>
+          <div class="contact-row">
+            <span class="contact-val" id="srDisplayEmail">${srEscHtml(sr_attempt.student_email || '—')}</span>
+            <button class="pencil-btn" onclick="srOpenContactForm()" title="Edit contact">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+          </div>
+          <div class="contact-form" id="srContactForm">
+            <input class="contact-input" type="text" id="srContactName" value="${srEscHtml(sr_attempt.student_name || '')}" style="width:165px;" placeholder="Name">
+            <input class="contact-input" type="email" id="srContactEmail" value="${srEscHtml(sr_attempt.student_email || '')}" style="width:225px;" placeholder="Email">
+            <button class="btn btn-ghost" onclick="srSaveContact()">Save</button>
+            <button class="btn btn-ghost" onclick="srCloseContactForm()">Cancel</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0;">
+          <div class="score-block">
+            <div class="score-big" id="srScoreDisplay" data-mcq="${mcqScore}" data-max="${scoreMax}">${scoreDisplay} <span>/ ${scoreMax}</span></div>
+            <div class="score-label">Current score</div>
+          </div>
+          <button class="btn btn-ghost" id="srDownloadReportBtn" style="font-size:0.75rem;padding:6px 12px;width:100%;" onclick="srGenerateAndDownload()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download report
+          </button>
+        </div>
+      </div>
+
+      ${mcqQuestions.length > 0 ? `
+      <div class="sr-section-card">
+        <div class="sr-section-head">
+          <span class="sr-section-title">${mcqHeader}</span>
+          <span class="sr-section-score">${mcqScore} / ${visibleMcq.length} correct</span>
+        </div>
+        <table class="mcq-table">
+          <thead><tr>
+            <th style="width:38%;">Question</th>
+            <th>Student Response</th>
+            <th>Correct Answer</th>
+            <th class="result-col">Result</th>
+          </tr></thead>
+          <tbody>${mcqRows}</tbody>
+        </table>
+      </div>` : ''}
+
+      ${openQuestions.length > 0 ? `
+      <div class="sr-section-card">
+        <div class="sr-section-head">
+          <span class="sr-section-title">${openHeader}</span>
+          <span class="sr-section-score">Teacher graded</span>
+        </div>
+        ${openBlocks}
+      </div>` : ''}
+
+      ${sessionLogHtml}
+
+      <div class="sr-bottom-actions">
+        <div class="sr-bottom-nav">
+          <button class="btn btn-ghost" ${prevId ? `onclick="srNavigateStudent('${prevId}')"` : 'disabled style="opacity:0.4;"'}>← Previous student</button>
+          <button class="btn btn-ghost" ${nextId ? `onclick="srNavigateStudent('${nextId}')"` : 'disabled style="opacity:0.4;"'}>Next student →</button>
+        </div>
+        <div>
+          <button class="btn btn-primary" id="srSaveBtn" onclick="srSaveChanges()">${SR_LANG.saveBtn}</button>
+          <span id="srAutoSaveChip" style="font-size:0.72rem;color:#16a34a;font-weight:600;opacity:0;transition:opacity 0.4s;">✓ Auto-saved</span>
+        </div>
+      </div>`;
+  }
+
+  function srEscHtml(str) {
+    if (str == null) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function srFormatName(raw) {
+    if (!raw) return '—';
+    const parts = raw.trim().split(/\s+/);
+    if (parts.length < 2) return raw.toUpperCase();
+    const last = parts[parts.length - 1].toUpperCase();
+    const first = parts.slice(0, -1).join(' ');
+    return `${last} ${first}`;
+  }
+
+  function srGetOptionText(q, idx) {
+    const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
+    return opts[idx] || '—';
+  }
+
+  function srToggleCriteria(btn) {
+    const block = btn.nextElementSibling;
+    block.style.display = block.style.display !== 'none' ? 'none' : 'block';
+  }
+
+  function srOpenContactForm() {
+    document.getElementById('srContactForm').classList.add('visible');
+  }
+
+  function srCloseContactForm() {
+    document.getElementById('srContactForm').classList.remove('visible');
+  }
+
+  async function srSaveContact() {
+    const name  = document.getElementById('srContactName').value.trim();
+    const email = document.getElementById('srContactEmail').value.trim();
+    const { error } = await sb.from('exam_attempts').update({ student_name: name, student_email: email }).eq('id', sr_attemptId);
+    if (error) { showToast(SR_LANG.errorGeneric); return; }
+    sr_attempt.student_name  = name;
+    sr_attempt.student_email = email;
+    document.getElementById('srDisplayName').textContent  = srFormatName(name);
+    document.getElementById('srDisplayEmail').textContent = email || '—';
+    srCloseContactForm();
+    showToast(SR_LANG.contactSaved);
+  }
+
+  async function srFetchAIGrade(qIdx) {
+    const q = sr_answerableQs[qIdx];
+    if (!q) return false;
+    const studentAnswer = (sr_attempt.answers_json || {})['q' + qIdx] || '';
+    if (!studentAnswer) return false;
+    const aiBox = document.getElementById('sr-ai-q' + qIdx);
+    if (!aiBox) return false;
+    const maxPts = q.max_points || 5;
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/grade-open-question`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        body: JSON.stringify({ question: q.question_text, answer: studentAnswer, criteria: q.grading_criteria || '', max_points: maxPts })
+      });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || `HTTP ${res.status}`); }
+      const data = await res.json();
+      const suggestedScore = data.score ?? '—';
+      const rationale = data.rationale || '';
+      const comment = data.comment || '';
+      aiBox.innerHTML = `
+        <div class="ai-suggestion-head">
+          <div class="ai-suggestion-meta">
+            <span class="ai-tag">${SR_LANG.aiTag}</span>
+            <span class="ai-score-chip" id="sr-ai-chip-q${qIdx}">${suggestedScore} / ${maxPts}</span>
+          </div>
+          <button class="ai-close" onclick="this.closest('.ai-suggestion').style.display='none';srUpdateConfirmAllBar();" title="Close">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="ai-hint ql-rendered" style="font-style:italic;color:#64748b;font-size:0.75rem;margin-bottom:6px;">${q.question_text || ''}</div>
+        <div class="ai-hint">${SR_LANG.aiHintWarn}</div>
+        <div class="ai-text">${srEscHtml(rationale)}</div>
+        <div class="ai-actions">
+          <button class="btn btn-ghost" onclick="srApplyScore(${qIdx}, '${suggestedScore}')">${SR_LANG.aiUseScore.replace('{score}', suggestedScore).replace('{max}', maxPts)}</button>
+          <button class="btn btn-ghost" onclick="srApplyComment(${qIdx}, ${JSON.stringify(comment).replace(/"/g, '&quot;')})">${SR_LANG.aiUseComment}</button>
+        </div>`;
+      aiBox.style.display = 'block';
+      aiBox.dataset.suggestedScore = suggestedScore;
+      aiBox.dataset.qidx = qIdx;
+      srUpdateConfirmAllBar();
+      return true;
+    } catch(e) {
+      console.error('AI grading error:', e);
+      return false;
+    }
+  }
+
+  async function srRequestAI(btn, qIdx) {
+    const q = sr_answerableQs[qIdx];
+    if (!q) { showToast(SR_LANG.errorGeneric); return; }
+    const studentAnswer = (sr_attempt.answers_json || {})['q' + qIdx] || '';
+    if (!studentAnswer) { showToast(SR_LANG.noAnswerToEval); return; }
+    btn.disabled = true;
+    btn.textContent = SR_LANG.aiThinking;
+    if (!q.grading_criteria) {
+      const openQEl = btn.closest('.open-q');
+      let notice = openQEl ? openQEl.querySelector('.no-criteria-notice') : null;
+      if (!notice && openQEl) {
+        notice = document.createElement('div');
+        notice.className = 'no-criteria-notice';
+        notice.style.cssText = 'font-size:0.78rem;color:#64748b;background:#f8fafc;padding:6px 10px;margin-bottom:8px;border-left:2px solid #cbd5e1;';
+        notice.textContent = SR_LANG.noCriteriaNotice;
+        const aiBox = document.getElementById('sr-ai-q' + qIdx);
+        if (aiBox) aiBox.parentNode.insertBefore(notice, aiBox);
+      }
+      await new Promise(r => setTimeout(r, 2000));
+      const ok = await srFetchAIGrade(qIdx);
+      if (!ok) showToast(SR_LANG.errorGeneric);
+      if (notice && notice.parentNode) notice.parentNode.removeChild(notice);
+    } else {
+      const ok = await srFetchAIGrade(qIdx);
+      if (!ok) showToast(SR_LANG.errorGeneric);
+    }
+    btn.disabled = false;
+    btn.textContent = SR_LANG.aiSuggest;
+  }
+
+  async function srAutoGradeAllWithCriteria() {
+    const openQs = sr_answerableQs.filter(q => q.type === 'open' && q.grading_criteria);
+    if (openQs.length === 0) return;
+    for (const q of openQs) {
+      const qIdx = sr_answerableQs.indexOf(q);
+      if (!(sr_attempt.answers_json || {})['q' + qIdx]) continue;
+      const btn = document.querySelector(`.btn-ai[onclick="srRequestAI(this, ${qIdx})"]`);
+      if (btn) { btn.disabled = true; btn.textContent = SR_LANG.aiThinking; }
+      await srFetchAIGrade(qIdx);
+      if (btn) { btn.disabled = false; btn.textContent = SR_LANG.aiSuggest; }
+    }
+  }
+
+  function srUpdateConfirmAllBar() {
+    const anyVisible = [...document.querySelectorAll('.ai-suggestion')].some(el => el.style.display !== 'none' && el.style.display !== '');
+    let bar = document.getElementById('srConfirmAllBar');
+    if (anyVisible) {
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'srConfirmAllBar';
+        bar.style.cssText = 'position:fixed;bottom:0;left:240px;right:0;background:#0f172a;padding:12px 40px;display:flex;align-items:center;justify-content:flex-end;gap:12px;z-index:200;border-top:1px solid rgba(255,255,255,0.1);';
+        bar.innerHTML = `<span style="font-size:0.78rem;color:#94a3b8;"></span>
+          <button class="btn btn-primary" onclick="srConfirmAllGrades()" style="font-size:0.82rem;padding:10px 22px;">${SR_LANG.confirmAllGrades}</button>`;
+        document.body.appendChild(bar);
+      }
+      const count = [...document.querySelectorAll('.ai-suggestion')].filter(el => el.style.display !== 'none' && el.style.display !== '').length;
+      const label = bar.querySelector('span');
+      if (label) label.textContent = count + ' AI suggestion' + (count !== 1 ? 's' : '') + ' pending';
+      bar.style.display = 'flex';
+    } else {
+      if (bar) bar.style.display = 'none';
+    }
+  }
+
+  async function srConfirmAllGrades() {
+    const aiBoxes = [...document.querySelectorAll('.ai-suggestion')].filter(el => el.style.display !== 'none' && el.style.display !== '');
+    for (const box of aiBoxes) {
+      const qIdx = parseInt(box.dataset.qidx, 10);
+      const suggested = box.dataset.suggestedScore;
+      if (!isNaN(qIdx) && suggested !== undefined && suggested !== '—') {
+        const input = document.querySelector(`.score-text-input[data-qidx="${qIdx}"]`);
+        if (input && input.value.trim() === '') { input.value = suggested; srFlash(input); }
+      }
+    }
+    srUpdateScoreChip();
+    srMarkUnsaved();
+    await srSaveChanges(true);
+    aiBoxes.forEach(box => { box.style.display = 'none'; });
+    const bar = document.getElementById('srConfirmAllBar');
+    if (bar) bar.style.display = 'none';
+  }
+
+  function srFlash(el) {
+    el.classList.remove('flash');
+    void el.offsetWidth;
+    el.classList.add('flash');
+  }
+
+  function srUpdateScoreChip() {
+    const chip = document.getElementById('srScoreDisplay');
+    if (!chip) return;
+    const mcqCorrect = parseInt(chip.dataset.mcq || '0', 10);
+    const openSum = [...document.querySelectorAll('.score-text-input')].reduce((s, inp) => s + (parseFloat(inp.value) || 0), 0);
+    const combined = mcqCorrect + openSum;
+    const scoreMax = parseInt(chip.dataset.max || '0', 10);
+    chip.innerHTML = `${Number.isInteger(combined) ? combined : combined.toFixed(1)} <span>/ ${scoreMax}</span>`;
+  }
+
+  function srMarkUnsaved() {
+    sr_unsaved = true;
+    const btn = document.getElementById('srSaveBtn');
+    if (btn && !btn.disabled) btn.style.background = '#1d4ed8';
+    srScheduleAutoSave();
+  }
+
+  function srScheduleAutoSave() {
+    clearTimeout(sr_autoSaveTimer);
+    sr_autoSaveTimer = setTimeout(() => { srSaveChanges(true); }, 2500);
+  }
+
+  function srApplyScore(qIdx, score) {
+    const input = document.querySelector(`.score-text-input[data-qidx="${qIdx}"]`);
+    if (input) { input.value = score; srFlash(input); srUpdateScoreChip(); srMarkUnsaved(); }
+  }
+
+  function srApplyComment(qIdx, comment) {
+    const ta = document.querySelector(`.comment-textarea[data-qidx="${qIdx}"]`);
+    if (ta) { ta.value = comment; srFlash(ta); srMarkUnsaved(); }
+  }
+
+  async function srSaveChanges(silent) {
+    const btn = document.getElementById('srSaveBtn');
+    if (btn) btn.disabled = true;
+    const openScores = {}, openComments = {};
+    document.querySelectorAll('.score-text-input').forEach(input => {
+      const idx = parseInt(input.dataset.qidx, 10);
+      const val = input.value.trim();
+      if (val !== '') openScores[idx] = parseFloat(val) || 0;
+    });
+    document.querySelectorAll('.comment-textarea').forEach(ta => {
+      const idx = parseInt(ta.dataset.qidx, 10);
+      openComments[idx] = ta.value.trim();
+    });
+    const { error } = await sb.from('exam_attempts')
+      .update({ open_scores: openScores, open_comments: openComments })
+      .eq('id', sr_attemptId);
+    if (error) {
+      showToast(SR_LANG.errorGeneric);
+      if (btn) btn.disabled = false;
+      return;
+    }
+    sr_unsaved = false;
+    if (btn) { btn.disabled = false; btn.style.background = ''; }
+    if (silent) {
+      const chip = document.getElementById('srAutoSaveChip');
+      if (chip) { chip.style.opacity = '1'; setTimeout(() => { chip.style.opacity = '0'; }, 1500); }
+    } else {
+      showToast(SR_LANG.saved);
+    }
+  }
+
+  function srNavigateStudent(id) {
+    openStudentReview(id, sr_examId, sr_context, sr_groupName);
+  }
+
+  function srSafeFilename(str) {
+    return (str || '').replace(/[^a-zA-Z0-9\-_]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  async function srGenerateAndDownload() {
+    const answers    = sr_attempt.answers_json  || {};
+    const openScores = sr_attempt.open_scores   || {};
+    const openComments = sr_attempt.open_comments || {};
+    const aqs = sr_answerableQs;
+    const btn = document.getElementById('srDownloadReportBtn');
+    const origHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ' + SR_LANG.opening;
+    try {
+      const segments = [];
+      let cur = null;
+      for (const q of sr_questions) {
+        if (q.type === 'section') { if (cur) segments.push(cur); cur = {title:q.question_text,questions:[]}; }
+        else { if (!cur) cur = {title:null,questions:[]}; cur.questions.push(q); }
+      }
+      if (cur) segments.push(cur);
+      let totalCorrect=0, totalMax=0;
+      const segData = segments.map(seg => {
+        let sc=0, sm=0;
+        seg.questions.forEach(q => {
+          const gi = aqs.indexOf(q);
+          if (q.type==='open') { sc+=parseFloat(openScores[gi])||0; sm+=q.max_points||5; }
+          else { sc+=(parseInt(answers['q'+gi],10)===q.correct_index)?1:0; sm+=1; }
+        });
+        totalCorrect+=sc; totalMax+=sm;
+        return {title:seg.title, questions:seg.questions, sc, sm};
+      });
+      const teacherName = currentTeacher ? (currentTeacher.full_name||currentTeacher.email) : '—';
+      const displayName = srFormatName(sr_attempt.student_name);
+      const submittedAt = sr_attempt.submitted_at ? new Date(sr_attempt.submitted_at) : null;
+      const createdAt   = sr_attempt.created_at   ? new Date(sr_attempt.created_at)   : null;
+      const timeUsedMins = (submittedAt&&createdAt) ? Math.round((submittedAt-createdAt)/60000) : null;
+      const submittedLabel = submittedAt
+        ? submittedAt.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'})+' '+submittedAt.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
+      const pct = totalMax>0 ? Math.round((totalCorrect/totalMax)*100) : 0;
+      const scoreColor = pct>=70 ? [22,163,74] : pct>=50 ? [217,119,6] : [220,38,38];
+      const namedSegs = segData.filter(s => s.title);
+
+      let testfloLogoB64 = null;
+      try {
+        const logoRes = await fetch('https://exam.test-flo.com/testflo-dark.svg');
+        if (logoRes.ok) {
+          const svgText = await logoRes.text();
+          testfloLogoB64 = await new Promise(resolve => {
+            const img = new Image();
+            const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(svgBlob);
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = 220; canvas.height = 80;
+              canvas.getContext('2d').drawImage(img, 0, 0, 220, 80);
+              URL.revokeObjectURL(url);
+              resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+            img.src = url;
+          });
+        }
+      } catch(e) { /* logo fetch failed */ }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const margin = 14;
+      const contentW = pageW - margin * 2;
+      const headerH = 38;
+
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, pageW, headerH, 'F');
+      if (testfloLogoB64) { doc.addImage(testfloLogoB64, 'PNG', margin, 2, 22, 8); }
+      else { doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(148,163,184); doc.text('testflo', margin, 9); }
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+      doc.text(sr_exam.title || '', margin, 18, { maxWidth: contentW * 0.62 });
+      doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(255,255,255);
+      doc.text(displayName, pageW - margin, 15, { align: 'right' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,116,139);
+      doc.text(sr_attempt.student_email || '', pageW - margin, 22, { align: 'right' });
+      doc.text(SR_LANG.rptSubmitted + ' ' + submittedLabel, pageW - margin, 27, { align: 'right' });
+
+      let y = headerH + 8;
+      const cardW = (contentW - 8) / 3;
+      const cardH = 24;
+      const cards = [
+        { label: SR_LANG.rptTotalScore, val: (Number.isInteger(totalCorrect) ? totalCorrect : totalCorrect.toFixed(1)) + ' / ' + totalMax, sub: pct + '%', valColor: scoreColor },
+        { label: SR_LANG.rptTimeUsed, val: (sr_exam.duration_mins ? sr_exam.duration_mins + ' min' : '—'), sub: '', valColor: [15,23,42] },
+        { label: SR_LANG.rptGrader, val: teacherName, sub: (currentInstitution && currentInstitution.name) || '', valColor: [15,23,42] }
+      ];
+      cards.forEach((card, i) => {
+        const cx = margin + i * (cardW + 4);
+        doc.setDrawColor(226,232,240); doc.setFillColor(255,255,255); doc.rect(cx, y, cardW, cardH, 'FD');
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(148,163,184); doc.text(card.label.toUpperCase(), cx+5, y+5);
+        doc.setFont('helvetica','bold'); doc.setFontSize(i===2?9:14); doc.setTextColor(...card.valColor); doc.text(String(card.val), cx+5, y+14, { maxWidth: cardW-8 });
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184); doc.text(String(card.sub), cx+5, y+21);
+      });
+      y += cardH + 8;
+
+      if (namedSegs.length > 0) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(148,163,184);
+        doc.text('RÉSULTATS PAR PARTIE', margin, y); y += 4;
+        doc.setDrawColor(241,245,249); doc.line(margin, y, pageW-margin, y); y += 4;
+        namedSegs.forEach(s => {
+          const p = s.sm > 0 ? s.sc / s.sm : 0;
+          const scStr = (Number.isInteger(s.sc) ? s.sc : s.sc.toFixed(1)) + ' / ' + s.sm;
+          const labelW = 65, scoreW = 18;
+          const barX = margin + labelW + 3, barW = contentW - labelW - scoreW - 6, barH = 3;
+          doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(71,85,105);
+          doc.text(s.title || '', margin, y+2.5, { maxWidth: labelW });
+          doc.setFillColor(226,232,240); doc.rect(barX, y, barW, barH, 'F');
+          doc.setFillColor(30,58,95); doc.rect(barX, y, barW*p, barH, 'F');
+          doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,116,139);
+          doc.text(scStr, pageW-margin, y+2.5, { align: 'right' });
+          y += 7;
+        });
+        y += 4;
+      }
+
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(148,163,184);
+      doc.text(SR_LANG.rptAnswers.toUpperCase(), margin, y); y += 4;
+      doc.setDrawColor(241,245,249); doc.line(margin, y, pageW-margin, y); y += 3;
+
+      const tableBody = aqs.map(q => {
+        const gi = aqs.indexOf(q);
+        if (q.type === 'open') {
+          const ans = answers['q'+gi] || '—';
+          const sc  = openScores[gi] !== undefined ? openScores[gi] : '—';
+          const cmt = openComments[gi] || '';
+          return { question: 'Q'+(gi+1)+'. '+(q.question_text||''), studentAns: ans+(cmt?'\n['+cmt+']':''), correctAns: '—', result: sc+' / '+(q.max_points||5)+' pts', type:'open', correct:null };
+        }
+        const sel = parseInt(answers['q'+gi],10);
+        const ok  = sel === q.correct_index;
+        return { question: 'Q'+(gi+1)+'. '+(q.question_text||''), studentAns: isNaN(sel)?'—':srGetOptionText(q,sel), correctAns: srGetOptionText(q,q.correct_index), result:'', type:'mcq', correct:ok };
+      });
+
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin },
+        head: [[SR_LANG.rptQuestion, SR_LANG.rptStudentAns, SR_LANG.rptCorrectAns, SR_LANG.rptResult]],
+        body: tableBody.map(r => [r.question, r.studentAns, r.correctAns, r.result]),
+        styles: { font:'helvetica', fontSize:8, cellPadding:3, lineColor:[226,232,240], lineWidth:0.1, overflow:'linebreak', valign:'top' },
+        headStyles: { fillColor:[248,250,252], textColor:[148,163,184], fontStyle:'bold', fontSize:6.5 },
+        alternateRowStyles: { fillColor:[252,253,254] },
+        columnStyles: { 0:{cellWidth:58}, 1:{cellWidth:52}, 2:{cellWidth:52}, 3:{cellWidth:18,halign:'center'} },
+        didParseCell: function(data) {
+          const row = tableBody[data.row.index]; if (!row) return;
+          if (data.column.index===1 && row.type==='mcq' && row.correct===false) data.cell.styles.textColor=[220,38,38];
+          if (data.column.index===3) {
+            if (row.type==='mcq' && row.correct===true) data.cell.styles.textColor=[22,163,74];
+            else if (row.type==='mcq' && row.correct===false) data.cell.styles.textColor=[220,38,38];
+            else if (row.type==='open') { data.cell.styles.textColor=[71,85,105]; data.cell.styles.fontStyle='bold'; }
+          }
+          if (data.column.index===1 && row.type==='open') data.cell.styles.fontSize=8;
+        },
+        didDrawCell: function(data) {
+          if (data.column.index!==3) return;
+          const row = tableBody[data.row.index]; if (!row || row.type!=='mcq') return;
+          const cx = data.cell.x + data.cell.width/2, cy = data.cell.y + data.cell.height/2, r = 3;
+          doc.setFillColor(row.correct ? 22 : 220, row.correct ? 163 : 38, row.correct ? 74 : 38);
+          doc.circle(cx, cy, r, 'F');
+          doc.setDrawColor(255,255,255); doc.setLineWidth(0.6);
+          if (row.correct) { doc.line(cx-1.4,cy+0.1,cx-0.2,cy+1.3); doc.line(cx-0.2,cy+1.3,cx+1.6,cy-1.0); }
+          else { doc.line(cx-1.2,cy-1.2,cx+1.2,cy+1.2); doc.line(cx+1.2,cy-1.2,cx-1.2,cy+1.2); }
+          doc.setLineWidth(0.2);
+        }
+      });
+
+      const footerH = 12, finalY = pageH - footerH;
+      doc.setDrawColor(226,232,240); doc.line(margin, finalY-1, pageW-margin, finalY-1);
+      const footerInstName = (currentInstitution && currentInstitution.name) || teacherName;
+      if (currentInstitution && currentInstitution.logo_url) {
+        try { doc.addImage(currentInstitution.logo_url, 'PNG', margin, finalY+1, 20, 8); }
+        catch(e) { doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184); doc.text(footerInstName, margin, finalY+6); }
+      } else {
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184); doc.text(footerInstName, margin, finalY+6);
+      }
+      if (testfloLogoB64) {
+        try { doc.addImage(testfloLogoB64, 'PNG', pageW-margin-22, finalY+1, 22, 8); }
+        catch(e) { doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(100,116,139); doc.text('testflo', pageW-margin, finalY+6, { align:'right' }); }
+      } else {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(100,116,139); doc.text('testflo', pageW-margin, finalY+6, { align:'right' });
+      }
+
+      const fname = 'rapport-' + srSafeFilename(sr_attempt.student_name) + '-' + srSafeFilename(sr_exam.title) + '.pdf';
+      doc.save(fname);
+    } catch(err) {
+      console.error('PDF generation error:', err);
+      showToast(SR_LANG.errorGeneric);
+    }
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
   }
 
   // ── Boot ─────────────────────────────────────────────────────────────
