@@ -251,6 +251,22 @@
     .lang-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
     .edit-input { width: 100%; padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 0; font-family: inherit; font-size: 0.85rem; color: #0f172a; outline: none; }
     .edit-input:focus { border-color: #2563eb; }
+    .upload-zone { border: 2px dashed #cbd5e1; border-radius: 6px; padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .upload-zone:hover { border-color: #94a3b8; }
+    .upload-zone.drag-over { border-color: #2563eb; border-style: solid; background: #eff6ff; }
+    .upload-zone-icon { color: #94a3b8; margin-bottom: 8px; }
+    .upload-zone-label { font-size: 13px; color: #475569; }
+    .upload-zone-sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    .upload-preview { display: flex; align-items: center; gap: 14px; padding: 12px 0; }
+    .upload-preview img { max-height: 80px; max-width: 160px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 4px; background: #f8fafc; padding: 4px; }
+    .upload-preview-meta { font-size: 12px; color: #475569; line-height: 1.7; }
+    .upload-preview-name { font-weight: 600; color: #0f172a; font-size: 13px; }
+    .upload-remove { font-size: 12px; color: #dc2626; cursor: pointer; background: none; border: none; padding: 0; font-family: inherit; }
+    .upload-remove:hover { text-decoration: underline; }
+    .upload-error { font-size: 12px; color: #dc2626; margin-top: 8px; }
+    .inst-save-confirm { font-size: 12px; color: #16a34a; font-weight: 600; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }
+    .inst-save-confirm.show { opacity: 1; }
+    .upload-zone-or { font-size: 12px; color: #94a3b8; margin: 8px 0 6px; }
 
     /* ── History ── */
     .section-label { font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; margin-top: 4px; }
@@ -860,15 +876,107 @@
   <section class="section" id="section-settings-inst">
     <div class="page-header"><div class="page-title">Institution</div></div>
     <div class="settings-grid">
+
+      <!-- Card 1: Institution Details -->
       <div class="settings-panel">
         <div class="settings-panel-title">Institution Details</div>
-        <div class="settings-row"><div class="settings-label">Name</div><div class="settings-value" id="settingInstName">—</div></div>
         <div class="settings-row">
-          <div class="settings-label">Logo</div>
-          <div id="settingLogoWrap" style="margin-top:6px;"></div>
+          <div class="settings-label">Institution Name</div>
+          <input class="edit-input" type="text" id="instNameInput" placeholder="Institution name">
         </div>
-        <div style="margin-top:16px;"><a href="institution.html"><button class="btn btn-ghost btn-sm">Manage Members →</button></a></div>
+        <div class="settings-row">
+          <div class="settings-label">Timezone</div>
+          <select class="ctrl" id="instTimezoneSelect">
+            <option value="Europe/Paris">Europe/Paris</option>
+            <option value="Europe/London">Europe/London</option>
+            <option value="Europe/Berlin">Europe/Berlin</option>
+            <option value="Europe/Madrid">Europe/Madrid</option>
+            <option value="Europe/Rome">Europe/Rome</option>
+            <option value="Europe/Amsterdam">Europe/Amsterdam</option>
+            <option value="Europe/Brussels">Europe/Brussels</option>
+            <option value="Europe/Zurich">Europe/Zurich</option>
+            <option value="Europe/Stockholm">Europe/Stockholm</option>
+            <option value="America/New_York">America/New_York</option>
+            <option value="America/Chicago">America/Chicago</option>
+            <option value="America/Denver">America/Denver</option>
+            <option value="America/Los_Angeles">America/Los_Angeles</option>
+            <option value="America/Toronto">America/Toronto</option>
+            <option value="America/Sao_Paulo">America/Sao_Paulo</option>
+            <option value="Asia/Tokyo">Asia/Tokyo</option>
+            <option value="Asia/Shanghai">Asia/Shanghai</option>
+            <option value="Asia/Singapore">Asia/Singapore</option>
+            <option value="Asia/Dubai">Asia/Dubai</option>
+            <option value="Australia/Sydney">Australia/Sydney</option>
+            <option value="Pacific/Auckland">Pacific/Auckland</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+        <div class="settings-row">
+          <div class="settings-label">Default Language</div>
+          <div class="lang-toggle" style="margin-top:8px;">
+            <button class="lang-btn active" id="instLangFR" onclick="setInstLang('fr')">FR</button>
+            <button class="lang-btn" id="instLangEN" onclick="setInstLang('en')">EN</button>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;margin-top:20px;">
+          <button class="btn btn-primary btn-sm" onclick="saveInstDetails()">Save Changes</button>
+          <span class="inst-save-confirm" id="instDetailsSaveConfirm">✓ Institution details saved</span>
+        </div>
       </div>
+
+      <!-- Card 2: Institution Logo -->
+      <div class="settings-panel" style="margin-top:20px;">
+        <div class="settings-panel-title">Institution Logo</div>
+        <div id="instLogoZoneWrap">
+          <div class="upload-zone" id="instLogoZone"
+               ondragover="instLogoDragOver(event)"
+               ondragleave="instLogoDragLeave(event)"
+               ondrop="instLogoDrop(event)">
+            <div id="instLogoZoneContent">
+              <div class="upload-zone-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div class="upload-zone-label">Drag and drop your logo here</div>
+              <div class="upload-zone-or">or</div>
+              <button class="btn btn-ghost btn-sm" type="button" onclick="document.getElementById('instLogoFileInput').click()">Browse files</button>
+              <div class="upload-zone-sub" style="margin-top:8px;">PNG, JPG, SVG · max 2 MB</div>
+            </div>
+            <div id="instLogoError" class="upload-error" style="display:none;"></div>
+          </div>
+        </div>
+        <div id="instLogoPreviewWrap" style="display:none;">
+          <div class="upload-preview">
+            <img id="instLogoPreviewImg" src="" alt="Logo preview">
+            <div>
+              <div class="upload-preview-name" id="instLogoFileName"></div>
+              <div class="upload-preview-meta" id="instLogoFileMeta"></div>
+              <button class="upload-remove" onclick="instLogoRemove()">Remove</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <button class="btn btn-primary btn-sm" id="instLogoSaveBtn" onclick="instLogoSave()">Save Logo</button>
+            <span class="inst-save-confirm" id="instLogoSaveConfirm">✓ Logo saved</span>
+          </div>
+        </div>
+        <div id="instLogoSavedWrap" style="display:none;">
+          <div class="upload-preview">
+            <img id="instLogoSavedImg" src="" alt="Current logo">
+            <div>
+              <div class="upload-preview-meta">Current logo</div>
+              <button class="upload-remove" style="color:#2563eb;" onclick="instLogoChangeStart()">Change logo</button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="instLogoFileInput" accept=".png,.jpg,.jpeg,.svg" style="display:none;" onchange="instLogoFileChange(event)">
+      </div>
+
+      <!-- Card 3: Members -->
+      <div class="settings-panel" style="margin-top:20px;">
+        <div class="settings-panel-title">Members</div>
+        <p style="font-size:13px;color:#475569;margin:0 0 16px;">Manage who has access to this institution, assign roles, and invite new members.</p>
+        <a href="institution.html"><button class="btn btn-ghost btn-sm">Manage Members →</button></a>
+      </div>
+
     </div>
   </section>
 
@@ -3318,11 +3426,138 @@
   }
 
   function loadSettingsInst() {
-    document.getElementById('settingInstName').textContent = currentInstitution?.name || '—';
-    const logoWrap = document.getElementById('settingLogoWrap');
-    logoWrap.innerHTML = currentInstitution?.logo_url
-      ? `<img src="${esc(currentInstitution.logo_url)}" alt="Logo" style="max-height:48px;max-width:160px;object-fit:contain;">`
-      : `<span style="font-size:0.78rem;color:#94a3b8;">No logo uploaded</span>`;
+    const inst = currentInstitution || {};
+    const nameEl = document.getElementById('instNameInput');
+    if (nameEl) nameEl.value = inst.name || '';
+    const tzEl = document.getElementById('instTimezoneSelect');
+    if (tzEl) {
+      const tz = inst.timezone || 'Europe/Paris';
+      const opt = tzEl.querySelector(`option[value="${tz}"]`);
+      if (opt) opt.selected = true; else tzEl.value = 'Europe/Paris';
+    }
+    const lang = (inst.lang || inst.default_lang || 'fr').toLowerCase();
+    document.getElementById('instLangFR')?.classList.toggle('active', lang === 'fr');
+    document.getElementById('instLangEN')?.classList.toggle('active', lang === 'en');
+    _instLang = lang;
+    if (inst.logo_url) {
+      _instShowSaved(inst.logo_url);
+    } else {
+      _instShowZone();
+    }
+    _instLogoFile = null;
+  }
+
+  let _instLang = 'fr';
+  let _instLogoFile = null;
+
+  function setInstLang(lang) {
+    _instLang = lang;
+    document.getElementById('instLangFR').classList.toggle('active', lang === 'fr');
+    document.getElementById('instLangEN').classList.toggle('active', lang === 'en');
+  }
+
+  function saveInstDetails() {
+    const name = document.getElementById('instNameInput')?.value.trim();
+    const tz   = document.getElementById('instTimezoneSelect')?.value;
+    if (!name) { showToast('Please enter an institution name.'); return; }
+    if (currentInstitution) {
+      currentInstitution = { ...currentInstitution, name, timezone: tz, lang: _instLang };
+    }
+    const conf = document.getElementById('instDetailsSaveConfirm');
+    if (conf) {
+      conf.classList.add('show');
+      setTimeout(() => conf.classList.remove('show'), 2000);
+    }
+  }
+
+  function _instShowZone() {
+    document.getElementById('instLogoZoneWrap').style.display = '';
+    document.getElementById('instLogoPreviewWrap').style.display = 'none';
+    document.getElementById('instLogoSavedWrap').style.display = 'none';
+    document.getElementById('instLogoError').style.display = 'none';
+    const content = document.getElementById('instLogoZoneContent');
+    if (content) content.style.display = '';
+  }
+
+  function _instShowPreview(file, dataUrl) {
+    document.getElementById('instLogoZoneWrap').style.display = 'none';
+    document.getElementById('instLogoPreviewWrap').style.display = '';
+    document.getElementById('instLogoSavedWrap').style.display = 'none';
+    document.getElementById('instLogoPreviewImg').src = dataUrl;
+    document.getElementById('instLogoFileName').textContent = file.name;
+    document.getElementById('instLogoFileMeta').textContent = (file.size / 1024).toFixed(1) + ' KB';
+    document.getElementById('instLogoSaveConfirm').classList.remove('show');
+    document.getElementById('instLogoSaveBtn').disabled = false;
+  }
+
+  function _instShowSaved(url) {
+    document.getElementById('instLogoZoneWrap').style.display = 'none';
+    document.getElementById('instLogoPreviewWrap').style.display = 'none';
+    document.getElementById('instLogoSavedWrap').style.display = '';
+    document.getElementById('instLogoSavedImg').src = url;
+  }
+
+  function instLogoDragOver(e) {
+    e.preventDefault();
+    document.getElementById('instLogoZone').classList.add('drag-over');
+  }
+
+  function instLogoDragLeave(e) {
+    document.getElementById('instLogoZone').classList.remove('drag-over');
+  }
+
+  function instLogoDrop(e) {
+    e.preventDefault();
+    document.getElementById('instLogoZone').classList.remove('drag-over');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) _instHandleFile(file);
+  }
+
+  function instLogoFileChange(e) {
+    const file = e.target.files?.[0];
+    if (file) _instHandleFile(file);
+    e.target.value = '';
+  }
+
+  function _instHandleFile(file) {
+    const errEl = document.getElementById('instLogoError');
+    const content = document.getElementById('instLogoZoneContent');
+    const allowed = ['image/png','image/jpeg','image/svg+xml'];
+    const valid = allowed.includes(file.type) && file.size <= 2 * 1024 * 1024;
+    if (!valid) {
+      errEl.textContent = 'File must be PNG, JPG, or SVG under 2MB.';
+      errEl.style.display = '';
+      if (content) content.style.display = 'none';
+      return;
+    }
+    errEl.style.display = 'none';
+    if (content) content.style.display = '';
+    _instLogoFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => _instShowPreview(file, ev.target.result);
+    reader.readAsDataURL(file);
+  }
+
+  function instLogoRemove() {
+    _instLogoFile = null;
+    _instShowZone();
+  }
+
+  function instLogoChangeStart() {
+    _instLogoFile = null;
+    _instShowZone();
+  }
+
+  function instLogoSave() {
+    if (!_instLogoFile) return;
+    const btn = document.getElementById('instLogoSaveBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    const localUrl = URL.createObjectURL(_instLogoFile);
+    setTimeout(() => {
+      if (currentInstitution) currentInstitution = { ...currentInstitution, logo_url: localUrl };
+      _instLogoFile = null;
+      _instShowSaved(localUrl);
+    }, 800);
   }
 
   // ── Boot ─────────────────────────────────────────────────────────────
