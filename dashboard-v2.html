@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; display: flex; min-height: 100vh; font-size: 14px; }
+    body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; display: flex; min-height: 100vh; font-size: 14px; position: relative; }
 
     /* ── Sidebar ── */
     .sidebar { width: 240px; background: #0f172a; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.2s; }
@@ -221,6 +221,10 @@
     .email-tag.invalid { background: #fee2e2; color: #991b1b; }
     .email-tag-remove { background: none; border: none; cursor: pointer; padding: 0; line-height: 1; font-size: 14px; color: inherit; opacity: 0.45; flex-shrink: 0; }
     .email-tag-remove:hover { opacity: 1; }
+    #confirmModal { display: none; position: absolute; top: 0; left: 0; width: 100%; min-height: 100%; background: rgba(15,23,42,0.45); z-index: 8000; align-items: flex-start; justify-content: center; padding-top: 10vh; padding-bottom: 40px; box-sizing: border-box; }
+    #confirmModal.open { display: flex; }
+    .confirm-modal-box { background: white; border-radius: 14px; max-width: 420px; width: calc(100% - 32px); padding: 24px 28px; box-sizing: border-box; }
+    .confirm-list { font-family: monospace; font-size: 13px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px 12px; margin: 8px 0 0; line-height: 1.6; }
     .preview-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; font-size: 0.78rem; color: #475569; line-height: 1.6; }
     .toggle-link { font-size: 0.75rem; color: #2563eb; cursor: pointer; text-decoration: underline; margin-left: 8px; }
 
@@ -828,6 +832,17 @@
 
 </main>
 
+<div id="confirmModal" onclick="closeConfirmModal()">
+  <div class="confirm-modal-box" onclick="event.stopPropagation()">
+    <div id="confirmModalTitle" style="font-size:16px;font-weight:600;color:#0f172a;margin-bottom:14px;"></div>
+    <div id="confirmModalBody" style="font-size:13px;color:#475569;line-height:1.6;margin-bottom:24px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeConfirmModal()">Cancel</button>
+      <button id="confirmModalBtn" class="btn btn-primary" onclick="confirmModalProceed()"></button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -862,6 +877,7 @@
   let pendingDrillExam = null;
   let inviteActiveGroup = '';
   let _inviteTags = [];
+  let _confirmModalCallback = null;
   let resultsActiveGroup = '';
   let _resultsAllAttempts = [];
   let _resultsSelectedIds = new Set();
@@ -2236,7 +2252,27 @@
     }
   });
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeExamDotMenu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeExamDotMenu(); closeConfirmModal(); } });
+
+  function showConfirmModal(title, bodyHTML, confirmLabel, onConfirm) {
+    document.getElementById('confirmModalTitle').textContent = title;
+    document.getElementById('confirmModalBody').innerHTML = bodyHTML;
+    document.getElementById('confirmModalBtn').textContent = confirmLabel;
+    _confirmModalCallback = onConfirm;
+    window.scrollTo(0, 0);
+    document.getElementById('confirmModal').classList.add('open');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('open');
+    _confirmModalCallback = null;
+  }
+
+  function confirmModalProceed() {
+    const cb = _confirmModalCallback;
+    closeConfirmModal();
+    if (cb) cb();
+  }
 
   function openExamDotMenu(examId, btn, evt) {
     evt.stopPropagation();
@@ -2575,7 +2611,24 @@
     if (frame) frame.srcdoc = buildInvitePreviewHTML();
   }
 
-  async function sendInvitations() {
+  function sendInvitations() {
+    const examId = document.getElementById('inviteExamSel').value;
+    if (!examId) { showToast('Please select an exam.'); return; }
+    const exam = allExams.find(e => e.id === examId) || {};
+    const emails = _inviteTags.filter(t => t.valid).map(t => t.email);
+    if (!emails.length) { showToast('Please add at least one valid email address.'); return; }
+    const n = emails.length;
+    const shown = emails.slice(0, 5), more = n - 5;
+    const listHTML = `<div class="confirm-list">${shown.map(e => `<div>${esc(e)}</div>`).join('')}${more > 0 ? `<div style="color:#94a3b8;margin-top:4px;">+${more} more</div>` : ''}</div>`;
+    showConfirmModal(
+      'Send exam invitations?',
+      `<div>You are about to send access links for:</div><div style="font-weight:600;color:#0f172a;margin:8px 0;">${esc(exam.title||'(Untitled)')}</div><div>To ${n} student${n !== 1 ? 's' : ''}:</div>${listHTML}`,
+      `Send to ${n} student${n !== 1 ? 's' : ''} →`,
+      _doSendInvitations
+    );
+  }
+
+  async function _doSendInvitations() {
     const examId = document.getElementById('inviteExamSel').value;
     if (!examId) { showToast('Please select an exam.'); return; }
     const exam = allExams.find(e => e.id === examId) || {};
@@ -2811,7 +2864,26 @@
     if (frame) frame.srcdoc = buildResultsPreviewHTML();
   }
 
-  async function sendToSelected() {
+  function sendToSelected() {
+    const ids = [..._resultsSelectedIds];
+    if (!ids.length) { showToast('Select at least one student.'); return; }
+    const examId = document.getElementById('resultsExamSel').value;
+    const exam = allExams.find(e => e.id === examId) || {};
+    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
+    const names = ids.map(id => { const a = _resultsAllAttempts.find(a => a.id === id); return a ? fmtStudentName(a.student_name || '—') : '—'; });
+    const n = names.length;
+    const shown = names.slice(0, 5), more = n - 5;
+    const listHTML = `<div class="confirm-list">${shown.map(nm => `<div>${esc(nm)}</div>`).join('')}${more > 0 ? `<div style="color:#94a3b8;margin-top:4px;">+${more} more</div>` : ''}</div>`;
+    const bdLine = `<div style="margin-top:12px;">Q&amp;A breakdown: <span style="font-weight:600;color:${includeBreakdown ? '#16a34a' : '#64748b'};">${includeBreakdown ? 'Included' : 'Not included'}</span></div>`;
+    showConfirmModal(
+      'Send result emails?',
+      `<div>You are about to send score reports for:</div><div style="font-weight:600;color:#0f172a;margin:8px 0;">${esc(exam.title||'(Untitled)')}</div><div>To ${n} selected student${n !== 1 ? 's' : ''}:</div>${listHTML}${bdLine}`,
+      `Send to ${n} student${n !== 1 ? 's' : ''} →`,
+      _doSendToSelected
+    );
+  }
+
+  async function _doSendToSelected() {
     const ids = [..._resultsSelectedIds];
     if (!ids.length) { showToast('Select at least one student.'); return; }
     const examId = document.getElementById('resultsExamSel').value;
