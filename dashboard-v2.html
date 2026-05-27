@@ -43,6 +43,9 @@
     .nav-sub-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.6; }
     .nav-sub-item:hover { color: rgba(255,255,255,0.8); }
     .nav-sub-item.active { color: #93c5fd; }
+    .nav-grading-badge { margin-left: auto; padding: 1px 7px; font-size: 0.68rem; font-weight: 700; border-radius: 9999px; line-height: 1.5; flex-shrink: 0; white-space: nowrap; }
+    .nav-grading-badge.pending { background: #f59e0b; color: white; }
+    .nav-grading-badge.clear { background: #16a34a; color: white; }
     .sidebar-footer { padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
     .sidebar-inst { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sidebar-user { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -68,18 +71,24 @@
     .stat-value { font-size: 1.9rem; font-weight: 700; color: #0f172a; line-height: 1; }
 
     /* ── Action cards ── */
-    .action-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 28px; }
-    .action-card { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #e2e8f0; padding: 18px 20px; cursor: pointer; transition: box-shadow 0.1s; }
-    .action-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .action-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px; }
+    .action-card { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #e2e8f0; padding: 18px 20px; cursor: pointer; transition: background 0.1s, box-shadow 0.1s; position: relative; }
+    .action-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); background: #f8fafc; }
+    .action-card::after { content: '→'; position: absolute; bottom: 14px; right: 16px; font-size: 0.75rem; color: #94a3b8; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
+    .action-card:hover::after { opacity: 1; }
     .action-card.amber { border-left-color: #f59e0b; }
     .action-card.blue { border-left-color: #2563eb; }
     .action-card.green { border-left-color: #16a34a; }
+    .action-card.purple { border-left-color: #7c3aed; }
+    .action-card.muted { border-left-color: #e2e8f0; }
     .action-card-title { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
     .action-card-sub { font-size: 0.75rem; color: #64748b; }
     .action-card-count { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
     .action-card.amber .action-card-count { color: #d97706; }
     .action-card.blue .action-card-count { color: #2563eb; }
     .action-card.green .action-card-count { color: #16a34a; }
+    .action-card.purple .action-card-count { color: #7c3aed; }
+    .action-card.muted .action-card-count { color: #94a3b8; }
 
     /* ── Card ── */
     .card { background: white; border: 1px solid #e2e8f0; margin-bottom: 20px; }
@@ -137,8 +146,6 @@
     .badge-sched { background: #f3e8ff; color: #6b21a8; }
     /* ── Drill-down ── */
     .drill-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
-    .drill-back { background: none; border: none; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: #2563eb; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
-    .drill-back:hover { text-decoration: underline; }
     .drill-crumbs { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; }
     .drill-crumbs .crumb { color: #64748b; }
     .drill-crumbs .crumb-link { color: #2563eb; cursor: pointer; }
@@ -221,6 +228,14 @@
     .empty-sub { font-size: 0.76rem; color: #94a3b8; }
     .loading { padding: 36px; text-align: center; color: #94a3b8; font-size: 0.82rem; }
 
+    /* ── Grading queue states ── */
+    .gq-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 64px 20px; text-align: center; }
+    .gq-spinner { width: 28px; height: 28px; border: 2.5px solid #e2e8f0; border-top-color: #2563eb; border-radius: 50%; animation: gq-spin 0.75s linear infinite; margin-bottom: 14px; flex-shrink: 0; }
+    @keyframes gq-spin { to { transform: rotate(360deg); } }
+    .gq-state-icon { color: #94a3b8; margin-bottom: 14px; }
+    .gq-state-title { font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 6px; }
+    .gq-state-sub { font-size: 0.8rem; color: #64748b; max-width: 340px; line-height: 1.6; }
+
     /* ── Misc ── */
     .action-btns { display: flex; gap: 6px; align-items: center; }
     .spacer { flex: 1; }
@@ -285,7 +300,7 @@
       </div>
       <div class="nav-parent-body" id="nav-parent-subs">
         <div class="nav-sub-item" data-nav="subs-all" onclick="navigate('subs-all')">All</div>
-        <div class="nav-sub-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue</div>
+        <div class="nav-sub-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue<span class="nav-grading-badge" id="navGradingBadge" style="display:none;"></span></div>
       </div>
     </div>
 
@@ -305,6 +320,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
         Retakes
       </div>
+      <div class="nav-item" data-nav="hist-scheduled" onclick="navigate('hist-scheduled')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Scheduled
+      </div>
     </div>
 
     <div class="nav-section-toggle" data-section="history">
@@ -314,10 +333,6 @@
       <div class="nav-item" data-nav="hist-results" onclick="navigate('hist-results')">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Sent Results
-      </div>
-      <div class="nav-item" data-nav="hist-scheduled" onclick="navigate('hist-scheduled')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Scheduled
       </div>
     </div>
 
@@ -401,7 +416,6 @@
     <!-- L2: Groups view -->
     <div id="exams-l2" style="display:none;">
       <div class="drill-nav">
-        <button class="drill-back" onclick="examDrillBack(1)">← Back to Exams</button>
         <div class="drill-crumbs">
           <span class="crumb-link" onclick="examDrillBack(1)">Exams</span>
           <span class="sep">›</span>
@@ -439,7 +453,6 @@
     <!-- L3: Students view -->
     <div id="exams-l3" style="display:none;">
       <div class="drill-nav">
-        <button class="drill-back" onclick="examDrillBack(2)">← Back to Groups</button>
         <div class="drill-crumbs">
           <span class="crumb-link" onclick="examDrillBack(1)">Exams</span>
           <span class="sep">›</span>
@@ -517,20 +530,12 @@
 
     <!-- L1: Groups -->
     <div id="subs-l1">
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Group</th><th>Exams</th><th>Submitted</th><th>Pending Grading</th><th>Last Activity</th></tr></thead>
-            <tbody id="subsGroupsTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
+      <div id="subsGroupsContent"></div>
     </div>
 
     <!-- L2: Exams for group -->
     <div id="subs-l2" style="display:none;">
       <div class="drill-nav">
-        <button class="drill-back" onclick="subsDrillBack(1)">← Back to Groups</button>
         <div class="drill-crumbs">
           <span class="crumb-link" onclick="subsDrillBack(1)">Submissions</span>
           <span class="sep">›</span>
@@ -551,7 +556,6 @@
     <!-- L3: Students -->
     <div id="subs-l3" style="display:none;">
       <div class="drill-nav">
-        <button class="drill-back" onclick="subsDrillBack(2)">← Back to Exams</button>
         <div class="drill-crumbs">
           <span class="crumb-link" onclick="subsDrillBack(1)">Submissions</span>
           <span class="sep">›</span>
@@ -744,17 +748,10 @@
       <div class="page-title">Sent Results</div>
       <div class="page-sub">All result emails sent to students</div>
     </div>
-    <div class="toolbar">
+    <div class="toolbar" id="histResultsToolbar">
       <input class="search-input" type="text" id="histResultsSearch" placeholder="Search…" oninput="filterHistResults()">
     </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student</th><th>Email</th><th>Exam</th><th>Score</th><th>Sent At</th></tr></thead>
-          <tbody id="histResultsTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </div>
+    <div id="histResultsContent"></div>
   </section>
 
   <!-- HISTORY: SCHEDULED -->
@@ -763,14 +760,7 @@
       <div class="page-title">Scheduled</div>
       <div class="page-sub">Scheduled result deliveries</div>
     </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Scheduled For</th><th>Action</th></tr></thead>
-          <tbody id="histScheduledTable"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </div>
+    <div id="histScheduledContent"></div>
   </section>
 
   <!-- SETTINGS: PROFILE -->
@@ -931,8 +921,8 @@
     'home': null,
     'exams-all': 'manage', 'exams-published': 'manage', 'exams-drafts': 'manage',
     'subs-all': 'manage', 'subs-grading': 'manage',
-    'comm-invite': 'communicate', 'comm-results': 'communicate', 'comm-retakes': 'communicate',
-    'hist-results': 'history', 'hist-scheduled': 'history',
+    'comm-invite': 'communicate', 'comm-results': 'communicate', 'comm-retakes': 'communicate', 'hist-scheduled': 'communicate',
+    'hist-results': 'history',
     'settings-profile': 'settings', 'settings-inst': 'settings',
   };
 
@@ -1085,18 +1075,22 @@
     document.getElementById('homeGreeting').textContent = `${greeting}, ${firstName}`;
     document.getElementById('homeDate').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-    let pendingCount = 0, unsentCount = 0;
+    let pendingCount = 0, unsentCount = 0, scheduledCount = 0;
+    const activeExamsCount = allExams.filter(e => e.status === 'published').length;
+    const totalSubmissions = Object.values(examSubmittedCounts).reduce((s, v) => s + v, 0);
     if (allExams.length) {
       const examIds = allExams.map(e => e.id);
-      const [openQsRes, attRes] = await Promise.all([
+      const [openQsRes, attRes, schedRes] = await Promise.all([
         sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
-        sb.from('exam_attempts').select('exam_id,status,results_sent_at').in('exam_id', examIds).eq('status','submitted')
+        sb.from('exam_attempts').select('exam_id,status,results_sent_at').in('exam_id', examIds).eq('status','submitted'),
+        sb.from('exam_attempts').select('id', { count: 'exact', head: true }).in('exam_id', examIds).not('scheduled_send_at','is',null).is('results_sent_at',null)
       ]);
       const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
       (attRes.data||[]).forEach(a => {
         if (openExamIds.has(a.exam_id)) pendingCount++;
         if (!a.results_sent_at) unsentCount++;
       });
+      scheduledCount = schedRes.count || 0;
     }
 
     document.getElementById('homeActionCards').innerHTML = `
@@ -1105,10 +1099,25 @@
         <div class="action-card-title">to grade</div>
         <div class="action-card-sub">Open-ended answers awaiting review</div>
       </div>
-      <div class="action-card ${unsentCount > 0 ? 'blue' : 'green'}" onclick="navigate('comm-results')">
+      <div class="action-card ${unsentCount > 0 ? 'amber' : 'green'}" onclick="navigate('comm-results')">
         <div class="action-card-count">${unsentCount}</div>
         <div class="action-card-title">results to send</div>
         <div class="action-card-sub">Students waiting for their scores</div>
+      </div>
+      <div class="action-card blue" onclick="navigate('exams-published')">
+        <div class="action-card-count">${activeExamsCount}</div>
+        <div class="action-card-title">active exams</div>
+        <div class="action-card-sub">Exams currently published</div>
+      </div>
+      <div class="action-card blue" onclick="navigate('subs-all')">
+        <div class="action-card-count">${totalSubmissions}</div>
+        <div class="action-card-title">total submissions</div>
+        <div class="action-card-sub">All student submissions across exams</div>
+      </div>
+      <div class="action-card ${scheduledCount > 0 ? 'purple' : 'muted'}" onclick="navigate('hist-scheduled')">
+        <div class="action-card-count">${scheduledCount}</div>
+        <div class="action-card-title">scheduled deliveries</div>
+        <div class="action-card-sub">Pending result emails queued to send</div>
       </div>`;
 
     const tbody = document.getElementById('homeExamsTable');
@@ -1693,25 +1702,42 @@
     else if (tab === 'all') loadSubsGroups();
   }
 
+  let _subsGen = 0;
+
   async function loadSubsGroups() {
-    const tbody = document.getElementById('subsGroupsTable');
-    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
+    const gen = ++_subsGen;
+    const el = document.getElementById('subsGroupsContent');
     if (!allExams.length) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who complete exams will appear here.</div></div></td></tr>`;
-      const el = document.getElementById('subsTabCount-all');
-      if (el) { el.textContent = 0; el.classList.add('empty'); }
+      el.innerHTML = _subsEmptyHTML();
+      const countEl = document.getElementById('subsTabCount-all');
+      if (countEl) { countEl.textContent = 0; countEl.classList.add('empty'); }
       return;
     }
-    const examIds = allExams.map(e => e.id);
-    const { data } = await sb.from('exam_attempts').select('*').in('exam_id', examIds).order('submitted_at', { ascending: false });
-    subsAllAttempts = data || [];
-    renderSubsGroups();
+    el.innerHTML = _subsLoadingHTML();
+    const timeout = setTimeout(() => {
+      if (_subsGen === gen) el.innerHTML = _subsErrorHTML();
+    }, 8000);
+    try {
+      const examIds = allExams.map(e => e.id);
+      const { data, error } = await sb.from('exam_attempts').select('*').in('exam_id', examIds).order('submitted_at', { ascending: false });
+      clearTimeout(timeout);
+      if (_subsGen !== gen) return;
+      if (error) { el.innerHTML = _subsErrorHTML(); return; }
+      subsAllAttempts = data || [];
+      renderSubsGroups();
+    } catch(err) {
+      clearTimeout(timeout);
+      if (_subsGen !== gen) return;
+      el.innerHTML = _subsErrorHTML();
+    }
   }
 
   function renderSubsGroups() {
-    const tbody = document.getElementById('subsGroupsTable');
+    const el = document.getElementById('subsGroupsContent');
     if (!subsAllAttempts.length) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-title">No submissions yet</div><div class="empty-sub">Students who complete exams will appear here.</div></div></td></tr>`;
+      el.innerHTML = _subsEmptyHTML();
+      const countEl = document.getElementById('subsTabCount-all');
+      if (countEl) { countEl.textContent = 0; countEl.classList.add('empty'); }
       return;
     }
     const groupMap = {};
@@ -1735,13 +1761,38 @@
     });
     const allCountEl = document.getElementById('subsTabCount-all');
     if (allCountEl) { allCountEl.textContent = groups.length; allCountEl.classList.toggle('empty', groups.length === 0); }
-    tbody.innerHTML = groups.map(g => `<tr class="tr-click" onclick="drillSubsToGroup('${g.name.replace(/'/g, "\\'")}')">
-      <td style="font-weight:600;">${esc(g.name)}</td>
-      <td style="color:#64748b;">${g.examIds.size}</td>
-      <td style="color:#64748b;">${g.submitted}</td>
-      <td style="color:#64748b;">${g.pending}</td>
-      <td style="color:#64748b;">${g.lastActivity ? formatDate(g.lastActivity) : '—'}</td>
-    </tr>`).join('');
+    el.innerHTML = `<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Group</th><th>Exams</th><th>Submitted</th><th>Pending Grading</th><th>Last Activity</th></tr></thead>
+      <tbody>${groups.map(g => `<tr class="tr-click" onclick="drillSubsToGroup('${g.name.replace(/'/g, "\\'")}')">
+        <td style="font-weight:600;">${esc(g.name)}</td>
+        <td style="color:#64748b;">${g.examIds.size}</td>
+        <td style="color:#64748b;">${g.submitted}</td>
+        <td style="color:#64748b;">${g.pending}</td>
+        <td style="color:#64748b;">${g.lastActivity ? formatDate(g.lastActivity) : '—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>`;
+  }
+
+  function _subsLoadingHTML() {
+    return `<div class="gq-state"><div class="gq-spinner"></div><div style="font-size:0.78rem;color:#94a3b8;">Loading submissions…</div></div>`;
+  }
+
+  function _subsEmptyHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div class="gq-state-title">No submissions yet</div>
+      <div class="gq-state-sub">Once students start submitting their exams, their results will appear here.</div>
+      <button class="btn btn-ghost btn-sm" onclick="navigate('exams-all')" style="margin-top:16px;">Go to Exams →</button>
+    </div>`;
+  }
+
+  function _subsErrorHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon" style="color:#f59e0b;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="gq-state-title">Could not load submissions</div>
+      <div class="gq-state-sub">There was a problem fetching your data. Please refresh the page or try again shortly.</div>
+      <button class="btn btn-ghost btn-sm" onclick="loadSubsGroups()" style="margin-top:16px;">Retry</button>
+    </div>`;
   }
 
   function drillSubsToGroup(groupName) {
@@ -2065,46 +2116,91 @@
 
   // ── GRADING QUEUE ─────────────────────────────────────────────────────
 
+  function _updateGradingNavBadge(count) {
+    const badge = document.getElementById('navGradingBadge');
+    if (!badge) return;
+    badge.textContent = count;
+    badge.classList.toggle('pending', count > 0);
+    badge.classList.toggle('clear', count === 0);
+    badge.style.display = '';
+  }
+
+  let _gqGen = 0;
+
   async function renderGradingQueue() {
+    const gen = ++_gqGen;
     const el = document.getElementById('gradingContent');
-    const empty = `<div class="empty-state"><div class="empty-title">All caught up!</div><div class="empty-sub">No open-ended answers awaiting review.</div></div>`;
-    if (!allExams.length) { el.innerHTML = empty; return; }
-    el.innerHTML = '<div class="loading">Loading…</div>';
-    const examIds = allExams.map(e => e.id);
-    const [openQsRes, attRes] = await Promise.all([
-      sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
-      sb.from('exam_attempts')
-        .select('id,exam_id,student_name,submitted_at,score_mcq')
-        .in('exam_id', examIds).eq('status','submitted')
-        .order('submitted_at', { ascending: false })
-    ]);
-    const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
-    const pending = (attRes.data||[]).filter(a => openExamIds.has(a.exam_id) && a.score_mcq === null);
-    const gradingCountEl = document.getElementById('subsTabCount-grading');
-    if (gradingCountEl) { gradingCountEl.textContent = pending.length; gradingCountEl.classList.toggle('empty', pending.length === 0); }
-    if (!pending.length) { el.innerHTML = empty; return; }
-    const examMap = {};
-    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-    const byExam = {};
-    pending.forEach(a => {
-      if (!byExam[a.exam_id]) byExam[a.exam_id] = { title: examMap[a.exam_id], rows: [] };
-      byExam[a.exam_id].rows.push(a);
-    });
-    el.innerHTML = Object.values(byExam).map(g => `
-      <div style="margin-bottom:20px;">
-        <div style="font-size:0.78rem;font-weight:700;color:#0f172a;margin-bottom:8px;">
-          ${esc(g.title)} <span style="font-weight:400;color:#94a3b8;">(${g.rows.length} pending)</span>
-        </div>
-        <div class="card"><div class="table-wrap"><table>
-          <thead><tr><th>Student</th><th>Exam</th><th>Submitted</th><th>Action</th></tr></thead>
-          <tbody>${g.rows.map(a => `<tr>
-            <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
-            <td style="color:#64748b;">${esc(g.title)}</td>
-            <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
-            <td><a href="student-review.html?attempt=${esc(a.id)}"><button class="btn btn-primary btn-sm">Grade →</button></a></td>
-          </tr>`).join('')}</tbody>
-        </table></div></div>
-      </div>`).join('');
+    if (!allExams.length) { el.innerHTML = _gqEmptyHTML(); _updateGradingNavBadge(0); return; }
+    el.innerHTML = _gqLoadingHTML();
+    const timeout = setTimeout(() => {
+      if (_gqGen === gen) el.innerHTML = _gqErrorHTML();
+    }, 8000);
+    try {
+      const examIds = allExams.map(e => e.id);
+      const [openQsRes, attRes] = await Promise.all([
+        sb.from('questions').select('exam_id').eq('type','open').in('exam_id', examIds),
+        sb.from('exam_attempts')
+          .select('id,exam_id,student_name,submitted_at,score_mcq')
+          .in('exam_id', examIds).eq('status','submitted')
+          .order('submitted_at', { ascending: false })
+      ]);
+      clearTimeout(timeout);
+      if (_gqGen !== gen) return;
+      if (openQsRes.error || attRes.error) { el.innerHTML = _gqErrorHTML(); return; }
+      const openExamIds = new Set((openQsRes.data||[]).map(q => q.exam_id));
+      const pending = (attRes.data||[]).filter(a => openExamIds.has(a.exam_id) && a.score_mcq === null);
+      const gradingCountEl = document.getElementById('subsTabCount-grading');
+      if (gradingCountEl) { gradingCountEl.textContent = pending.length; gradingCountEl.classList.toggle('empty', pending.length === 0); }
+      _updateGradingNavBadge(pending.length);
+      if (!pending.length) { el.innerHTML = _gqEmptyHTML(); return; }
+      const examMap = {};
+      allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+      const byExam = {};
+      pending.forEach(a => {
+        if (!byExam[a.exam_id]) byExam[a.exam_id] = { title: examMap[a.exam_id], rows: [] };
+        byExam[a.exam_id].rows.push(a);
+      });
+      el.innerHTML = Object.values(byExam).map(g => `
+        <div style="margin-bottom:20px;">
+          <div style="font-size:0.78rem;font-weight:700;color:#0f172a;margin-bottom:8px;">
+            ${esc(g.title)} <span style="font-weight:400;color:#94a3b8;">(${g.rows.length} pending)</span>
+          </div>
+          <div class="card"><div class="table-wrap"><table>
+            <thead><tr><th>Student</th><th>Exam</th><th>Submitted</th><th>Action</th></tr></thead>
+            <tbody>${g.rows.map(a => `<tr>
+              <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+              <td style="color:#64748b;">${esc(g.title)}</td>
+              <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
+              <td><a href="student-review.html?attempt=${esc(a.id)}"><button class="btn btn-primary btn-sm">Grade →</button></a></td>
+            </tr>`).join('')}</tbody>
+          </table></div></div>
+        </div>`).join('');
+    } catch(err) {
+      clearTimeout(timeout);
+      if (_gqGen !== gen) return;
+      el.innerHTML = _gqErrorHTML();
+    }
+  }
+
+  function _gqLoadingHTML() {
+    return `<div class="gq-state"><div class="gq-spinner"></div><div style="font-size:0.78rem;color:#94a3b8;">Loading submissions…</div></div>`;
+  }
+
+  function _gqEmptyHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div class="gq-state-title">All caught up</div>
+      <div class="gq-state-sub">No open-ended answers are waiting for review. Check back after your next exam session.</div>
+    </div>`;
+  }
+
+  function _gqErrorHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon" style="color:#f59e0b;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="gq-state-title">Could not load the grading queue</div>
+      <div class="gq-state-sub">There was a problem fetching submissions. Please refresh the page or try again shortly.</div>
+      <button class="btn btn-ghost btn-sm" onclick="renderGradingQueue()" style="margin-top:16px;">Retry</button>
+    </div>`;
   }
 
   // ── COMMUNICATE: INVITATIONS ──────────────────────────────────────────
@@ -2615,61 +2711,163 @@
 
   // ── HISTORY ───────────────────────────────────────────────────────────
 
+  let _hrGen = 0;
+
   async function loadHistResults() {
-    const tbody = document.getElementById('histResultsTable');
-    if (!allExams.length) { tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No data yet.</td></tr>`; return; }
-    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
-    const examIds = allExams.map(e => e.id);
-    const { data } = await sb.from('exam_attempts')
-      .select('*').in('exam_id', examIds).not('results_sent_at','is',null)
-      .order('results_sent_at', { ascending: false }).limit(100);
-    histResultsAll = data || [];
-    filterHistResults();
+    const gen = ++_hrGen;
+    const content = document.getElementById('histResultsContent');
+    const toolbar = document.getElementById('histResultsToolbar');
+    const searchEl = document.getElementById('histResultsSearch');
+    searchEl.value = '';
+    if (!allExams.length) {
+      toolbar.style.display = 'none';
+      content.innerHTML = _hrEmptyHTML();
+      return;
+    }
+    toolbar.style.display = '';
+    searchEl.disabled = true;
+    searchEl.style.opacity = '0.5';
+    content.innerHTML = _hrLoadingHTML();
+    const timeout = setTimeout(() => {
+      if (_hrGen !== gen) return;
+      toolbar.style.display = 'none';
+      document.getElementById('histResultsContent').innerHTML = _hrErrorHTML();
+    }, 8000);
+    try {
+      const examIds = allExams.map(e => e.id);
+      const { data, error } = await sb.from('exam_attempts')
+        .select('*').in('exam_id', examIds).not('results_sent_at','is',null)
+        .order('results_sent_at', { ascending: false }).limit(100);
+      clearTimeout(timeout);
+      if (_hrGen !== gen) return;
+      if (error) { toolbar.style.display = 'none'; content.innerHTML = _hrErrorHTML(); return; }
+      histResultsAll = data || [];
+      searchEl.disabled = false;
+      searchEl.style.opacity = '';
+      filterHistResults();
+    } catch(err) {
+      clearTimeout(timeout);
+      if (_hrGen !== gen) return;
+      toolbar.style.display = 'none';
+      document.getElementById('histResultsContent').innerHTML = _hrErrorHTML();
+    }
   }
 
   function filterHistResults() {
     const q = (document.getElementById('histResultsSearch').value || '').toLowerCase();
+    const content = document.getElementById('histResultsContent');
+    const toolbar = document.getElementById('histResultsToolbar');
+    if (!histResultsAll.length) {
+      toolbar.style.display = 'none';
+      content.innerHTML = _hrEmptyHTML();
+      return;
+    }
+    toolbar.style.display = '';
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
     const list = q ? histResultsAll.filter(a =>
       (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
     ) : [...histResultsAll];
-    const examMap = {};
-    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-    const tbody = document.getElementById('histResultsTable');
     if (!list.length) {
-      tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No results sent yet.</td></tr>`;
+      content.innerHTML = `<div class="gq-state" style="padding:40px 20px;">
+        <div style="font-size:0.82rem;color:#64748b;">No results match your search.</div>
+        <a onclick="document.getElementById('histResultsSearch').value='';filterHistResults();" style="font-size:0.78rem;color:#2563eb;cursor:pointer;text-decoration:underline;margin-top:8px;display:block;">Clear search</a>
+      </div>`;
       return;
     }
-    tbody.innerHTML = list.map(a => `<tr>
-      <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
-      <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
-      <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
-      <td>${fmtScore(a)}</td>
-      <td style="color:#64748b;">${formatDateTime(a.results_sent_at)}</td>
-    </tr>`).join('');
+    content.innerHTML = `<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Student</th><th>Email</th><th>Exam</th><th>Score</th><th>Sent At</th></tr></thead>
+      <tbody>${list.map(a => `<tr>
+        <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+        <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
+        <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+        <td>${fmtScore(a)}</td>
+        <td style="color:#64748b;">${formatDateTime(a.results_sent_at)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>`;
   }
 
+  function _hrLoadingHTML() {
+    return `<div class="gq-state"><div class="gq-spinner"></div><div style="font-size:0.78rem;color:#94a3b8;">Loading history…</div></div>`;
+  }
+
+  function _hrEmptyHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div class="gq-state-title">No results sent yet</div>
+      <div class="gq-state-sub">Results you send to students will be logged here. Head to Send Results to get started.</div>
+      <button class="btn btn-ghost btn-sm" onclick="navigate('comm-results')" style="margin-top:16px;">Go to Send Results →</button>
+    </div>`;
+  }
+
+  function _hrErrorHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon" style="color:#f59e0b;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="gq-state-title">Could not load history</div>
+      <div class="gq-state-sub">There was a problem fetching the send history. Please refresh or try again.</div>
+      <button class="btn btn-ghost btn-sm" onclick="loadHistResults()" style="margin-top:16px;">Retry</button>
+    </div>`;
+  }
+
+  let _hsGen = 0;
+
   async function loadHistScheduled() {
-    const tbody = document.getElementById('histScheduledTable');
-    if (!allExams.length) { tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No data yet.</td></tr>`; return; }
-    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
-    const examIds = allExams.map(e => e.id);
-    const { data } = await sb.from('exam_attempts')
-      .select('*').in('exam_id', examIds).not('scheduled_send_at','is',null).is('results_sent_at', null)
-      .order('scheduled_send_at', { ascending: true });
-    const scheduled = data || [];
-    if (!scheduled.length) {
-      tbody.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">No scheduled deliveries.</td></tr>`;
-      return;
+    const gen = ++_hsGen;
+    const content = document.getElementById('histScheduledContent');
+    if (!allExams.length) { content.innerHTML = _hsEmptyHTML(); return; }
+    content.innerHTML = _hsLoadingHTML();
+    const timeout = setTimeout(() => {
+      if (_hsGen === gen) document.getElementById('histScheduledContent').innerHTML = _hsErrorHTML();
+    }, 8000);
+    try {
+      const examIds = allExams.map(e => e.id);
+      const { data, error } = await sb.from('exam_attempts')
+        .select('*').in('exam_id', examIds).not('scheduled_send_at','is',null).is('results_sent_at', null)
+        .order('scheduled_send_at', { ascending: true });
+      clearTimeout(timeout);
+      if (_hsGen !== gen) return;
+      if (error) { content.innerHTML = _hsErrorHTML(); return; }
+      const scheduled = data || [];
+      if (!scheduled.length) { content.innerHTML = _hsEmptyHTML(); return; }
+      const examMap = {};
+      allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+      content.innerHTML = `<div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Scheduled For</th><th>Action</th></tr></thead>
+        <tbody>${scheduled.map(a => `<tr>
+          <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+          <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+          <td>${fmtScore(a)}</td>
+          <td style="color:#64748b;">${formatDateTime(a.scheduled_send_at)}</td>
+          <td><button class="btn btn-danger-ghost btn-sm" onclick="cancelScheduled('${a.id}')">Cancel</button></td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>`;
+    } catch(err) {
+      clearTimeout(timeout);
+      if (_hsGen !== gen) return;
+      content.innerHTML = _hsErrorHTML();
     }
-    const examMap = {};
-    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-    tbody.innerHTML = scheduled.map(a => `<tr>
-      <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
-      <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
-      <td>${fmtScore(a)}</td>
-      <td style="color:#64748b;">${formatDateTime(a.scheduled_send_at)}</td>
-      <td><button class="btn btn-danger-ghost btn-sm" onclick="cancelScheduled('${a.id}')">Cancel</button></td>
-    </tr>`).join('');
+  }
+
+  function _hsLoadingHTML() {
+    return `<div class="gq-state"><div class="gq-spinner"></div><div style="font-size:0.78rem;color:#94a3b8;">Loading scheduled deliveries…</div></div>`;
+  }
+
+  function _hsEmptyHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="gq-state-title">No deliveries scheduled</div>
+      <div class="gq-state-sub">You can schedule result emails from the Send Results page. Scheduled deliveries will appear here and can be cancelled before they send.</div>
+      <button class="btn btn-ghost btn-sm" onclick="navigate('comm-results')" style="margin-top:16px;">Go to Send Results →</button>
+    </div>`;
+  }
+
+  function _hsErrorHTML() {
+    return `<div class="gq-state">
+      <div class="gq-state-icon" style="color:#f59e0b;"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="gq-state-title">Could not load scheduled deliveries</div>
+      <div class="gq-state-sub">There was a problem fetching your scheduled deliveries. Please refresh or try again.</div>
+      <button class="btn btn-ghost btn-sm" onclick="loadHistScheduled()" style="margin-top:16px;">Retry</button>
+    </div>`;
   }
 
   async function cancelScheduled(attemptId) {
