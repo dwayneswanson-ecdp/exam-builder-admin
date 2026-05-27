@@ -464,7 +464,7 @@
       Dashboard
     </div>
 
-    <div class="nav-action" onclick="window.location.href='exam-onboarding.html'">
+    <div class="nav-action" onclick="navigate('exams-create')">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Create Exam
     </div>
@@ -504,7 +504,7 @@
     <div class="card" style="margin-top:24px;">
       <div class="card-header">
         <div class="card-title">Recent Exams</div>
-        <a href="exam-onboarding.html"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Exam</button></a>
+        <button class="btn btn-primary" onclick="navigate('exams-create')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Exam</button>
       </div>
       <div class="table-wrap">
         <table>
@@ -524,7 +524,7 @@
       <div class="toolbar">
         <input class="search-input" type="text" id="examSearch" placeholder="Search exams…" oninput="filterExams()">
         <div class="spacer"></div>
-        <a href="exam-onboarding.html"><button class="btn btn-primary"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Exam</button></a>
+        <button class="btn btn-primary" onclick="navigate('exams-create')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Create Exam</button>
       </div>
       <div class="subtabs">
         <div class="subtab active" id="examTab-all" onclick="setExamTab('all')">All<span class="tab-count" id="examTabCount-all">…</span></div>
@@ -1160,6 +1160,13 @@
   <!-- SETTINGS: INSTITUTION (redirect alias — section kept for routing compatibility) -->
   <section class="section" id="section-settings-inst" style="display:none !important;"></section>
 
+  <!-- EXAM CREATE WIZARD (shell) -->
+  <section class="section" id="section-exams-create">
+    <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;color:#94a3b8;font-size:0.88rem;">
+      Exam creation wizard loading…
+    </div>
+  </section>
+
   <!-- STUDENT REVIEW -->
   <section class="section" id="section-student-review">
     <div class="drill-nav" id="sr-breadcrumb">
@@ -1302,6 +1309,7 @@
 
   const SECTION_MAP = {
     'home': 'home',
+    'exams-create': 'exams-create',
     'exams-all': 'exams', 'exams-published': 'exams', 'exams-drafts': 'exams',
     'subs-all': 'subs', 'subs-grading': 'subs', 'hist-results': 'subs', 'subs-released': 'subs',
     'comm-invite': 'comm', 'comm-results': 'comm', 'comm-retakes': 'comm', 'hist-scheduled': 'comm',
@@ -1321,6 +1329,7 @@
 
   const NAV_ACTIVE_MAP = {
     'home': 'home',
+    'exams-create': 'manage-exams',
     'exams-all': 'manage-exams', 'exams-published': 'manage-exams', 'exams-drafts': 'manage-exams',
     'subs-all': 'review-subs', 'subs-grading': 'review-subs', 'hist-results': 'review-subs', 'subs-released': 'review-subs',
     'comm-invite': 'communications', 'comm-results': 'communications',
@@ -1332,6 +1341,7 @@
   // nav → hash for section-level navigation
   const NAV_TO_HASH = {
     'home':             '',
+    'exams-create':     'exams/create',
     'exams-all':        'exams',
     'exams-published':  'exams/published',
     'exams-drafts':     'exams/drafts',
@@ -1369,7 +1379,7 @@
     // Simple flat lookup first (legacy aliases + legacy Part-6 hashes)
     const legacyMap = {
       'dashboard': 'home',
-      'exams': 'exams-all', 'exams/published': 'exams-published', 'exams/drafts': 'exams-drafts',
+      'exams': 'exams-all', 'exams/create': 'exams-create', 'exams/published': 'exams-published', 'exams/drafts': 'exams-drafts',
       'submissions': 'subs-all', 'submissions/grading-queue': 'subs-grading',
       'submissions/sent-results': 'hist-results', 'submissions/released': 'subs-released',
       'communications': 'comm-invite', 'communications/send-results': 'comm-results',
@@ -1617,7 +1627,7 @@
     const tbody = document.getElementById('homeExamsTable');
     const recent5 = allExams.slice(0, 5);
     if (!recent5.length) {
-      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No exams yet. <a href="exam-onboarding.html" style="color:#2563eb;">Create your first exam →</a></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No exams yet. <span onclick="navigate('exams-create')" style="color:#2563eb;cursor:pointer;">Create your first exam →</span></td></tr>`;
     } else {
       tbody.innerHTML = recent5.map(e => {
         const badge = e.status === 'published'
