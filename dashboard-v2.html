@@ -43,6 +43,10 @@
     .nav-sub-item::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; opacity: 0.6; }
     .nav-sub-item:hover { color: rgba(255,255,255,0.8); }
     .nav-sub-item.active { color: #93c5fd; }
+    .nav-group-label { display: flex; align-items: center; gap: 8px; padding: 10px 20px 3px; color: rgba(255,255,255,0.28); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em; text-transform: none; cursor: default; user-select: none; }
+    .nav-group-label svg { flex-shrink: 0; opacity: 0.5; }
+    .nav-action { display: flex; align-items: center; gap: 8px; padding: 8px 20px; color: #60a5fa; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: color 0.1s; user-select: none; }
+    .nav-action:hover { color: #93c5fd; }
     .nav-grading-badge { margin-left: auto; padding: 1px 7px; font-size: 0.68rem; font-weight: 700; border-radius: 9999px; line-height: 1.5; flex-shrink: 0; white-space: nowrap; }
     .nav-grading-badge.pending { background: #f59e0b; color: white; }
     .nav-grading-badge.clear { background: #16a34a; color: white; }
@@ -396,22 +400,24 @@
       <span>Manage</span>
     </div>
     <div class="nav-section-body" id="nav-section-manage">
-      <div class="nav-parent-toggle" data-parent="exams" onclick="navigate('exams-all')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Exams
-        <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      <div class="nav-action" onclick="window.location.href='exam-onboarding.html'">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create Exam
       </div>
-      <div class="nav-parent-body" id="nav-parent-exams">
+      <div class="nav-group-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Exams
+      </div>
+      <div class="nav-parent-body open" id="nav-parent-exams">
         <div class="nav-sub-item" data-nav="exams-all" onclick="navigate('exams-all')">All Exams</div>
         <div class="nav-sub-item" data-nav="exams-published" onclick="navigate('exams-published')">Published</div>
         <div class="nav-sub-item" data-nav="exams-drafts" onclick="navigate('exams-drafts')">Drafts</div>
       </div>
-      <div class="nav-parent-toggle" data-parent="subs" onclick="toggleParent('subs')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <div class="nav-group-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Submissions
-        <svg class="nav-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      <div class="nav-parent-body" id="nav-parent-subs">
+      <div class="nav-parent-body open" id="nav-parent-subs">
         <div class="nav-sub-item" data-nav="subs-all" onclick="navigate('subs-all')">All</div>
         <div class="nav-sub-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue<span class="nav-grading-badge" id="navGradingBadge" style="display:none;"></span></div>
       </div>
