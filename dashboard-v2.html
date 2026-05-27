@@ -119,6 +119,8 @@
     .bulk-bar { display: none; align-items: center; gap: 12px; padding: 10px 18px; background: #eff6ff; border-bottom: 1px solid #dbeafe; font-size: 0.78rem; font-weight: 600; color: #1d4ed8; }
     .bulk-bar.show { display: flex; }
     .bulk-bar-count { flex: 1; }
+    #drillBulkBar { display: flex; border: 1px solid #dbeafe; border-radius: 8px; max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; transition: max-height 0.15s ease-out, padding 0.15s ease-out, margin-bottom 0.15s ease-out; }
+    #drillBulkBar.show { max-height: 60px; padding-top: 10px; padding-bottom: 10px; margin-bottom: 16px; }
 
     /* ── Three-dot menu ── */
     .dot-menu-wrap { position: relative; display: inline-block; }
@@ -144,6 +146,31 @@
     .badge-in-progress { background: #f3e8ff; color: #6b21a8; }
     .badge-bounced { background: #fee2e2; color: #991b1b; }
     .badge-sched { background: #f3e8ff; color: #6b21a8; }
+    /* ── Drill strip ── */
+    .drill-strip { background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center; }
+    .drill-strip-block { display:flex;flex-direction:column;padding:0 20px;flex:1;min-width:0; }
+    .drill-strip-block:first-child { padding-left:0; }
+    .drill-strip-block:last-child { padding-right:0; }
+    .drill-strip-val { font-size:19px;font-weight:600;color:#0f172a;line-height:1.2;display:flex;align-items:center;gap:4px; }
+    .drill-strip-label { font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;margin-top:4px; }
+    .drill-strip-div { width:1px;height:36px;background:#e2e8f0;flex-shrink:0; }
+    .drill-strip-skel { background:#e2e8f0;border-radius:4px;animation:ds-pulse 1.2s ease-in-out infinite; }
+    @keyframes ds-pulse { 0%,100%{opacity:1} 50%{opacity:.45} }
+    /* ── Student detail (L4) ── */
+    .sd-score-bar-track { height:8px;background:#f1f5f9;border-radius:9999px;overflow:hidden;margin-top:6px; }
+    .sd-score-bar-fill { height:100%;border-radius:9999px;transition:width 0.4s ease-out; }
+    .sd-timeline { list-style:none;margin:0;padding:0; }
+    .sd-timeline-item { display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;cursor:pointer; }
+    .sd-timeline-item:last-child { border-bottom:none; }
+    .sd-timeline-icon { width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;margin-top:1px; }
+    .sd-timeline-icon.green { background:#dcfce7;color:#16a34a; }
+    .sd-timeline-icon.red { background:#fee2e2;color:#dc2626; }
+    .sd-timeline-icon.grey { background:#f1f5f9;color:#64748b; }
+    .sd-timeline-expand { overflow:hidden;max-height:0;transition:max-height 0.2s ease;font-size:12px;color:#64748b;margin-top:4px; }
+    .sd-timeline-expand.open { max-height:60px; }
+    .sd-action-card { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;background:white;border:1px solid #e2e8f0;margin-bottom:12px; }
+    .sd-action-title { font-size:0.88rem;font-weight:600;color:#0f172a;margin-bottom:4px; }
+    .sd-action-desc { font-size:0.78rem;color:#64748b;line-height:1.5;max-width:400px; }
     /* ── Drill-down ── */
     .drill-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
     .drill-crumbs { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; }
@@ -270,6 +297,10 @@
 
     /* ── History ── */
     .section-label { font-size: 0.78rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; margin-top: 4px; }
+    .hist-date-sel { padding:6px 10px;border:1px solid #e2e8f0;border-radius:0;font-family:inherit;font-size:0.82rem;color:#0f172a;outline:none;cursor:pointer;background:white; }
+    .hist-date-sel.active { border-color:#2563eb;color:#2563eb; }
+    .hist-custom-range { display:flex;align-items:center;gap:10px;padding:4px 0 12px;flex-wrap:wrap; }
+    .hist-footer { font-size:13px;color:#94a3b8;padding:8px 0 0; }
 
     /* ── Empty / Loading ── */
     .empty-state { padding: 40px 20px; text-align: center; }
@@ -475,6 +506,7 @@
         <div class="page-title" id="drillL2Title"></div>
         <button class="btn btn-primary btn-sm" onclick="drillToggleAddGroup()">+ Add Group</button>
       </div>
+      <div id="drillL2Strip" style="display:none;"></div>
       <div id="drillAddGroupForm" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:12px;">
         <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
           <div>
@@ -517,6 +549,7 @@
           <button onclick="drillGoToResults()" style="background:#2563eb;color:white;border:none;border-radius:0;padding:8px 16px;font-size:0.85rem;font-weight:600;cursor:pointer;">Send Results →</button>
         </div>
       </div>
+      <div id="drillL3Strip" style="display:none;"></div>
       <div class="toolbar">
         <input class="search-input" type="text" id="drillSearch" placeholder="Search students…" oninput="filterDrillStudents()">
       </div>
@@ -532,14 +565,16 @@
           <button onclick="copyToClipboard(_drillGroupLink)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy exam link">📋</button>
         </span>
       </div>
+      <div class="bulk-bar" id="drillBulkBar">
+        <span class="bulk-bar-count" id="drillBulkCount">0 selected</span>
+        <button class="btn btn-primary btn-sm" onclick="drillBulkGrantRetake()">Grant Retake</button>
+        <button class="btn btn-success btn-sm" onclick="drillBulkSendResults()">Send Results</button>
+        <button class="btn btn-ghost btn-sm" onclick="drillBulkResendLinks()">Resend Links</button>
+        <button class="btn btn-danger-ghost btn-sm" onclick="drillBulkDelete()">Delete</button>
+        <a onclick="drillClearSelection()" style="font-size:0.78rem;color:#64748b;cursor:pointer;margin-left:4px;">Clear selection</a>
+      </div>
+      <div id="drillRetakeSuccess" style="font-size:13px;color:#16a34a;font-weight:600;overflow:hidden;opacity:0;transition:opacity 0.5s;padding:0;"></div>
       <div class="card">
-        <div class="bulk-bar" id="drillBulkBar">
-          <span class="bulk-bar-count" id="drillBulkCount">0 selected</span>
-          <button class="btn btn-success btn-sm" onclick="drillBulkSendResults()">Send Results</button>
-          <button class="btn btn-ghost btn-sm" onclick="drillBulkResendLinks()">Resend Links</button>
-          <button class="btn btn-danger-ghost btn-sm" onclick="drillBulkDelete()">Delete</button>
-          <button class="btn btn-ghost btn-sm" onclick="drillClearSelection()">Cancel</button>
-        </div>
         <div class="table-wrap">
           <table class="student-table">
             <thead>
@@ -556,6 +591,45 @@
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- L4: Student detail view -->
+    <div id="exams-l4" style="display:none;">
+      <div class="drill-nav">
+        <div class="drill-crumbs">
+          <span class="crumb-link" onclick="examDrillBack(1)">Exams</span>
+          <span class="sep">›</span>
+          <span class="crumb-link" id="drillL4ExamCrumb" onclick="examDrillBack(2)"></span>
+          <span class="sep">›</span>
+          <span class="crumb-link" id="drillL4GroupCrumb" onclick="examDrillBack(3)"></span>
+          <span class="sep">›</span>
+          <span class="crumb" id="drillL4StudentCrumb"></span>
+        </div>
+      </div>
+      <!-- Persistent header -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
+          <div id="sdAvatar" style="width:40px;height:40px;border-radius:50%;background:#2563eb;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:white;flex-shrink:0;letter-spacing:0.5px;"></div>
+          <div>
+            <div style="font-size:1rem;font-weight:600;color:#0f172a;line-height:1.3;" id="sdName"></div>
+            <div style="font-size:0.82rem;color:#64748b;" id="sdEmail"></div>
+            <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;" id="sdExamGroup"></div>
+          </div>
+        </div>
+        <div class="drill-strip" id="sdMetaStrip"></div>
+      </div>
+      <!-- Tab bar -->
+      <div class="subtabs" style="margin-bottom:0;">
+        <div class="subtab active" id="sdTab-overview" onclick="sdSwitchTab('overview')">Overview</div>
+        <div class="subtab" id="sdTab-qa" onclick="sdSwitchTab('qa')">Q&amp;A Breakdown</div>
+        <div class="subtab" id="sdTab-email" onclick="sdSwitchTab('email')">Email History</div>
+        <div class="subtab" id="sdTab-actions" onclick="sdSwitchTab('actions')">Actions</div>
+      </div>
+      <!-- Tab panels -->
+      <div id="sdPane-overview" style="padding-top:18px;"></div>
+      <div id="sdPane-qa" style="display:none;padding-top:18px;"></div>
+      <div id="sdPane-email" style="display:none;padding-top:18px;"></div>
+      <div id="sdPane-actions" style="display:none;padding-top:18px;"></div>
     </div>
 
   </section>
@@ -802,6 +876,23 @@
     </div>
     <div class="toolbar" id="histResultsToolbar">
       <input class="search-input" type="text" id="histResultsSearch" placeholder="Search…" oninput="filterHistResults()">
+      <select class="hist-date-sel" id="histResultsDateSel" onchange="hrDateChange()">
+        <option value="all">All time</option>
+        <option value="today">Today</option>
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="month">This month</option>
+        <option value="lastmonth">Last month</option>
+        <option value="custom">Custom range…</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" id="histResultsExportBtn" onclick="exportHistResultsCSV()" disabled style="display:flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+    </div>
+    <div class="hist-custom-range" id="histResultsCustomRange" style="display:none;">
+      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">From</span>
+      <input type="date" class="search-input" id="histResultsFrom" onchange="hrCustomRangeChange()" style="width:145px;">
+      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">To</span>
+      <input type="date" class="search-input" id="histResultsTo" onchange="hrCustomRangeChange()" style="width:145px;">
+      <a onclick="hrClearCustom()" style="font-size:0.78rem;color:#64748b;cursor:pointer;text-decoration:underline;">Clear</a>
     </div>
     <div id="histResultsContent"></div>
   </section>
@@ -811,6 +902,25 @@
     <div class="page-header">
       <div class="page-title">Scheduled</div>
       <div class="page-sub">Scheduled result deliveries</div>
+    </div>
+    <div class="toolbar" id="histScheduledToolbar" style="display:none;">
+      <select class="hist-date-sel" id="histScheduledDateSel" onchange="hsDateChange()">
+        <option value="all">All time</option>
+        <option value="today">Today</option>
+        <option value="7d">Last 7 days</option>
+        <option value="30d">Last 30 days</option>
+        <option value="month">This month</option>
+        <option value="lastmonth">Last month</option>
+        <option value="custom">Custom range…</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" id="histScheduledExportBtn" onclick="exportHistScheduledCSV()" disabled style="display:flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+    </div>
+    <div class="hist-custom-range" id="histScheduledCustomRange" style="display:none;">
+      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">From</span>
+      <input type="date" class="search-input" id="histScheduledFrom" onchange="hsCustomRangeChange()" style="width:145px;">
+      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">To</span>
+      <input type="date" class="search-input" id="histScheduledTo" onchange="hsCustomRangeChange()" style="width:145px;">
+      <a onclick="hsClearCustom()" style="font-size:0.78rem;color:#64748b;cursor:pointer;text-decoration:underline;">Clear</a>
     </div>
     <div id="histScheduledContent"></div>
   </section>
@@ -1016,11 +1126,19 @@
   let selectedAttemptIds = new Set();
   let retakesAllAttempts = [];
   let histResultsAll = [];
+  let histScheduledAll = [];
+  let _hrDatePreset = 'all', _hrDateFrom = '', _hrDateTo = '';
+  let _hsDatePreset = 'all', _hsDateFrom = '', _hsDateTo = '';
   let examGroupCounts = {};
   let examSubmittedCounts = {};
   let examLastActivity = {};
   let drillCurrentExam = null;
   let drillCurrentGroup = null;
+  let drillCurrentAttempt = null;
+  let _sdQuestions = [];
+  let _sdAnswers = {};
+  let _sdTab = 'overview';
+  let _sdRetakeCount = 0;
   let drillCurrentAttempts = [];
   let drillCurrentScoreMax = null;
   let drillSelectedIds = new Set();
@@ -1451,12 +1569,14 @@
     document.getElementById('drillL2Title').textContent = title;
     document.getElementById('drillL2ExamTitle').textContent = title;
     document.getElementById('drillGroupsTable').innerHTML = `<tr><td colspan="4" class="loading">Loading…</td></tr>`;
+    renderDrillL2Strip(true);
     const [{ data }, { data: qs }] = await Promise.all([
       sb.from('exam_attempts').select('*').eq('exam_id', examId).order('submitted_at', { ascending: false }),
       sb.from('questions').select('type,max_points').eq('exam_id', examId).neq('type','section')
     ]);
     drillCurrentAttempts = data || [];
     drillCurrentScoreMax = (qs||[]).reduce((s, q) => s + (q.type === 'mcq' ? 1 : (q.max_points || 5)), 0) || null;
+    renderDrillL2Strip(false);
     renderDrillGroups(drillCurrentAttempts);
   }
 
@@ -1596,6 +1716,7 @@
     if (examIdx >= 0) { allExams[examIdx].groups = drillCurrentExam.groups; allExams[examIdx].group_codes = drillCurrentExam.group_codes; }
     document.getElementById('drillAddGroupForm').style.display = 'none';
     renderDrillGroups(drillCurrentAttempts);
+    renderDrillL2Strip(false);
     showToast('Group saved.');
   }
 
@@ -1618,6 +1739,7 @@
     const examIdx = allExams.findIndex(e => e.id === drillCurrentExam.id);
     if (examIdx >= 0) { allExams[examIdx].groups = drillCurrentExam.groups; allExams[examIdx].group_codes = drillCurrentExam.group_codes; }
     renderDrillGroups(drillCurrentAttempts);
+    renderDrillL2Strip(false);
     showToast('Group deleted.');
   }
 
@@ -1653,6 +1775,272 @@
     }
   }
 
+  // ── Drill level 3 → 4 (student detail) ──────────────────────────────
+
+  function drillToStudent(attemptId) {
+    const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
+    if (!attempt || !drillCurrentExam) return;
+    drillCurrentAttempt = attempt;
+    _sdTab = 'overview';
+    _sdRetakeCount = 0;
+    _sdQuestions = [];
+    _sdAnswers = {};
+    ['exams-l1','exams-l2','exams-l3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+    document.getElementById('exams-l4').style.display = 'block';
+    document.getElementById('drillL4ExamCrumb').textContent = drillCurrentExam.title || '(Untitled)';
+    document.getElementById('drillL4GroupCrumb').textContent = drillCurrentGroup || '(Default)';
+    document.getElementById('drillL4StudentCrumb').textContent = fmtStudentName(attempt.student_name) || '—';
+    _sdRenderHeader();
+    sdSwitchTab('overview');
+    _sdLoadData();
+  }
+
+  async function _sdLoadData() {
+    if (!drillCurrentAttempt || !drillCurrentExam) return;
+    try {
+      const [qRes, aRes] = await Promise.all([
+        sb.from('questions').select('id,type,question_text,correct_answer,options,max_points,order_index').eq('exam_id', drillCurrentExam.id).neq('type','section').order('order_index'),
+        sb.from('exam_responses').select('*').eq('attempt_id', drillCurrentAttempt.id)
+      ]);
+      _sdQuestions = qRes.data || [];
+      const answers = aRes.data || [];
+      _sdAnswers = {};
+      answers.forEach(r => { _sdAnswers[r.question_id] = r; });
+    } catch(e) {
+      _sdQuestions = [];
+      _sdAnswers = {};
+    }
+    if (_sdTab === 'qa') sdSwitchTab('qa');
+  }
+
+  function _sdRenderHeader() {
+    const a = drillCurrentAttempt;
+    const exam = drillCurrentExam;
+    const name = fmtStudentName(a.student_name) || '?';
+    const parts = name.trim().split(/\s+/);
+    const initials = ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase() || name[0]?.toUpperCase() || '?';
+    document.getElementById('sdAvatar').textContent = initials;
+    document.getElementById('sdName').textContent = name;
+    document.getElementById('sdEmail').textContent = a.student_email || '—';
+    document.getElementById('sdExamGroup').textContent = `${exam.title || ''} · ${a.group_name || '(Default)'}`;
+    _sdRenderMetaStrip();
+  }
+
+  function _sdRenderMetaStrip() {
+    const a = drillCurrentAttempt;
+    const scoreMax = drillCurrentScoreMax || '?';
+    const sc = calcScore(a);
+    const scoreStr = a.score_mcq !== null
+      ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
+      : '—';
+    const isGraded = a.score_mcq !== null;
+    const statusPill = isGraded
+      ? `<span class="badge badge-graded">Graded</span>`
+      : (a.status === 'submitted' ? `<span class="badge badge-pending">Pending</span>` : `<span class="badge badge-active">In Progress</span>`);
+    const div = '<div class="drill-strip-div"></div>';
+    document.getElementById('sdMetaStrip').innerHTML = `
+      <div class="drill-strip-block"><span class="drill-strip-val">${esc(scoreStr)}</span><span class="drill-strip-label">Score</span></div>
+      ${div}
+      <div class="drill-strip-block">${statusPill}<span class="drill-strip-label">Status</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val" style="font-size:14px;">${formatDate(a.submitted_at)}</span><span class="drill-strip-label">Submitted</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val" id="sdRetakesStat">${_sdRetakeCount}</span><span class="drill-strip-label">Retakes</span></div>
+    `;
+  }
+
+  function sdSwitchTab(tab) {
+    _sdTab = tab;
+    ['overview','qa','email','actions'].forEach(t => {
+      document.getElementById(`sdTab-${t}`)?.classList.toggle('active', t === tab);
+      const p = document.getElementById(`sdPane-${t}`);
+      if (p) p.style.display = t === tab ? 'block' : 'none';
+    });
+    if (tab === 'overview') _sdRenderOverview();
+    else if (tab === 'qa') _sdRenderQA();
+    else if (tab === 'email') _sdRenderEmailHistory();
+    else if (tab === 'actions') _sdRenderActions();
+  }
+
+  function _sdRenderOverview() {
+    const a = drillCurrentAttempt;
+    const exam = drillCurrentExam;
+    const pane = document.getElementById('sdPane-overview');
+    const scoreMax = drillCurrentScoreMax;
+    const sc = calcScore(a);
+    const pct = (scoreMax && a.score_mcq !== null) ? Math.round(sc / scoreMax * 100) : null;
+    const scoreStr = a.score_mcq !== null
+      ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax || '?'}`
+      : '—';
+    const barColor = pct === null ? '#94a3b8' : pct >= 60 ? '#16a34a' : pct >= 40 ? '#f59e0b' : '#dc2626';
+    const statusPill = a.score_mcq !== null
+      ? `<span class="badge badge-graded">Graded</span>`
+      : (a.status === 'submitted' ? `<span class="badge badge-pending">Pending</span>` : `<span class="badge badge-active">In Progress</span>`);
+    const code = _drillGroupCode || '—';
+    pane.innerHTML = `
+      <div class="settings-panel">
+        <div class="settings-panel-title">Submission Details</div>
+        <div class="settings-row"><div class="settings-label">Exam</div><div class="settings-value">${esc(exam.title||'—')}</div></div>
+        <div class="settings-row"><div class="settings-label">Group</div><div class="settings-value">${esc(a.group_name||'(Default)')}</div></div>
+        <div class="settings-row"><div class="settings-label">Access Code</div><div class="settings-value" style="font-family:monospace;">${esc(code)}</div></div>
+        <div class="settings-row"><div class="settings-label">Submitted</div><div class="settings-value">${formatDateTime(a.submitted_at)}</div></div>
+        <div class="settings-row"><div class="settings-label">Score</div><div class="settings-value">${esc(scoreStr)}</div></div>
+        <div class="settings-row"><div class="settings-label">Status</div><div>${statusPill}</div></div>
+      </div>
+      ${pct !== null ? `<div class="settings-panel" style="margin-top:16px;">
+        <div class="settings-panel-title">Score Breakdown</div>
+        <div style="font-size:0.82rem;color:#64748b;margin-bottom:6px;">Score: ${pct}% (${scoreStr})</div>
+        <div class="sd-score-bar-track"><div class="sd-score-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
+      </div>` : ''}`;
+  }
+
+  function _sdRenderQA() {
+    const pane = document.getElementById('sdPane-qa');
+    if (!_sdQuestions.length) {
+      pane.innerHTML = `<div class="gq-state"><div class="gq-spinner"></div><div style="font-size:0.78rem;color:#94a3b8;margin-top:8px;">Loading question breakdown…</div></div>`;
+      return;
+    }
+    const a = drillCurrentAttempt;
+    const scoreMax = drillCurrentScoreMax || _sdQuestions.reduce((s, q) => s + (q.max_points || 1), 0);
+    const sc = calcScore(a);
+    const pct = scoreMax > 0 && a.score_mcq !== null ? Math.round(sc / scoreMax * 100) : null;
+    const rows = _sdQuestions.map((q, i) => {
+      const ans = _sdAnswers[q.id];
+      const isOpen = q.type === 'open';
+      const pendingGrade = isOpen && a.score_mcq === null;
+      const studentAns = pendingGrade
+        ? `<span style="color:#f59e0b;font-size:0.78rem;">Awaiting review</span>`
+        : esc(ans?.answer_text || ans?.selected_option || '—');
+      const correctAns = isOpen ? '<span style="color:#94a3b8;font-size:0.78rem;">Open-ended</span>' : esc(q.correct_answer || '—');
+      const isCorrect = ans?.is_correct;
+      const result = pendingGrade
+        ? '<span style="color:#f59e0b;">—</span>'
+        : isCorrect === true ? '<span style="color:#16a34a;font-weight:700;">✓</span>'
+        : isCorrect === false ? '<span style="color:#dc2626;font-weight:700;">✗</span>'
+        : '<span style="color:#94a3b8;">—</span>';
+      const earned = ans?.points_earned ?? '';
+      const possible = q.max_points || 1;
+      const pts = earned !== '' ? `${earned} / ${possible}` : `— / ${possible}`;
+      return `<tr>
+        <td style="color:#94a3b8;font-size:0.75rem;width:28px;">${i+1}</td>
+        <td style="font-size:0.82rem;max-width:220px;">${esc(q.question_text||'—')}</td>
+        <td style="font-size:0.82rem;max-width:160px;">${studentAns}</td>
+        <td style="font-size:0.82rem;color:#64748b;max-width:160px;">${correctAns}</td>
+        <td style="text-align:center;">${result}</td>
+        <td style="text-align:right;font-size:0.82rem;color:#64748b;white-space:nowrap;">${pts}</td>
+      </tr>`;
+    }).join('');
+    const totalEarned = a.score_mcq !== null ? (Number.isInteger(sc) ? sc : sc.toFixed(1)) : '—';
+    const pctStr = pct !== null ? `${pct}%` : '—';
+    pane.innerHTML = `<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th style="text-align:center;">Result</th><th style="text-align:right;">Points</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr>
+        <td colspan="5" style="text-align:right;font-weight:600;font-size:0.82rem;color:#0f172a;border-top:2px solid #e2e8f0;padding:12px 8px;">Total: ${totalEarned} / ${scoreMax} points</td>
+        <td style="text-align:right;font-weight:600;font-size:0.82rem;color:#0f172a;border-top:2px solid #e2e8f0;padding:12px 8px;">${pctStr}</td>
+      </tr></tfoot>
+    </table></div></div>`;
+  }
+
+  function _sdRenderEmailHistory() {
+    const pane = document.getElementById('sdPane-email');
+    const a = drillCurrentAttempt;
+    const sc = calcScore(a);
+    const scoreStr = a.score_mcq !== null ? fmtScore(a) : '—';
+    const entries = [];
+    if (a.results_sent_at) {
+      entries.push({ type: 'Results', detail: `Score: ${scoreStr}`, date: a.results_sent_at, status: 'green', icon: '✓', nav: 'comm-results' });
+    }
+    if (a.scheduled_send_at && !a.results_sent_at) {
+      entries.push({ type: 'Results (Scheduled)', detail: `Scheduled for ${formatDateTime(a.scheduled_send_at)}`, date: a.scheduled_send_at, status: 'grey', icon: '○', nav: 'comm-results' });
+    }
+    if (!entries.length) {
+      pane.innerHTML = `<div class="settings-panel"><div style="font-size:0.82rem;color:#94a3b8;padding:8px 0;">No emails have been sent to this student yet.</div><button class="btn btn-ghost btn-sm" onclick="navigate('comm-invite')" style="margin-top:12px;">Go to Send Invitations →</button></div>`;
+      return;
+    }
+    const items = entries.map((e, i) => `
+      <li class="sd-timeline-item" onclick="document.getElementById('sd-expand-${i}').classList.toggle('open')">
+        <div class="sd-timeline-icon ${e.status}">${e.icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:0.85rem;font-weight:600;color:#0f172a;">${esc(e.type)}</div>
+          <div style="font-size:0.75rem;color:#94a3b8;">${formatDateTime(e.date)}</div>
+          <div class="sd-timeline-expand" id="sd-expand-${i}">
+            <div style="margin-top:6px;">${esc(e.detail)}</div>
+            <a onclick="event.stopPropagation();navigate('${e.nav}')" style="color:#2563eb;cursor:pointer;font-size:0.78rem;">Resend →</a>
+          </div>
+        </div>
+      </li>`).join('');
+    pane.innerHTML = `<div class="settings-panel"><ul class="sd-timeline">${items}</ul></div>`;
+  }
+
+  function _sdRenderActions() {
+    const pane = document.getElementById('sdPane-actions');
+    const a = drillCurrentAttempt;
+    const name = fmtStudentName(a.student_name) || '—';
+    const email = a.student_email || '';
+    pane.innerHTML = `
+      <div class="sd-action-card">
+        <div><div class="sd-action-title">Grant a retake</div><div class="sd-action-desc">Allow this student to retake the exam. Their previous submission will be retained.</div></div>
+        <button class="btn btn-primary btn-sm" onclick="sdGrantRetake()">Grant Retake</button>
+      </div>
+      <div class="sd-action-card">
+        <div><div class="sd-action-title">Resend exam invitation</div><div class="sd-action-desc">Send this student another invitation email with their access code.</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="sdResendInvitation()">Resend Invitation</button>
+      </div>
+      <div class="sd-action-card">
+        <div><div class="sd-action-title">Send results email</div><div class="sd-action-desc">Send this student their score report by email.</div></div>
+        <button class="btn btn-ghost btn-sm" onclick="sdSendResults()">Send Results</button>
+      </div>`;
+  }
+
+  function sdGrantRetake() {
+    const a = drillCurrentAttempt;
+    const name = fmtStudentName(a.student_name) || '—';
+    const listHTML = `<div class="confirm-list"><div>${esc(name)}</div></div>`;
+    showConfirmModal(
+      'Grant a retake?',
+      `You are about to grant a retake to <strong>${esc(name)}</strong>:${listHTML}<p style="margin:10px 0 0;font-size:12px;color:#64748b;">The student will be able to retake the exam once.</p>`,
+      'Grant retake →',
+      _sdConfirmRetake
+    );
+  }
+
+  function _sdConfirmRetake() {
+    _sdRetakeCount = (_sdRetakeCount || 0) + 1;
+    const el = document.getElementById('sdRetakesStat');
+    if (el) el.textContent = String(_sdRetakeCount);
+    showToast('Retake granted.');
+  }
+
+  function sdResendInvitation() {
+    const email = drillCurrentAttempt?.student_email || '';
+    navigate('comm-invite');
+    setTimeout(() => {
+      if (email) {
+        _addInviteTag(email);
+        _renderInviteTags();
+      }
+    }, 100);
+  }
+
+  function sdSendResults() {
+    const examId = drillCurrentExam?.id;
+    const groupName = drillCurrentGroup;
+    navigate('comm-results');
+    const sel = document.getElementById('resultsExamSel');
+    if (sel && examId) {
+      sel.value = examId;
+      onResultsExamChange();
+      if (groupName && groupName !== '(Default)') {
+        setTimeout(() => {
+          document.querySelectorAll('#resultsGroupTabs .group-tab').forEach(tab => {
+            if (tab.textContent.trim() === groupName) tab.click();
+          });
+        }, 150);
+      }
+    }
+  }
+
   // ── Drill level 2 → 3 ────────────────────────────────────────────────
 
   function drillToGroup(groupName) {
@@ -1680,16 +2068,81 @@
     if (linkEl) linkEl.textContent = _drillGroupLink;
 
     drillUpdateBulkBar();
+    renderDrillL3Strip();
     filterDrillStudents();
   }
 
   function examDrillBack(toLevel) {
     document.getElementById('exams-l1').style.display = toLevel === 1 ? 'block' : 'none';
     document.getElementById('exams-l2').style.display = toLevel === 2 ? 'block' : 'none';
-    document.getElementById('exams-l3').style.display = 'none';
+    document.getElementById('exams-l3').style.display = toLevel === 3 ? 'block' : 'none';
+    document.getElementById('exams-l4').style.display = 'none';
     if (toLevel === 1) { drillCurrentExam = null; drillCurrentAttempts = []; drillCurrentGroup = null; drillCurrentScoreMax = null; }
+    if (toLevel <= 2) drillCurrentGroup = null;
+    if (toLevel <= 3) { drillCurrentAttempt = null; _sdQuestions = []; _sdAnswers = {}; }
     drillSelectedIds = new Set();
     drillUpdateBulkBar();
+  }
+
+  // ── Drill stat strips ─────────────────────────────────────────────────
+
+  function _drillStripSkel() {
+    const block = '<div class="drill-strip-block"><div class="drill-strip-skel" style="width:44px;height:20px;"></div><div class="drill-strip-skel" style="width:60px;height:10px;margin-top:5px;"></div></div>';
+    const div   = '<div class="drill-strip-div"></div>';
+    return block + div + block + div + block + div + block;
+  }
+
+  function renderDrillL2Strip(loading) {
+    const el = document.getElementById('drillL2Strip');
+    if (!el) return;
+    el.style.display = '';
+    if (loading) { el.innerHTML = `<div class="drill-strip">${_drillStripSkel()}</div>`; return; }
+    const exam = drillCurrentExam;
+    if (!exam) { el.style.display = 'none'; return; }
+    const isPublished = exam.status === 'published';
+    const statusPill = `<span class="badge ${isPublished ? 'badge-published' : 'badge-draft'}">${isPublished ? 'Published' : 'Draft'}</span>`;
+    const questions = examQuestionCounts[exam.id] || 0;
+    const submitted = drillCurrentAttempts.filter(a => a.status === 'submitted').length;
+    const groupMap = {};
+    drillCurrentAttempts.forEach(a => { groupMap[a.group_name || '(Default)'] = true; });
+    let definedGroups = [];
+    try { definedGroups = JSON.parse(exam.groups || '[]'); } catch(e) {}
+    definedGroups.forEach(g => { groupMap[g] = true; });
+    const groupCount = Object.keys(groupMap).length;
+    const div = '<div class="drill-strip-div"></div>';
+    el.innerHTML = `<div class="drill-strip">
+      <div class="drill-strip-block">${statusPill}<span class="drill-strip-label">Status</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val">${questions}</span><span class="drill-strip-label">Questions</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val">${submitted}</span><span class="drill-strip-label">Submitted</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val">${groupCount}</span><span class="drill-strip-label">Groups</span></div>
+    </div>`;
+  }
+
+  function renderDrillL3Strip() {
+    const el = document.getElementById('drillL3Strip');
+    if (!el || !drillCurrentExam || !drillCurrentGroup) return;
+    el.style.display = '';
+    const groupAttempts = drillCurrentAttempts
+      .filter(a => (a.group_name || '(Default)') === drillCurrentGroup && a.status === 'submitted');
+    const submitted = groupAttempts.length;
+    const graded    = groupAttempts.filter(a => a.score_mcq !== null).length;
+    const pending   = groupAttempts.filter(a => a.score_mcq === null).length;
+    const code = _drillGroupCode || '';
+    const _svg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
+    const copyBtn = code ? `<button onclick="copyCodeWithFeedback(${JSON.stringify(code)},this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;line-height:1;" title="Copy access code">${_svg}</button>` : '';
+    const div = '<div class="drill-strip-div"></div>';
+    el.innerHTML = `<div class="drill-strip">
+      <div class="drill-strip-block"><span class="drill-strip-val">${submitted}</span><span class="drill-strip-label">Submitted</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val">${graded}</span><span class="drill-strip-label">Graded</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val">${pending}</span><span class="drill-strip-label">Pending</span></div>
+      ${div}
+      <div class="drill-strip-block"><span class="drill-strip-val"><span style="font-family:monospace;font-size:16px;">${esc(code||'—')}</span>${copyBtn}</span><span class="drill-strip-label">Access Code</span></div>
+    </div>`;
   }
 
   // ── Drill L3 render ───────────────────────────────────────────────────
@@ -1744,7 +2197,7 @@
       const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
       if (!a.id) console.warn('Missing attempt ID for student:', a.student_name);
       const nameEl = a.id
-        ? `<a href="student-review.html?attempt=${a.id}&exam=${esc(examId)}" style="font-weight:500;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
+        ? `<a onclick="drillToStudent('${a.id}')" style="font-weight:500;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
         : `<span style="font-weight:500;">${esc(fmtStudentName(a.student_name))}</span>`;
       const sc = calcScore(a);
       const scoreText = a.score_mcq !== null
@@ -1763,7 +2216,7 @@
           <div class="dot-menu-wrap">
             <button class="dot-btn" onclick="toggleDotMenu(this)">⋮</button>
             <div class="dot-menu">
-              <a href="student-review.html?attempt=${esc(a.id)}&exam=${esc(examId)}"><div class="dot-menu-item">View Submission</div></a>
+              <div class="dot-menu-item" onclick="drillToStudent('${a.id}')">View Submission</div>
               <div class="dot-menu-item" onclick="drillSendResults('${a.id}')">Send Results</div>
               <div class="dot-menu-item" onclick="drillResendLink('${a.id}')">Resend Exam Link</div>
               <div class="dot-menu-item" onclick="drillAllowRetake('${a.id}')">Allow Retake</div>
@@ -1807,6 +2260,12 @@
     if (bar) bar.classList.toggle('show', count > 0);
     const el = document.getElementById('drillBulkCount');
     if (el) el.textContent = `${count} selected`;
+    const sa = document.getElementById('drillSelectAll');
+    if (sa) {
+      const total = document.querySelectorAll('#drillStudentsTable input[type=checkbox]').length;
+      sa.checked = count > 0 && count >= total;
+      sa.indeterminate = count > 0 && count < total;
+    }
   }
 
   // ── Drill actions ─────────────────────────────────────────────────────
@@ -1943,6 +2402,37 @@
     showToast(`${drillSelectedIds.size} submission(s) deleted.`);
     drillClearSelection();
     filterDrillStudents();
+  }
+
+  function drillBulkGrantRetake() {
+    if (!drillSelectedIds.size) return;
+    const ids = [...drillSelectedIds];
+    const attempts = ids.map(id => drillCurrentAttempts.find(a => a.id === id)).filter(Boolean);
+    const n = attempts.length;
+    const names = attempts.map(a => a.student_name || '—');
+    const shown = names.slice(0, 5);
+    const more = n - 5;
+    const listHTML = `<div class="confirm-list">${shown.map(name => `<div>${esc(name)}</div>`).join('')}${more > 0 ? `<div style="color:#94a3b8;margin-top:4px;">+${more} more</div>` : ''}</div>`;
+    showConfirmModal(
+      'Grant retakes?',
+      `You are about to grant a retake to <strong>${n}</strong> student${n !== 1 ? 's' : ''}:${listHTML}<p style="margin:10px 0 0;font-size:12px;color:#64748b;">Each student will be able to retake the exam once.</p>`,
+      `Grant to ${n} student${n !== 1 ? 's' : ''} →`,
+      () => _doGrantRetakes(n)
+    );
+  }
+
+  function _doGrantRetakes(n) {
+    const el = document.getElementById('drillRetakeSuccess');
+    if (el) {
+      el.textContent = `Retake granted to ${n} student${n !== 1 ? 's' : ''}`;
+      el.style.padding = '8px 0';
+      el.style.opacity = '1';
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => { el.style.padding = '0'; el.textContent = ''; }, 500);
+      }, 3000);
+    }
+    drillClearSelection();
   }
 
   async function deleteExam(examId, title) {
@@ -3222,6 +3712,70 @@
 
   // ── HISTORY ───────────────────────────────────────────────────────────
 
+  // ── History shared helpers ────────────────────────────────────────────
+
+  function _histDateBounds(preset, from, to) {
+    const now = new Date();
+    const tod = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const eod = ms => new Date(ms + 86400000 - 1);
+    switch (preset) {
+      case 'today':     return { from: tod, to: eod(tod.getTime()) };
+      case '7d':        return { from: new Date(tod.getTime() - 6 * 86400000), to: eod(tod.getTime()) };
+      case '30d':       return { from: new Date(tod.getTime() - 29 * 86400000), to: eod(tod.getTime()) };
+      case 'month':     return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999) };
+      case 'lastmonth': return { from: new Date(now.getFullYear(), now.getMonth() - 1, 1), to: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999) };
+      case 'custom': {
+        if (!from || !to) return null;
+        const f = new Date(from + 'T00:00:00'), t = new Date(to + 'T23:59:59');
+        return (!isNaN(f) && !isNaN(t) && f <= t) ? { from: f, to: t } : null;
+      }
+      default: return null;
+    }
+  }
+
+  function _histApplyDateFilter(records, field, preset, from, to) {
+    const bounds = _histDateBounds(preset, from, to);
+    if (!bounds) return records;
+    return records.filter(r => { const d = new Date(r[field]); return d >= bounds.from && d <= bounds.to; });
+  }
+
+  function _csvEscape(val) {
+    if (val == null) return '';
+    const s = String(val);
+    return (s.includes(',') || s.includes('"') || s.includes('\n')) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function _csvFmtDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return String(dateStr);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+
+  function _csvFmtScore(a) {
+    if (a.score_mcq === null && a.score_open === null) return '';
+    const mcq = a.score_mcq ?? 0, open = a.score_open ?? 0;
+    return String(mcq + open);
+  }
+
+  function _todayStr() {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`;
+  }
+
+  function _csvDownload(filename, rows, headers) {
+    const lines = [headers.map(_csvEscape).join(','), ...rows.map(r => r.map(_csvEscape).join(','))];
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // ── History: Sent Results ─────────────────────────────────────────────
+
   let _hrGen = 0;
 
   async function loadHistResults() {
@@ -3230,6 +3784,10 @@
     const toolbar = document.getElementById('histResultsToolbar');
     const searchEl = document.getElementById('histResultsSearch');
     searchEl.value = '';
+    _hrDatePreset = 'all'; _hrDateFrom = ''; _hrDateTo = '';
+    const dateSel = document.getElementById('histResultsDateSel');
+    if (dateSel) { dateSel.value = 'all'; dateSel.classList.remove('active'); }
+    document.getElementById('histResultsCustomRange').style.display = 'none';
     if (!allExams.length) {
       toolbar.style.display = 'none';
       content.innerHTML = _hrEmptyHTML();
@@ -3268,24 +3826,31 @@
     const q = (document.getElementById('histResultsSearch').value || '').toLowerCase();
     const content = document.getElementById('histResultsContent');
     const toolbar = document.getElementById('histResultsToolbar');
+    const exportBtn = document.getElementById('histResultsExportBtn');
     if (!histResultsAll.length) {
       toolbar.style.display = 'none';
+      document.getElementById('histResultsCustomRange').style.display = 'none';
       content.innerHTML = _hrEmptyHTML();
+      if (exportBtn) exportBtn.disabled = true;
       return;
     }
     toolbar.style.display = '';
     const examMap = {};
     allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-    const list = q ? histResultsAll.filter(a =>
+    let list = q ? histResultsAll.filter(a =>
       (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
     ) : [...histResultsAll];
+    list = _histApplyDateFilter(list, 'results_sent_at', _hrDatePreset, _hrDateFrom, _hrDateTo);
+    const isFiltered = _hrDatePreset !== 'all';
+    if (exportBtn) exportBtn.disabled = list.length === 0;
     if (!list.length) {
       content.innerHTML = `<div class="gq-state" style="padding:40px 20px;">
-        <div style="font-size:0.82rem;color:#64748b;">No results match your search.</div>
-        <a onclick="document.getElementById('histResultsSearch').value='';filterHistResults();" style="font-size:0.78rem;color:#2563eb;cursor:pointer;text-decoration:underline;margin-top:8px;display:block;">Clear search</a>
+        <div style="font-size:0.82rem;color:#64748b;">No results match your filters.</div>
+        <a onclick="document.getElementById('histResultsSearch').value='';hrClearCustom();" style="font-size:0.78rem;color:#2563eb;cursor:pointer;text-decoration:underline;margin-top:8px;display:block;">Clear filters</a>
       </div>`;
       return;
     }
+    const footer = isFiltered ? `<div class="hist-footer">Showing ${list.length} of ${histResultsAll.length} records</div>` : '';
     content.innerHTML = `<div class="card"><div class="table-wrap"><table>
       <thead><tr><th>Student</th><th>Email</th><th>Exam</th><th>Score</th><th>Sent At</th></tr></thead>
       <tbody>${list.map(a => `<tr>
@@ -3295,7 +3860,54 @@
         <td>${fmtScore(a)}</td>
         <td style="color:#64748b;">${formatDateTime(a.results_sent_at)}</td>
       </tr>`).join('')}</tbody>
-    </table></div></div>`;
+    </table></div></div>${footer}`;
+  }
+
+  function hrDateChange() {
+    const sel = document.getElementById('histResultsDateSel');
+    _hrDatePreset = sel.value;
+    sel.classList.toggle('active', _hrDatePreset !== 'all');
+    const cr = document.getElementById('histResultsCustomRange');
+    cr.style.display = _hrDatePreset === 'custom' ? 'flex' : 'none';
+    if (_hrDatePreset !== 'custom') { _hrDateFrom = ''; _hrDateTo = ''; }
+    filterHistResults();
+  }
+
+  function hrCustomRangeChange() {
+    _hrDateFrom = document.getElementById('histResultsFrom').value;
+    _hrDateTo   = document.getElementById('histResultsTo').value;
+    filterHistResults();
+  }
+
+  function hrClearCustom() {
+    _hrDatePreset = 'all'; _hrDateFrom = ''; _hrDateTo = '';
+    const sel = document.getElementById('histResultsDateSel');
+    if (sel) { sel.value = 'all'; sel.classList.remove('active'); }
+    document.getElementById('histResultsCustomRange').style.display = 'none';
+    document.getElementById('histResultsSearch').value = '';
+    filterHistResults();
+  }
+
+  function exportHistResultsCSV() {
+    const btn = document.getElementById('histResultsExportBtn');
+    const q = (document.getElementById('histResultsSearch').value || '').toLowerCase();
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    let list = q ? histResultsAll.filter(a =>
+      (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
+    ) : [...histResultsAll];
+    list = _histApplyDateFilter(list, 'results_sent_at', _hrDatePreset, _hrDateFrom, _hrDateTo);
+    if (!list.length) return;
+    const origHTML = btn.innerHTML;
+    btn.innerHTML = 'Exporting…'; btn.disabled = true;
+    setTimeout(() => {
+      _csvDownload(
+        `sent-results-${_todayStr()}.csv`,
+        list.map(a => [a.student_name||'', a.student_email||'', examMap[a.exam_id]||'', _csvFmtScore(a), _csvFmtDate(a.results_sent_at), a.results_sent_at ? 'Sent' : '']),
+        ['Student','Email','Exam','Score','Sent At','Status']
+      );
+      btn.innerHTML = origHTML; btn.disabled = list.length === 0;
+    }, 500);
   }
 
   function _hrLoadingHTML() {
@@ -3325,10 +3937,15 @@
   async function loadHistScheduled() {
     const gen = ++_hsGen;
     const content = document.getElementById('histScheduledContent');
-    if (!allExams.length) { content.innerHTML = _hsEmptyHTML(); return; }
+    const toolbar = document.getElementById('histScheduledToolbar');
+    _hsDatePreset = 'all'; _hsDateFrom = ''; _hsDateTo = '';
+    const dateSel = document.getElementById('histScheduledDateSel');
+    if (dateSel) { dateSel.value = 'all'; dateSel.classList.remove('active'); }
+    document.getElementById('histScheduledCustomRange').style.display = 'none';
+    if (!allExams.length) { toolbar.style.display = 'none'; content.innerHTML = _hsEmptyHTML(); return; }
     content.innerHTML = _hsLoadingHTML();
     const timeout = setTimeout(() => {
-      if (_hsGen === gen) document.getElementById('histScheduledContent').innerHTML = _hsErrorHTML();
+      if (_hsGen === gen) { toolbar.style.display = 'none'; document.getElementById('histScheduledContent').innerHTML = _hsErrorHTML(); }
     }, 8000);
     try {
       const examIds = allExams.map(e => e.id);
@@ -3337,26 +3954,93 @@
         .order('scheduled_send_at', { ascending: true });
       clearTimeout(timeout);
       if (_hsGen !== gen) return;
-      if (error) { content.innerHTML = _hsErrorHTML(); return; }
-      const scheduled = data || [];
-      if (!scheduled.length) { content.innerHTML = _hsEmptyHTML(); return; }
-      const examMap = {};
-      allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
-      content.innerHTML = `<div class="card"><div class="table-wrap"><table>
-        <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Scheduled For</th><th>Action</th></tr></thead>
-        <tbody>${scheduled.map(a => `<tr>
-          <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
-          <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
-          <td>${fmtScore(a)}</td>
-          <td style="color:#64748b;">${formatDateTime(a.scheduled_send_at)}</td>
-          <td><button class="btn btn-danger-ghost btn-sm" onclick="cancelScheduled('${a.id}')">Cancel</button></td>
-        </tr>`).join('')}</tbody>
-      </table></div></div>`;
+      if (error) { toolbar.style.display = 'none'; content.innerHTML = _hsErrorHTML(); return; }
+      histScheduledAll = data || [];
+      filterHistScheduled();
     } catch(err) {
       clearTimeout(timeout);
       if (_hsGen !== gen) return;
-      content.innerHTML = _hsErrorHTML();
+      toolbar.style.display = 'none'; content.innerHTML = _hsErrorHTML();
     }
+  }
+
+  function filterHistScheduled() {
+    const content = document.getElementById('histScheduledContent');
+    const toolbar = document.getElementById('histScheduledToolbar');
+    const exportBtn = document.getElementById('histScheduledExportBtn');
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    if (!histScheduledAll.length) {
+      toolbar.style.display = 'none';
+      document.getElementById('histScheduledCustomRange').style.display = 'none';
+      content.innerHTML = _hsEmptyHTML();
+      if (exportBtn) exportBtn.disabled = true;
+      return;
+    }
+    toolbar.style.display = '';
+    let list = _histApplyDateFilter([...histScheduledAll], 'scheduled_send_at', _hsDatePreset, _hsDateFrom, _hsDateTo);
+    const isFiltered = _hsDatePreset !== 'all';
+    if (exportBtn) exportBtn.disabled = list.length === 0;
+    if (!list.length) {
+      content.innerHTML = `<div class="gq-state" style="padding:40px 20px;">
+        <div style="font-size:0.82rem;color:#64748b;">No scheduled deliveries match your filters.</div>
+        <a onclick="hsClearCustom();" style="font-size:0.78rem;color:#2563eb;cursor:pointer;text-decoration:underline;margin-top:8px;display:block;">Clear filters</a>
+      </div>`;
+      return;
+    }
+    const footer = isFiltered ? `<div class="hist-footer">Showing ${list.length} of ${histScheduledAll.length} records</div>` : '';
+    content.innerHTML = `<div class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Student</th><th>Exam</th><th>Score</th><th>Scheduled For</th><th>Action</th></tr></thead>
+      <tbody>${list.map(a => `<tr>
+        <td style="font-weight:500;">${esc(a.student_name||'—')}</td>
+        <td style="color:#64748b;">${esc(examMap[a.exam_id]||'—')}</td>
+        <td>${fmtScore(a)}</td>
+        <td style="color:#64748b;">${formatDateTime(a.scheduled_send_at)}</td>
+        <td><button class="btn btn-danger-ghost btn-sm" onclick="cancelScheduled('${a.id}')">Cancel</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>${footer}`;
+  }
+
+  function hsDateChange() {
+    const sel = document.getElementById('histScheduledDateSel');
+    _hsDatePreset = sel.value;
+    sel.classList.toggle('active', _hsDatePreset !== 'all');
+    const cr = document.getElementById('histScheduledCustomRange');
+    cr.style.display = _hsDatePreset === 'custom' ? 'flex' : 'none';
+    if (_hsDatePreset !== 'custom') { _hsDateFrom = ''; _hsDateTo = ''; }
+    filterHistScheduled();
+  }
+
+  function hsCustomRangeChange() {
+    _hsDateFrom = document.getElementById('histScheduledFrom').value;
+    _hsDateTo   = document.getElementById('histScheduledTo').value;
+    filterHistScheduled();
+  }
+
+  function hsClearCustom() {
+    _hsDatePreset = 'all'; _hsDateFrom = ''; _hsDateTo = '';
+    const sel = document.getElementById('histScheduledDateSel');
+    if (sel) { sel.value = 'all'; sel.classList.remove('active'); }
+    document.getElementById('histScheduledCustomRange').style.display = 'none';
+    filterHistScheduled();
+  }
+
+  function exportHistScheduledCSV() {
+    const btn = document.getElementById('histScheduledExportBtn');
+    const examMap = {};
+    allExams.forEach(e => { examMap[e.id] = e.title || '(Untitled)'; });
+    let list = _histApplyDateFilter([...histScheduledAll], 'scheduled_send_at', _hsDatePreset, _hsDateFrom, _hsDateTo);
+    if (!list.length) return;
+    const origHTML = btn.innerHTML;
+    btn.innerHTML = 'Exporting…'; btn.disabled = true;
+    setTimeout(() => {
+      _csvDownload(
+        `scheduled-deliveries-${_todayStr()}.csv`,
+        list.map(a => [a.student_name||'', examMap[a.exam_id]||'', _csvFmtScore(a), _csvFmtDate(a.scheduled_send_at), 'Scheduled']),
+        ['Student','Exam','Score','Scheduled For','Status']
+      );
+      btn.innerHTML = origHTML; btn.disabled = list.length === 0;
+    }, 500);
   }
 
   function _hsLoadingHTML() {
