@@ -160,7 +160,12 @@
     .tr-hover:hover td { background: #f8fafc; }
     .tr-hover .dot-menu-wrap { visibility: hidden; }
     .tr-hover:hover .dot-menu-wrap { visibility: visible; }
+    @media (hover: none) { .tr-hover .dot-menu-wrap { visibility: visible; } }
     .student-row:hover td { background: transparent; }
+    .exam-dot-menu { position: fixed; background: white; border: 1px solid #e2e8f0; border-radius: 4px; box-shadow: 0 4px 16px rgba(0,0,0,0.10); z-index: 9999; min-width: 190px; padding: 4px 0; }
+    .exam-dot-menu-item { display: flex; align-items: center; gap: 9px; padding: 10px 16px; font-size: 13px; color: #0f172a; cursor: pointer; white-space: nowrap; }
+    .exam-dot-menu-item:hover { background: #f8fafc; }
+    .exam-dot-menu-divider { border: none; border-top: 1px solid #f1f5f9; margin: 2px 0; }
     .student-table th { color: #94a3b8; }
 
     /* ── Buttons ── */
@@ -830,6 +835,7 @@
   let subsTab = 'all';
   let examTab = 'all';
   let examSortCol = null, examSortDir = 'asc', examSortClicks = 0;
+  let _examMenuEl = null, _examMenuBtn = null;
   let selectedAttemptIds = new Set();
   let retakesAllAttempts = [];
   let histResultsAll = [];
@@ -1209,7 +1215,7 @@
       const icon = active ? (examSortDir === 'asc' ? '↑' : '↓') : '↕';
       return `<th class="th-sort" onclick="sortExams('${col}','${defaultDir}')">${label}<span class="th-sort-icon${active ? ' active' : ''}">${icon}</span></th>`;
     }
-    el.innerHTML = `<tr>${th('title','Title','asc')}<th>Status</th>${th('questions','Questions','desc')}<th>Groups</th>${th('submitted','Submitted','desc')}${th('activity','Last Activity','desc')}</tr>`;
+    el.innerHTML = `<tr>${th('title','Title','asc')}<th>Status</th>${th('questions','Questions','desc')}<th>Groups</th>${th('submitted','Submitted','desc')}${th('activity','Last Activity','desc')}<th style="width:40px;"></th></tr>`;
   }
 
   function sortExams(col, defaultDir) {
@@ -1226,7 +1232,7 @@
   function renderExamsTable(exams) {
     const tbody = document.getElementById('examsTable');
     if (!exams.length) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state">
         <div class="empty-title">No exams found</div><div class="empty-sub">Create your first exam to get started.</div>
       </div></td></tr>`;
       return;
@@ -1235,13 +1241,18 @@
       const badge = e.status === 'published'
         ? `<span class="badge badge-published">Published</span>`
         : `<span class="badge badge-draft">Draft</span>`;
-      return `<tr class="tr-click" onclick="drillToExam('${e.id}')">
+      return `<tr class="tr-click tr-hover" onclick="drillToExam('${e.id}')">
         <td style="font-weight:600;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.title||'(Untitled)')}</td>
         <td>${badge}</td>
         <td style="color:#64748b;">${examQuestionCounts[e.id]||0}</td>
         <td style="color:#64748b;">${examGroupCounts[e.id]||0}</td>
         <td style="color:#64748b;">${examSubmittedCounts[e.id]||0}</td>
         <td style="color:#64748b;">${examLastActivity[e.id] ? formatDate(examLastActivity[e.id]) : '—'}</td>
+        <td onclick="event.stopPropagation()" style="width:40px;padding:0 6px;text-align:center;">
+          <div class="dot-menu-wrap">
+            <button class="dot-btn" onclick="openExamDotMenu('${e.id}',this,event)">···</button>
+          </div>
+        </td>
       </tr>`;
     }).join('');
   }
@@ -2159,7 +2170,53 @@
     if (!e.target.closest('.dot-menu-wrap')) {
       document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
     }
+    if (_examMenuEl && !_examMenuEl.contains(e.target) && e.target !== _examMenuBtn && !e.target.closest('.dot-menu-wrap')) {
+      closeExamDotMenu();
+    }
   });
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeExamDotMenu(); });
+
+  function openExamDotMenu(examId, btn, evt) {
+    evt.stopPropagation();
+    document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+    if (_examMenuBtn === btn) { closeExamDotMenu(); return; }
+    closeExamDotMenu();
+    const _svg = {
+      subs: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+      dup:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
+      arch: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>`
+    };
+    const menu = document.createElement('div');
+    menu.className = 'exam-dot-menu';
+    menu.innerHTML = `
+      <div class="exam-dot-menu-item" onclick="examMenuAction('subs','${examId}')">${_svg.subs}View submissions</div>
+      <hr class="exam-dot-menu-divider">
+      <div class="exam-dot-menu-item" onclick="examMenuAction('dup','${examId}')">${_svg.dup}Duplicate exam</div>
+      <hr class="exam-dot-menu-divider">
+      <div class="exam-dot-menu-item" onclick="examMenuAction('arch','${examId}')">${_svg.arch}Archive exam</div>`;
+    menu.style.visibility = 'hidden';
+    document.body.appendChild(menu);
+    _examMenuEl = menu;
+    _examMenuBtn = btn;
+    const r = btn.getBoundingClientRect();
+    const mW = menu.offsetWidth, mH = menu.offsetHeight;
+    menu.style.left = `${Math.max(8, r.right - mW)}px`;
+    menu.style.top = (window.innerHeight - r.bottom < mH + 8) ? `${r.top - mH - 4}px` : `${r.bottom + 4}px`;
+    menu.style.visibility = '';
+  }
+
+  function closeExamDotMenu() {
+    if (_examMenuEl) { _examMenuEl.remove(); _examMenuEl = null; }
+    _examMenuBtn = null;
+  }
+
+  function examMenuAction(action, examId) {
+    closeExamDotMenu();
+    if (action === 'subs') { pendingDrillExam = examId; navigate('exams-all'); }
+    else if (action === 'dup') { alert('Duplicate functionality coming soon'); }
+    else if (action === 'arch') { confirm('Archive this exam? It will no longer be visible to students.'); }
+  }
 
   // ── GRADING QUEUE ─────────────────────────────────────────────────────
 
