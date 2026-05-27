@@ -392,78 +392,33 @@
   <nav class="sidebar-nav">
 
     <div class="nav-item active" data-nav="home" onclick="navigate('home')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Home
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
     </div>
 
-    <div class="nav-section-toggle" data-section="manage">
-      <span>Manage</span>
-    </div>
-    <div class="nav-section-body" id="nav-section-manage">
-      <div class="nav-action" onclick="window.location.href='exam-onboarding.html'">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Create Exam
-      </div>
-      <div class="nav-group-label">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Exams
-      </div>
-      <div class="nav-parent-body open" id="nav-parent-exams">
-        <div class="nav-sub-item" data-nav="exams-all" onclick="navigate('exams-all')">All Exams</div>
-        <div class="nav-sub-item" data-nav="exams-published" onclick="navigate('exams-published')">Published</div>
-        <div class="nav-sub-item" data-nav="exams-drafts" onclick="navigate('exams-drafts')">Drafts</div>
-      </div>
-      <div class="nav-group-label">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-        Submissions
-      </div>
-      <div class="nav-parent-body open" id="nav-parent-subs">
-        <div class="nav-sub-item" data-nav="subs-all" onclick="navigate('subs-all')">All</div>
-        <div class="nav-sub-item" data-nav="subs-grading" onclick="navigate('subs-grading')">Grading Queue<span class="nav-grading-badge" id="navGradingBadge" style="display:none;"></span></div>
-      </div>
+    <div class="nav-action" onclick="window.location.href='exam-onboarding.html'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create Exam
     </div>
 
-    <div class="nav-section-toggle" data-section="communicate">
-      <span>Communicate</span>
-    </div>
-    <div class="nav-section-body" id="nav-section-communicate">
-      <div class="nav-item" data-nav="comm-invite" onclick="navigate('comm-invite')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        Send Invitations
-      </div>
-      <div class="nav-item" data-nav="comm-results" onclick="navigate('comm-results')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        Send Results
-      </div>
-      <div class="nav-item" data-nav="comm-retakes" onclick="navigate('comm-retakes')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-        Retakes
-      </div>
-      <div class="nav-item" data-nav="hist-scheduled" onclick="navigate('hist-scheduled')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Scheduled
-      </div>
+    <div class="nav-item" data-nav="manage-exams" onclick="navigate('exams-all')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Manage Exams
     </div>
 
-    <div class="nav-section-toggle" data-section="history">
-      <span>History</span>
-    </div>
-    <div class="nav-section-body" id="nav-section-history">
-      <div class="nav-item" data-nav="hist-results" onclick="navigate('hist-results')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Sent Results
-      </div>
+    <div class="nav-item" data-nav="review-subs" onclick="navigate('subs-all')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Review Submissions
     </div>
 
-    <div class="nav-section-toggle" data-section="settings">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;opacity:0.7;flex-shrink:0;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      <span>Settings</span>
+    <div class="nav-item" data-nav="communications" onclick="navigate('comm-invite')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Communications
     </div>
-    <div class="nav-section-body" id="nav-section-settings">
-      <div class="nav-item" data-nav="settings-profile" onclick="navigate('settings-profile')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Profile
-      </div>
+
+    <div class="nav-item" data-nav="settings" onclick="navigate('settings-profile')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
     </div>
 
   </nav>
@@ -497,7 +452,7 @@
 
     <!-- L1: Exam list -->
     <div id="exams-l1">
-      <div class="page-header"><div class="page-title" id="examsTitle">Exams</div></div>
+      <div class="page-header"><div class="page-title" id="examsTitle">Manage Exams</div></div>
       <div class="toolbar">
         <input class="search-input" type="text" id="examSearch" placeholder="Search exams…" oninput="filterExams()">
         <div class="spacer"></div>
@@ -664,10 +619,12 @@
 
     <!-- Shared header + tabs (hidden during drill-down) -->
     <div id="subs-tab-bar">
-      <div class="page-header"><div class="page-title" id="subsPageTitle">Submissions</div></div>
+      <div class="page-header"><div class="page-title">Review Submissions</div></div>
       <div class="subtabs">
-        <div class="subtab active" id="subsTab-all" onclick="navigate('subs-all')">All<span class="tab-count" id="subsTabCount-all">…</span></div>
+        <div class="subtab active" id="subsTab-all" onclick="navigate('subs-all')">All Submissions<span class="tab-count" id="subsTabCount-all">…</span></div>
         <div class="subtab" id="subsTab-grading" onclick="navigate('subs-grading')">Grading Queue<span class="tab-count" id="subsTabCount-grading">…</span></div>
+        <div class="subtab" id="subsTab-sent-results" onclick="navigate('hist-results')">Sent Results</div>
+        <div class="subtab" id="subsTab-released" onclick="navigate('subs-released')">Released Results</div>
       </div>
     </div>
 
@@ -754,205 +711,216 @@
       </div>
     </div>
 
+    <!-- Sent Results pane -->
+    <div id="subsPane-sent-results" style="display:none;">
+      <div class="toolbar" id="histResultsToolbar">
+        <input class="search-input" type="text" id="histResultsSearch" placeholder="Search…" oninput="filterHistResults()">
+        <select class="hist-date-sel" id="histResultsDateSel" onchange="hrDateChange()">
+          <option value="all">All time</option>
+          <option value="today">Today</option>
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+          <option value="month">This month</option>
+          <option value="lastmonth">Last month</option>
+          <option value="custom">Custom range…</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="histResultsExportBtn" onclick="exportHistResultsCSV()" disabled style="display:flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+      </div>
+      <div class="hist-custom-range" id="histResultsCustomRange" style="display:none;">
+        <span style="font-size:0.78rem;color:#64748b;font-weight:600;">From</span>
+        <input type="date" class="search-input" id="histResultsFrom" onchange="hrCustomRangeChange()" style="width:145px;">
+        <span style="font-size:0.78rem;color:#64748b;font-weight:600;">To</span>
+        <input type="date" class="search-input" id="histResultsTo" onchange="hrCustomRangeChange()" style="width:145px;">
+        <a onclick="hrClearCustom()" style="font-size:0.78rem;color:#64748b;cursor:pointer;text-decoration:underline;">Clear</a>
+      </div>
+      <div id="histResultsContent"></div>
+    </div>
+
+    <!-- Released Results pane -->
+    <div id="subsPane-released" style="display:none;">
+      <div style="padding:48px 0;text-align:center;color:#94a3b8;font-size:0.88rem;">Released results will appear here.</div>
+    </div>
+
   </section>
 
-  <!-- COMMUNICATE: INVITATIONS -->
-  <section class="section" id="section-comm-invite">
-    <div class="page-header">
-      <div class="page-title">Send Invitations</div>
-      <div class="page-sub">Send exam access links to students by email</div>
+  <!-- COMMUNICATIONS (consolidated: Send Invitations | Send Results | Retakes | Scheduled Sends) -->
+  <section class="section" id="section-comm">
+    <div class="page-header"><div class="page-title">Communications</div></div>
+    <div class="subtabs" style="margin-bottom:20px;">
+      <div class="subtab active" id="commTab-invite"     onclick="navigate('comm-invite')">Send Invitations</div>
+      <div class="subtab"        id="commTab-results"    onclick="navigate('comm-results')">Send Results</div>
+      <div class="subtab"        id="commTab-retakes"    onclick="navigate('comm-retakes')">Retakes</div>
+      <div class="subtab"        id="commTab-scheduled"  onclick="navigate('hist-scheduled')">Scheduled Sends</div>
     </div>
-    <!-- Top bar: exam + group selectors -->
-    <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:20px;">
-      <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-        <div style="flex:1;min-width:200px;">
-          <label class="field-label">Exam</label>
-          <select class="ctrl" id="inviteExamSel" onchange="onInviteExamChange()" style="width:100%;"></select>
-        </div>
-      </div>
-      <div id="inviteGroupWrap" style="display:none;margin-top:12px;">
-        <label class="field-label">Group</label>
-        <div class="group-tabs" id="inviteGroupTabs"></div>
-      </div>
-    </div>
-    <!-- Two-column body -->
-    <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
-      <!-- Left: email preview -->
-      <div>
-        <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Email Preview</div>
-        <iframe id="invitePreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;border-radius:4px;background:white;display:block;"></iframe>
-      </div>
-      <!-- Right: send + history -->
-      <div>
-        <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send Invitations</div>
-        <div class="card" style="padding:18px;margin-bottom:0;">
-          <div id="inviteTagContainer" class="tag-input-wrap" onclick="document.getElementById('inviteTagInput').focus()">
-            <input type="text" id="inviteTagInput" class="tag-input-field" placeholder="Add email addresses…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-          </div>
-          <div id="inviteRecipientCount" style="margin-top:6px;font-size:0.78rem;min-height:1.2em;"></div>
-          <button id="inviteSendBtn" class="btn btn-primary" onclick="sendInvitations()" style="width:100%;margin-top:10px;" disabled>Send Invitations</button>
-          <div id="inviteFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
-        </div>
-        <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
-        <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send History</div>
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Email</th><th>Sent At</th><th>Status</th></tr></thead>
-              <tbody id="inviteHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <!-- COMMUNICATE: RESULTS -->
-  <section class="section" id="section-comm-results">
-    <div class="page-header">
-      <div class="page-title">Send Results</div>
-      <div class="page-sub">Send score reports to students who have been graded</div>
-    </div>
-    <!-- Top bar -->
-    <div style="background:white;border:1px solid #e2e8f0;padding:16px;margin-bottom:20px;">
-      <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-        <div style="flex:1;min-width:200px;">
-          <label class="field-label">Exam</label>
-          <select class="ctrl" id="resultsExamSel" onchange="onResultsExamChange()" style="width:100%;border-radius:0;border:1px solid #e2e8f0;"></select>
-        </div>
-        <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:500;color:#475569;cursor:pointer;align-self:flex-end;padding-bottom:6px;">
-          <input type="checkbox" id="resultsIncludeBreakdown" checked onchange="refreshResultsPreview()"> Include detailed Q&amp;A breakdown
-        </label>
-      </div>
-      <div id="resultsGroupWrap" style="display:none;margin-top:12px;">
-        <label class="field-label">Group</label>
-        <div class="group-tabs" id="resultsGroupTabs"></div>
-      </div>
-    </div>
-    <!-- Two-column body -->
-    <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
-      <!-- Left: email preview -->
-      <div>
-        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Email Preview</div>
-        <iframe id="resultsPreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
-      </div>
-      <!-- Right: checklist + history -->
-      <div>
-        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send Results</div>
-        <div class="card" style="padding:18px;margin-bottom:0;">
-          <div class="table-wrap" style="max-height:300px;overflow-y:auto;">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width:32px;"><input type="checkbox" id="resultsSelectAll" onchange="resultsToggleSelectAll(this)"></th>
-                  <th>Student</th>
-                  <th>Score</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody id="resultsCheckTable"><tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
-            </table>
+    <!-- Send Invitations pane -->
+    <div id="commPane-invite">
+      <!-- Top bar: exam + group selectors -->
+      <div style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:20px;">
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label class="field-label">Exam</label>
+            <select class="ctrl" id="inviteExamSel" onchange="onInviteExamChange()" style="width:100%;"></select>
           </div>
-          <label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#64748b;margin-top:10px;cursor:pointer;">
-            <input type="checkbox" id="resultsShowAll" onchange="renderResultsChecklist()"> Show all students
+        </div>
+        <div style="margin-top:12px;">
+          <label class="field-label">Group</label>
+          <select class="ctrl" id="inviteGroupSel" onchange="onInviteGroupChange()" style="width:100%;" disabled>
+            <option value="">Select an exam first</option>
+          </select>
+        </div>
+      </div>
+      <!-- Two-column body -->
+      <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
+        <!-- Left: email preview -->
+        <div>
+          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Email Preview</div>
+          <iframe id="invitePreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;border-radius:4px;background:white;display:block;"></iframe>
+          <div id="invitePreviewNote" style="display:none;font-size:0.75rem;color:#94a3b8;margin-top:6px;">Select a group to see the correct access code.</div>
+        </div>
+        <!-- Right: send + history -->
+        <div>
+          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send Invitations</div>
+          <div class="card" style="padding:18px;margin-bottom:0;">
+            <div id="inviteTagContainer" class="tag-input-wrap" onclick="document.getElementById('inviteTagInput').focus()">
+              <input type="text" id="inviteTagInput" class="tag-input-field" placeholder="Add email addresses…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+            </div>
+            <div id="inviteRecipientCount" style="margin-top:6px;font-size:0.78rem;min-height:1.2em;"></div>
+            <button id="inviteSendBtn" class="btn btn-primary" onclick="sendInvitations()" style="width:100%;margin-top:10px;" disabled>Send Invitations</button>
+            <div id="inviteFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
+          </div>
+          <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
+          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send History</div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Email</th><th>Sent At</th><th>Status</th></tr></thead>
+                <tbody id="inviteHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Send Results pane -->
+    <div id="commPane-results" style="display:none;">
+      <!-- Top bar -->
+      <div style="background:white;border:1px solid #e2e8f0;padding:16px;margin-bottom:20px;">
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label class="field-label">Exam</label>
+            <select class="ctrl" id="resultsExamSel" onchange="onResultsExamChange()" style="width:100%;border-radius:0;border:1px solid #e2e8f0;"></select>
+          </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:500;color:#475569;cursor:pointer;align-self:flex-end;padding-bottom:6px;">
+            <input type="checkbox" id="resultsIncludeBreakdown" checked onchange="refreshResultsPreview()"> Include detailed Q&amp;A breakdown
           </label>
-          <button class="btn btn-primary" onclick="sendToSelected()" style="width:100%;margin-top:12px;">Send to Selected</button>
-          <div id="resultsFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
         </div>
-        <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
-        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send History</div>
-        <div class="card">
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Student</th><th>Sent At</th><th>Status</th></tr></thead>
-              <tbody id="resultsHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
-            </table>
+        <div id="resultsGroupWrap" style="display:none;margin-top:12px;">
+          <label class="field-label">Group</label>
+          <div class="group-tabs" id="resultsGroupTabs"></div>
+        </div>
+      </div>
+      <!-- Two-column body -->
+      <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
+        <!-- Left: email preview -->
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Email Preview</div>
+          <iframe id="resultsPreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
+        </div>
+        <!-- Right: checklist + history -->
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send Results</div>
+          <div class="card" style="padding:18px;margin-bottom:0;">
+            <div class="table-wrap" style="max-height:300px;overflow-y:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:32px;"><input type="checkbox" id="resultsSelectAll" onchange="resultsToggleSelectAll(this)"></th>
+                    <th>Student</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsCheckTable"><tr><td colspan="4" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+              </table>
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#64748b;margin-top:10px;cursor:pointer;">
+              <input type="checkbox" id="resultsShowAll" onchange="renderResultsChecklist()"> Show all students
+            </label>
+            <button class="btn btn-primary" onclick="sendToSelected()" style="width:100%;margin-top:12px;">Send to Selected</button>
+            <div id="resultsFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
+          </div>
+          <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send History</div>
+          <div class="card">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Student</th><th>Sent At</th><th>Status</th></tr></thead>
+                <tbody id="resultsHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- COMMUNICATE: RETAKES -->
-  <section class="section" id="section-comm-retakes">
-    <div class="page-header">
-      <div class="page-title">Retakes</div>
-      <div class="page-sub">Allow a student to retake an exam</div>
-    </div>
-    <div class="toolbar">
-      <select class="ctrl" id="retakesExamSel" onchange="loadRetakesStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
-      <input class="search-input" type="text" id="retakesSearch" placeholder="Search students…" oninput="filterRetakes()">
-    </div>
-    <div class="card">
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Score</th><th>Submitted</th><th>Retake</th><th>Action</th></tr></thead>
-          <tbody id="retakesTable"><tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
-        </table>
+    <!-- Retakes pane -->
+    <div id="commPane-retakes" style="display:none;">
+      <div class="toolbar">
+        <select class="ctrl" id="retakesExamSel" onchange="loadRetakesStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
+        <input class="search-input" type="text" id="retakesSearch" placeholder="Search students…" oninput="filterRetakes()">
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Score</th><th>Submitted</th><th>Retake</th><th>Action</th></tr></thead>
+            <tbody id="retakesTable"><tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+    <!-- Scheduled Sends pane -->
+    <div id="commPane-scheduled" style="display:none;">
+      <div class="toolbar" id="histScheduledToolbar" style="display:none;">
+        <select class="hist-date-sel" id="histScheduledDateSel" onchange="hsDateChange()">
+          <option value="all">All time</option>
+          <option value="today">Today</option>
+          <option value="7d">Last 7 days</option>
+          <option value="30d">Last 30 days</option>
+          <option value="month">This month</option>
+          <option value="lastmonth">Last month</option>
+          <option value="custom">Custom range…</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" id="histScheduledExportBtn" onclick="exportHistScheduledCSV()" disabled style="display:flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+      </div>
+      <div class="hist-custom-range" id="histScheduledCustomRange" style="display:none;">
+        <span style="font-size:0.78rem;color:#64748b;font-weight:600;">From</span>
+        <input type="date" class="search-input" id="histScheduledFrom" onchange="hsCustomRangeChange()" style="width:145px;">
+        <span style="font-size:0.78rem;color:#64748b;font-weight:600;">To</span>
+        <input type="date" class="search-input" id="histScheduledTo" onchange="hsCustomRangeChange()" style="width:145px;">
+        <a onclick="hsClearCustom()" style="font-size:0.78rem;color:#64748b;cursor:pointer;text-decoration:underline;">Clear</a>
+      </div>
+      <div id="histScheduledContent"></div>
+    </div>
+
   </section>
 
-  <!-- HISTORY: SENT RESULTS -->
-  <section class="section" id="section-hist-results">
-    <div class="page-header">
-      <div class="page-title">Sent Results</div>
-      <div class="page-sub">All result emails sent to students</div>
-    </div>
-    <div class="toolbar" id="histResultsToolbar">
-      <input class="search-input" type="text" id="histResultsSearch" placeholder="Search…" oninput="filterHistResults()">
-      <select class="hist-date-sel" id="histResultsDateSel" onchange="hrDateChange()">
-        <option value="all">All time</option>
-        <option value="today">Today</option>
-        <option value="7d">Last 7 days</option>
-        <option value="30d">Last 30 days</option>
-        <option value="month">This month</option>
-        <option value="lastmonth">Last month</option>
-        <option value="custom">Custom range…</option>
-      </select>
-      <button class="btn btn-ghost btn-sm" id="histResultsExportBtn" onclick="exportHistResultsCSV()" disabled style="display:flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
-    </div>
-    <div class="hist-custom-range" id="histResultsCustomRange" style="display:none;">
-      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">From</span>
-      <input type="date" class="search-input" id="histResultsFrom" onchange="hrCustomRangeChange()" style="width:145px;">
-      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">To</span>
-      <input type="date" class="search-input" id="histResultsTo" onchange="hrCustomRangeChange()" style="width:145px;">
-      <a onclick="hrClearCustom()" style="font-size:0.78rem;color:#64748b;cursor:pointer;text-decoration:underline;">Clear</a>
-    </div>
-    <div id="histResultsContent"></div>
-  </section>
+  <!-- stubs for old standalone sections -->
+  <section class="section" id="section-comm-invite"></section>
+  <section class="section" id="section-comm-results"></section>
+  <section class="section" id="section-comm-retakes"></section>
 
-  <!-- HISTORY: SCHEDULED -->
-  <section class="section" id="section-hist-scheduled">
-    <div class="page-header">
-      <div class="page-title">Scheduled</div>
-      <div class="page-sub">Scheduled result deliveries</div>
-    </div>
-    <div class="toolbar" id="histScheduledToolbar" style="display:none;">
-      <select class="hist-date-sel" id="histScheduledDateSel" onchange="hsDateChange()">
-        <option value="all">All time</option>
-        <option value="today">Today</option>
-        <option value="7d">Last 7 days</option>
-        <option value="30d">Last 30 days</option>
-        <option value="month">This month</option>
-        <option value="lastmonth">Last month</option>
-        <option value="custom">Custom range…</option>
-      </select>
-      <button class="btn btn-ghost btn-sm" id="histScheduledExportBtn" onclick="exportHistScheduledCSV()" disabled style="display:flex;align-items:center;gap:5px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
-    </div>
-    <div class="hist-custom-range" id="histScheduledCustomRange" style="display:none;">
-      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">From</span>
-      <input type="date" class="search-input" id="histScheduledFrom" onchange="hsCustomRangeChange()" style="width:145px;">
-      <span style="font-size:0.78rem;color:#64748b;font-weight:600;">To</span>
-      <input type="date" class="search-input" id="histScheduledTo" onchange="hsCustomRangeChange()" style="width:145px;">
-      <a onclick="hsClearCustom()" style="font-size:0.78rem;color:#64748b;cursor:pointer;text-decoration:underline;">Clear</a>
-    </div>
-    <div id="histScheduledContent"></div>
-  </section>
+  <!-- HISTORY: SENT RESULTS — content moved into section-subs subsPane-sent-results -->
+  <section class="section" id="section-hist-results"></section>
+
+  <!-- HISTORY: SCHEDULED — content moved into section-comm commPane-scheduled -->
+  <section class="section" id="section-hist-scheduled"></section>
 
   <!-- SETTINGS: PROFILE (Personal + Institution tabs) -->
   <section class="section" id="section-settings-profile">
-    <div class="page-header"><div class="page-title">Profile</div></div>
+    <div class="page-header"><div class="page-title">Settings</div></div>
     <div class="subtabs" style="margin-bottom:20px;">
       <div class="subtab active" id="profileTab-personal" onclick="profileSwitchTab('personal')">Personal</div>
       <div class="subtab" id="profileTab-institution" onclick="profileSwitchTab('institution')">Institution</div>
@@ -1178,6 +1146,7 @@
   let drillSelectedIds = new Set();
   let pendingDrillExam = null;
   let inviteActiveGroup = '';
+  let _inviteGroupCodes = {};
   let _inviteTags = [];
   let _confirmModalCallback = null;
   let resultsActiveGroup = '';
@@ -1198,13 +1167,13 @@
   }
   function formatDate(d) {
     if (!d) return '—';
-    return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   }
   function formatSubmittedDT(d) {
     if (!d) return '—';
     const dt = new Date(d);
     const day = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
-    const time = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    const time = dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
     return day + ' · ' + time;
   }
   function studentStatusBadge(a) {
@@ -1217,7 +1186,7 @@
   }
   function formatDateTime(d) {
     if (!d) return '—';
-    return new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
   }
   function showToast(msg) {
     const el = document.getElementById('toast');
@@ -1249,12 +1218,8 @@
   const SECTION_MAP = {
     'home': 'home',
     'exams-all': 'exams', 'exams-published': 'exams', 'exams-drafts': 'exams',
-    'subs-all': 'subs', 'subs-grading': 'subs',
-    'comm-invite': 'comm-invite',
-    'comm-results': 'comm-results',
-    'comm-retakes': 'comm-retakes',
-    'hist-results': 'hist-results',
-    'hist-scheduled': 'hist-scheduled',
+    'subs-all': 'subs', 'subs-grading': 'subs', 'hist-results': 'subs', 'subs-released': 'subs',
+    'comm-invite': 'comm', 'comm-results': 'comm', 'comm-retakes': 'comm', 'hist-scheduled': 'comm',
     'settings-profile': 'settings-profile',
     'settings-inst': 'settings-profile',
   };
@@ -1268,57 +1233,137 @@
     'settings-profile': 'settings', 'settings-inst': 'settings',
   };
 
-  const NAV_PARENT_MAP = {
-    'exams-all': 'exams', 'exams-published': 'exams', 'exams-drafts': 'exams',
-    'subs-all': 'subs', 'subs-grading': 'subs',
+  const NAV_ACTIVE_MAP = {
+    'home': 'home',
+    'exams-all': 'manage-exams', 'exams-published': 'manage-exams', 'exams-drafts': 'manage-exams',
+    'subs-all': 'review-subs', 'subs-grading': 'review-subs', 'hist-results': 'review-subs', 'subs-released': 'review-subs',
+    'comm-invite': 'communications', 'comm-results': 'communications',
+    'comm-retakes': 'communications', 'hist-scheduled': 'communications',
+    'settings-profile': 'settings', 'settings-inst': 'settings',
   };
 
-  const ALL_SECTIONS = ['manage', 'communicate', 'history', 'settings'];
+  // nav → hash for section-level navigation
+  const NAV_TO_HASH = {
+    'home':             '',
+    'exams-all':        'exams',
+    'exams-published':  'exams/published',
+    'exams-drafts':     'exams/drafts',
+    'subs-all':         'submissions',
+    'subs-grading':     'submissions/grading-queue',
+    'hist-results':     'submissions/sent-results',
+    'subs-released':    'submissions/released',
+    'comm-invite':      'communications',
+    'comm-results':     'communications/send-results',
+    'comm-retakes':     'communications/retakes',
+    'hist-scheduled':   'communications/scheduled-sends',
+    'settings-profile': 'settings',
+    'settings-inst':    'settings/institution',
+  };
 
-  function toggleSection(sectionId) {
-    const body = document.getElementById(`nav-section-${sectionId}`);
-    const toggle = document.querySelector(`[data-section="${sectionId}"]`);
-    const isOpen = body.classList.contains('open');
-    ALL_SECTIONS.forEach(s => {
-      document.getElementById(`nav-section-${s}`).classList.remove('open');
-      const t = document.querySelector(`[data-section="${s}"]`);
-      if (t) t.classList.remove('open');
-    });
-    if (!isOpen) {
-      body.classList.add('open');
-      toggle.classList.add('open');
+  // Convert a state object back to its canonical hash URL
+  function _stateToUrl(state) {
+    if (!state) return '';
+    if (state.view === 'nav') {
+      const h = NAV_TO_HASH[state.nav];
+      return h !== undefined ? (h ? '#' + h : location.pathname + location.search) : '';
+    }
+    if (state.view === 'examDetail')   return '#exams/' + state.examId;
+    if (state.view === 'groupDetail')  return '#exams/' + state.examId + '/' + encodeURIComponent(state.groupName);
+    if (state.view === 'studentDetail') return '#exams/' + state.examId + '/' + encodeURIComponent(state.groupName) + '/' + state.attemptId;
+    if (state.view === 'subsGroupDetail') return '#submissions/groups/' + encodeURIComponent(state.groupName);
+    if (state.view === 'subsExamDetail')  return '#submissions/groups/' + encodeURIComponent(state.groupName) + '/' + state.examId;
+    return '';
+  }
+
+  // Parse any hash string into a state object for restoreView()
+  function parseHashToState(hash) {
+    if (!hash) return {view: 'nav', nav: 'home'};
+    // Simple flat lookup first (legacy aliases + legacy Part-6 hashes)
+    const legacyMap = {
+      'dashboard': 'home',
+      'exams': 'exams-all', 'exams/published': 'exams-published', 'exams/drafts': 'exams-drafts',
+      'submissions': 'subs-all', 'submissions/grading-queue': 'subs-grading',
+      'submissions/sent-results': 'hist-results', 'submissions/released': 'subs-released',
+      'communications': 'comm-invite', 'communications/send-results': 'comm-results',
+      'communications/retakes': 'comm-retakes', 'communications/scheduled-sends': 'hist-scheduled',
+      'settings': 'settings-profile', 'settings/institution': 'settings-inst',
+      // legacy Part-6 aliases
+      'manage-exams': 'exams-all', 'manage-exams/all': 'exams-all',
+      'manage-exams/published': 'exams-published', 'manage-exams/drafts': 'exams-drafts',
+      'review-submissions': 'subs-all', 'review-submissions/all': 'subs-all',
+      'review-submissions/grading-queue': 'subs-grading',
+      'review-submissions/sent-results': 'hist-results', 'review-submissions/released': 'subs-released',
+      'communications/send-invitations': 'comm-invite',
+      'grading-queue': 'subs-grading', 'sent-results': 'hist-results',
+      'send-invitations': 'comm-invite', 'send-results': 'comm-results',
+      'retakes': 'comm-retakes', 'scheduled': 'hist-scheduled',
+    };
+    if (legacyMap[hash]) return {view: 'nav', nav: legacyMap[hash]};
+
+    // Parse drill-down patterns
+    const parts = hash.split('/');
+    const p = parts.map(s => { try { return decodeURIComponent(s); } catch(e) { return s; } });
+
+    if (p[0] === 'exams' && p.length >= 2 && p[1] !== 'published' && p[1] !== 'drafts') {
+      const examId = p[1];
+      if (p.length === 2) return {view: 'examDetail', examId};
+      const groupName = p[2];
+      if (p.length === 3) return {view: 'groupDetail', examId, groupName};
+      return {view: 'studentDetail', examId, groupName, attemptId: p[3]};
+    }
+    if (p[0] === 'submissions' && p[1] === 'groups' && p.length >= 3) {
+      const groupName = p[2];
+      if (p.length === 3) return {view: 'subsGroupDetail', groupName};
+      return {view: 'subsExamDetail', groupName, examId: p[3]};
+    }
+    return null;
+  }
+
+  // Restore any view from a state object (used by popstate + init)
+  async function restoreView(state) {
+    if (!state) { navigate('home', 'skip'); return; }
+    const {view} = state;
+    if (view === 'nav') {
+      navigate(state.nav || 'home', 'skip');
+    } else if (view === 'examDetail') {
+      navigate('exams-all', 'skip');
+      await drillToExam(state.examId, true);
+    } else if (view === 'groupDetail') {
+      navigate('exams-all', 'skip');
+      await drillToExam(state.examId, true);
+      drillToGroup(state.groupName, true);
+    } else if (view === 'studentDetail') {
+      navigate('exams-all', 'skip');
+      await drillToExam(state.examId, true);
+      drillToGroup(state.groupName, true);
+      drillToStudent(state.attemptId, true);
+    } else if (view === 'subsGroupDetail') {
+      navigate('subs-all', 'skip');
+      drillSubsToGroup(state.groupName, true);
+    } else if (view === 'subsExamDetail') {
+      navigate('subs-all', 'skip');
+      drillSubsToGroup(state.groupName, true);
+      await drillSubsToExam(state.examId, true);
+    } else {
+      navigate('home', 'skip');
     }
   }
 
-  function toggleParent(parentId) {
-    const body = document.getElementById(`nav-parent-${parentId}`);
-    const toggle = document.querySelector(`[data-parent="${parentId}"]`);
-    if (body && toggle) {
-      body.classList.toggle('open');
-      toggle.classList.toggle('open');
+  window.addEventListener('popstate', function(e) {
+    if (e.state) {
+      restoreView(e.state);
+    } else {
+      const s = parseHashToState(window.location.hash.slice(1));
+      restoreView(s);
     }
-  }
+  });
 
-  function navigate(nav) {
-    document.querySelectorAll('.nav-item, .nav-sub-item, .nav-parent-toggle').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll(`[data-nav="${nav}"]`).forEach(el => el.classList.add('active'));
-    const sectionKey = NAV_SECTION_MAP[nav];
-    ALL_SECTIONS.forEach(s => {
-      document.getElementById(`nav-section-${s}`).classList.remove('open');
-      const t = document.querySelector(`[data-section="${s}"]`);
-      if (t) t.classList.remove('open');
-    });
-    if (sectionKey) {
-      document.getElementById(`nav-section-${sectionKey}`).classList.add('open');
-      const t = document.querySelector(`[data-section="${sectionKey}"]`);
-      if (t) t.classList.add('open');
-      const parentKey = NAV_PARENT_MAP[nav];
-      if (parentKey) {
-        document.getElementById(`nav-parent-${parentKey}`).classList.add('open');
-        const pt = document.querySelector(`[data-parent="${parentKey}"]`);
-        if (pt) { pt.classList.add('open'); pt.classList.add('active'); }
-      }
-    }
+  function navigate(nav, histMode) {
+    // Capture current section before we change active class
+    const prevSectionId = document.querySelector('.section.active')?.id || null;
+    const activeId = NAV_ACTIVE_MAP[nav];
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if (activeId) document.querySelectorAll(`[data-nav="${activeId}"]`).forEach(el => el.classList.add('active'));
     const sectionId = SECTION_MAP[nav];
     document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
     document.getElementById(`section-${sectionId}`).classList.add('active');
@@ -1329,13 +1374,25 @@
     else if (nav === 'exams-drafts') { examTab = 'drafts'; setExamTab('drafts'); }
     else if (nav === 'subs-all') { setSubsTab('all'); }
     else if (nav === 'subs-grading') { setSubsTab('grading'); }
-    else if (nav === 'comm-invite') loadCommInvite();
-    else if (nav === 'comm-results') loadCommResults();
-    else if (nav === 'comm-retakes') loadCommRetakes();
-    else if (nav === 'hist-results') loadHistResults();
-    else if (nav === 'hist-scheduled') loadHistScheduled();
+    else if (nav === 'hist-results') { setSubsTab('sent-results'); }
+    else if (nav === 'subs-released') { setSubsTab('released'); }
+    else if (nav === 'comm-invite') setCommTab('invite');
+    else if (nav === 'comm-results') setCommTab('results');
+    else if (nav === 'comm-retakes') setCommTab('retakes');
+    else if (nav === 'hist-scheduled') setCommTab('scheduled');
     else if (nav === 'settings-profile') { loadSettingsProfile(); profileSwitchTab('personal'); }
     else if (nav === 'settings-inst') { loadSettingsInst(); profileSwitchTab('institution'); }
+    if (histMode === 'skip') return;
+    const hash = NAV_TO_HASH[nav];
+    if (hash === undefined) return;
+    const url = hash ? '#' + hash : location.pathname + location.search;
+    const isSameSection = prevSectionId === `section-${sectionId}`;
+    const state = {view: 'nav', nav};
+    if (histMode === 'replace' || isSameSection) {
+      history.replaceState(state, '', url);
+    } else {
+      history.pushState(state, '', url);
+    }
   }
 
   // ── Init ─────────────────────────────────────────────────────────────
@@ -1399,7 +1456,9 @@
       });
     });
 
-    navigate('home');
+    const initState = parseHashToState(window.location.hash.slice(1)) || {view:'nav', nav:'home'};
+    await restoreView(initState);
+    history.replaceState(initState, '', _stateToUrl(initState) || (location.pathname + location.search));
   }
 
   async function signOut() {
@@ -1415,7 +1474,7 @@
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
     document.getElementById('homeGreeting').textContent = `${greeting}, ${firstName}`;
-    document.getElementById('homeDate').textContent = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    document.getElementById('homeDate').textContent = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
     let pendingCount = 0, unsentCount = 0, scheduledCount = 0;
     const activeExamsCount = allExams.filter(e => e.status === 'published').length;
@@ -1590,10 +1649,11 @@
 
   // ── Drill level 1 → 2 ────────────────────────────────────────────────
 
-  async function drillToExam(examId) {
+  async function drillToExam(examId, skipPush) {
     const exam = allExams.find(e => e.id === examId);
     if (!exam) return;
     drillCurrentExam = exam;
+    if (!skipPush) history.pushState({view:'examDetail', examId, examName: exam.title||''}, '', '#exams/' + examId);
     drillCurrentAttempts = [];
     drillSelectedIds = new Set();
     const title = exam.title || '(Untitled)';
@@ -1797,24 +1857,28 @@
     const examId = drillCurrentExam?.id;
     const groupName = drillCurrentGroup;
     navigate('comm-invite');
-    const sel = document.getElementById('inviteExamSel');
-    if (sel && examId) {
-      sel.value = examId;
+    const examSel = document.getElementById('inviteExamSel');
+    if (examSel && examId) {
+      examSel.value = examId;
       onInviteExamChange();
       if (groupName && groupName !== '(Default)') {
-        document.querySelectorAll('#inviteGroupTabs .group-tab').forEach(tab => {
-          if (tab.textContent.trim() === groupName) tab.click();
-        });
+        const groupSel = document.getElementById('inviteGroupSel');
+        if (groupSel) {
+          groupSel.value = groupName;
+          onInviteGroupChange();
+        }
       }
+      setTimeout(() => document.getElementById('inviteTagInput')?.focus(), 50);
     }
   }
 
   // ── Drill level 3 → 4 (student detail) ──────────────────────────────
 
-  function drillToStudent(attemptId) {
+  function drillToStudent(attemptId, skipPush) {
     const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
     if (!attempt || !drillCurrentExam) return;
     drillCurrentAttempt = attempt;
+    if (!skipPush) history.pushState({view:'studentDetail', examId:drillCurrentExam.id, examName:drillCurrentExam.title||'', groupName:drillCurrentGroup, attemptId}, '', '#exams/' + drillCurrentExam.id + '/' + encodeURIComponent(drillCurrentGroup||'') + '/' + attemptId);
     _sdTab = 'overview';
     _sdRetakeCount = 0;
     _sdQuestions = [];
@@ -2077,9 +2141,10 @@
 
   // ── Drill level 2 → 3 ────────────────────────────────────────────────
 
-  function drillToGroup(groupName) {
+  function drillToGroup(groupName, skipPush) {
     if (!drillCurrentExam) return;
     drillCurrentGroup = groupName;
+    if (!skipPush) history.pushState({view:'groupDetail', examId:drillCurrentExam.id, examName:drillCurrentExam.title||'', groupName}, '', '#exams/' + drillCurrentExam.id + '/' + encodeURIComponent(groupName));
     drillSelectedIds = new Set();
     const examTitle = drillCurrentExam.title || '(Untitled)';
     document.getElementById('exams-l1').style.display = 'none';
@@ -2116,6 +2181,13 @@
     if (toLevel <= 3) { drillCurrentAttempt = null; _sdQuestions = []; _sdAnswers = {}; }
     drillSelectedIds = new Set();
     drillUpdateBulkBar();
+    if (toLevel === 1) {
+      history.pushState({view:'nav', nav:'exams-all'}, '', '#exams');
+    } else if (toLevel === 2 && drillCurrentExam) {
+      history.pushState({view:'examDetail', examId:drillCurrentExam.id, examName:drillCurrentExam.title||''}, '', '#exams/' + drillCurrentExam.id);
+    } else if (toLevel === 3 && drillCurrentExam && drillCurrentGroup) {
+      history.pushState({view:'groupDetail', examId:drillCurrentExam.id, examName:drillCurrentExam.title||'', groupName:drillCurrentGroup}, '', '#exams/' + drillCurrentExam.id + '/' + encodeURIComponent(drillCurrentGroup));
+    }
   }
 
   // ── Drill stat strips ─────────────────────────────────────────────────
@@ -2168,6 +2240,7 @@
     const _svg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
     const copyBtn = code ? `<button onclick="copyCodeWithFeedback(${JSON.stringify(code)},this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;line-height:1;" title="Copy access code">${_svg}</button>` : '';
     const div = '<div class="drill-strip-div"></div>';
+    const envSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
     el.innerHTML = `<div class="drill-strip">
       <div class="drill-strip-block"><span class="drill-strip-val">${submitted}</span><span class="drill-strip-label">Submitted</span></div>
       ${div}
@@ -2176,6 +2249,8 @@
       <div class="drill-strip-block"><span class="drill-strip-val">${pending}</span><span class="drill-strip-label">Pending</span></div>
       ${div}
       <div class="drill-strip-block"><span class="drill-strip-val"><span style="font-family:monospace;font-size:16px;">${esc(code||'—')}</span>${copyBtn}</span><span class="drill-strip-label">Access Code</span></div>
+      ${div}
+      <button class="btn btn-ghost btn-sm" onclick="drillGoToInvite()" style="display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;">${envSvg} Send Invitation</button>
     </div>`;
   }
 
@@ -2498,7 +2573,7 @@
 
   function setSubsTab(tab) {
     subsTab = tab;
-    ['all', 'grading'].forEach(t => {
+    ['all', 'grading', 'sent-results', 'released'].forEach(t => {
       const el = document.getElementById(`subsTab-${t}`);
       if (el) el.classList.toggle('active', t === tab);
     });
@@ -2507,8 +2582,11 @@
     document.getElementById('subs-l1').style.display = tab === 'all' ? 'block' : 'none';
     document.getElementById('subs-l2').style.display = 'none';
     document.getElementById('subs-l3').style.display = 'none';
+    document.getElementById('subsPane-sent-results').style.display = tab === 'sent-results' ? 'block' : 'none';
+    document.getElementById('subsPane-released').style.display = tab === 'released' ? 'block' : 'none';
     if (tab === 'grading') renderGradingQueue();
     else if (tab === 'all') loadSubsGroups();
+    else if (tab === 'sent-results') loadHistResults();
   }
 
   let _subsGen = 0;
@@ -2604,8 +2682,9 @@
     </div>`;
   }
 
-  function drillSubsToGroup(groupName) {
+  function drillSubsToGroup(groupName, skipPush) {
     subsCurrentGroup = groupName;
+    if (!skipPush) history.pushState({view:'subsGroupDetail', groupName}, '', '#submissions/groups/' + encodeURIComponent(groupName));
     document.getElementById('subs-tab-bar').style.display = 'none';
     document.getElementById('subs-l1').style.display = 'none';
     document.getElementById('subs-l2').style.display = 'block';
@@ -2654,10 +2733,11 @@
     }).join('');
   }
 
-  async function drillSubsToExam(examId) {
+  async function drillSubsToExam(examId, skipPush) {
     const exam = allExams.find(e => e.id === examId);
     if (!exam) return;
     subsCurrentExam = exam;
+    if (!skipPush) history.pushState({view:'subsExamDetail', examId, examName:exam.title||'', groupName:subsCurrentGroup}, '', '#submissions/groups/' + encodeURIComponent(subsCurrentGroup||'') + '/' + examId);
     subsL3SelectedIds = new Set();
     const groupName = subsCurrentGroup;
     const examTitle = exam.title || '(Untitled)';
@@ -2688,9 +2768,16 @@
     document.getElementById('subs-l1').style.display = toLevel === 1 ? 'block' : 'none';
     document.getElementById('subs-l2').style.display = toLevel === 2 ? 'block' : 'none';
     document.getElementById('subs-l3').style.display = 'none';
+    document.getElementById('subsPane-sent-results').style.display = 'none';
+    document.getElementById('subsPane-released').style.display = 'none';
     if (toLevel === 1) { subsCurrentGroup = null; subsCurrentExam = null; subsL3Attempts = []; subsL3ScoreMax = null; }
     subsL3SelectedIds = new Set();
     subsL3UpdateBulkBar();
+    if (toLevel === 1) {
+      history.pushState({view:'nav', nav:'subs-all'}, '', '#submissions');
+    } else if (toLevel === 2 && subsCurrentGroup) {
+      history.pushState({view:'subsGroupDetail', groupName:subsCurrentGroup}, '', '#submissions/groups/' + encodeURIComponent(subsCurrentGroup));
+    }
   }
 
   function filterSubsL3Students() {
@@ -3169,8 +3256,7 @@
       }
     }
 
-    const sendBtn = document.getElementById('inviteSendBtn');
-    if (sendBtn) sendBtn.disabled = valid === 0;
+    _updateInviteSendBtn();
   }
 
   function _initInviteTagInput() {
@@ -3204,6 +3290,24 @@
 
   // ─────────────────────────────────────────────────────────────────────
 
+  let commTab = 'invite';
+
+  function setCommTab(tab) {
+    commTab = tab;
+    ['invite', 'results', 'retakes', 'scheduled'].forEach(t => {
+      const el = document.getElementById(`commTab-${t}`);
+      if (el) el.classList.toggle('active', t === tab);
+    });
+    document.getElementById('commPane-invite').style.display    = tab === 'invite'    ? 'block' : 'none';
+    document.getElementById('commPane-results').style.display   = tab === 'results'   ? 'block' : 'none';
+    document.getElementById('commPane-retakes').style.display   = tab === 'retakes'   ? 'block' : 'none';
+    document.getElementById('commPane-scheduled').style.display = tab === 'scheduled' ? 'block' : 'none';
+    if (tab === 'invite')    loadCommInvite();
+    else if (tab === 'results')   loadCommResults();
+    else if (tab === 'retakes')   loadCommRetakes();
+    else if (tab === 'scheduled') loadHistScheduled();
+  }
+
   function loadCommInvite() {
     _initInviteTagInput();
     refreshInvitePreview();
@@ -3213,45 +3317,73 @@
   function onInviteExamChange() {
     const examId = document.getElementById('inviteExamSel').value;
     const exam = allExams.find(e => e.id === examId);
-    const groupWrap = document.getElementById('inviteGroupWrap');
-    const groupTabs = document.getElementById('inviteGroupTabs');
-    let groupCodes = {};
-    try { groupCodes = JSON.parse(exam?.group_codes || '{}'); } catch(e) {}
-    const groups = Object.keys(groupCodes);
+    const sel = document.getElementById('inviteGroupSel');
+    _inviteGroupCodes = {};
     inviteActiveGroup = '';
-    if (groups.length) {
-      groupTabs.innerHTML = `<div class="group-tab active" onclick="setInviteGroup('',this)">All</div>` +
-        groups.map(g => `<div class="group-tab" onclick="setInviteGroup('${esc(g)}',this)">${esc(g)}</div>`).join('');
-      groupWrap.style.display = 'block';
+    if (!examId || !exam) {
+      sel.innerHTML = '<option value="">Select an exam first</option>';
+      sel.disabled = true;
+      refreshInvitePreview();
+      loadInviteHistory();
+      _updateInviteSendBtn();
+      return;
+    }
+    try { _inviteGroupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    const groups = Object.keys(_inviteGroupCodes);
+    if (groups.length === 0) {
+      sel.innerHTML = '<option value="">No groups found — add a group to this exam first</option>';
+      sel.disabled = true;
+    } else if (groups.length === 1) {
+      sel.innerHTML = groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+      sel.value = groups[0];
+      sel.disabled = false;
+      inviteActiveGroup = groups[0];
     } else {
-      groupWrap.style.display = 'none';
+      sel.innerHTML = '<option value="">Select a group…</option>' +
+        groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
+      sel.value = '';
+      sel.disabled = false;
     }
     refreshInvitePreview();
     loadInviteHistory();
+    _updateInviteSendBtn();
   }
 
-  function setInviteGroup(group, el) {
-    inviteActiveGroup = group;
-    document.querySelectorAll('#inviteGroupTabs .group-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
+  function onInviteGroupChange() {
+    inviteActiveGroup = document.getElementById('inviteGroupSel').value;
     refreshInvitePreview();
+    _updateInviteSendBtn();
+  }
+
+  function _updateInviteSendBtn() {
+    const sendBtn = document.getElementById('inviteSendBtn');
+    if (!sendBtn) return;
+    const examId = document.getElementById('inviteExamSel').value;
+    const group = document.getElementById('inviteGroupSel').value;
+    const validTags = _inviteTags.filter(t => t.valid).length;
+    sendBtn.disabled = !examId || !group || validTags === 0;
   }
 
   function buildInvitePreviewHTML() {
     const examId = document.getElementById('inviteExamSel')?.value;
     const exam = allExams.find(e => e.id === examId);
     if (!exam) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:sans-serif;font-size:0.85rem;padding:40px;">Select an exam to preview the invitation email.</div>';
-    let groupCodes = {};
-    try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
-    const code = inviteActiveGroup && groupCodes[inviteActiveGroup] ? groupCodes[inviteActiveGroup] : (exam.access_code || '');
+    const hasGroups = Object.keys(_inviteGroupCodes).length > 0;
+    const code = hasGroups
+      ? (inviteActiveGroup ? (_inviteGroupCodes[inviteActiveGroup] || '') : null)
+      : (exam.access_code || '');
     const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
     const link = `${base}/exam-engine.html?id=${exam.share_id}${inviteActiveGroup ? '&group=' + encodeURIComponent(inviteActiveGroup) : ''}`;
     const teacherName = currentTeacher?.full_name || currentTeacher?.email || 'Your teacher';
     const teacherEmail = currentTeacher?.email || '';
     const institution = currentInstitution?.name || '';
     const examTitle = exam.title || '(Untitled)';
-    const codeBlock = code ? `
-      <div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
+    const codeBlock = code === null
+      ? `<div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
+        <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Access Code</div>
+        <div style="font-size:2rem;font-weight:800;font-family:monospace;color:#cbd5e1;letter-spacing:0.12em;">——</div>
+      </div>`
+      : code ? `<div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
         <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Access Code</div>
         <div style="font-size:2rem;font-weight:800;font-family:monospace;color:#0f172a;letter-spacing:0.12em;">${esc(code)}</div>
       </div>` : '';
@@ -3283,20 +3415,30 @@
   function refreshInvitePreview() {
     const frame = document.getElementById('invitePreviewFrame');
     if (frame) frame.srcdoc = buildInvitePreviewHTML();
+    const note = document.getElementById('invitePreviewNote');
+    if (note) {
+      const examId = document.getElementById('inviteExamSel')?.value;
+      const group = document.getElementById('inviteGroupSel')?.value;
+      const hasGroups = Object.keys(_inviteGroupCodes).length > 0;
+      note.style.display = (examId && hasGroups && !group) ? '' : 'none';
+    }
   }
 
   function sendInvitations() {
     const examId = document.getElementById('inviteExamSel').value;
     if (!examId) { showToast('Please select an exam.'); return; }
+    const group = document.getElementById('inviteGroupSel').value;
+    if (!group) { showToast('Please select a group.'); return; }
     const exam = allExams.find(e => e.id === examId) || {};
     const emails = _inviteTags.filter(t => t.valid).map(t => t.email);
     if (!emails.length) { showToast('Please add at least one valid email address.'); return; }
     const n = emails.length;
     const shown = emails.slice(0, 5), more = n - 5;
     const listHTML = `<div class="confirm-list">${shown.map(e => `<div>${esc(e)}</div>`).join('')}${more > 0 ? `<div style="color:#94a3b8;margin-top:4px;">+${more} more</div>` : ''}</div>`;
+    const examLabel = `${esc(exam.title||'(Untitled)')} · ${esc(group)}`;
     showConfirmModal(
       'Send exam invitations?',
-      `<div>You are about to send access links for:</div><div style="font-weight:600;color:#0f172a;margin:8px 0;">${esc(exam.title||'(Untitled)')}</div><div>To ${n} student${n !== 1 ? 's' : ''}:</div>${listHTML}`,
+      `<div>You are about to send access links for:</div><div style="font-weight:600;color:#0f172a;margin:8px 0;">${examLabel}</div><div>To ${n} student${n !== 1 ? 's' : ''}:</div>${listHTML}`,
       `Send to ${n} student${n !== 1 ? 's' : ''} →`,
       _doSendInvitations
     );
