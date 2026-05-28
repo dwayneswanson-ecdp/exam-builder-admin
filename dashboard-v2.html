@@ -427,6 +427,107 @@
     .btn-ai:hover { background: #ede9fe; }
     .pencil-btn { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 2px; display: inline-flex; align-items: center; transition: color 180ms ease; }
     .pencil-btn:hover { color: #2563eb; }
+
+    /* ── Exam Create Wizard ── */
+    .wiz-wrap { max-width: 680px; }
+    .wiz-step-track { display: flex; align-items: center; margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid #e2e8f0; }
+    .wiz-step-item { display: flex; align-items: center; gap: 9px; }
+    .wiz-step-num { width: 24px; height: 24px; border: 1.5px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 800; letter-spacing: 0.04em; color: #94a3b8; flex-shrink: 0; transition: all 180ms ease; }
+    .wiz-step-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #94a3b8; white-space: nowrap; transition: color 180ms ease; }
+    .wiz-step-item.active .wiz-step-num { background: #0f172a; border-color: #0f172a; color: white; }
+    .wiz-step-item.active .wiz-step-label { color: #0f172a; }
+    .wiz-step-item.done .wiz-step-num { background: #16a34a; border-color: #16a34a; color: white; }
+    .wiz-step-item.done .wiz-step-label { color: #16a34a; }
+    .wiz-step-connector { flex: 1; height: 1px; background: #e2e8f0; margin: 0 14px; min-width: 20px; transition: background 180ms ease; }
+    .wiz-step-connector.done { background: #16a34a; }
+    .wiz-form-card { background: white; border: 1px solid #e2e8f0; margin-bottom: 24px; }
+    .wiz-card-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 22px; background: #0f172a; gap: 14px; }
+    .wiz-card-header-left { display: flex; align-items: center; gap: 12px; }
+    .wiz-card-num { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.1em; color: rgba(255,255,255,0.25); flex-shrink: 0; }
+    .wiz-card-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.85); }
+    .wiz-card-divider { width: 1px; height: 13px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+    .wiz-card-body { padding: 22px; }
+    .wiz-field { margin-bottom: 18px; }
+    .wiz-field:last-child { margin-bottom: 0; }
+    .wiz-field-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.09em; color: #475569; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
+    .wiz-req { color: #dc2626; }
+    .wiz-field-hint { font-size: 0.68rem; color: #94a3b8; margin-top: 5px; line-height: 1.5; }
+    .wiz-field-input { width: 100%; font-size: 0.85rem; font-family: inherit; border: 1px solid #e2e8f0; padding: 9px 13px; color: #0f172a; outline: none; transition: border-color 180ms ease; background: white; }
+    .wiz-field-input:focus { border-color: #2563eb; }
+    .wiz-field-input::placeholder { color: #cbd5e1; }
+    textarea.wiz-field-input { resize: vertical; min-height: 78px; line-height: 1.65; }
+    .wiz-field-row { display: flex; gap: 14px; }
+    .wiz-field-row .wiz-field { flex: 1; margin-bottom: 0; }
+    .wiz-lang-toggle { display: flex; border: 1px solid #e2e8f0; overflow: hidden; }
+    .wiz-lang-opt { flex: 1; padding: 9px; text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; border: none; font-family: inherit; background: white; color: #94a3b8; transition: all 180ms ease; }
+    .wiz-lang-opt.active { background: #0f172a; color: white; }
+    .wiz-col-labels { display: flex; gap: 8px; margin-bottom: 7px; }
+    .wiz-col-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #e2e8f0; }
+    .wiz-group-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .wiz-group-name-input { flex: 1; font-size: 0.83rem; font-family: inherit; border: 1px solid #e2e8f0; padding: 8px 11px; color: #0f172a; outline: none; transition: border-color 180ms ease; }
+    .wiz-group-name-input:focus { border-color: #2563eb; }
+    .wiz-remove-btn { background: none; border: none; cursor: pointer; color: #e2e8f0; padding: 4px; display: flex; align-items: center; flex-shrink: 0; transition: color 180ms ease; }
+    .wiz-remove-btn:hover { color: #dc2626; }
+    .wiz-add-group-btn { display: inline-flex; align-items: center; gap: 6px; background: none; border: 1px solid rgba(255,255,255,0.2); padding: 5px 11px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); cursor: pointer; font-family: inherit; transition: all 180ms ease; }
+    .wiz-add-group-btn:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.9); }
+    .wiz-score-input-wrap { display: flex; align-items: center; gap: 12px; }
+    .wiz-score-input { font-size: 1.05rem; font-weight: 700; font-family: inherit; border: 1px solid #e2e8f0; padding: 7px 0; width: 58px; color: #0f172a; outline: none; text-align: center; transition: border-color 180ms ease; }
+    .wiz-score-input:focus { border-color: #2563eb; }
+    .wiz-score-input-label { font-size: 0.76rem; color: #475569; }
+    .wiz-report-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .wiz-report-option { border: 1px solid #e2e8f0; padding: 14px; cursor: pointer; text-align: left; background: white; font-family: inherit; transition: all 180ms ease; }
+    .wiz-report-option:hover { border-color: #2563eb; }
+    .wiz-report-option.selected { border-color: #2563eb; background: #eff6ff; }
+    .wiz-report-option-title { font-size: 0.76rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .wiz-report-option-desc { font-size: 0.68rem; color: #475569; line-height: 1.55; }
+    .wiz-info-note { background: #faf5ff; border: 1px solid #e9d5ff; padding: 13px 15px; font-size: 0.75rem; color: #4c1d95; line-height: 1.7; display: flex; gap: 11px; }
+    .wiz-info-note svg { flex-shrink: 0; margin-top: 2px; color: #7c3aed; }
+    .wiz-ai-chip { display: inline-flex; align-items: center; justify-content: center; background: #7c3aed; color: #fff; font-size: 0.52rem; font-weight: 800; letter-spacing: 0.06em; width: 17px; height: 17px; vertical-align: middle; margin-left: 3px; flex-shrink: 0; }
+    .wiz-cta-row { display: flex; justify-content: space-between; align-items: center; padding: 24px 0 0; border-top: 1px solid #e2e8f0; margin-top: 4px; }
+    .wiz-error-msg { font-size: 0.73rem; color: #dc2626; font-weight: 600; margin-top: 12px; display: none; }
+    .wiz-default-rules-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 0.65rem; font-weight: 600; color: #94a3b8; background: none; border: none; cursor: pointer; font-family: inherit; padding: 0; margin-top: 7px; transition: color 180ms ease; letter-spacing: 0.02em; }
+    .wiz-default-rules-toggle:hover { color: #475569; }
+    .wiz-default-rules-toggle svg { transition: transform 0.2s; }
+    .wiz-default-rules-toggle.open svg { transform: rotate(180deg); }
+    .wiz-default-rules-list { display: none; margin-top: 9px; border: 1px solid #e2e8f0; background: #f8fafc; padding: 13px 15px; }
+    .wiz-default-rules-list.open { display: block; }
+    .wiz-default-rules-heading { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #94a3b8; margin-bottom: 9px; }
+    .wiz-default-rules-list ul { list-style: none; padding: 0; }
+    .wiz-default-rules-list li { font-size: 0.73rem; color: #475569; line-height: 1.6; padding: 4px 0; border-bottom: 1px solid #e2e8f0; display: flex; gap: 8px; }
+    .wiz-default-rules-list li:last-child { border-bottom: none; }
+    .wiz-default-rules-list li::before { content: "—"; color: #e2e8f0; flex-shrink: 0; }
+    .wiz-default-rules-note { font-size: 0.68rem; color: #94a3b8; margin-top: 9px; padding-top: 9px; border-top: 1px solid #e2e8f0; font-style: italic; }
+    .wiz-config-summary { padding-bottom: 22px; margin-bottom: 22px; border-bottom: 1px solid #e2e8f0; display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+    .wiz-config-summary-text { font-size: 0.8rem; color: #475569; line-height: 1.6; }
+    .wiz-config-summary-text strong { color: #0f172a; font-weight: 600; }
+    .wiz-config-edit-btn { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.04em; color: #94a3b8; background: none; border: none; cursor: pointer; font-family: inherit; white-space: nowrap; transition: color 180ms ease; flex-shrink: 0; }
+    .wiz-config-edit-btn:hover { color: #2563eb; }
+    .wiz-method-heading { margin-bottom: 18px; }
+    .wiz-method-heading-title { font-size: 1.15rem; font-weight: 700; color: #0f172a; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .wiz-method-heading-sub { font-size: 0.76rem; color: #94a3b8; }
+    .wiz-method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 26px; }
+    .wiz-method-card { border: 1.5px solid #e2e8f0; padding: 26px 22px; cursor: pointer; text-align: left; background: white; font-family: inherit; transition: all 180ms ease; display: flex; flex-direction: column; }
+    .wiz-method-card:hover { border-color: #94a3b8; }
+    .wiz-method-card.selected-manual { border-color: #2563eb; background: #eff6ff; }
+    .wiz-method-card.selected-ai { border-color: #7c3aed; background: #faf5ff; }
+    .wiz-method-card-icon { width: 34px; height: 34px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; margin-bottom: 14px; flex-shrink: 0; }
+    .wiz-method-card.selected-manual .wiz-method-card-icon { border-color: #2563eb; background: #eff6ff; }
+    .wiz-method-card.selected-ai .wiz-method-card-icon { border-color: #7c3aed; background: #faf5ff; }
+    .wiz-method-card-label { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 7px; }
+    .wiz-method-card.selected-manual .wiz-method-card-label { color: #2563eb; }
+    .wiz-method-card.selected-ai .wiz-method-card-label { color: #7c3aed; }
+    .wiz-method-card-desc { font-size: 0.73rem; color: #475569; line-height: 1.6; margin-bottom: 18px; flex: 1; }
+    .wiz-method-card-footer { margin-top: auto; padding-top: 14px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
+    .wiz-method-card.selected-manual .wiz-method-card-footer { border-top-color: #bfdbfe; }
+    .wiz-method-card.selected-ai .wiz-method-card-footer { border-top-color: #ddd6fe; }
+    .wiz-method-badge { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border: 1px solid #e2e8f0; color: #94a3b8; }
+    .wiz-method-badge.available { border-color: #16a34a; color: #16a34a; }
+    .wiz-method-select-indicator { width: 17px; height: 17px; border: 1.5px solid #e2e8f0; display: flex; align-items: center; justify-content: center; }
+    .wiz-method-card.selected-manual .wiz-method-select-indicator { border-color: #2563eb; background: #2563eb; }
+    .wiz-method-card.selected-ai .wiz-method-select-indicator { border-color: #7c3aed; background: #7c3aed; }
+    .wiz-method-select-indicator svg { display: none; }
+    .wiz-method-card.selected-manual .wiz-method-select-indicator svg,
+    .wiz-method-card.selected-ai .wiz-method-select-indicator svg { display: block; }
   </style>
 </head>
 <body>
@@ -1160,10 +1261,227 @@
   <!-- SETTINGS: INSTITUTION (redirect alias — section kept for routing compatibility) -->
   <section class="section" id="section-settings-inst" style="display:none !important;"></section>
 
-  <!-- EXAM CREATE WIZARD (shell) -->
+  <!-- EXAM CREATE WIZARD -->
   <section class="section" id="section-exams-create">
-    <div style="display:flex;align-items:center;justify-content:center;min-height:60vh;color:#94a3b8;font-size:0.88rem;">
-      Exam creation wizard loading…
+    <div class="wiz-wrap">
+
+      <!-- Step indicator -->
+      <div class="wiz-step-track">
+        <div class="wiz-step-item active" id="wizSI1">
+          <div class="wiz-step-num">1</div>
+          <span class="wiz-step-label">Configure</span>
+        </div>
+        <div class="wiz-step-connector" id="wizSC1"></div>
+        <div class="wiz-step-item" id="wizSI2">
+          <div class="wiz-step-num">2</div>
+          <span class="wiz-step-label">Choose method</span>
+        </div>
+        <div class="wiz-step-connector"></div>
+        <div class="wiz-step-item">
+          <div class="wiz-step-num">3</div>
+          <span class="wiz-step-label">Build</span>
+        </div>
+        <div class="wiz-step-connector"></div>
+        <div class="wiz-step-item">
+          <div class="wiz-step-num">4</div>
+          <span class="wiz-step-label">Publish</span>
+        </div>
+      </div>
+
+      <!-- ── STEP 1 — CONFIGURE ── -->
+      <div id="wizStep1">
+
+        <div class="page-header">
+          <div class="page-title">Configure your exam</div>
+          <div class="page-sub">These settings apply to both manual and AI-generated exams.</div>
+        </div>
+
+        <!-- 01 Exam Details -->
+        <div class="wiz-form-card">
+          <div class="wiz-card-header">
+            <div class="wiz-card-header-left">
+              <span class="wiz-card-num">01</span>
+              <div class="wiz-card-divider"></div>
+              <div class="wiz-card-title">Exam Details</div>
+            </div>
+          </div>
+          <div class="wiz-card-body">
+            <div class="wiz-field">
+              <div class="wiz-field-label">Exam Title <span class="wiz-req">*</span></div>
+              <input class="wiz-field-input" type="text" id="wizExamTitle" placeholder="e.g. Finance d'entreprise — Partiel S2">
+            </div>
+            <div class="wiz-field-row" style="margin-bottom:18px;">
+              <div class="wiz-field">
+                <div class="wiz-field-label">Duration <span class="wiz-req">*</span></div>
+                <input class="wiz-field-input" type="number" id="wizExamDuration" placeholder="45" min="5" max="300">
+                <div class="wiz-field-hint">Minutes</div>
+              </div>
+              <div class="wiz-field">
+                <div class="wiz-field-label">Language <span class="wiz-req">*</span></div>
+                <div class="wiz-lang-toggle">
+                  <button class="wiz-lang-opt active" id="wizLangFR" onclick="wizSetExamLang('fr')">Français</button>
+                  <button class="wiz-lang-opt" id="wizLangEN" onclick="wizSetExamLang('en')">English</button>
+                </div>
+              </div>
+            </div>
+            <div class="wiz-field">
+              <div class="wiz-field-label">Additional Student Instructions <span style="font-weight:500;color:#94a3b8;font-size:0.65rem;text-transform:none;letter-spacing:0;">(optional)</span></div>
+              <textarea class="wiz-field-input" id="wizExamInstructions" placeholder="e.g. No notes permitted · Calculators allowed · Answer all questions"></textarea>
+              <div class="wiz-field-hint">Shown to students on the confirmation screen, after the default exam rules.</div>
+              <button type="button" class="wiz-default-rules-toggle" id="wizDefaultRulesToggle" onclick="wizToggleDefaultRules()">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                See what students already see by default
+              </button>
+              <div class="wiz-default-rules-list" id="wizDefaultRulesList">
+                <div class="wiz-default-rules-heading">Default rules — always shown to every student</div>
+                <ul>
+                  <li>The exam runs in <strong>full-screen mode</strong>.</li>
+                  <li>If you leave the window or switch applications, a <strong>warning message</strong> will appear.</li>
+                  <li>You have <strong>15 seconds</strong> to return, otherwise the exam is terminated and must be restarted.</li>
+                  <li>After <strong>3 technical events</strong>, the exam is <strong>submitted automatically</strong>.</li>
+                  <li>All events are recorded in a <strong>session log</strong> attached to your submission.</li>
+                </ul>
+                <div class="wiz-default-rules-note">Your instructions appear below these on the student's screen.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 Student Groups -->
+        <div class="wiz-form-card">
+          <div class="wiz-card-header">
+            <div class="wiz-card-header-left">
+              <span class="wiz-card-num">02</span>
+              <div class="wiz-card-divider"></div>
+              <div class="wiz-card-title">Student Groups</div>
+            </div>
+            <button class="wiz-add-group-btn" onclick="wizAddGroup()">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Group
+            </button>
+          </div>
+          <div class="wiz-card-body">
+            <div class="wiz-col-labels">
+              <div class="wiz-col-label" style="flex:1;">Group Name</div>
+              <div style="width:22px;"></div>
+            </div>
+            <div id="wizGroupList"></div>
+            <div class="wiz-field-hint" style="margin-top:11px;">Access codes are generated automatically after the exam is created — visible in your submissions dashboard.</div>
+          </div>
+        </div>
+
+        <!-- 03 Grading & Results -->
+        <div class="wiz-form-card">
+          <div class="wiz-card-header">
+            <div class="wiz-card-header-left">
+              <span class="wiz-card-num">03</span>
+              <div class="wiz-card-divider"></div>
+              <div class="wiz-card-title">Grading &amp; Results</div>
+            </div>
+          </div>
+          <div class="wiz-card-body">
+            <div class="wiz-field">
+              <div class="wiz-field-label">Score Scale <span class="wiz-req">*</span></div>
+              <div class="wiz-score-input-wrap">
+                <input class="wiz-score-input" type="number" id="wizExamCoeff" value="20" min="1" max="100">
+                <span class="wiz-score-input-label">Scores reported out of this value &nbsp;(e.g. 14.5 / 20)</span>
+              </div>
+            </div>
+            <div class="wiz-field">
+              <div class="wiz-field-label">Results Report Sent to Students</div>
+              <div class="wiz-report-options">
+                <button class="wiz-report-option selected" id="wizReportFull" onclick="wizSetReport('full')">
+                  <div class="wiz-report-option-title">Full Report</div>
+                  <div class="wiz-report-option-desc">Score + question-by-question breakdown with correct answers and teacher comments.</div>
+                </button>
+                <button class="wiz-report-option" id="wizReportScore" onclick="wizSetReport('score')">
+                  <div class="wiz-report-option-title">Score Only</div>
+                  <div class="wiz-report-option-desc">Final score only — no breakdown or answers shared.</div>
+                </button>
+              </div>
+            </div>
+            <div class="wiz-field" style="margin-bottom:0;">
+              <div class="wiz-info-note">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>
+                  <strong>MCQ questions are graded automatically.</strong> <span class="wiz-ai-chip">AI</span><br>
+                  <span style="color:#475569;font-size:0.72rem;">For written (open) questions, you review each student answer and assign a score — with optional AI scoring suggestions based on your grading criteria.</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wiz-error-msg" id="wizErrorMsg">Please fill in all required fields (title, duration, at least one group).</div>
+
+        <div class="wiz-cta-row">
+          <button class="btn btn-ghost" onclick="navigate('exams-all')">Cancel</button>
+          <button class="btn btn-primary" onclick="wizValidateStep1()">
+            Continue
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ── STEP 2 — CHOOSE METHOD ── -->
+      <div id="wizStep2" style="display:none;">
+
+        <div class="wiz-config-summary">
+          <div class="wiz-config-summary-text" id="wizConfigSummaryText"></div>
+          <button class="wiz-config-edit-btn" onclick="wizGoToStep1()">Edit ↗</button>
+        </div>
+
+        <div class="wiz-method-heading">
+          <div class="wiz-method-heading-title">How do you want to build the questions?</div>
+          <div class="wiz-method-heading-sub">Choose a method — your configuration applies to both.</div>
+        </div>
+
+        <div class="wiz-method-grid">
+
+          <button class="wiz-method-card" id="wizCardManual" onclick="wizSelectMethod('manual')">
+            <div class="wiz-method-card-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div class="wiz-method-card-label">Build manually</div>
+            <div class="wiz-method-card-desc">Write questions one by one directly inside the platform. Full control over wording, options, and scoring criteria.</div>
+            <div class="wiz-method-card-footer">
+              <span class="wiz-method-badge available">Available</span>
+              <div class="wiz-method-select-indicator">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </div>
+          </button>
+
+          <button class="wiz-method-card selected-ai" id="wizCardAI" onclick="wizSelectMethod('ai')">
+            <div class="wiz-method-card-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div class="wiz-method-card-label">
+              AI extraction
+              <span class="wiz-ai-chip">AI</span>
+            </div>
+            <div class="wiz-method-card-desc">Upload a Word or PDF document — AI extracts MCQ and open questions automatically. Review and edit before publishing.</div>
+            <div class="wiz-method-card-footer">
+              <span class="wiz-method-badge available">Available</span>
+              <div class="wiz-method-select-indicator">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+            </div>
+          </button>
+
+        </div>
+
+        <div class="wiz-cta-row">
+          <button class="btn btn-ghost" onclick="wizGoToStep1()">← Back</button>
+          <button class="btn btn-primary" id="wizContinueBtn" onclick="wizProceed()">
+            <span id="wizProceedLabel">Start with AI extraction</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+
+      </div>
+
     </div>
   </section>
 
@@ -1485,6 +1803,7 @@
     else if (nav === 'hist-scheduled') setCommTab('scheduled');
     else if (nav === 'settings-profile') { loadSettingsProfile(); profileSwitchTab('personal'); }
     else if (nav === 'settings-inst') { loadSettingsInst(); profileSwitchTab('institution'); }
+    else if (nav === 'exams-create') wizOnShow();
     if (histMode === 'skip') return;
     const hash = NAV_TO_HASH[nav];
     if (hash === undefined) return;
@@ -5370,6 +5689,133 @@
 
   // ── Boot ─────────────────────────────────────────────────────────────
   init();
+
+  // ── Exam Create Wizard ────────────────────────────────────────────────
+  let _wizLang = 'fr', _wizMethod = 'ai', _wizReport = 'full';
+
+  function wizOnShow() {
+    const list = document.getElementById('wizGroupList');
+    if (!list.children.length) wizAddGroup();
+    document.getElementById('wizStep1').style.display = '';
+    document.getElementById('wizStep2').style.display = 'none';
+    document.getElementById('wizSI1').className = 'wiz-step-item active';
+    document.getElementById('wizSI2').className = 'wiz-step-item';
+    document.getElementById('wizSC1').classList.remove('done');
+  }
+
+  function wizGenCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  function wizAddGroup() {
+    const count = document.querySelectorAll('.wiz-group-row').length + 1;
+    const row = document.createElement('div');
+    row.className = 'wiz-group-row';
+    row.innerHTML = `
+      <input class="wiz-group-name-input" type="text" placeholder="Group name" value="Group ${count}">
+      <button class="wiz-remove-btn" onclick="wizRemoveGroup(this)" title="Remove">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>`;
+    document.getElementById('wizGroupList').appendChild(row);
+  }
+
+  function wizRemoveGroup(btn) {
+    const rows = document.querySelectorAll('.wiz-group-row');
+    if (rows.length <= 1) return;
+    btn.closest('.wiz-group-row').remove();
+  }
+
+  function wizToggleDefaultRules() {
+    const btn = document.getElementById('wizDefaultRulesToggle');
+    const list = document.getElementById('wizDefaultRulesList');
+    const open = list.classList.toggle('open');
+    btn.classList.toggle('open', open);
+  }
+
+  function wizSetExamLang(lang) {
+    _wizLang = lang;
+    document.getElementById('wizLangFR').classList.toggle('active', lang === 'fr');
+    document.getElementById('wizLangEN').classList.toggle('active', lang === 'en');
+  }
+
+  function wizSetReport(report) {
+    _wizReport = report;
+    document.getElementById('wizReportFull').classList.toggle('selected', report === 'full');
+    document.getElementById('wizReportScore').classList.toggle('selected', report === 'score');
+  }
+
+  function wizValidateStep1() {
+    const title = document.getElementById('wizExamTitle').value.trim();
+    const duration = document.getElementById('wizExamDuration').value.trim();
+    const groups = [...document.querySelectorAll('.wiz-group-name-input')]
+      .map(i => i.value.trim()).filter(Boolean);
+    const errEl = document.getElementById('wizErrorMsg');
+    if (!title || !duration || groups.length === 0) { errEl.style.display = 'block'; return; }
+    errEl.style.display = 'none';
+    wizGoToStep2();
+  }
+
+  function wizGoToStep2() {
+    const title = document.getElementById('wizExamTitle').value.trim();
+    const duration = document.getElementById('wizExamDuration').value.trim();
+    const coeff = document.getElementById('wizExamCoeff').value.trim() || '20';
+    const lang = _wizLang === 'fr' ? 'Français' : 'English';
+    const groupCount = document.querySelectorAll('.wiz-group-row').length;
+    document.getElementById('wizConfigSummaryText').innerHTML =
+      `<strong>${title}</strong> · ${duration} min · ${lang} · ${groupCount} group${groupCount !== 1 ? 's' : ''} · scored out of ${coeff}`;
+    document.getElementById('wizStep1').style.display = 'none';
+    document.getElementById('wizStep2').style.display = '';
+    document.getElementById('wizSI1').className = 'wiz-step-item done';
+    document.getElementById('wizSI2').className = 'wiz-step-item active';
+    document.getElementById('wizSC1').classList.add('done');
+    document.getElementById('section-exams-create').scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function wizGoToStep1() {
+    document.getElementById('wizStep2').style.display = 'none';
+    document.getElementById('wizStep1').style.display = '';
+    document.getElementById('wizSI1').className = 'wiz-step-item active';
+    document.getElementById('wizSI2').className = 'wiz-step-item';
+    document.getElementById('wizSC1').classList.remove('done');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function wizSelectMethod(method) {
+    _wizMethod = method;
+    document.getElementById('wizCardManual').className =
+      method === 'manual' ? 'wiz-method-card selected-manual' : 'wiz-method-card';
+    document.getElementById('wizCardAI').className =
+      method === 'ai' ? 'wiz-method-card selected-ai' : 'wiz-method-card';
+    document.getElementById('wizProceedLabel').textContent =
+      method === 'ai' ? 'Start with AI extraction' : 'Start building manually';
+  }
+
+  function wizProceed() {
+    const title = document.getElementById('wizExamTitle').value.trim();
+    const duration = document.getElementById('wizExamDuration').value.trim();
+    const coefficient = document.getElementById('wizExamCoeff').value.trim() || '20';
+    const instructions = document.getElementById('wizExamInstructions').value.trim();
+    const groups = [...document.querySelectorAll('.wiz-group-row')].map(row => ({
+      name: row.querySelector('.wiz-group-name-input').value.trim(),
+      code: wizGenCode()
+    })).filter(g => g.name);
+    localStorage.setItem('examOnboarding', JSON.stringify({
+      title,
+      duration: parseInt(duration),
+      lang: _wizLang,
+      coefficient: parseInt(coefficient),
+      report: _wizReport,
+      instructions,
+      groups,
+      teacherEmail: currentTeacher?.email,
+      teacherName: currentTeacher?.full_name || currentTeacher?.email
+    }));
+    window.location.href = _wizMethod === 'manual' ? 'exam-builder-manual.html' : 'index.html';
+  }
 </script>
 </body>
 </html>
