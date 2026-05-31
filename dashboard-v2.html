@@ -868,6 +868,23 @@
     .inst-detail-badge { display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.68rem;font-weight:600;background:#dbeafe;color:#1d4ed8; }
     .inst-detail-status-pub { display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.68rem;font-weight:600;background:#dcfce7;color:#16a34a; }
     .inst-detail-status-draft { display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.68rem;font-weight:600;background:#f1f5f9;color:#64748b; }
+    .inst-detail-tab-header { display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e2e8f0; }
+    .inst-detail-tab-title { font-size:0.75rem;font-weight:700;color:#0f172a;text-transform:uppercase;letter-spacing:0.06em; }
+    .inst-row-remove { background:none;border:none;cursor:pointer;color:#dc2626;font-size:1rem;line-height:1;padding:2px 6px;opacity:0;transition:opacity 0.12s; }
+    .inst-detail-table tr:hover .inst-row-remove { opacity:1; }
+    .inst-detail-logo-wrap { position:relative;flex-shrink:0; }
+    .inst-logo-pencil { position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:#0f172a;border:2px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0; }
+    #saInstAddMemberModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9100;align-items:center;justify-content:center; }
+    #saInstAddMemberModal.open { display:flex; }
+    #saInstRemoveModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9100;align-items:center;justify-content:center; }
+    #saInstRemoveModal.open { display:flex; }
+    .sa-inst-modal-box { background:#fff;border-radius:0;max-width:460px;width:calc(100% - 32px);padding:24px 28px;box-sizing:border-box; }
+    .modal-label { display:block;font-size:0.72rem;font-weight:600;color:#475569;margin-bottom:5px; }
+    .modal-input { width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:0;padding:9px 12px;font-size:0.85rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box; }
+    .modal-input:focus { border-color:#2563eb; }
+    .inst-class-tag { display:inline-flex;align-items:center;gap:4px;background:#dbeafe;color:#1e40af;font-size:0.72rem;font-weight:600;padding:3px 8px;border-radius:4px; }
+    .inst-class-tag button { background:none;border:none;cursor:pointer;color:#1e40af;font-size:12px;padding:0;line-height:1;opacity:0.6; }
+    .inst-class-tag button:hover { opacity:1; }
 
     /* ── Admin View ───────────────────────────────────────────────────── */
     .member-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9; }
@@ -2298,7 +2315,13 @@
       <span id="instDetailBreadcrumbName" style="font-size:0.82rem;font-weight:600;color:#0f172a;">—</span>
     </div>
     <div class="inst-detail-hero">
-      <div class="inst-detail-logo" id="instDetailLogo"></div>
+      <div class="inst-detail-logo-wrap">
+        <div class="inst-detail-logo" id="instDetailLogo"></div>
+        <input type="file" id="saInstLogoFileInput" accept="image/*" style="display:none;" onchange="_instUploadLogo(event)">
+        <button class="inst-logo-pencil" onclick="document.getElementById('saInstLogoFileInput').click()" title="Upload logo">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+      </div>
       <div style="flex:1;min-width:0;">
         <div class="inst-detail-name" id="instDetailName">—</div>
         <div class="inst-detail-domain" id="instDetailDomain"></div>
@@ -2404,6 +2427,65 @@
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button class="btn btn-ghost" onclick="closeTicketModal()">Cancel</button>
       <button id="ticketSubmitBtn" class="btn btn-primary" onclick="submitTicket()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Member Modal (Super Admin — institution detail) -->
+<div id="saInstAddMemberModal" onclick="closeInstAddMemberModal()">
+  <div class="sa-inst-modal-box" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:600;color:#0f172a;margin-bottom:18px;" id="saInstAddMemberTitle">Add Admin</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+      <div>
+        <label class="modal-label">First name <span style="color:#dc2626;">*</span></label>
+        <input id="saInstFirstName" type="text" class="modal-input" placeholder="Jane">
+      </div>
+      <div>
+        <label class="modal-label">Last name <span style="color:#dc2626;">*</span></label>
+        <input id="saInstLastName" type="text" class="modal-input" placeholder="Smith">
+      </div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label class="modal-label">Email <span style="color:#dc2626;">*</span></label>
+      <input id="saInstEmail" type="email" class="modal-input" placeholder="jane@school.edu">
+    </div>
+    <div id="saInstAdminFields">
+      <div style="margin-bottom:12px;">
+        <label class="modal-label">Job title</label>
+        <input id="saInstJobTitle" type="text" class="modal-input" placeholder="Department Head">
+      </div>
+      <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" id="saInstKeyContact" onchange="document.getElementById('saInstPhoneRow').style.display=this.checked?'':'none'" style="cursor:pointer;">
+        <label for="saInstKeyContact" style="font-size:0.8rem;color:#475569;cursor:pointer;">Key contact</label>
+      </div>
+      <div id="saInstPhoneRow" style="display:none;margin-bottom:12px;">
+        <label class="modal-label">Phone</label>
+        <input id="saInstPhone" type="tel" class="modal-input" placeholder="+1 555 000 0000">
+      </div>
+    </div>
+    <div id="saInstTeacherFields" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <label class="modal-label">Classes</label>
+        <div id="saInstClassTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;min-height:24px;"></div>
+        <input id="saInstClassInput" type="text" class="modal-input" placeholder="Type a class name and press Enter" onkeydown="if(event.key==='Enter'){event.preventDefault();_instAddClassTag();}">
+      </div>
+    </div>
+    <div id="saInstAddError" style="font-size:0.75rem;color:#dc2626;min-height:1em;margin-bottom:8px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeInstAddMemberModal()">Cancel</button>
+      <button id="saInstAddSubmitBtn" class="btn btn-primary" onclick="submitInstAddMember()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remove Member Confirm Modal (Super Admin — institution detail) -->
+<div id="saInstRemoveModal" onclick="closeInstRemoveModal()">
+  <div class="sa-inst-modal-box" onclick="event.stopPropagation()">
+    <div style="font-size:15px;font-weight:600;color:#0f172a;margin-bottom:10px;">Remove member</div>
+    <div id="saInstRemoveBody" style="font-size:13px;color:#475569;line-height:1.6;margin-bottom:20px;"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeInstRemoveModal()">Cancel</button>
+      <button class="btn btn-primary" style="background:#dc2626;border-color:#dc2626;" onclick="confirmInstRemoveMember()">Remove</button>
     </div>
   </div>
 </div>
@@ -3332,13 +3414,17 @@
     const { admins, teachers, exams } = _instDetailData;
 
     if (tab === 'admins') {
+      const header = `<div class="inst-detail-tab-header">
+        <span class="inst-detail-tab-title">Admins</span>
+        <button class="btn btn-primary btn-sm" style="border-radius:0;" onclick="openInstAddMemberModal('admin')">+ Add Admin</button>
+      </div>`;
       if (!admins.length) {
-        content.innerHTML = `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">No admins yet.</div>`;
+        content.innerHTML = header + `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">No admins yet.</div>`;
         return;
       }
-      content.innerHTML = `<table class="inst-detail-table">
+      content.innerHTML = header + `<table class="inst-detail-table">
         <thead><tr>
-          <th>Name</th><th>Email</th><th>Job Title</th><th>Key Contact</th><th>Last Active</th>
+          <th>Name</th><th>Email</th><th>Job Title</th><th>Key Contact</th><th>Last Active</th><th></th>
         </tr></thead>
         <tbody>${admins.map(a => `<tr>
           <td style="font-weight:600;">${esc(a.full_name || '—')}</td>
@@ -3346,22 +3432,28 @@
           <td style="color:#64748b;">${esc(a.job_title || '—')}</td>
           <td>${a.is_key_contact ? '<span class="inst-detail-badge">Key Contact</span>' : ''}</td>
           <td style="color:#94a3b8;">${a.last_sign_in_at ? _relTime(a.last_sign_in_at) : '—'}</td>
+          <td><button class="inst-row-remove" onclick="openInstRemoveMember('${a.id}','${esc(a.full_name||'')}','admin')" title="Remove">×</button></td>
         </tr>`).join('')}</tbody>
       </table>`;
 
     } else if (tab === 'teachers') {
+      const header = `<div class="inst-detail-tab-header">
+        <span class="inst-detail-tab-title">Teachers</span>
+        <button class="btn btn-primary btn-sm" style="border-radius:0;" onclick="openInstAddMemberModal('teacher')">+ Add Teacher</button>
+      </div>`;
       if (!teachers.length) {
-        content.innerHTML = `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">No teachers yet.</div>`;
+        content.innerHTML = header + `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">No teachers yet.</div>`;
         return;
       }
-      content.innerHTML = `<table class="inst-detail-table">
+      content.innerHTML = header + `<table class="inst-detail-table">
         <thead><tr>
-          <th>Name</th><th>Email</th><th>Last Active</th>
+          <th>Name</th><th>Email</th><th>Last Active</th><th></th>
         </tr></thead>
         <tbody>${teachers.map(t => `<tr>
           <td style="font-weight:600;">${esc(t.full_name || '—')}</td>
           <td style="color:#64748b;">${esc(t.email || '—')}</td>
           <td style="color:#94a3b8;">${t.last_sign_in_at ? _relTime(t.last_sign_in_at) : '—'}</td>
+          <td><button class="inst-row-remove" onclick="openInstRemoveMember('${t.id}','${esc(t.full_name||'')}','teacher')" title="Remove">×</button></td>
         </tr>`).join('')}</tbody>
       </table>`;
 
@@ -3385,6 +3477,149 @@
         </tr>`).join('')}</tbody>
       </table>`;
     }
+  }
+
+  // ── INSTITUTION DETAIL — WRITE ACTIONS ──────────────────────────────
+
+  let _currentAddMode = 'admin';
+  let _instClassTags  = [];
+  let _removeTarget   = null; // { teacherId, role }
+
+  function openInstAddMemberModal(mode) {
+    _currentAddMode = mode;
+    _instClassTags  = [];
+    document.getElementById('saInstAddMemberTitle').textContent = mode === 'admin' ? 'Add Admin' : 'Add Teacher';
+    document.getElementById('saInstFirstName').value  = '';
+    document.getElementById('saInstLastName').value   = '';
+    document.getElementById('saInstEmail').value      = '';
+    document.getElementById('saInstJobTitle').value   = '';
+    document.getElementById('saInstKeyContact').checked = false;
+    document.getElementById('saInstPhoneRow').style.display = 'none';
+    document.getElementById('saInstPhone').value      = '';
+    document.getElementById('saInstClassTags').innerHTML = '';
+    document.getElementById('saInstClassInput').value = '';
+    document.getElementById('saInstAddError').textContent = '';
+    document.getElementById('saInstAdminFields').style.display  = mode === 'admin'   ? '' : 'none';
+    document.getElementById('saInstTeacherFields').style.display = mode === 'teacher' ? '' : 'none';
+    const btn = document.getElementById('saInstAddSubmitBtn');
+    btn.textContent = 'Add'; btn.disabled = false;
+    document.getElementById('saInstAddMemberModal').classList.add('open');
+    document.getElementById('saInstFirstName').focus();
+  }
+
+  function closeInstAddMemberModal() {
+    document.getElementById('saInstAddMemberModal').classList.remove('open');
+  }
+
+  function _instAddClassTag() {
+    const input = document.getElementById('saInstClassInput');
+    const val = input.value.trim();
+    if (!val || _instClassTags.includes(val)) { input.value = ''; return; }
+    _instClassTags.push(val);
+    input.value = '';
+    _instRenderClassTags();
+  }
+
+  function _instRemoveClassTag(tag) {
+    _instClassTags = _instClassTags.filter(t => t !== tag);
+    _instRenderClassTags();
+  }
+
+  function _instRenderClassTags() {
+    document.getElementById('saInstClassTags').innerHTML = _instClassTags.map(tag =>
+      `<span class="inst-class-tag">${esc(tag)}<button onclick="_instRemoveClassTag('${esc(tag)}')" tabindex="-1">×</button></span>`
+    ).join('');
+  }
+
+  async function submitInstAddMember() {
+    const first = document.getElementById('saInstFirstName').value.trim();
+    const last  = document.getElementById('saInstLastName').value.trim();
+    const email = document.getElementById('saInstEmail').value.trim();
+    const errEl = document.getElementById('saInstAddError');
+    if (!first || !last || !email) { errEl.textContent = 'First name, last name, and email are required.'; return; }
+    if (!email.includes('@')) { errEl.textContent = 'Enter a valid email address.'; return; }
+    errEl.textContent = '';
+    const btn = document.getElementById('saInstAddSubmitBtn');
+    btn.textContent = 'Adding…'; btn.disabled = true;
+
+    const payload = {
+      institution_id: currentEntityId,
+      role:           _currentAddMode,
+      first_name:     first,
+      last_name:      last,
+      email,
+      job_title:      _currentAddMode === 'admin' ? document.getElementById('saInstJobTitle').value.trim() : undefined,
+      is_key_contact: _currentAddMode === 'admin' ? document.getElementById('saInstKeyContact').checked : undefined,
+      phone:          (_currentAddMode === 'admin' && document.getElementById('saInstKeyContact').checked)
+                        ? document.getElementById('saInstPhone').value.trim() : undefined,
+      classes:        _currentAddMode === 'teacher' ? _instClassTags : undefined,
+    };
+
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/add-member`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        errEl.textContent = json.error || json.message || 'Something went wrong — try again.';
+        btn.textContent = 'Add'; btn.disabled = false;
+        return;
+      }
+      closeInstAddMemberModal();
+      showToast('Member added successfully.');
+      loadSaInstitutionDetail(currentEntityId);
+    } catch (e) {
+      errEl.textContent = 'Network error — try again.';
+      btn.textContent = 'Add'; btn.disabled = false;
+    }
+  }
+
+  function openInstRemoveMember(teacherId, name, role) {
+    _removeTarget = { teacherId, role };
+    document.getElementById('saInstRemoveBody').innerHTML =
+      `Remove <strong>${esc(name)}</strong> from this institution? This cannot be undone.`;
+    document.getElementById('saInstRemoveModal').classList.add('open');
+  }
+
+  function closeInstRemoveModal() {
+    document.getElementById('saInstRemoveModal').classList.remove('open');
+    _removeTarget = null;
+  }
+
+  async function confirmInstRemoveMember() {
+    if (!_removeTarget) return;
+    const { teacherId, role } = _removeTarget;
+    const table = role === 'admin' ? 'institution_admins' : 'institution_teachers';
+    const { error } = await sb.from(table)
+      .delete()
+      .eq('teacher_id', teacherId)
+      .eq('institution_id', currentEntityId);
+    closeInstRemoveModal();
+    if (error) { showToast('Error removing member — try again.'); return; }
+    showToast('Member removed.');
+    loadSaInstitutionDetail(currentEntityId);
+  }
+
+  async function _instUploadLogo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const ext  = file.name.split('.').pop().toLowerCase();
+    const path = `${currentEntityId}/logo-${Date.now()}.${ext}`;
+    const { error: upErr } = await sb.storage.from('institution-logos').upload(path, file, { upsert: true });
+    if (upErr) { showToast('Upload failed — try again.'); return; }
+    const { data: urlData } = sb.storage.from('institution-logos').getPublicUrl(path);
+    const { error: dbErr } = await sb.from('institutions').update({ logo_url: urlData.publicUrl }).eq('id', currentEntityId);
+    if (dbErr) { showToast('Saved file but failed to update record.'); return; }
+    // Update hero immediately without full reload
+    const logoEl = document.getElementById('instDetailLogo');
+    if (logoEl) logoEl.innerHTML = `<img src="${urlData.publicUrl}" alt="logo">`;
+    if (_instDetailData.inst) _instDetailData.inst.logo_url = urlData.publicUrl;
+    showToast('Logo updated.');
+    // Reset file input so same file can be re-selected if needed
+    event.target.value = '';
   }
 
   // ── ADMIN VIEW ────────────────────────────────────────────────────────
