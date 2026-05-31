@@ -850,7 +850,8 @@
     /* ── Institution Detail (Super Admin drill-down) ─────────────────── */
     .inst-detail-hero { background:#fff;border:1px solid #e2e8f0;border-radius:0;padding:24px;display:flex;align-items:center;gap:20px;margin-bottom:20px; }
     .inst-detail-logo { width:64px;height:64px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:800;flex-shrink:0;overflow:hidden; }
-    .inst-detail-logo img { width:100%;height:100%;object-fit:cover;border-radius:50%; }
+    .inst-detail-logo img { width:auto;max-width:160px;height:56px;object-fit:contain;border-radius:0;display:block; }
+    .inst-detail-logo:has(img) { width:auto;height:auto;border-radius:0;background:transparent;overflow:visible; }
     .inst-detail-name { font-size:1.1rem;font-weight:800;color:#0f172a; }
     .inst-detail-domain { font-size:0.78rem;color:#94a3b8;margin-top:2px; }
     .inst-detail-pills { display:flex;gap:10px;margin-top:10px;flex-wrap:wrap; }
