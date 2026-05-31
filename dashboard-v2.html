@@ -2819,6 +2819,14 @@
     const legacyMap = {
       'dashboard': 'home',
       'institutions': 'institutions',
+      // SA section hashes
+      'sa/dashboard':       'sa-dashboard',
+      'sa/teachers':        'sa-teachers',
+      'sa/tickets':         'sa-tickets',
+      'sa/all-exams':       'sa-all-exams',
+      'sa/all-submissions': 'sa-all-submissions',
+      'sa/emails':          'sa-emails',
+      'sa/institution':     'institutions',
       'admin': 'admin-view',
       'exams': 'exams-all', 'exams/create': 'exams-create', 'exams/published': 'exams-published', 'exams/drafts': 'exams-drafts',
       'submissions': 'subs-all', 'submissions/grading-queue': 'subs-grading',
@@ -3079,7 +3087,7 @@
     document.body.classList.remove('show-login', 'show-reset');
 
     // Navigate to role-appropriate default view
-    const defaultNav = teacher.role === 'super_admin' ? 'institutions' : 'home';
+    const defaultNav = teacher.role === 'super_admin' ? 'sa-dashboard' : 'home';
     const initState = parseHashToState(window.location.hash.slice(1)) || { view: 'nav', nav: defaultNav };
     await restoreView(initState);
     history.replaceState(initState, '', _stateToUrl(initState) || (location.pathname + location.search));
