@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
         student_email: String(student_email).trim().toLowerCase(),
         access_code:  String(access_code).trim(),
         group_name:   group_name || null,
-        status:       "active",
+        status:       "in_progress",
         shuffle_map:  shuffle_map || null,
       }
     );

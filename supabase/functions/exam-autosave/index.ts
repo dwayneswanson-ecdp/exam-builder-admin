@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     }
 
     // ── 3. Do not overwrite a submitted exam ─────────────────────────────────
-    if (attempt.status === "submitted") {
+    if (attempt.status === "submitted" || attempt.status === "graded" || attempt.status === "results_sent") {
       return respond({ error: "Exam already submitted" }, 409);
     }
 

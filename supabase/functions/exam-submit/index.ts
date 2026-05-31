@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
       return respond({ error: "Unauthorized" }, 403);
     }
 
-    if (attempt.status === "submitted") {
+    if (attempt.status === "submitted" || attempt.status === "graded" || attempt.status === "results_sent") {
       return respond({ error: "Attempt already submitted" }, 409);
     }
 
@@ -109,10 +109,14 @@ Deno.serve(async (req) => {
     });
 
     // ── 4. Save result — only values computed server-side are stored ──────────
+    // If no open questions exist, auto-grading is complete → status = "graded"
+    const hasOpenQuestions = questions.some((q) => q.type === "open");
+    const finalStatus = hasOpenQuestions ? "submitted" : "graded";
+
     const saveRes = await dbPatch(
       `exam_attempts?id=eq.${encodeURIComponent(attempt_id)}`,
       {
-        status:         "submitted",
+        status:         finalStatus,
         score_mcq:      scoreMCQ,
         answers_json:   answers,
         session_log:    session_log ?? [],
