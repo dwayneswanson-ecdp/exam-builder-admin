@@ -796,9 +796,76 @@
     #section-exams-create .wiz-view-exam-btn { display:inline-flex;align-items:center;gap:6px;background:#2563eb;color:#fff;border:none;padding:10px 20px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit; }
     #section-exams-create .ai-chip { display:inline-flex;align-items:center;justify-content:center;background:#7c3aed;color:#fff;font-size:0.52rem;font-weight:800;width:14px;height:14px;border-radius:50%;flex-shrink:0; }
     #section-exams-create .crit-hint { font-weight:500;color:#c4b5fd;font-size:0.64rem; }
+
+    /* ── Login / Reset Screens ───────────────────────────────────────── */
+    #loginScreen, #resetScreen { display:none;min-height:100vh;background:#f1f5f9;align-items:center;justify-content:center;padding:20px; }
+    .login-card { background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06); }
+    .login-logo-text { font-size:1.25rem;font-weight:800;color:#0f172a;letter-spacing:-0.03em;margin-bottom:24px;display:block; }
+    .login-title { font-size:1.25rem;font-weight:700;color:#0f172a;margin:0 0 6px; }
+    .login-sub { font-size:0.82rem;color:#64748b;margin:0 0 28px; }
+    .login-field { margin-bottom:16px; }
+    .login-field label { display:block;font-size:0.75rem;font-weight:600;color:#475569;margin-bottom:6px; }
+    .login-field input { width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:10px 12px;font-size:0.88rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box; }
+    .login-field input:focus { border-color:#2563eb; }
+    .login-btn { width:100%;background:#2563eb;color:#fff;border:none;border-radius:5px;padding:11px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px; }
+    .login-btn:hover { background:#1d4ed8; }
+    .login-btn:disabled { opacity:0.6;cursor:default; }
+    .login-error { font-size:0.78rem;color:#dc2626;margin-top:10px;min-height:1em; }
+    body.show-login .sidebar, body.show-login .hamburger, body.show-login .main, body.show-login .sidebar-overlay { display:none !important; }
+    body.show-login #loginScreen { display:flex; }
+    body.show-login.show-reset #loginScreen { display:none; }
+    body.show-login.show-reset #resetScreen { display:flex; }
+
+    /* ── Institutions (Super Admin) ───────────────────────────────────── */
+    .inst-list { display:flex;flex-direction:column;gap:10px; }
+    .inst-row { background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:16px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:border-color 0.15s; }
+    .inst-row:hover { border-color:#2563eb; }
+    .inst-row-info { flex:1;min-width:0; }
+    .inst-row-name { font-size:0.9rem;font-weight:700;color:#0f172a; }
+    .inst-row-domain { font-size:0.75rem;color:#94a3b8;margin-top:2px; }
+    .inst-row-stats { display:flex;gap:18px;flex-shrink:0; }
+    .inst-stat { text-align:center; }
+    .inst-stat-val { font-size:0.88rem;font-weight:700;color:#0f172a; }
+    .inst-stat-lbl { font-size:0.65rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em; }
+
+    /* ── Admin View ───────────────────────────────────────────────────── */
+    .member-row { display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9; }
+    .member-row:last-child { border-bottom:none; }
+    .member-avatar { width:32px;height:32px;background:#dbeafe;color:#1d4ed8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;flex-shrink:0; }
+    .member-name { font-size:0.82rem;font-weight:600;color:#0f172a; }
+    .member-email { font-size:0.72rem;color:#94a3b8; }
   </style>
 </head>
-<body>
+<body class="show-login">
+
+<!-- ── Login Screen ──────────────────────────────────────────────── -->
+<div id="loginScreen">
+  <div class="login-card">
+    <span class="login-logo-text">testflo</span>
+    <h1 class="login-title">Sign in</h1>
+    <p class="login-sub">Sign in to manage your institution and exams.</p>
+    <form onsubmit="signIn(); return false;" autocomplete="on">
+      <div class="login-field"><label>Email</label><input type="email" id="loginEmail" name="email" placeholder="you@institution.com" autocomplete="email"></div>
+      <div class="login-field"><label>Password</label><input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <button type="submit" class="login-btn" id="loginBtn">Sign in</button>
+    </form>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ── Password Reset / Invite Screen ────────────────────────────── -->
+<div id="resetScreen">
+  <div class="login-card">
+    <span class="login-logo-text">testflo</span>
+    <h1 class="login-title" id="resetTitle">Set new password</h1>
+    <p class="login-sub">Choose a new password for your account.</p>
+    <form onsubmit="submitNewPassword(); return false;">
+      <div class="login-field"><label>New Password</label><input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" minlength="8"></div>
+      <button type="submit" class="login-btn" id="resetBtn">Set Password</button>
+    </form>
+    <div class="login-error" id="resetError"></div>
+  </div>
+</div>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">
@@ -811,7 +878,7 @@
     <div class="sid-avatar" id="sidebarInitials">?</div>
     <div class="sid-info">
       <div class="sid-name" id="sidebarName">—</div>
-      <div class="sid-role">Administrator</div>
+      <div class="sid-role" id="sdRoleLabel">—</div>
     </div>
     <svg class="sid-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
     <div class="sid-dropdown" id="sidDropdown" onclick="event.stopPropagation()">
@@ -833,6 +900,20 @@
       Dashboard
     </div>
 
+    <!-- Super Admin only -->
+    <div id="navInstitutions" style="display:none;" class="nav-item" data-nav="institutions" onclick="navigate('institutions')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7l9-4 9 4M4 7v14M20 7v14M9 21V11h6v10"/></svg>
+      Institutions
+    </div>
+
+    <!-- Admin only -->
+    <div id="navMyInstitution" style="display:none;" class="nav-item" data-nav="admin-view" onclick="navigate('admin-view')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      My Institution
+    </div>
+
+    <!-- Teacher + Admin nav group -->
+    <div id="navTeacherGroup">
     <div class="nav-action" onclick="navigate('exams-create')">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Create Exam
@@ -857,6 +938,7 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
       Settings
     </div>
+    </div><!-- /navTeacherGroup -->
 
   </nav>
 </aside>
@@ -1934,6 +2016,72 @@
     <div id="sr-content" style="display:none;"></div>
   </section>
 
+
+  <!-- ── INSTITUTIONS (Super Admin) ──────────────────────────────── -->
+  <section class="section" id="section-institutions">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div class="page-title">Institutions</div>
+        <div class="page-sub">Manage all institutions and their administrators.</div>
+      </div>
+      <button class="btn btn-primary" onclick="openAddInstitutionModal()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Institution
+      </button>
+    </div>
+    <div class="stats-row" id="saStatsRow" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#0f172a;" id="saStat-institutions">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Institutions</div>
+      </div>
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#0f172a;" id="saStat-admins">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Admins</div>
+      </div>
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#0f172a;" id="saStat-teachers">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Teachers</div>
+      </div>
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#0f172a;color:#16a34a;" id="saStat-exams">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Exams Published</div>
+      </div>
+    </div>
+    <div class="inst-list" id="saInstitutionList">
+      <div style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</div>
+    </div>
+  </section>
+
+  <!-- ── ADMIN VIEW (Admin role) ──────────────────────────────────── -->
+  <section class="section" id="section-admin">
+    <div class="page-header">
+      <div class="page-title" id="adminInstName">My Institution</div>
+      <div class="page-sub">Institution overview</div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#7c3aed;" id="adminStat-teachers">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Teachers</div>
+      </div>
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#2563eb;" id="adminStat-exams">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Exams Published</div>
+      </div>
+      <div class="card" style="flex:1;min-width:120px;padding:16px 20px;">
+        <div style="font-size:1.5rem;font-weight:800;color:#0f172a;" id="adminStat-submissions">—</div>
+        <div style="font-size:0.72rem;color:#94a3b8;text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Submissions</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header"><div class="card-title">Admins</div><a id="adminManageLink" href="#" class="btn btn-ghost btn-sm">Manage →</a></div>
+      <div id="adminAdminList" style="padding:0 20px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Teachers</div><a id="adminTeacherLink" href="#" class="btn btn-ghost btn-sm">Manage →</a></div>
+      <div id="adminTeacherList" style="padding:0 20px;"></div>
+    </div>
+  </section>
+
 </main>
 
 <div id="confirmModal" onclick="closeConfirmModal()">
@@ -2062,6 +2210,8 @@
 
   const SECTION_MAP = {
     'home': 'home',
+    'institutions': 'institutions',
+    'admin-view': 'admin',
     'exams-create': 'exams-create',
     'exams-all': 'exams', 'exams-published': 'exams', 'exams-drafts': 'exams',
     'subs-all': 'subs', 'subs-grading': 'subs', 'hist-results': 'subs', 'subs-released': 'subs',
@@ -2082,6 +2232,8 @@
 
   const NAV_ACTIVE_MAP = {
     'home': 'home',
+    'institutions': 'institutions',
+    'admin-view': 'admin-view',
     'exams-create': 'manage-exams',
     'exams-all': 'manage-exams', 'exams-published': 'manage-exams', 'exams-drafts': 'manage-exams',
     'subs-all': 'review-subs', 'subs-grading': 'review-subs', 'hist-results': 'review-subs', 'subs-released': 'review-subs',
@@ -2094,6 +2246,8 @@
   // nav → hash for section-level navigation
   const NAV_TO_HASH = {
     'home':             '',
+    'institutions':     'institutions',
+    'admin-view':       'admin',
     'exams-create':     'exams/create',
     'exams-all':        'exams',
     'exams-published':  'exams/published',
@@ -2132,6 +2286,8 @@
     // Simple flat lookup first (legacy aliases + legacy Part-6 hashes)
     const legacyMap = {
       'dashboard': 'home',
+      'institutions': 'institutions',
+      'admin': 'admin-view',
       'exams': 'exams-all', 'exams/create': 'exams-create', 'exams/published': 'exams-published', 'exams/drafts': 'exams-drafts',
       'submissions': 'subs-all', 'submissions/grading-queue': 'subs-grading',
       'submissions/sent-results': 'hist-results', 'submissions/released': 'subs-released',
@@ -2225,6 +2381,8 @@
     document.getElementById(`section-${sectionId}`).classList.add('active');
     closeSidebar();
     if (nav === 'home') loadHome();
+    else if (nav === 'institutions') loadInstitutions();
+    else if (nav === 'admin-view') loadAdminDashboard();
     else if (nav === 'exams-all') { examTab = 'all'; setExamTab('all'); }
     else if (nav === 'exams-published') { examTab = 'published'; setExamTab('published'); }
     else if (nav === 'exams-drafts') { examTab = 'drafts'; setExamTab('drafts'); }
@@ -2255,72 +2413,263 @@
   // ── Init ─────────────────────────────────────────────────────────────
 
   async function init() {
+    // Handle password recovery / invite tokens in URL hash
+    const hashParams = Object.fromEntries(new URLSearchParams(window.location.hash.slice(1)));
+    if ((hashParams.type === 'recovery' || hashParams.type === 'invite') && hashParams.access_token) {
+      await sb.auth.setSession({ access_token: hashParams.access_token, refresh_token: hashParams.refresh_token || '' });
+      document.getElementById('resetTitle').textContent = hashParams.type === 'invite' ? 'Create your password' : 'Set new password';
+      document.body.classList.add('show-reset');
+      return;
+    }
     const { data: { session } } = await sb.auth.getSession();
-    if (!session) { window.location.href = 'dashboard.html'; return; }
+    if (!session) return; // body already has show-login class
+    await _bootApp(session.user);
+  }
 
-    const { data: teacher } = await sb.from('teachers').select('*').eq('id', session.user.id).single();
-    if (!teacher) { window.location.href = 'dashboard.html'; return; }
+  async function signIn() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error || !data.user) {
+      errEl.textContent = error?.message || 'Sign-in failed. Check your credentials.';
+      btn.textContent = 'Sign in'; btn.disabled = false;
+      return;
+    }
+    await _bootApp(data.user);
+  }
+
+  async function submitNewPassword() {
+    const password = document.getElementById('newPassword').value;
+    const btn = document.getElementById('resetBtn');
+    const errEl = document.getElementById('resetError');
+    errEl.textContent = '';
+    btn.textContent = 'Saving…'; btn.disabled = true;
+    const { error } = await sb.auth.updateUser({ password });
+    if (error) {
+      errEl.textContent = error.message || 'Failed to set password.';
+      btn.textContent = 'Set Password'; btn.disabled = false;
+      return;
+    }
+    btn.textContent = 'Password set!';
+    setTimeout(async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) await _bootApp(session.user);
+    }, 800);
+  }
+
+  async function _bootApp(user) {
+    const { data: teacher } = await sb.from('teachers').select('*').eq('id', user.id).single();
+    if (!teacher) {
+      document.getElementById('loginError').textContent = 'No account found for this user.';
+      return;
+    }
     currentTeacher = teacher;
 
+    // Sidebar identity
     const name = teacher.full_name || teacher.email || '';
     document.getElementById('sidebarInitials').textContent = getInitials(name);
     document.getElementById('sidebarName').textContent = teacher.full_name || teacher.email || '—';
+    const roleLabels = { super_admin: 'Super Admin', admin: 'Admin', teacher: 'Teacher' };
+    document.getElementById('sdRoleLabel').textContent = roleLabels[teacher.role] || teacher.role || 'User';
 
-    const { data: instLink } = await sb.from('institution_teachers')
-      .select('institution_id').eq('teacher_id', teacher.id).single();
-    if (instLink?.institution_id) {
-      const { data: inst } = await sb.from('institutions').select('*').eq('id', instLink.institution_id).single();
-      currentInstitution = inst;
-      // institution name stored in currentInstitution; no sidebar display needed
+    // Role-gated nav
+    _applyRoleNav(teacher.role);
+
+    // Institution lookup
+    if (teacher.role !== 'super_admin') {
+      const table = teacher.role === 'admin' ? 'institution_admins' : 'institution_teachers';
+      const { data: instLink } = await sb.from(table).select('institution_id').eq('teacher_id', teacher.id).single();
+      if (instLink?.institution_id) {
+        const { data: inst } = await sb.from('institutions').select('*').eq('id', instLink.institution_id).single();
+        currentInstitution = inst;
+      }
     }
 
-    const { data: exams } = await sb.from('exams')
-      .select('*').eq('teacher_id', teacher.id).order('created_at', { ascending: false });
-    allExams = exams || [];
-    updateExamTabCounts();
+    // Load exam data for teacher + admin roles
+    if (teacher.role === 'teacher' || teacher.role === 'admin') {
+      const { data: exams } = await sb.from('exams')
+        .select('*').eq('teacher_id', teacher.id).order('created_at', { ascending: false });
+      allExams = exams || [];
+      updateExamTabCounts();
 
-    if (allExams.length) {
-      const examIds = allExams.map(e => e.id);
-      const [attRes, qRes] = await Promise.all([
-        sb.from('exam_attempts').select('exam_id, group_name, status, submitted_at').in('exam_id', examIds),
-        sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds)
-      ]);
-      const _groupSets = {};
-      (attRes.data || []).forEach(r => {
-        examStudentCounts[r.exam_id] = (examStudentCounts[r.exam_id] || 0) + 1;
-        if (r.status === 'submitted') examSubmittedCounts[r.exam_id] = (examSubmittedCounts[r.exam_id] || 0) + 1;
-        if (r.group_name) {
-          if (!_groupSets[r.exam_id]) _groupSets[r.exam_id] = new Set();
-          _groupSets[r.exam_id].add(r.group_name);
-        }
-        if (r.submitted_at && (!examLastActivity[r.exam_id] || r.submitted_at > examLastActivity[r.exam_id])) {
-          examLastActivity[r.exam_id] = r.submitted_at;
-        }
+      if (allExams.length) {
+        const examIds = allExams.map(e => e.id);
+        const [attRes, qRes] = await Promise.all([
+          sb.from('exam_attempts').select('exam_id, group_name, status, submitted_at').in('exam_id', examIds),
+          sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds)
+        ]);
+        const _groupSets = {};
+        (attRes.data || []).forEach(r => {
+          examStudentCounts[r.exam_id] = (examStudentCounts[r.exam_id] || 0) + 1;
+          if (r.status === 'submitted') examSubmittedCounts[r.exam_id] = (examSubmittedCounts[r.exam_id] || 0) + 1;
+          if (r.group_name) {
+            if (!_groupSets[r.exam_id]) _groupSets[r.exam_id] = new Set();
+            _groupSets[r.exam_id].add(r.group_name);
+          }
+          if (r.submitted_at && (!examLastActivity[r.exam_id] || r.submitted_at > examLastActivity[r.exam_id])) {
+            examLastActivity[r.exam_id] = r.submitted_at;
+          }
+        });
+        Object.keys(_groupSets).forEach(id => { examGroupCounts[id] = _groupSets[id].size; });
+        (qRes.data || []).forEach(r => { examQuestionCounts[r.exam_id] = (examQuestionCounts[r.exam_id] || 0) + 1; });
+      }
+
+      ['inviteExamSel','resultsExamSel','retakesExamSel'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        allExams.forEach(e => {
+          const opt = document.createElement('option');
+          opt.value = e.id;
+          opt.textContent = e.title || '(Untitled)';
+          sel.appendChild(opt);
+        });
       });
-      Object.keys(_groupSets).forEach(id => { examGroupCounts[id] = _groupSets[id].size; });
-      (qRes.data || []).forEach(r => { examQuestionCounts[r.exam_id] = (examQuestionCounts[r.exam_id] || 0) + 1; });
     }
 
-    // Populate exam selectors
-    ['inviteExamSel','resultsExamSel','retakesExamSel'].forEach(id => {
-      const sel = document.getElementById(id);
-      if (!sel) return;
-      allExams.forEach(e => {
-        const opt = document.createElement('option');
-        opt.value = e.id;
-        opt.textContent = e.title || '(Untitled)';
-        sel.appendChild(opt);
-      });
-    });
+    // Show app, hide login
+    document.body.classList.remove('show-login', 'show-reset');
 
-    const initState = parseHashToState(window.location.hash.slice(1)) || {view:'nav', nav:'home'};
+    // Navigate to role-appropriate default view
+    const defaultNav = teacher.role === 'super_admin' ? 'institutions' : 'home';
+    const initState = parseHashToState(window.location.hash.slice(1)) || { view: 'nav', nav: defaultNav };
     await restoreView(initState);
     history.replaceState(initState, '', _stateToUrl(initState) || (location.pathname + location.search));
   }
 
+  function _applyRoleNav(role) {
+    const isTeacherLike = role === 'teacher' || role === 'admin';
+    const teacherGroup = document.getElementById('navTeacherGroup');
+    if (teacherGroup) teacherGroup.style.display = isTeacherLike ? '' : 'none';
+    const instNav = document.getElementById('navInstitutions');
+    if (instNav) instNav.style.display = role === 'super_admin' ? '' : 'none';
+    const adminNav = document.getElementById('navMyInstitution');
+    if (adminNav) adminNav.style.display = role === 'admin' ? '' : 'none';
+  }
+
   async function signOut() {
     await sb.auth.signOut();
-    window.location.href = 'dashboard.html';
+    location.reload();
+  }
+
+  // ── SUPER ADMIN ──────────────────────────────────────────────────────
+
+  async function loadInstitutions() {
+    const list = document.getElementById('saInstitutionList');
+    if (!list) return;
+    list.innerHTML = `<div style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</div>`;
+    const [instRes, adminLinksRes, teacherLinksRes, examsRes] = await Promise.all([
+      sb.from('institutions').select('*').order('name'),
+      sb.from('institution_admins').select('institution_id'),
+      sb.from('institution_teachers').select('institution_id'),
+      sb.from('exams').select('id,teacher_id,status')
+    ]);
+    const institutions = instRes.data || [];
+    const adminLinks   = adminLinksRes.data || [];
+    const teacherLinks = teacherLinksRes.data || [];
+    const exams        = examsRes.data || [];
+
+    document.getElementById('saStat-institutions').textContent = institutions.length;
+    document.getElementById('saStat-admins').textContent       = new Set(adminLinks.map(a => a.institution_id)).size ? adminLinks.length : 0;
+    document.getElementById('saStat-teachers').textContent     = teacherLinks.length;
+    document.getElementById('saStat-exams').textContent        = exams.filter(e => e.status === 'published').length;
+
+    if (!institutions.length) {
+      list.innerHTML = `<div class="card" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">No institutions yet. Click "Add Institution" to create one.</div>`;
+      return;
+    }
+
+    const adminCountMap   = {};
+    const teacherCountMap = {};
+    adminLinks.forEach(a => { adminCountMap[a.institution_id]   = (adminCountMap[a.institution_id]   || 0) + 1; });
+    teacherLinks.forEach(t => { teacherCountMap[t.institution_id] = (teacherCountMap[t.institution_id] || 0) + 1; });
+
+    list.innerHTML = institutions.map(inst => `
+      <div class="inst-row" onclick="window.location.href='institution.html?id=${inst.id}'">
+        <div class="inst-row-info">
+          <div class="inst-row-name">${esc(inst.name || '—')}</div>
+          <div class="inst-row-domain">${esc(inst.domain || '')}</div>
+        </div>
+        <div class="inst-row-stats">
+          <div class="inst-stat"><div class="inst-stat-val">${adminCountMap[inst.id] || 0}</div><div class="inst-stat-lbl">Admins</div></div>
+          <div class="inst-stat"><div class="inst-stat-val">${teacherCountMap[inst.id] || 0}</div><div class="inst-stat-lbl">Teachers</div></div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>`).join('');
+  }
+
+  function openAddInstitutionModal() {
+    showToast('Institution creation is managed via the institution.html setup page.');
+  }
+
+  // ── ADMIN VIEW ────────────────────────────────────────────────────────
+
+  async function loadAdminDashboard() {
+    const nameEl = document.getElementById('adminInstName');
+    const { data: link } = await sb.from('institution_admins')
+      .select('institution_id').eq('teacher_id', currentTeacher.id).single();
+    if (!link) return;
+    const instId = link.institution_id;
+
+    document.getElementById('adminManageLink').href  = `institution.html?id=${instId}`;
+    document.getElementById('adminTeacherLink').href = `institution.html?id=${instId}`;
+
+    const [instRes, adminLinksRes, teacherLinksRes] = await Promise.all([
+      sb.from('institutions').select('*').eq('id', instId).single(),
+      sb.from('institution_admins').select('teacher_id,is_key_contact').eq('institution_id', instId),
+      sb.from('institution_teachers').select('teacher_id').eq('institution_id', instId)
+    ]);
+    const inst         = instRes.data;
+    const adminLinks   = adminLinksRes.data  || [];
+    const teacherLinks = teacherLinksRes.data || [];
+
+    if (nameEl) nameEl.textContent = inst?.name || 'My Institution';
+
+    const allIds = [...new Set([...adminLinks.map(a => a.teacher_id), ...teacherLinks.map(t => t.teacher_id)])];
+    let teachers = [];
+    if (allIds.length) {
+      const { data } = await sb.from('teachers').select('id,full_name,email').in('id', allIds);
+      teachers = data || [];
+    }
+    const teacherMap = Object.fromEntries(teachers.map(t => [t.id, t]));
+
+    const teacherIds = teacherLinks.map(t => t.teacher_id);
+    let examCount = 0, subCount = 0;
+    if (teacherIds.length) {
+      const { count: ec } = await sb.from('exams').select('id', { count: 'exact', head: true }).in('teacher_id', teacherIds);
+      examCount = ec || 0;
+      if (examCount > 0) {
+        const { data: examIds } = await sb.from('exams').select('id').in('teacher_id', teacherIds);
+        if (examIds?.length) {
+          const ids = examIds.map(e => e.id);
+          const { count: sc } = await sb.from('exam_attempts').select('id', { count: 'exact', head: true }).in('exam_id', ids);
+          subCount = sc || 0;
+        }
+      }
+    }
+
+    document.getElementById('adminStat-teachers').textContent    = teacherLinks.length;
+    document.getElementById('adminStat-exams').textContent       = examCount;
+    document.getElementById('adminStat-submissions').textContent = subCount;
+
+    function renderMembers(containerId, ids) {
+      const el = document.getElementById(containerId);
+      if (!el) return;
+      if (!ids.length) { el.innerHTML = `<div style="padding:16px 0;font-size:0.78rem;color:#94a3b8;">None listed.</div>`; return; }
+      el.innerHTML = ids.map(id => {
+        const t = teacherMap[id] || {};
+        const initials = getInitials(t.full_name || t.email || '?');
+        return `<div class="member-row">
+          <div class="member-avatar">${esc(initials)}</div>
+          <div><div class="member-name">${esc(t.full_name || '—')}</div><div class="member-email">${esc(t.email || '')}</div></div>
+        </div>`;
+      }).join('');
+    }
+    renderMembers('adminAdminList',   adminLinks.map(a => a.teacher_id));
+    renderMembers('adminTeacherList', teacherLinks.map(t => t.teacher_id));
   }
 
   // ── HOME ─────────────────────────────────────────────────────────────
