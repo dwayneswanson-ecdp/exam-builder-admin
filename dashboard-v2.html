@@ -2127,6 +2127,40 @@
     </div>
   </section>
 
+  <!-- ── SUPER ADMIN TEACHERS ─────────────────────────────────────── -->
+  <section class="section" id="section-sa-teachers">
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div class="page-title">Teachers</div>
+        <div class="page-sub">All teachers and admins across all institutions.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" style="padding-bottom:12px;">
+        <input id="saTeach-search" type="text" placeholder="Search by name, email or institution…"
+               oninput="_saTeachFilter()"
+               style="width:100%;max-width:340px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.82rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Teacher</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Email</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Institution</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Role</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Exams Published</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Last Active</th>
+            </tr>
+          </thead>
+          <tbody id="saTeach-body">
+            <tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ── INSTITUTIONS (Super Admin) ──────────────────────────────── -->
   <section class="section" id="section-institutions">
     <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
@@ -2735,6 +2769,77 @@
         <td style="color:#94a3b8;">${date}</td>
       </tr>`;
     }).join('');
+  }
+
+  function _relTime(dateStr) {
+    if (!dateStr) return '—';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 2)   return 'Just now';
+    if (mins < 60)  return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24)   return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30)  return `${days}d ago`;
+    const mos = Math.floor(days / 30);
+    if (mos < 12)   return `${mos}mo ago`;
+    return `${Math.floor(mos / 12)}y ago`;
+  }
+
+  let _saTeachRows = []; // cache for client-side filter
+
+  async function loadSaTeachers() {
+    const body = document.getElementById('saTeach-body');
+    if (body) body.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
+    const searchEl = document.getElementById('saTeach-search');
+    if (searchEl) searchEl.value = '';
+
+    const [teachRes, tLinkRes, aLinkRes, examRes] = await Promise.all([
+      sb.from('teachers').select('id, full_name, email, role, updated_at').in('role', ['teacher','admin']).order('full_name'),
+      sb.from('institution_teachers').select('teacher_id, institutions(name)'),
+      sb.from('institution_admins').select('teacher_id, institutions(name)'),
+      sb.from('exams').select('teacher_id').eq('status','published')
+    ]);
+
+    const teachers   = teachRes.data  || [];
+    const instMap    = {};
+    [...(tLinkRes.data||[]), ...(aLinkRes.data||[])].forEach(l => {
+      if (!instMap[l.teacher_id] && l.institutions?.name) instMap[l.teacher_id] = l.institutions.name;
+    });
+    const examCount = {};
+    (examRes.data||[]).forEach(e => { examCount[e.teacher_id] = (examCount[e.teacher_id]||0) + 1; });
+
+    if (!teachers.length) {
+      if (body) body.innerHTML = `<tr><td colspan="6" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No teachers found.</td></tr>`;
+      return;
+    }
+
+    const roleBadge = r => r === 'admin'
+      ? `<span style="background:#ede9fe;color:#7c3aed;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Admin</span>`
+      : `<span style="background:#f1f5f9;color:#64748b;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Teacher</span>`;
+
+    _saTeachRows = teachers.map(t => {
+      const inst = instMap[t.id] || '—';
+      const name = t.full_name || '—';
+      const searchText = `${name} ${t.email||''} ${inst}`.toLowerCase();
+      return { html: `<tr data-search="${searchText}">
+        <td style="font-weight:500;">${esc(name)}</td>
+        <td style="color:#64748b;">${esc(t.email||'—')}</td>
+        <td>${esc(inst)}</td>
+        <td>${roleBadge(t.role)}</td>
+        <td style="color:#64748b;">${examCount[t.id]||0}</td>
+        <td style="color:#94a3b8;">${_relTime(t.updated_at)}</td>
+      </tr>` };
+    });
+
+    if (body) body.innerHTML = _saTeachRows.map(r => r.html).join('');
+  }
+
+  function _saTeachFilter() {
+    const q = (document.getElementById('saTeach-search')?.value || '').toLowerCase().trim();
+    document.querySelectorAll('#saTeach-body tr[data-search]').forEach(row => {
+      row.style.display = (!q || row.dataset.search.includes(q)) ? '' : 'none';
+    });
   }
 
   async function loadInstitutions() {
