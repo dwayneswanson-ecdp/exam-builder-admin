@@ -2082,6 +2082,51 @@
   </section>
 
 
+  <!-- ── SUPER ADMIN DASHBOARD ────────────────────────────────────── -->
+  <section class="section" id="section-sa-dashboard">
+    <div class="page-header">
+      <div class="page-title">Platform Dashboard</div>
+      <div class="page-sub">Platform-wide stats across all institutions.</div>
+    </div>
+    <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      <div class="card stat-block">
+        <div class="stat-block-val" id="saDash-institutions">—</div>
+        <div class="stat-block-lbl">Institutions</div>
+      </div>
+      <div class="card stat-block">
+        <div class="stat-block-val" style="color:#7c3aed;" id="saDash-teachers">—</div>
+        <div class="stat-block-lbl">Teachers</div>
+      </div>
+      <div class="card stat-block">
+        <div class="stat-block-val" style="color:#2563eb;" id="saDash-exams">—</div>
+        <div class="stat-block-lbl">Exams Published</div>
+      </div>
+      <div class="card stat-block">
+        <div class="stat-block-val" style="color:#16a34a;" id="saDash-submissions">—</div>
+        <div class="stat-block-lbl">Total Submissions</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Recent Submissions</div></div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Student</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Exam</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Institution</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Score</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="saDash-activityBody">
+            <tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ── INSTITUTIONS (Super Admin) ──────────────────────────────── -->
   <section class="section" id="section-institutions">
     <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
@@ -2635,6 +2680,62 @@
   }
 
   // ── SUPER ADMIN ──────────────────────────────────────────────────────
+
+  async function loadSaDashboard() {
+    ['institutions','teachers','exams','submissions'].forEach(k => {
+      const el = document.getElementById(`saDash-${k}`);
+      if (el) el.textContent = '…';
+    });
+    const body = document.getElementById('saDash-activityBody');
+    if (body) body.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
+
+    const [instRes, teachRes, examRes, subRes, actRes] = await Promise.all([
+      sb.from('institutions').select('id', {count:'exact', head:true}),
+      sb.from('teachers').select('id', {count:'exact', head:true}).eq('role','teacher'),
+      sb.from('exams').select('id', {count:'exact', head:true}).eq('status','published'),
+      sb.from('exam_attempts').select('id', {count:'exact', head:true}).eq('status','submitted'),
+      sb.from('exam_attempts')
+        .select('student_name, score, score_max, submitted_at, exams(title, teacher_id)')
+        .eq('status','submitted')
+        .order('submitted_at', {ascending:false})
+        .limit(10)
+    ]);
+
+    document.getElementById('saDash-institutions').textContent = instRes.count ?? '—';
+    document.getElementById('saDash-teachers').textContent     = teachRes.count ?? '—';
+    document.getElementById('saDash-exams').textContent        = examRes.count ?? '—';
+    document.getElementById('saDash-submissions').textContent  = subRes.count ?? '—';
+
+    const attempts = actRes.data || [];
+    const teacherIds = [...new Set(attempts.map(a => a.exams?.teacher_id).filter(Boolean))];
+    const instNameMap = {};
+    if (teacherIds.length) {
+      const [tLinks, aLinks] = await Promise.all([
+        sb.from('institution_teachers').select('teacher_id, institutions(name)').in('teacher_id', teacherIds),
+        sb.from('institution_admins').select('teacher_id, institutions(name)').in('teacher_id', teacherIds)
+      ]);
+      [...(tLinks.data||[]), ...(aLinks.data||[])].forEach(l => {
+        if (!instNameMap[l.teacher_id] && l.institutions?.name) instNameMap[l.teacher_id] = l.institutions.name;
+      });
+    }
+
+    if (!attempts.length) {
+      body.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions yet.</td></tr>`;
+      return;
+    }
+    body.innerHTML = attempts.map(a => {
+      const score = a.score != null ? (a.score_max ? `${a.score} / ${a.score_max}` : a.score) : '—';
+      const inst  = esc(instNameMap[a.exams?.teacher_id] || '—');
+      const date  = a.submitted_at ? new Date(a.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      return `<tr>
+        <td>${esc(a.student_name||'—')}</td>
+        <td>${esc(a.exams?.title||'—')}</td>
+        <td>${inst}</td>
+        <td>${score}</td>
+        <td style="color:#94a3b8;">${date}</td>
+      </tr>`;
+    }).join('');
+  }
 
   async function loadInstitutions() {
     const list = document.getElementById('saInstitutionList');
