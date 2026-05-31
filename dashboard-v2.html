@@ -802,19 +802,27 @@
     #section-exams-create .crit-hint { font-weight:500;color:#c4b5fd;font-size:0.64rem; }
 
     /* ── Login / Reset Screens ───────────────────────────────────────── */
-    #loginScreen, #resetScreen { display:none;min-height:100vh;background:#f1f5f9;align-items:center;justify-content:center;padding:20px; }
-    .login-card { background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(0,0,0,0.06); }
-    .login-logo-text { font-size:1.25rem;font-weight:800;color:#0f172a;letter-spacing:-0.03em;margin-bottom:24px;display:block; }
-    .login-title { font-size:1.25rem;font-weight:700;color:#0f172a;margin:0 0 6px; }
+    #loginScreen, #resetScreen { display:none;min-height:100vh;background:#f8fafc;flex-direction:column; }
+    .login-topbar { padding:20px 32px;display:flex;align-items:center; }
+    .login-home-link { font-size:1.05rem;font-weight:800;color:#0f172a;letter-spacing:-0.03em;text-decoration:none;cursor:pointer; }
+    .login-home-link:hover { color:#2563eb; }
+    .login-body { flex:1;display:flex;align-items:center;justify-content:center;padding:20px; }
+    .login-card { background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:40px 40px 32px;width:100%;max-width:400px;box-shadow:0 2px 16px rgba(0,0,0,0.06); }
+    .login-card-logo { font-size:1.4rem;font-weight:800;color:#0f172a;letter-spacing:-0.03em;margin-bottom:28px;display:block; }
+    .login-title { font-size:1.15rem;font-weight:700;color:#0f172a;margin:0 0 5px; }
     .login-sub { font-size:0.82rem;color:#64748b;margin:0 0 28px; }
     .login-field { margin-bottom:16px; }
     .login-field label { display:block;font-size:0.75rem;font-weight:600;color:#475569;margin-bottom:6px; }
-    .login-field input { width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:10px 12px;font-size:0.88rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box; }
-    .login-field input:focus { border-color:#2563eb; }
-    .login-btn { width:100%;background:#2563eb;color:#fff;border:none;border-radius:5px;padding:11px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;margin-top:6px; }
+    .login-field input { width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:10px 12px;font-size:0.88rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;transition:border-color 0.15s; }
+    .login-field input:focus { border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.08); }
+    .login-btn { width:100%;background:#2563eb;color:#fff;border:none;border-radius:6px;padding:11px;font-size:0.88rem;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;transition:background 0.15s; }
     .login-btn:hover { background:#1d4ed8; }
     .login-btn:disabled { opacity:0.6;cursor:default; }
     .login-error { font-size:0.78rem;color:#dc2626;margin-top:10px;min-height:1em; }
+    .login-footer { margin-top:24px;text-align:center;font-size:0.72rem;color:#94a3b8; }
+    .login-footer a { color:#94a3b8;text-decoration:underline;cursor:pointer; }
+    .login-footer a:hover { color:#64748b; }
+    .login-page-footer { padding:20px 32px;text-align:center;font-size:0.72rem;color:#cbd5e1; }
     body.show-login .sidebar, body.show-login .hamburger, body.show-login .main, body.show-login .sidebar-overlay { display:none !important; }
     body.show-login #loginScreen { display:flex; }
     body.show-login.show-reset #loginScreen { display:none; }
@@ -844,31 +852,54 @@
 
 <!-- ── Login Screen ──────────────────────────────────────────────── -->
 <div id="loginScreen">
-  <div class="login-card">
-    <span class="login-logo-text">testflo</span>
-    <h1 class="login-title">Sign in</h1>
-    <p class="login-sub">Sign in to manage your institution and exams.</p>
-    <form onsubmit="signIn(); return false;" autocomplete="on">
-      <div class="login-field"><label>Email</label><input type="email" id="loginEmail" name="email" placeholder="you@institution.com" autocomplete="email"></div>
-      <div class="login-field"><label>Password</label><input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password"></div>
-      <button type="submit" class="login-btn" id="loginBtn">Sign in</button>
-    </form>
-    <div class="login-error" id="loginError"></div>
+  <div class="login-topbar">
+    <span class="login-home-link" onclick="window.location.href='index.html'">testflo</span>
   </div>
+  <div class="login-body">
+    <div class="login-card">
+      <span class="login-card-logo">testflo</span>
+      <h1 class="login-title">Welcome back</h1>
+      <p class="login-sub">Sign in to your account to continue.</p>
+      <form onsubmit="signIn(); return false;" autocomplete="on">
+        <div class="login-field"><label>Email</label><input type="email" id="loginEmail" name="email" placeholder="you@institution.com" autocomplete="email"></div>
+        <div class="login-field"><label>Password</label><input type="password" id="loginPassword" name="password" placeholder="••••••••" autocomplete="current-password"></div>
+        <button type="submit" class="login-btn" id="loginBtn">Sign in</button>
+      </form>
+      <div class="login-error" id="loginError"></div>
+      <div class="login-footer">
+        By signing in you agree to our
+        <a onclick="window.open('terms.html','_blank')">Terms of Service</a>
+        and
+        <a onclick="window.open('privacy.html','_blank')">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+  <div class="login-page-footer">© testflo. All rights reserved.</div>
 </div>
 
 <!-- ── Password Reset / Invite Screen ────────────────────────────── -->
 <div id="resetScreen">
-  <div class="login-card">
-    <span class="login-logo-text">testflo</span>
-    <h1 class="login-title" id="resetTitle">Set new password</h1>
-    <p class="login-sub">Choose a new password for your account.</p>
-    <form onsubmit="submitNewPassword(); return false;">
-      <div class="login-field"><label>New Password</label><input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" minlength="8"></div>
-      <button type="submit" class="login-btn" id="resetBtn">Set Password</button>
-    </form>
-    <div class="login-error" id="resetError"></div>
+  <div class="login-topbar">
+    <span class="login-home-link" onclick="window.location.href='index.html'">testflo</span>
   </div>
+  <div class="login-body">
+    <div class="login-card">
+      <span class="login-card-logo">testflo</span>
+      <h1 class="login-title" id="resetTitle">Set new password</h1>
+      <p class="login-sub">Choose a secure password for your account.</p>
+      <form onsubmit="submitNewPassword(); return false;">
+        <div class="login-field"><label>New Password</label><input type="password" id="newPassword" placeholder="••••••••" autocomplete="new-password" minlength="8"></div>
+        <button type="submit" class="login-btn" id="resetBtn">Set Password</button>
+      </form>
+      <div class="login-error" id="resetError"></div>
+      <div class="login-footer">
+        <a onclick="window.open('terms.html','_blank')">Terms of Service</a>
+        &nbsp;·&nbsp;
+        <a onclick="window.open('privacy.html','_blank')">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+  <div class="login-page-footer">© testflo. All rights reserved.</div>
 </div>
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
