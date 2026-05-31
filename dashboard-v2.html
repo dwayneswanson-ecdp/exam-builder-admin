@@ -1043,11 +1043,13 @@
       <!-- Tab bar -->
       <div class="subtabs" style="margin-bottom:0;">
         <div class="subtab active" id="sdTab-qa" onclick="sdSwitchTab('qa')">Q&amp;A Breakdown</div>
+        <div class="subtab" id="sdTab-log" onclick="sdSwitchTab('log')">Session Log</div>
         <div class="subtab" id="sdTab-email" onclick="sdSwitchTab('email')">Email History</div>
         <div class="subtab" id="sdTab-actions" onclick="sdSwitchTab('actions')">Actions</div>
       </div>
       <!-- Tab panels -->
       <div id="sdPane-qa" style="padding-top:18px;"></div>
+      <div id="sdPane-log" style="display:none;padding-top:18px;"></div>
       <div id="sdPane-email" style="display:none;padding-top:18px;"></div>
       <div id="sdPane-actions" style="display:none;padding-top:18px;"></div>
     </div>
@@ -2811,12 +2813,13 @@
 
   function sdSwitchTab(tab) {
     _sdTab = tab;
-    ['qa','email','actions'].forEach(t => {
+    ['qa','log','email','actions'].forEach(t => {
       document.getElementById(`sdTab-${t}`)?.classList.toggle('active', t === tab);
       const p = document.getElementById(`sdPane-${t}`);
       if (p) p.style.display = t === tab ? 'block' : 'none';
     });
     if (tab === 'qa') _sdRenderQA();
+    else if (tab === 'log') _sdRenderSessionLog();
     else if (tab === 'email') _sdRenderEmailHistory();
     else if (tab === 'actions') _sdRenderActions();
   }
@@ -2903,6 +2906,65 @@
         ${scoreBar}
       </div>
       ${sessionLogHtml}`;
+  }
+
+  function _sdRenderSessionLog() {
+    const pane = document.getElementById('sdPane-log');
+    const log = (drillCurrentAttempt && drillCurrentAttempt.session_log) || [];
+    if (!log.length) {
+      pane.innerHTML = `<div class="gq-state" style="padding:40px 0;"><div style="font-size:1.5rem;margin-bottom:8px;">📋</div><div style="font-size:0.82rem;color:#94a3b8;">No session events recorded for this attempt.</div></div>`;
+      return;
+    }
+    const flagged = ['Screenshot', 'Copy', 'Paste', 'Anti-cheat', 'Terminat'];
+    const ev = e => ((e.label || '') + ' ' + (e.detail || '')).toLowerCase();
+    const violationCount = log.filter(e => ev(e).includes('violation') || ev(e).includes('anti-cheat')).length;
+    const pasteCount     = log.filter(e => ev(e).includes('paste')).length;
+    const autoSubmitted  = log.some(e => ev(e).includes('auto') || ev(e).includes('terminé') || ev(e).includes('automatique'));
+    const modalAbuse     = log.filter(e => ev(e).includes('modal')).length > 1;
+    const suspicionCount = log.filter(e => ev(e).includes('suspendu')).length;
+    let bg, border, icon, riskLabel, bodyText;
+    if (violationCount >= 3 || (autoSubmitted && pasteCount > 0)) {
+      bg = '#fef2f2'; border = '#fecaca'; icon = '🔴'; riskLabel = 'High Risk';
+      const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', autoSubmitted ? 'auto-submitted' : ''].filter(Boolean);
+      bodyText = parts.join(' · ');
+    } else if (violationCount >= 2 || pasteCount > 0 || modalAbuse) {
+      bg = '#fefce8'; border = '#fde68a'; icon = '🟡'; riskLabel = 'Moderately Suspicious';
+      const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', modalAbuse ? 'repeated modal use' : ''].filter(Boolean);
+      bodyText = parts.join(' · ');
+    } else {
+      bg = '#f0fdf4'; border = '#bbf7d0'; icon = '🟢'; riskLabel = 'No Issues';
+      bodyText = 'No suspicious behaviour detected.';
+    }
+    const suspLine = suspicionCount > 0 ? ` &nbsp;·&nbsp; ${suspicionCount} anti-cheat suspension${suspicionCount !== 1 ? 's' : ''} logged` : '';
+    const logRows = log.map(e => {
+      const isFlagged = flagged.some(f => e.label?.includes(f));
+      return `<tr style="${isFlagged ? 'background:#fef2f2;' : ''}">
+        <td style="padding:7px 12px;border-bottom:1px solid #f1f5f9;white-space:nowrap;font-size:0.72rem;color:#64748b;">${esc(e.time || '')}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:0.78rem;font-weight:${isFlagged ? '600' : '400'};color:${isFlagged ? '#dc2626' : '#1e293b'};">${esc(e.label || '')}</td>
+        <td style="padding:7px 12px;border-bottom:1px solid #f1f5f9;font-size:0.75rem;color:#64748b;">${esc(e.detail || '')}</td>
+      </tr>`;
+    }).join('');
+    pane.innerHTML = `
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div style="background:${bg};border-bottom:2px solid ${border};padding:14px 18px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.2rem;">${icon}</span>
+          <div>
+            <div style="font-size:0.82rem;font-weight:700;color:#0f172a;">${riskLabel}</div>
+            <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">${bodyText}${suspLine}</div>
+          </div>
+          <div style="margin-left:auto;font-size:0.72rem;color:#94a3b8;">${log.length} event${log.length !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr style="background:#f8fafc;">
+              <th style="text-align:left;">Time</th>
+              <th style="text-align:left;">Event</th>
+              <th style="text-align:left;">Detail</th>
+            </tr></thead>
+            <tbody>${logRows}</tbody>
+          </table>
+        </div>
+      </div>`;
   }
 
   function _sdComputeScoreMax(attempt) {
