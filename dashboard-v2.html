@@ -185,10 +185,10 @@
     .ql-rendered p:last-child { margin-bottom:0; }
     .ql-rendered ol, .ql-rendered ul { padding-left:20px;margin:0 0 8px 0; }
     .ql-rendered ol:last-child, .ql-rendered ul:last-child { margin-bottom:0; }
-    .sd-open-card { padding:14px 16px;border-bottom:1px solid #f1f5f9; }
+    .sd-open-card { padding:22px 22px;border-bottom:1px solid #e2e8f0; }
     .sd-open-card:last-child { border-bottom:none; }
-    .sd-open-q-text { font-size:0.82rem;color:#0f172a;margin-bottom:10px; }
-    .sd-open-ans { background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:10px 12px;font-size:0.82rem;color:#0f172a;margin-bottom:10px;min-height:38px; }
+    .sd-open-q-text { font-size:0.85rem;color:#0f172a;margin-bottom:16px;line-height:1.5; }
+    .sd-open-ans { background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:12px 14px;font-size:0.84rem;color:#0f172a;margin-bottom:16px;min-height:44px;line-height:1.5; }
     .sd-criteria-toggle { font-size:0.75rem;color:#7c3aed;background:none;border:none;cursor:pointer;padding:0;margin-bottom:8px;display:inline-flex;align-items:center;gap:4px; }
     .sd-criteria-body { display:none;background:#faf5ff;border:1px solid #e9d5ff;border-radius:5px;padding:10px 12px;font-size:0.78rem;color:#5b21b6;margin-bottom:10px; }
     .sd-grade-row { display:flex;gap:14px;align-items:flex-start; }
@@ -2771,7 +2771,9 @@
       _sdQuestions = [];
       _sdSectionMap = {};
     }
+    _sdRenderMetaStrip();
     if (_sdTab === 'qa') sdSwitchTab('qa');
+    else if (_sdTab === 'overview') _sdRenderOverview();
   }
 
   function _sdRenderHeader() {
@@ -2789,7 +2791,7 @@
 
   function _sdRenderMetaStrip() {
     const a = drillCurrentAttempt;
-    const scoreMax = drillCurrentScoreMax || '?';
+    const scoreMax = _sdComputeScoreMax(a) || drillCurrentScoreMax || '?';
     const sc = calcScore(a);
     const scoreStr = a.score_mcq !== null
       ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
@@ -2827,7 +2829,7 @@
     const a = drillCurrentAttempt;
     const exam = drillCurrentExam;
     const pane = document.getElementById('sdPane-overview');
-    const scoreMax = drillCurrentScoreMax;
+    const scoreMax = _sdComputeScoreMax(a) || drillCurrentScoreMax;
     const sc = calcScore(a);
     const pct = (scoreMax && a.score_mcq !== null) ? Math.round(sc / scoreMax * 100) : null;
     const scoreStr = a.score_mcq !== null
@@ -2907,6 +2909,18 @@
       ${sessionLogHtml}`;
   }
 
+  function _sdComputeScoreMax(attempt) {
+    if (!_sdQuestions.length) return drillCurrentScoreMax || null;
+    const poolSel = (attempt && attempt.pool_selection) || {};
+    let max = 0;
+    _sdQuestions.forEach((q, i) => {
+      const sec = _sdSectionMap[i];
+      if (sec && poolSel[sec.id] && !poolSel[sec.id].includes(i)) return;
+      max += q.type === 'mcq' ? (q.max_points || 1) : (q.max_points || 5);
+    });
+    return max || drillCurrentScoreMax || null;
+  }
+
   function _sdRenderQA() {
     const pane = document.getElementById('sdPane-qa');
     if (!_sdQuestions.length) {
@@ -2917,7 +2931,7 @@
     const answersJson = a.answers_json || {};
     const openScores = a.open_scores || {};
     const openComments = a.open_comments || {};
-    const scoreMax = drillCurrentScoreMax || _sdQuestions.reduce((s, q) => s + (q.max_points || 1), 0);
+    const scoreMax = _sdComputeScoreMax(a) || '?';
     const sc = calcScore(a);
     const pct = scoreMax > 0 && a.score_mcq !== null ? Math.round(sc / scoreMax * 100) : null;
 
@@ -2952,14 +2966,14 @@
           : '';
         openCards.push(poolBannerDiv + `
           <div class="sd-open-card">
-            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Question ${i + 1}</div>
+            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Question ${i + 1}</div>
             <div class="sd-open-q-text ql-rendered">${q.question_text || '—'}</div>
-            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Student Answer</div>
+            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;">Student Answer</div>
             <div class="sd-open-ans ql-rendered">${rawAns || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
             ${criteriaHtml}
-            <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:10px;">
+            <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:16px;">
               <div>
-                <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Score</div>
+                <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Score</div>
                 <div style="display:flex;align-items:center;gap:6px;">
                   <input type="number" min="0" max="${maxPts}" step="0.5" value="${savedScore}" placeholder="—"
                     id="sd-score-${i}" data-qidx="${i}" class="sd-score-inp" onchange="sdSetOpenScore(${i}, this.value, ${maxPts})">
@@ -2969,7 +2983,7 @@
               <button class="btn-ai" onclick="sdRequestAI(this, ${i})">✦ AI Suggest</button>
             </div>
             <div class="sd-ai-box" id="ai-sd-q${i}" style="display:none;"></div>
-            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Teacher comment</div>
+            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Teacher comment</div>
             <textarea id="sd-comment-${i}" data-qidx="${i}" class="sd-comment-inp" rows="4"
               placeholder="Add a comment — visible to the student when results are sent."
               oninput="sdSetOpenComment(${i}, this.value)">${esc(savedComment)}</textarea>
