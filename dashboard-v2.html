@@ -997,8 +997,8 @@
 
     <!-- L4: Student detail view -->
     <div id="exams-l4" style="display:none;">
-      <div class="drill-nav">
-        <div class="drill-crumbs">
+      <div class="drill-nav" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div class="drill-crumbs" style="min-width:0;overflow:hidden;">
           <span class="crumb-link" onclick="examDrillBack(1)">Exams</span>
           <span class="sep">›</span>
           <span class="crumb-link" id="drillL4ExamCrumb" onclick="examDrillBack(2)"></span>
@@ -1006,6 +1006,11 @@
           <span class="crumb-link" id="drillL4GroupCrumb" onclick="examDrillBack(3)"></span>
           <span class="sep">›</span>
           <span class="crumb" id="drillL4StudentCrumb"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <button id="sdNavPrev" class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem;" onclick="sdNavPrev()">← Prev</button>
+          <span id="sdNavCounter" style="font-size:0.72rem;color:#94a3b8;min-width:40px;text-align:center;"></span>
+          <button id="sdNavNext" class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem;" onclick="sdNavNext()">Next →</button>
         </div>
       </div>
       <!-- Persistent header -->
@@ -1965,6 +1970,7 @@
   let _sdRetakeCount = 0;
   let _sdPendingScores = {};
   let _sdPendingComments = {};
+  let _sdSectionMap = {};
   let drillCurrentAttempts = [];
   let drillCurrentScoreMax = null;
   let drillSelectedIds = new Set();
@@ -2721,12 +2727,14 @@
     _sdAnswers = {};
     _sdPendingScores = {};
     _sdPendingComments = {};
+    _sdSectionMap = {};
     ['exams-l1','exams-l2','exams-l3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
     document.getElementById('exams-l4').style.display = 'block';
     document.getElementById('drillL4ExamCrumb').textContent = drillCurrentExam.title || '(Untitled)';
     document.getElementById('drillL4GroupCrumb').textContent = drillCurrentGroup || '(Default)';
     document.getElementById('drillL4StudentCrumb').textContent = fmtStudentName(attempt.student_name) || '—';
     _sdRenderHeader();
+    _sdUpdateNavButtons();
     sdSwitchTab('overview');
     _sdLoadData();
   }
@@ -2734,10 +2742,19 @@
   async function _sdLoadData() {
     if (!drillCurrentAttempt || !drillCurrentExam) return;
     try {
-      const qRes = await sb.from('questions').select('id,type,question_text,option_a,option_b,option_c,option_d,correct_index,grading_criteria,max_points,position').eq('exam_id', drillCurrentExam.id).neq('type','section').order('position', { ascending: true });
-      _sdQuestions = qRes.data || [];
+      const qRes = await sb.from('questions').select('id,type,question_text,option_a,option_b,option_c,option_d,correct_index,grading_criteria,max_points,position,pool_total,pool_draw').eq('exam_id', drillCurrentExam.id).order('position', { ascending: true });
+      const allQ = qRes.data || [];
+      const answerables = [];
+      let curSec = null;
+      _sdSectionMap = {};
+      allQ.forEach(q => {
+        if (q.type === 'section') { curSec = q; }
+        else { _sdSectionMap[answerables.length] = curSec; answerables.push(q); }
+      });
+      _sdQuestions = answerables;
     } catch(e) {
       _sdQuestions = [];
+      _sdSectionMap = {};
     }
     if (_sdTab === 'qa') sdSwitchTab('qa');
   }
@@ -2834,10 +2851,26 @@
     const sc = calcScore(a);
     const pct = scoreMax > 0 && a.score_mcq !== null ? Math.round(sc / scoreMax * 100) : null;
 
+    const poolSelection = drillCurrentAttempt.pool_selection || {};
+    const poolBannerSeen = new Set();
     const mcqRows = [];
     const openCards = [];
 
     _sdQuestions.forEach((q, i) => {
+      const sec = _sdSectionMap[i];
+      if (sec && poolSelection[sec.id] && !poolSelection[sec.id].includes(i)) return;
+
+      let poolBannerTR = '', poolBannerDiv = '';
+      if (sec && sec.pool_draw && poolSelection[sec.id] && !poolBannerSeen.has(sec.id)) {
+        poolBannerSeen.add(sec.id);
+        const drawn = poolSelection[sec.id].length;
+        const total = Object.values(_sdSectionMap).filter(s => s?.id === sec.id).length;
+        const bannerStyle = 'background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:0.7rem;font-weight:700;color:#1e40af;padding:7px 16px;letter-spacing:0.05em;text-transform:uppercase;';
+        const bannerText = `Pool — ${drawn} of ${total} questions drawn`;
+        poolBannerTR = `<tr><td colspan="6" style="${bannerStyle}">${bannerText}</td></tr>`;
+        poolBannerDiv = `<div style="${bannerStyle}">${bannerText}</div>`;
+      }
+
       const rawAns = answersJson['q' + i];
       if (q.type === 'open') {
         const savedScore = openScores[i] !== undefined ? openScores[i] : '';
@@ -2847,7 +2880,7 @@
           ? `<button class="sd-criteria-toggle" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='block'?'none':'block';this.textContent=b.style.display==='block'?'▲ Hide criteria':'▼ Grading criteria'">▼ Grading criteria</button>
              <div class="sd-criteria-body">${esc(q.grading_criteria)}</div>`
           : '';
-        openCards.push(`
+        openCards.push(poolBannerDiv + `
           <div class="sd-open-card">
             <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Question ${i + 1}</div>
             <div class="sd-open-q-text ql-rendered">${q.question_text || '—'}</div>
@@ -2881,7 +2914,7 @@
           : isCorrect === false ? '<span style="color:#dc2626;font-weight:700;">✗</span>'
           : '<span style="color:#94a3b8;">—</span>';
         const pts = earned !== '' ? `${earned} / ${q.max_points || 1}` : `— / ${q.max_points || 1}`;
-        mcqRows.push(`<tr>
+        mcqRows.push(poolBannerTR + `<tr>
           <td style="color:#94a3b8;font-size:0.75rem;width:28px;">${i + 1}</td>
           <td style="font-size:0.82rem;max-width:220px;" class="ql-rendered">${q.question_text || '—'}</td>
           <td style="font-size:0.82rem;max-width:160px;">${esc(selText)}</td>
@@ -2916,6 +2949,37 @@
           <span style="font-size:0.82rem;font-weight:600;color:#0f172a;">${totalEarned} / ${scoreMax} pts &nbsp;·&nbsp; ${pctStr}</span>
         </div>
       </div>`;
+  }
+
+  function _sdGetSortedGroupAttempts() {
+    let list = drillCurrentGroup
+      ? drillCurrentAttempts.filter(a => (a.group_name || '(Default)') === drillCurrentGroup)
+      : [...drillCurrentAttempts];
+    list.sort((a, b) => fmtStudentName(a.student_name).localeCompare(fmtStudentName(b.student_name)));
+    return list;
+  }
+
+  function _sdUpdateNavButtons() {
+    const list = _sdGetSortedGroupAttempts();
+    const idx = drillCurrentAttempt ? list.findIndex(a => a.id === drillCurrentAttempt.id) : -1;
+    const prev = document.getElementById('sdNavPrev');
+    const next = document.getElementById('sdNavNext');
+    const counter = document.getElementById('sdNavCounter');
+    if (prev) prev.disabled = idx <= 0;
+    if (next) next.disabled = idx >= list.length - 1;
+    if (counter) counter.textContent = idx >= 0 ? `${idx + 1} / ${list.length}` : '';
+  }
+
+  function sdNavPrev() {
+    const list = _sdGetSortedGroupAttempts();
+    const idx = list.findIndex(a => a.id === drillCurrentAttempt.id);
+    if (idx > 0) drillToStudent(list[idx - 1].id);
+  }
+
+  function sdNavNext() {
+    const list = _sdGetSortedGroupAttempts();
+    const idx = list.findIndex(a => a.id === drillCurrentAttempt.id);
+    if (idx < list.length - 1) drillToStudent(list[idx + 1].id);
   }
 
   function sdSetOpenScore(qIdx, val, max) {
