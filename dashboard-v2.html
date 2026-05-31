@@ -196,6 +196,21 @@
     .sd-comment-inp { flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:6px 8px;font-size:0.78rem;resize:vertical;font-family:inherit;min-height:52px; }
     .sd-save-btn { display:none;padding:6px 16px;background:#2563eb;color:#fff;border:none;border-radius:5px;font-size:0.78rem;font-weight:600;cursor:pointer;margin-bottom:14px; }
     .sd-save-btn.saved { background:#16a34a; }
+    .btn-ai { background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;font-size:0.68rem;padding:6px 12px;font-weight:700;letter-spacing:0.04em;border-radius:4px;cursor:pointer;white-space:nowrap; }
+    .btn-ai:hover { background:#ede9fe; }
+    .btn-ai:disabled { opacity:0.6;cursor:default; }
+    .sd-ai-box { background:#f5f3ff;border:1px solid #e9d5ff;border-radius:5px;padding:12px;margin-bottom:10px; }
+    .sd-ai-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:8px; }
+    .sd-ai-meta { display:flex;align-items:center;gap:8px; }
+    .sd-ai-tag { background:#7c3aed;color:#fff;font-size:0.6rem;font-weight:800;padding:2px 8px;border-radius:999px;letter-spacing:0.06em; }
+    .sd-ai-chip { font-size:0.8rem;font-weight:700;color:#7c3aed; }
+    .sd-ai-close { background:none;border:none;cursor:pointer;color:#94a3b8;display:flex;align-items:center;padding:0; }
+    .sd-ai-warn { font-size:0.72rem;color:#94a3b8;font-style:italic;margin-bottom:6px; }
+    .sd-ai-text { font-size:0.78rem;color:#374151;line-height:1.55;margin-bottom:10px; }
+    .sd-ai-actions { display:flex;gap:8px;flex-wrap:wrap; }
+    .sd-comment-inp { flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:8px 10px;font-size:0.78rem;resize:vertical;font-family:inherit;min-height:80px;width:100%;box-sizing:border-box; }
+    @keyframes sdFlash { 0%{background:#dbeafe;} 100%{background:transparent;} }
+    .sd-flash { animation:sdFlash 0.8s ease-out; }
     .sd-timeline { list-style:none;margin:0;padding:0; }
     .sd-timeline-item { display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;cursor:pointer; }
     .sd-timeline-item:last-child { border-bottom:none; }
@@ -2942,21 +2957,22 @@
             <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Student Answer</div>
             <div class="sd-open-ans ql-rendered">${rawAns || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
             ${criteriaHtml}
-            <div class="sd-grade-row">
+            <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:10px;">
               <div>
                 <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Score</div>
                 <div style="display:flex;align-items:center;gap:6px;">
                   <input type="number" min="0" max="${maxPts}" step="0.5" value="${savedScore}" placeholder="—"
-                    class="sd-score-inp" onchange="sdSetOpenScore(${i}, this.value, ${maxPts})">
+                    id="sd-score-${i}" data-qidx="${i}" class="sd-score-inp" onchange="sdSetOpenScore(${i}, this.value, ${maxPts})">
                   <span style="font-size:0.78rem;color:#64748b;">/ ${maxPts}</span>
                 </div>
               </div>
-              <div style="flex:1;">
-                <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Teacher comment</div>
-                <textarea class="sd-comment-inp" rows="2" placeholder="Optional feedback…"
-                  onchange="sdSetOpenComment(${i}, this.value)">${esc(savedComment)}</textarea>
-              </div>
+              <button class="btn-ai" onclick="sdRequestAI(this, ${i})">✦ AI Suggest</button>
             </div>
+            <div class="sd-ai-box" id="ai-sd-q${i}" style="display:none;"></div>
+            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Teacher comment</div>
+            <textarea id="sd-comment-${i}" data-qidx="${i}" class="sd-comment-inp" rows="4"
+              placeholder="Add a comment — visible to the student when results are sent."
+              onchange="sdSetOpenComment(${i}, this.value)">${esc(savedComment)}</textarea>
           </div>`);
       } else {
         const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
@@ -3047,6 +3063,117 @@
     _sdPendingComments[qIdx] = val;
     const btn = document.getElementById('sdSaveBtn');
     if (btn) { btn.style.display = 'inline-block'; btn.textContent = 'Save grades'; btn.classList.remove('saved'); btn.disabled = false; }
+  }
+
+  function sdFlash(el) {
+    if (!el) return;
+    el.classList.remove('sd-flash');
+    void el.offsetWidth;
+    el.classList.add('sd-flash');
+  }
+
+  function sdApplyScore(qIdx, score) {
+    const inp = document.getElementById('sd-score-' + qIdx);
+    if (inp) { inp.value = score; sdFlash(inp); sdSetOpenScore(qIdx, score, parseFloat(inp.max) || 5); }
+  }
+
+  function sdApplyComment(qIdx, comment) {
+    const ta = document.getElementById('sd-comment-' + qIdx);
+    if (ta) { ta.value = comment; sdFlash(ta); sdSetOpenComment(qIdx, comment); }
+  }
+
+  function sdUpdateConfirmAllBtn() {
+    const visible = [...document.querySelectorAll('.sd-ai-box')].filter(el => el.style.display !== 'none' && el.style.display !== '');
+    let bar = document.getElementById('sdConfirmAllBar');
+    if (visible.length > 0) {
+      if (!bar) {
+        bar = document.createElement('div');
+        bar.id = 'sdConfirmAllBar';
+        bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0f172a;padding:12px 40px;display:flex;align-items:center;justify-content:flex-end;gap:14px;z-index:500;border-top:1px solid rgba(255,255,255,0.1);';
+        bar.innerHTML = `<span id="sdConfirmAllLabel" style="font-size:0.78rem;color:#94a3b8;"></span>
+          <button class="btn btn-primary" onclick="sdConfirmAllGrades()" style="font-size:0.82rem;padding:10px 22px;">Confirm all grades</button>`;
+        document.body.appendChild(bar);
+      }
+      const label = document.getElementById('sdConfirmAllLabel');
+      if (label) label.textContent = visible.length + ' AI suggestion' + (visible.length !== 1 ? 's' : '') + ' pending';
+      bar.style.display = 'flex';
+    } else {
+      if (bar) bar.style.display = 'none';
+    }
+  }
+
+  async function sdConfirmAllGrades() {
+    const boxes = [...document.querySelectorAll('.sd-ai-box')].filter(el => el.style.display !== 'none' && el.style.display !== '');
+    boxes.forEach(box => {
+      const qIdx = parseInt(box.dataset.qidx, 10);
+      const suggested = box.dataset.suggestedScore;
+      if (!isNaN(qIdx) && suggested !== undefined && suggested !== '—') {
+        const inp = document.getElementById('sd-score-' + qIdx);
+        if (inp && inp.value.trim() === '') {
+          inp.value = suggested;
+          sdFlash(inp);
+          sdSetOpenScore(qIdx, suggested, parseFloat(inp.max) || 5);
+        }
+      }
+    });
+    await sdSaveGrades();
+    boxes.forEach(box => { box.style.display = 'none'; });
+    sdUpdateConfirmAllBtn();
+  }
+
+  async function sdRequestAI(btn, qIdx) {
+    const q = _sdQuestions[qIdx];
+    if (!q) { showToast('Question not found.'); return; }
+    const answersJson = drillCurrentAttempt.answers_json || {};
+    const studentAnswer = answersJson['q' + qIdx] || '';
+    if (!studentAnswer) { showToast('No student answer to evaluate.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = '… Thinking';
+
+    const aiBox = document.getElementById('ai-sd-q' + qIdx);
+    const maxPts = q.max_points || 5;
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/grade-open-question`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_KEY}` },
+        body: JSON.stringify({ question: q.question_text, answer: studentAnswer, criteria: q.grading_criteria || '', max_points: maxPts })
+      });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || `HTTP ${res.status}`); }
+      const data = await res.json();
+      const suggestedScore = data.score ?? '—';
+      const rationale      = data.rationale || '';
+      const comment        = data.comment   || '';
+
+      if (aiBox) {
+        aiBox.dataset.suggestedScore = suggestedScore;
+        aiBox.dataset.qidx = qIdx;
+        aiBox.innerHTML = `
+          <div class="sd-ai-head">
+            <div class="sd-ai-meta">
+              <span class="sd-ai-tag">AI</span>
+              <span class="sd-ai-chip">${esc(String(suggestedScore))} / ${maxPts}</span>
+            </div>
+            <button class="sd-ai-close" onclick="this.closest('.sd-ai-box').style.display='none';sdUpdateConfirmAllBtn();" title="Dismiss">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="sd-ai-warn">AI-generated — verify before applying.</div>
+          <div class="sd-ai-text">${esc(rationale)}</div>
+          <div class="sd-ai-actions">
+            <button class="btn btn-ghost btn-sm" onclick="sdApplyScore(${qIdx}, '${suggestedScore}')">Use score (${suggestedScore} / ${maxPts})</button>
+            <button class="btn btn-ghost btn-sm" onclick="sdApplyComment(${qIdx}, ${JSON.stringify(comment).replace(/"/g,'&quot;')})">Use comment</button>
+          </div>`;
+        aiBox.style.display = 'block';
+        sdUpdateConfirmAllBtn();
+      }
+    } catch(e) {
+      console.error('AI grading error:', e);
+      showToast('AI suggestion failed — please try again.');
+    }
+    btn.disabled = false;
+    btn.textContent = '✦ AI Suggest';
   }
 
   async function sdSaveGrades() {
