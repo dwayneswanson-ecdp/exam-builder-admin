@@ -3081,6 +3081,21 @@
     }
     closeTicketModal();
     showToast('Issue reported — we\'ll look into it shortly.');
+    fetch(SEND_EMAIL_FN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type:          'ticket',
+        to_email:      SUPER_ADMIN_EMAIL,
+        subject:       `New ticket — ${payload.category} from ${payload.teacher_name}`,
+        teacher_name:  payload.teacher_name,
+        teacher_email: payload.teacher_email,
+        category:      payload.category,
+        student_email: payload.student_email || '',
+        description:   payload.description,
+        submitted_at:  new Date().toLocaleString()
+      })
+    }).catch(() => {});
   }
 
   async function loadInstitutions() {

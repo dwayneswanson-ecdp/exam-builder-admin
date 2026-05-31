@@ -32,6 +32,13 @@ Deno.serve(async (req) => {
         : `Invitation à l'examen — ${p.exam_title}`;
       payload = { from: FROM, to: [p.to_email], subject, html: inviteHtml(p, lang) };
       if (p.reply_to) payload.reply_to = p.reply_to;
+    } else if (type === "ticket") {
+      payload = {
+        from: FROM,
+        to: [p.to_email as string],
+        subject: String(p.subject || `New ticket from ${p.teacher_name}`),
+        html: ticketHtml(p as Record<string, string>),
+      };
     } else {
       return respond({ error: "Unknown type" }, 400);
     }
@@ -524,6 +531,30 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
   </div>`;
 
   return emailShell(content, lang);
+}
+
+// ── Ticket notification email ─────────────────────────────────────────────────
+
+function ticketHtml(p: Record<string, string>): string {
+  const studentRow = p.student_email
+    ? `<tr><td style="padding:8px 0;font-size:0.82rem;color:#94a3b8;width:130px;">Student</td><td style="padding:8px 0;font-size:0.82rem;color:#0f172a;">${esc(p.student_email)}</td></tr>`
+    : '';
+  const content = `
+  <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;">
+    <p style="margin:0 0 6px;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">Support Ticket</p>
+    <h2 style="margin:0 0 24px;font-size:1.1rem;font-weight:700;color:#0f172a;">${esc(p.category || 'Issue reported')}</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+      <tr><td style="padding:8px 0;font-size:0.82rem;color:#94a3b8;width:130px;">From</td><td style="padding:8px 0;font-size:0.82rem;color:#0f172a;font-weight:600;">${esc(p.teacher_name || '—')}</td></tr>
+      <tr><td style="padding:8px 0;font-size:0.82rem;color:#94a3b8;">Email</td><td style="padding:8px 0;font-size:0.82rem;"><a href="mailto:${esc(p.teacher_email || '')}" style="color:#2563eb;text-decoration:none;">${esc(p.teacher_email || '—')}</a></td></tr>
+      ${studentRow}
+      <tr><td style="padding:8px 0;font-size:0.82rem;color:#94a3b8;">Submitted</td><td style="padding:8px 0;font-size:0.82rem;color:#94a3b8;">${esc(p.submitted_at || '')}</td></tr>
+    </table>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;padding:16px 20px;">
+      <p style="margin:0 0 6px;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">Description</p>
+      <p style="margin:0;font-size:0.88rem;color:#0f172a;line-height:1.7;white-space:pre-wrap;">${esc(p.description || '—')}</p>
+    </div>
+  </div>`;
+  return emailShell(content, "en");
 }
 
 // ── HTML escape ───────────────────────────────────────────────────────────────
