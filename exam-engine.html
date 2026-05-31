@@ -489,6 +489,8 @@
   let currentPage = 0;
   let POOL_SELECTION = {}; // { sectionId: [nonSectionQIdx, ...] } — fixed at exam start
   let isReconnect = false;
+  let autosaveTimer = null;
+  let lastSavedAnswers = null;
   let VISIBLE_TOTAL = 0; // count of questions visible after pool selection
   let urlGroup = null;   // pre-selected group from ?group= URL param
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
@@ -856,6 +858,7 @@
       sessionToken = startRes.session_token;
       EXAM.id      = startRes.exam_id;
       console.log('exam started', { attemptId, sessionToken });
+      startAutosave();
       localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
       localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
@@ -1556,9 +1559,47 @@
     logEvent('Exit warning shown', source + ' – violation #' + violationCount);
   }
 
+  function collectCurrentAnswers() {
+    const answers = {};
+    QUESTIONS.forEach((q, idx) => {
+      if (q.type === 'mcq') {
+        const checked = document.querySelector(`input[name="q${idx}"]:checked`);
+        const selectedLabel = checked ? checked.closest('label') : null;
+        answers['q' + idx] = selectedLabel ? parseInt(selectedLabel.dataset.originalIndex) : -1;
+      } else if (q.type === 'open') {
+        const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
+        const quill = card ? card._quill : null;
+        answers['q' + idx] = quill ? quill.root.innerHTML : '';
+      }
+    });
+    return answers;
+  }
+
+  function startAutosave() {
+    if (autosaveTimer) clearInterval(autosaveTimer);
+    autosaveTimer = setInterval(async () => {
+      if (!attemptId || !sessionToken || examSubmitted || !examActive) return;
+      const currentAnswers = collectCurrentAnswers();
+      const answersJson = JSON.stringify(currentAnswers);
+      if (answersJson === lastSavedAnswers) return;
+      try {
+        await efFetch('exam-autosave', {
+          attempt_id:       attemptId,
+          session_token:    sessionToken,
+          answers_json:     currentAnswers,
+          last_autosave_at: new Date().toISOString()
+        });
+        lastSavedAnswers = answersJson;
+      } catch (e) {
+        // silent failure — never interrupt the student
+      }
+    }, 30000);
+  }
+
   function terminateExam(msg) {
     if (!examActive) return;
     examActive = false;
+    if (autosaveTimer) { clearInterval(autosaveTimer); autosaveTimer = null; }
     clearInterval(timerInterval);
     if (exitCountdownTimer) { clearInterval(exitCountdownTimer); exitCountdownTimer = null; }
     setOverlayActive(false);
@@ -1702,6 +1743,7 @@
     if (examSubmitted) { console.log('submitExam: already submitted, returning'); return; }
     examSubmitted = true;
     examActive = false;
+    if (autosaveTimer) { clearInterval(autosaveTimer); autosaveTimer = null; }
     clearInterval(timerInterval);
 
     // Show immediate feedback — don't leave user waiting silently
