@@ -1,7 +1,13 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const RESEND_KEY  = Deno.env.get("RESEND_API_KEY") ?? "";
 const FROM        = Deno.env.get("RESEND_FROM") ?? "onboarding@resend.dev";
+
+const supabaseAdmin = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -53,6 +59,20 @@ Deno.serve(async (req) => {
     });
 
     const data = await r.json();
+
+    if (r.ok) {
+      // Fire-and-forget log — never block the response
+      supabaseAdmin.from("email_logs").insert({
+        type,
+        to_email:   p.to_email   || null,
+        exam_id:    p.exam_id    || null,
+        attempt_id: p.attempt_id || null,
+        teacher_id: p.teacher_id || null,
+        resend_id:  data.id      || null,
+        status:     "sent",
+      }).then(() => {}).catch(() => {});
+    }
+
     return respond(r.ok ? { id: data.id } : { error: data }, r.ok ? 200 : r.status);
   } catch (e) {
     return respond({ error: String(e) }, 500);
