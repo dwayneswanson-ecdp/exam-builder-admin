@@ -2214,25 +2214,69 @@
     </div>
   </section>
 
-  <!-- ── SUPER ADMIN ALL EXAMS (placeholder) ──────────────────────── -->
+  <!-- ── SUPER ADMIN ALL EXAMS ────────────────────────────────────── -->
   <section class="section" id="section-sa-all-exams">
     <div class="page-header">
       <div class="page-title">All Exams</div>
-      <div class="page-sub">All published exams across all institutions.</div>
+      <div class="page-sub">All exams across all institutions.</div>
     </div>
-    <div class="card" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.85rem;">
-      Coming soon — this view is being built.
+    <div class="card">
+      <div class="card-header" style="padding-bottom:12px;">
+        <input id="saExam-search" type="text" placeholder="Search by exam title or teacher…"
+               oninput="_saExamFilter()"
+               style="width:100%;max-width:340px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.82rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Exam Title</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Teacher</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Institution</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:0.05em;">Questions</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:center;text-transform:uppercase;letter-spacing:0.05em;">Groups</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Created</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="saExam-body">
+            <tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
-  <!-- ── SUPER ADMIN ALL SUBMISSIONS (placeholder) ─────────────────── -->
+  <!-- ── SUPER ADMIN ALL SUBMISSIONS ───────────────────────────────── -->
   <section class="section" id="section-sa-all-submissions">
     <div class="page-header">
       <div class="page-title">All Submissions</div>
-      <div class="page-sub">All exam submissions across all institutions.</div>
+      <div class="page-sub">All student submissions across all institutions.</div>
     </div>
-    <div class="card" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.85rem;">
-      Coming soon — this view is being built.
+    <div class="card">
+      <div class="card-header" style="padding-bottom:12px;">
+        <input id="saSub-search" type="text" placeholder="Search by student name or exam title…"
+               oninput="_saSubFilter()"
+               style="width:100%;max-width:340px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.82rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;">
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Student</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Exam</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Institution</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Group</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Score</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Submitted</th>
+            </tr>
+          </thead>
+          <tbody id="saSub-body">
+            <tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -2803,8 +2847,8 @@
     else if (nav === 'sa-dashboard') loadSaDashboard();
     else if (nav === 'sa-teachers') loadSaTeachers();
     else if (nav === 'sa-tickets') loadSaTickets();
-    else if (nav === 'sa-all-exams') {}
-    else if (nav === 'sa-all-submissions') {}
+    else if (nav === 'sa-all-exams') loadSaAllExams();
+    else if (nav === 'sa-all-submissions') loadSaAllSubmissions();
     else if (nav === 'institutions') loadInstitutions();
     else if (nav === 'sa-institution-detail') loadSaInstitutionDetail(currentEntityId);
     else if (nav === 'admin-view') loadAdminDashboard();
@@ -3109,6 +3153,114 @@
   function _saTeachFilter() {
     const q = (document.getElementById('saTeach-search')?.value || '').toLowerCase().trim();
     document.querySelectorAll('#saTeach-body tr[data-search]').forEach(row => {
+      row.style.display = (!q || row.dataset.search.includes(q)) ? '' : 'none';
+    });
+  }
+
+  // ── ALL EXAMS (super admin) ───────────────────────────────────────
+
+  let _saExamRows = [];
+
+  async function loadSaAllExams() {
+    const body = document.getElementById('saExam-body');
+    if (body) body.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
+    const searchEl = document.getElementById('saExam-search');
+    if (searchEl) searchEl.value = '';
+
+    const { data: exams } = await sb.from('exams')
+      .select('id, title, created_at, status, groups, teachers(full_name, institution_teachers(institutions(name)))')
+      .order('created_at', { ascending: false });
+
+    if (!exams?.length) {
+      if (body) body.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No exams published yet.</td></tr>`;
+      return;
+    }
+
+    // Batch-fetch question counts
+    const examIds = exams.map(e => e.id);
+    const { data: qRows } = await sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds);
+    const qCount = {};
+    (qRows || []).forEach(q => { qCount[q.exam_id] = (qCount[q.exam_id] || 0) + 1; });
+
+    const statusBadge = s => s === 'published'
+      ? `<span style="background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Published</span>`
+      : `<span style="background:#fef3c7;color:#92400e;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Draft</span>`;
+
+    _saExamRows = exams.map(e => {
+      const teacher   = e.teachers?.full_name || '—';
+      const inst      = e.teachers?.institution_teachers?.[0]?.institutions?.name || '—';
+      let   gCount    = 0;
+      try { gCount = JSON.parse(e.groups || '[]').length; } catch(_) {}
+      const search    = `${e.title||''} ${teacher}`.toLowerCase();
+      return { html: `<tr data-search="${search}" style="border-bottom:1px solid #f1f5f9;">
+        <td style="padding:10px 14px;font-weight:500;">${esc(e.title || '—')}</td>
+        <td style="padding:10px 14px;color:#64748b;">${esc(teacher)}</td>
+        <td style="padding:10px 14px;">${esc(inst)}</td>
+        <td style="padding:10px 14px;color:#64748b;text-align:center;">${qCount[e.id] || 0}</td>
+        <td style="padding:10px 14px;color:#64748b;text-align:center;">${gCount}</td>
+        <td style="padding:10px 14px;color:#94a3b8;">${e.created_at ? _relTime(e.created_at) : '—'}</td>
+        <td style="padding:10px 14px;">${statusBadge(e.status)}</td>
+      </tr>` };
+    });
+
+    if (body) body.innerHTML = _saExamRows.map(r => r.html).join('');
+  }
+
+  function _saExamFilter() {
+    const q = (document.getElementById('saExam-search')?.value || '').toLowerCase().trim();
+    document.querySelectorAll('#saExam-body tr[data-search]').forEach(row => {
+      row.style.display = (!q || row.dataset.search.includes(q)) ? '' : 'none';
+    });
+  }
+
+  // ── ALL SUBMISSIONS (super admin) ─────────────────────────────────
+
+  let _saSubRows = [];
+
+  async function loadSaAllSubmissions() {
+    const body = document.getElementById('saSub-body');
+    if (body) body.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
+    const searchEl = document.getElementById('saSub-search');
+    if (searchEl) searchEl.value = '';
+
+    const { data: attempts } = await sb.from('exam_attempts')
+      .select('id, student_name, group_name, score_mcq, status, submitted_at, exams(title, teachers(institution_teachers(institutions(name))))')
+      .not('submitted_at', 'is', null)
+      .order('submitted_at', { ascending: false });
+
+    if (!attempts?.length) {
+      if (body) body.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No submissions yet.</td></tr>`;
+      return;
+    }
+
+    const statusBadge = s => {
+      if (s === 'graded')    return `<span style="background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Graded</span>`;
+      if (s === 'submitted') return `<span style="background:#dbeafe;color:#1d4ed8;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Submitted</span>`;
+      return `<span style="background:#fef3c7;color:#92400e;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Pending</span>`;
+    };
+
+    _saSubRows = attempts.map(a => {
+      const exam   = a.exams?.title || '—';
+      const inst   = a.exams?.teachers?.institution_teachers?.[0]?.institutions?.name || '—';
+      const score  = a.score_mcq != null ? `${a.score_mcq} / 20` : '—';
+      const search = `${a.student_name||''} ${exam}`.toLowerCase();
+      return { html: `<tr data-search="${search}" style="border-bottom:1px solid #f1f5f9;">
+        <td style="padding:10px 14px;font-weight:500;">${esc(a.student_name || '—')}</td>
+        <td style="padding:10px 14px;color:#64748b;">${esc(exam)}</td>
+        <td style="padding:10px 14px;">${esc(inst)}</td>
+        <td style="padding:10px 14px;color:#64748b;">${esc(a.group_name || '—')}</td>
+        <td style="padding:10px 14px;color:#64748b;">${score}</td>
+        <td style="padding:10px 14px;">${statusBadge(a.status)}</td>
+        <td style="padding:10px 14px;color:#94a3b8;">${a.submitted_at ? _relTime(a.submitted_at) : '—'}</td>
+      </tr>` };
+    });
+
+    if (body) body.innerHTML = _saSubRows.map(r => r.html).join('');
+  }
+
+  function _saSubFilter() {
+    const q = (document.getElementById('saSub-search')?.value || '').toLowerCase().trim();
+    document.querySelectorAll('#saSub-body tr[data-search]').forEach(row => {
       row.style.display = (!q || row.dataset.search.includes(q)) ? '' : 'none';
     });
   }
