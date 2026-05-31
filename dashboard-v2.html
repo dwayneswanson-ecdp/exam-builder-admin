@@ -181,6 +181,21 @@
     /* ── Student detail (L4) ── */
     .sd-score-bar-track { height:8px;background:#f1f5f9;border-radius:9999px;overflow:hidden;margin-top:6px; }
     .sd-score-bar-fill { height:100%;border-radius:9999px;transition:width 0.4s ease-out; }
+    .ql-rendered p { margin:0 0 8px 0; }
+    .ql-rendered p:last-child { margin-bottom:0; }
+    .ql-rendered ol, .ql-rendered ul { padding-left:20px;margin:0 0 8px 0; }
+    .ql-rendered ol:last-child, .ql-rendered ul:last-child { margin-bottom:0; }
+    .sd-open-card { padding:14px 16px;border-bottom:1px solid #f1f5f9; }
+    .sd-open-card:last-child { border-bottom:none; }
+    .sd-open-q-text { font-size:0.82rem;color:#0f172a;margin-bottom:10px; }
+    .sd-open-ans { background:#f8fafc;border:1px solid #e2e8f0;border-radius:5px;padding:10px 12px;font-size:0.82rem;color:#0f172a;margin-bottom:10px;min-height:38px; }
+    .sd-criteria-toggle { font-size:0.75rem;color:#7c3aed;background:none;border:none;cursor:pointer;padding:0;margin-bottom:8px;display:inline-flex;align-items:center;gap:4px; }
+    .sd-criteria-body { display:none;background:#faf5ff;border:1px solid #e9d5ff;border-radius:5px;padding:10px 12px;font-size:0.78rem;color:#5b21b6;margin-bottom:10px; }
+    .sd-grade-row { display:flex;gap:14px;align-items:flex-start; }
+    .sd-score-inp { width:56px;border:1px solid #e2e8f0;border-radius:4px;padding:5px 8px;font-size:0.82rem;text-align:center;font-family:inherit; }
+    .sd-comment-inp { flex:1;border:1px solid #e2e8f0;border-radius:4px;padding:6px 8px;font-size:0.78rem;resize:vertical;font-family:inherit;min-height:52px; }
+    .sd-save-btn { display:none;padding:6px 16px;background:#2563eb;color:#fff;border:none;border-radius:5px;font-size:0.78rem;font-weight:600;cursor:pointer;margin-bottom:14px; }
+    .sd-save-btn.saved { background:#16a34a; }
     .sd-timeline { list-style:none;margin:0;padding:0; }
     .sd-timeline-item { display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9;cursor:pointer; }
     .sd-timeline-item:last-child { border-bottom:none; }
@@ -1948,6 +1963,8 @@
   let _sdAnswers = {};
   let _sdTab = 'overview';
   let _sdRetakeCount = 0;
+  let _sdPendingScores = {};
+  let _sdPendingComments = {};
   let drillCurrentAttempts = [];
   let drillCurrentScoreMax = null;
   let drillSelectedIds = new Set();
@@ -2702,6 +2719,8 @@
     _sdRetakeCount = 0;
     _sdQuestions = [];
     _sdAnswers = {};
+    _sdPendingScores = {};
+    _sdPendingComments = {};
     ['exams-l1','exams-l2','exams-l3'].forEach(id => { document.getElementById(id).style.display = 'none'; });
     document.getElementById('exams-l4').style.display = 'block';
     document.getElementById('drillL4ExamCrumb').textContent = drillCurrentExam.title || '(Untitled)';
@@ -2810,58 +2829,131 @@
     const a = drillCurrentAttempt;
     const answersJson = a.answers_json || {};
     const openScores = a.open_scores || {};
+    const openComments = a.open_comments || {};
     const scoreMax = drillCurrentScoreMax || _sdQuestions.reduce((s, q) => s + (q.max_points || 1), 0);
     const sc = calcScore(a);
     const pct = scoreMax > 0 && a.score_mcq !== null ? Math.round(sc / scoreMax * 100) : null;
-    const rows = _sdQuestions.map((q, i) => {
-      const isOpen = q.type === 'open';
+
+    const mcqRows = [];
+    const openCards = [];
+
+    _sdQuestions.forEach((q, i) => {
       const rawAns = answersJson['q' + i];
-      let studentAns, correctAns, isCorrect, earned;
-      if (isOpen) {
-        studentAns = rawAns ? esc(rawAns) : '<span style="color:#94a3b8;font-size:0.78rem;">No answer</span>';
-        correctAns = '<span style="color:#94a3b8;font-size:0.78rem;">Open-ended</span>';
-        earned = openScores[i] !== undefined ? openScores[i] : '';
-        isCorrect = null;
+      if (q.type === 'open') {
+        const savedScore = openScores[i] !== undefined ? openScores[i] : '';
+        const savedComment = openComments[i] || '';
+        const maxPts = q.max_points || 5;
+        const criteriaHtml = q.grading_criteria
+          ? `<button class="sd-criteria-toggle" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='block'?'none':'block';this.textContent=b.style.display==='block'?'▲ Hide criteria':'▼ Grading criteria'">▼ Grading criteria</button>
+             <div class="sd-criteria-body">${esc(q.grading_criteria)}</div>`
+          : '';
+        openCards.push(`
+          <div class="sd-open-card">
+            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Question ${i + 1}</div>
+            <div class="sd-open-q-text ql-rendered">${q.question_text || '—'}</div>
+            <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px;">Student Answer</div>
+            <div class="sd-open-ans ql-rendered">${rawAns || '<em style="color:#cbd5e1;">No answer provided</em>'}</div>
+            ${criteriaHtml}
+            <div class="sd-grade-row">
+              <div>
+                <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Score</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="number" min="0" max="${maxPts}" step="0.5" value="${savedScore}" placeholder="—"
+                    class="sd-score-inp" onchange="sdSetOpenScore(${i}, this.value, ${maxPts})">
+                  <span style="font-size:0.78rem;color:#64748b;">/ ${maxPts}</span>
+                </div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Teacher comment</div>
+                <textarea class="sd-comment-inp" rows="2" placeholder="Optional feedback…"
+                  onchange="sdSetOpenComment(${i}, this.value)">${esc(savedComment)}</textarea>
+              </div>
+            </div>
+          </div>`);
       } else {
         const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
         const selIdx = parseInt(rawAns, 10);
         const selText = !isNaN(selIdx) ? (opts[selIdx] || '—') : '—';
         const correctText = opts[q.correct_index] || '—';
-        studentAns = esc(selText);
-        correctAns = esc(correctText);
-        isCorrect = a.score_mcq !== null && !isNaN(selIdx) ? (selIdx === q.correct_index) : null;
-        earned = isCorrect === true ? (q.max_points || 1) : isCorrect === false ? 0 : '';
+        const isCorrect = a.score_mcq !== null && !isNaN(selIdx) ? (selIdx === q.correct_index) : null;
+        const earned = isCorrect === true ? (q.max_points || 1) : isCorrect === false ? 0 : '';
+        const result = isCorrect === true ? '<span style="color:#16a34a;font-weight:700;">✓</span>'
+          : isCorrect === false ? '<span style="color:#dc2626;font-weight:700;">✗</span>'
+          : '<span style="color:#94a3b8;">—</span>';
+        const pts = earned !== '' ? `${earned} / ${q.max_points || 1}` : `— / ${q.max_points || 1}`;
+        mcqRows.push(`<tr>
+          <td style="color:#94a3b8;font-size:0.75rem;width:28px;">${i + 1}</td>
+          <td style="font-size:0.82rem;max-width:220px;" class="ql-rendered">${q.question_text || '—'}</td>
+          <td style="font-size:0.82rem;max-width:160px;">${esc(selText)}</td>
+          <td style="font-size:0.82rem;color:#64748b;max-width:160px;">${esc(correctText)}</td>
+          <td style="text-align:center;">${result}</td>
+          <td style="text-align:right;font-size:0.82rem;color:#64748b;white-space:nowrap;">${pts}</td>
+        </tr>`);
       }
-      const pendingGrade = isOpen && a.score_mcq === null;
-      const studentAnsDisplay = pendingGrade
-        ? `<span style="color:#f59e0b;font-size:0.78rem;">Awaiting review</span>`
-        : studentAns;
-      const result = pendingGrade
-        ? '<span style="color:#f59e0b;">—</span>'
-        : isCorrect === true ? '<span style="color:#16a34a;font-weight:700;">✓</span>'
-        : isCorrect === false ? '<span style="color:#dc2626;font-weight:700;">✗</span>'
-        : '<span style="color:#94a3b8;">—</span>';
-      const possible = q.max_points || 1;
-      const pts = earned !== '' ? `${earned} / ${possible}` : `— / ${possible}`;
-      return `<tr>
-        <td style="color:#94a3b8;font-size:0.75rem;width:28px;">${i+1}</td>
-        <td style="font-size:0.82rem;max-width:220px;">${esc(q.question_text||'—')}</td>
-        <td style="font-size:0.82rem;max-width:160px;">${studentAnsDisplay}</td>
-        <td style="font-size:0.82rem;color:#64748b;max-width:160px;">${correctAns}</td>
-        <td style="text-align:center;">${result}</td>
-        <td style="text-align:right;font-size:0.82rem;color:#64748b;white-space:nowrap;">${pts}</td>
-      </tr>`;
-    }).join('');
+    });
+
     const totalEarned = a.score_mcq !== null ? (Number.isInteger(sc) ? sc : sc.toFixed(1)) : '—';
     const pctStr = pct !== null ? `${pct}%` : '—';
-    pane.innerHTML = `<div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>#</th><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th style="text-align:center;">Result</th><th style="text-align:right;">Points</th></tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot><tr>
-        <td colspan="5" style="text-align:right;font-weight:600;font-size:0.82rem;color:#0f172a;border-top:2px solid #e2e8f0;padding:12px 8px;">Total: ${totalEarned} / ${scoreMax} points</td>
-        <td style="text-align:right;font-weight:600;font-size:0.82rem;color:#0f172a;border-top:2px solid #e2e8f0;padding:12px 8px;">${pctStr}</td>
-      </tr></tfoot>
-    </table></div></div>`;
+    const hasOpen = openCards.length > 0;
+    const hasMCQ = mcqRows.length > 0;
+
+    pane.innerHTML = `
+      <button class="sd-save-btn" id="sdSaveBtn" onclick="sdSaveGrades()">Save grades</button>
+      <div class="card" style="padding:0;overflow:hidden;">
+        ${hasMCQ ? `
+          <div style="padding:12px 16px 0;font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;">Multiple Choice</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Question</th><th>Student Answer</th><th>Correct Answer</th><th style="text-align:center;">Result</th><th style="text-align:right;">Points</th></tr></thead>
+              <tbody>${mcqRows.join('')}</tbody>
+            </table>
+          </div>` : ''}
+        ${hasOpen ? `
+          <div style="padding:12px 16px 0;font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;${hasMCQ ? 'border-top:1px solid #e2e8f0;' : ''}">Open Questions</div>
+          ${openCards.join('')}` : ''}
+        <div style="border-top:2px solid #e2e8f0;padding:12px 16px;display:flex;justify-content:flex-end;gap:16px;">
+          <span style="font-size:0.82rem;color:#64748b;">Total</span>
+          <span style="font-size:0.82rem;font-weight:600;color:#0f172a;">${totalEarned} / ${scoreMax} pts &nbsp;·&nbsp; ${pctStr}</span>
+        </div>
+      </div>`;
+  }
+
+  function sdSetOpenScore(qIdx, val, max) {
+    _sdPendingScores[qIdx] = val === '' ? null : Math.min(parseFloat(val) || 0, max);
+    const btn = document.getElementById('sdSaveBtn');
+    if (btn) { btn.style.display = 'inline-block'; btn.textContent = 'Save grades'; btn.classList.remove('saved'); btn.disabled = false; }
+  }
+
+  function sdSetOpenComment(qIdx, val) {
+    _sdPendingComments[qIdx] = val;
+    const btn = document.getElementById('sdSaveBtn');
+    if (btn) { btn.style.display = 'inline-block'; btn.textContent = 'Save grades'; btn.classList.remove('saved'); btn.disabled = false; }
+  }
+
+  async function sdSaveGrades() {
+    if (!drillCurrentAttempt) return;
+    const btn = document.getElementById('sdSaveBtn');
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    const a = drillCurrentAttempt;
+    const openScores = Object.assign({}, a.open_scores || {});
+    const openComments = Object.assign({}, a.open_comments || {});
+    Object.entries(_sdPendingScores).forEach(([k, v]) => {
+      if (v === null) delete openScores[k]; else openScores[k] = parseFloat(v);
+    });
+    Object.entries(_sdPendingComments).forEach(([k, v]) => { openComments[k] = v; });
+    const { error } = await sb.from('exam_attempts').update({ open_scores: openScores, open_comments: openComments }).eq('id', a.id);
+    if (!error) {
+      drillCurrentAttempt.open_scores = openScores;
+      drillCurrentAttempt.open_comments = openComments;
+      _sdPendingScores = {};
+      _sdPendingComments = {};
+      if (btn) { btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
+      _sdRenderMetaStrip();
+      setTimeout(() => { if (btn) { btn.style.display = 'none'; btn.classList.remove('saved'); btn.disabled = false; } }, 2200);
+    } else {
+      if (btn) { btn.textContent = 'Save grades'; btn.disabled = false; }
+      showToast('Failed to save — please try again.');
+    }
   }
 
   function _sdRenderEmailHistory() {
