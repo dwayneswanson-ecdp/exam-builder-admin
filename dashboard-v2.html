@@ -2826,6 +2826,60 @@
         <div class="sd-score-bar-track"><div class="sd-score-bar-fill" style="width:${pct}%;background:${barColor};"></div></div>
         <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">${pct}% &nbsp;·&nbsp; ${esc(scoreStr)}</div>
       </div>` : '';
+    // Session log
+    const log = a.session_log || [];
+    let sessionLogHtml = '';
+    if (log.length > 0) {
+      const flagged = ['Screenshot', 'Copy', 'Paste', 'Anti-cheat', 'Terminat'];
+      const ev = e => ((e.label || '') + ' ' + (e.detail || '')).toLowerCase();
+      const hasSuspicious = log.some(e => flagged.some(f => e.label?.includes(f)));
+      const violationCount = log.filter(e => ev(e).includes('violation') || ev(e).includes('anti-cheat')).length;
+      const pasteCount     = log.filter(e => ev(e).includes('paste')).length;
+      const autoSubmitted  = log.some(e => ev(e).includes('auto') || ev(e).includes('terminé') || ev(e).includes('automatique'));
+      const modalAbuse     = log.filter(e => ev(e).includes('modal')).length > 1;
+      const suspicionCount = log.filter(e => ev(e).includes('suspendu')).length;
+      let bg, border, bodyText;
+      if (violationCount >= 3 || (autoSubmitted && pasteCount > 0)) {
+        bg = '#fef2f2'; border = '#fecaca';
+        const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', autoSubmitted ? 'auto-submitted' : ''].filter(Boolean);
+        bodyText = `🔴 High-risk behaviour — ${parts.join(', ')}.`;
+      } else if (violationCount >= 2 || pasteCount > 0 || modalAbuse) {
+        bg = '#fefce8'; border = '#fde68a';
+        const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', modalAbuse ? 'repeated modal use' : ''].filter(Boolean);
+        bodyText = `🟡 Moderately suspicious — ${parts.join(', ')}.`;
+      } else {
+        bg = '#f0fdf4'; border = '#bbf7d0';
+        bodyText = '🟢 No suspicious behaviour detected.';
+      }
+      const suspLine = suspicionCount > 0 ? ` ${suspicionCount} anti-cheat suspension${suspicionCount !== 1 ? 's' : ''} logged.` : '';
+      const logRows = log.map(e => {
+        const isFlagged = flagged.some(f => e.label?.includes(f));
+        return `<tr style="${isFlagged ? 'background:#fef2f2;' : ''}">
+          <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;font-size:0.72rem;color:#64748b;">${esc(e.time || '')}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.75rem;font-weight:${isFlagged ? '600' : '400'};color:${isFlagged ? '#dc2626' : '#1e293b'};">${esc(e.label || '')}</td>
+          <td style="padding:5px 10px;border-bottom:1px solid #f1f5f9;font-size:0.72rem;color:#64748b;">${esc(e.detail || '')}</td>
+        </tr>`;
+      }).join('');
+      sessionLogHtml = `
+        <div class="settings-panel" style="margin-top:14px;padding:0;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;cursor:pointer;user-select:none;" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';">
+            <div style="font-size:0.8rem;font-weight:700;color:${hasSuspicious ? '#dc2626' : '#0f172a'};">${hasSuspicious ? '⚠ ' : ''}Session Journal (${log.length} event${log.length !== 1 ? 's' : ''})</div>
+            <div style="font-size:0.72rem;color:#94a3b8;">click to expand</div>
+          </div>
+          <div style="display:none;border-top:1px solid #e2e8f0;">
+            <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">
+              <thead><tr style="background:#f8fafc;">
+                <th style="padding:6px 10px;text-align:left;font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Time</th>
+                <th style="padding:6px 10px;text-align:left;font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Event</th>
+                <th style="padding:6px 10px;text-align:left;font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#94a3b8;border-bottom:1px solid #e2e8f0;">Detail</th>
+              </tr></thead>
+              <tbody>${logRows}</tbody>
+            </table></div>
+            <div style="background:${bg};border-top:1px solid ${border};padding:12px 18px;font-size:0.82rem;line-height:1.5;">${bodyText}${suspLine}</div>
+          </div>
+        </div>`;
+    }
+
     pane.innerHTML = `
       <div class="settings-panel">
         <div class="settings-panel-title">Submission Details</div>
@@ -2834,7 +2888,8 @@
         <div class="settings-row"><div class="settings-label">Access Code</div><div class="settings-value" style="font-family:monospace;">${esc(code)}</div></div>
         <div class="settings-row" style="margin-bottom:0;"><div class="settings-label">Submitted</div><div class="settings-value">${formatDateTime(a.submitted_at)}</div></div>
         ${scoreBar}
-      </div>`;
+      </div>
+      ${sessionLogHtml}`;
   }
 
   function _sdRenderQA() {
@@ -3068,7 +3123,234 @@
       <div class="sd-action-card">
         <div><div class="sd-action-title">Send results email</div><div class="sd-action-desc">Send this student their score report by email.</div></div>
         <button class="btn btn-ghost btn-sm" onclick="sdSendResults()">Send Results</button>
+      </div>
+      <div class="sd-action-card">
+        <div><div class="sd-action-title">Download PDF report</div><div class="sd-action-desc">Generate and download a full PDF report for this submission.</div></div>
+        <button class="btn btn-ghost btn-sm" id="sdPdfBtn" onclick="sdDownloadReport()">Download Report</button>
       </div>`;
+  }
+
+  function _sdStripHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/<[^>]*>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").trim();
+  }
+
+  function _sdSafeFilename(str) {
+    return (str || '').replace(/[^a-z0-9\-_]/gi, '-').replace(/-+/g, '-').slice(0, 40);
+  }
+
+  async function sdDownloadReport() {
+    if (!drillCurrentAttempt || !drillCurrentExam || !_sdQuestions.length) {
+      showToast('Q&A data not loaded yet — open the Q&A tab first, then try again.');
+      return;
+    }
+    const btn = document.getElementById('sdPdfBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Generating…'; }
+    try {
+      const a      = drillCurrentAttempt;
+      const exam   = drillCurrentExam;
+      const aqs    = _sdQuestions;
+      const answersJson  = a.answers_json  || {};
+      const openScores   = a.open_scores   || {};
+      const openComments = a.open_comments || {};
+
+      // Build section segments using _sdSectionMap
+      const seenSecs = new Map();
+      aqs.forEach((q, i) => {
+        const sec = _sdSectionMap[i];
+        if (sec) {
+          if (!seenSecs.has(sec.id)) seenSecs.set(sec.id, { title: _sdStripHtml(sec.question_text), questions: [] });
+          seenSecs.get(sec.id).questions.push({ q, i });
+        }
+      });
+      const segments = [...seenSecs.values()];
+
+      let totalCorrect = 0, totalMax = 0;
+      const segData = segments.map(seg => {
+        let sc = 0, sm = 0;
+        seg.questions.forEach(({ q, i }) => {
+          if (q.type === 'open') { sc += parseFloat(openScores[i]) || 0; sm += q.max_points || 5; }
+          else {
+            const selIdx = parseInt(answersJson['q' + i], 10);
+            sc += (!isNaN(selIdx) && selIdx === q.correct_index) ? 1 : 0;
+            sm += 1;
+          }
+        });
+        totalCorrect += sc; totalMax += sm;
+        return { title: seg.title, sc, sm };
+      });
+      if (totalMax === 0) {
+        aqs.forEach((q, i) => { totalMax += q.type === 'open' ? (q.max_points || 5) : 1; });
+        aqs.forEach((q, i) => {
+          if (q.type === 'open') totalCorrect += parseFloat(openScores[i]) || 0;
+          else { const s = parseInt(answersJson['q'+i],10); if (!isNaN(s) && s === q.correct_index) totalCorrect++; }
+        });
+      }
+
+      const teacherName = currentTeacher ? (currentTeacher.full_name || currentTeacher.email) : '—';
+      const displayName = fmtStudentName(a.student_name) || '—';
+      const submittedAt = a.submitted_at ? new Date(a.submitted_at) : null;
+      const createdAt   = a.created_at   ? new Date(a.created_at)   : null;
+      const timeUsedMins = (submittedAt && createdAt) ? Math.round((submittedAt - createdAt) / 60000) : null;
+      const submittedLabel = submittedAt
+        ? submittedAt.toLocaleDateString(undefined, { day:'numeric', month:'short', year:'numeric' }) + ' ' + submittedAt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })
+        : '—';
+      const pct = totalMax > 0 ? Math.round((totalCorrect / totalMax) * 100) : 0;
+      const scoreColor = pct >= 70 ? [22,163,74] : pct >= 50 ? [217,119,6] : [220,38,38];
+
+      // Try to fetch testflo logo
+      let testfloLogoB64 = null;
+      try {
+        const logoRes = await fetch('https://exam.test-flo.com/testflo-dark.svg');
+        if (logoRes.ok) {
+          const svgText = await logoRes.text();
+          testfloLogoB64 = await new Promise(resolve => {
+            const img = new Image();
+            const blob = new Blob([svgText], { type: 'image/svg+xml' });
+            const url  = URL.createObjectURL(blob);
+            img.onload = () => {
+              const c = document.createElement('canvas'); c.width = 220; c.height = 80;
+              c.getContext('2d').drawImage(img, 0, 0, 220, 80);
+              URL.revokeObjectURL(url); resolve(c.toDataURL('image/png'));
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+            img.src = url;
+          });
+        }
+      } catch(e) { /* logo unavailable */ }
+
+      const { jsPDF } = window.jspdf;
+      const doc      = new jsPDF('p', 'mm', 'a4');
+      const pageW    = doc.internal.pageSize.getWidth();
+      const pageH    = doc.internal.pageSize.getHeight();
+      const margin   = 14;
+      const contentW = pageW - margin * 2;
+
+      // Header bar
+      const headerH = 38;
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, pageW, headerH, 'F');
+      if (testfloLogoB64) { doc.addImage(testfloLogoB64, 'PNG', margin, 2, 22, 8); }
+      else { doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(148,163,184); doc.text('testflo', margin, 9); }
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+      doc.text(_sdStripHtml(exam.title || ''), margin, 18, { maxWidth: contentW * 0.62 });
+      doc.setFontSize(14); doc.text(displayName, pageW - margin, 15, { align: 'right' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,116,139);
+      doc.text(a.student_email || '', pageW - margin, 22, { align: 'right' });
+      doc.text('Submitted ' + submittedLabel, pageW - margin, 27, { align: 'right' });
+
+      // Score cards
+      let y = headerH + 8;
+      const cardW = (contentW - 8) / 3;
+      const cardH = 24;
+      [
+        { label:'TOTAL SCORE', val: (Number.isInteger(totalCorrect) ? totalCorrect : totalCorrect.toFixed(1)) + ' / ' + totalMax, sub: pct + '%', valColor: scoreColor },
+        { label:'TIME LIMIT',  val: exam.duration_mins ? exam.duration_mins + ' min' : '—', sub: timeUsedMins ? 'Used: ' + timeUsedMins + ' min' : '', valColor: [15,23,42] },
+        { label:'GRADED BY',   val: teacherName, sub: (currentInstitution && currentInstitution.name) || '', valColor: [15,23,42] }
+      ].forEach((card, i) => {
+        const cx = margin + i * (cardW + 4);
+        doc.setDrawColor(226,232,240); doc.setFillColor(255,255,255); doc.rect(cx, y, cardW, cardH, 'FD');
+        doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(148,163,184);
+        doc.text(card.label, cx + 5, y + 5);
+        doc.setFontSize(i === 2 ? 9 : 14); doc.setTextColor(...card.valColor);
+        doc.text(String(card.val), cx + 5, y + 14, { maxWidth: cardW - 8 });
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184);
+        doc.text(String(card.sub), cx + 5, y + 21);
+      });
+      y += cardH + 8;
+
+      // Section breakdown (only if named sections exist)
+      const namedSegs = segData.filter(s => s.title);
+      if (namedSegs.length > 0) {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(148,163,184);
+        doc.text('RESULTS BY SECTION', margin, y); y += 4;
+        doc.setDrawColor(241,245,249); doc.line(margin, y, pageW - margin, y); y += 4;
+        namedSegs.forEach(s => {
+          const p = s.sm > 0 ? s.sc / s.sm : 0;
+          const scStr = (Number.isInteger(s.sc) ? s.sc : s.sc.toFixed(1)) + ' / ' + s.sm;
+          const labelW = 65, scoreW = 18;
+          const barX = margin + labelW + 3, barW = contentW - labelW - scoreW - 6, barH = 3;
+          doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(71,85,105);
+          doc.text(s.title || '', margin, y + 2.5, { maxWidth: labelW });
+          doc.setFillColor(226,232,240); doc.rect(barX, y, barW, barH, 'F');
+          doc.setFillColor(30,58,95);    doc.rect(barX, y, barW * p, barH, 'F');
+          doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(100,116,139);
+          doc.text(scStr, pageW - margin, y + 2.5, { align: 'right' }); y += 7;
+        });
+        y += 4;
+      }
+
+      // Q&A table
+      doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(148,163,184);
+      doc.text('ANSWERS', margin, y); y += 4;
+      doc.setDrawColor(241,245,249); doc.line(margin, y, pageW - margin, y); y += 3;
+      const tableBody = aqs.map((q, i) => {
+        if (q.type === 'open') {
+          const ans = answersJson['q' + i] || '—';
+          const sc  = openScores[i] !== undefined ? openScores[i] : '—';
+          const cmt = openComments[i] || '';
+          return { question: 'Q' + (i+1) + '. ' + _sdStripHtml(q.question_text || ''), studentAns: _sdStripHtml(ans) + (cmt ? '\n[' + cmt + ']' : ''), correctAns: '—', result: sc + ' / ' + (q.max_points || 5) + ' pts', type: 'open', correct: null };
+        }
+        const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
+        const selIdx = parseInt(answersJson['q' + i], 10);
+        const ok = !isNaN(selIdx) && selIdx === q.correct_index;
+        return { question: 'Q' + (i+1) + '. ' + _sdStripHtml(q.question_text || ''), studentAns: !isNaN(selIdx) ? (opts[selIdx] || '—') : '—', correctAns: opts[q.correct_index] || '—', result: '', type: 'mcq', correct: ok };
+      });
+      doc.autoTable({
+        startY: y, margin: { left: margin, right: margin },
+        head: [['Question','Student Answer','Correct Answer','Result']],
+        body: tableBody.map(r => [r.question, r.studentAns, r.correctAns, r.result]),
+        styles: { font:'helvetica', fontSize:8, cellPadding:3, lineColor:[226,232,240], lineWidth:0.1, overflow:'linebreak', valign:'top' },
+        headStyles: { fillColor:[248,250,252], textColor:[148,163,184], fontStyle:'bold', fontSize:6.5 },
+        alternateRowStyles: { fillColor:[252,253,254] },
+        columnStyles: { 0:{cellWidth:58}, 1:{cellWidth:52}, 2:{cellWidth:52}, 3:{cellWidth:18,halign:'center'} },
+        didParseCell(data) {
+          const row = tableBody[data.row.index]; if (!row) return;
+          if (data.column.index === 1 && row.type === 'mcq' && row.correct === false) data.cell.styles.textColor = [220,38,38];
+          if (data.column.index === 3) {
+            if (row.type === 'mcq' && row.correct === true)  data.cell.styles.textColor = [22,163,74];
+            if (row.type === 'mcq' && row.correct === false) data.cell.styles.textColor = [220,38,38];
+            if (row.type === 'open') { data.cell.styles.textColor = [71,85,105]; data.cell.styles.fontStyle = 'bold'; }
+          }
+        },
+        didDrawCell(data) {
+          if (data.column.index !== 3) return;
+          const row = tableBody[data.row.index]; if (!row || row.type !== 'mcq') return;
+          const cx = data.cell.x + data.cell.width / 2, cy = data.cell.y + data.cell.height / 2;
+          doc.setFillColor(...(row.correct ? [22,163,74] : [220,38,38]));
+          doc.circle(cx, cy, 3, 'F');
+          doc.setDrawColor(255,255,255); doc.setLineWidth(0.6);
+          if (row.correct) { doc.line(cx-1.4,cy+0.1,cx-0.2,cy+1.3); doc.line(cx-0.2,cy+1.3,cx+1.6,cy-1.0); }
+          else             { doc.line(cx-1.2,cy-1.2,cx+1.2,cy+1.2); doc.line(cx+1.2,cy-1.2,cx-1.2,cy+1.2); }
+          doc.setLineWidth(0.2);
+        }
+      });
+
+      // Footer
+      const finalY = pageH - 12;
+      doc.setDrawColor(226,232,240); doc.line(margin, finalY - 1, pageW - margin, finalY - 1);
+      const footerInstName = (currentInstitution && currentInstitution.name) || teacherName;
+      if (currentInstitution && currentInstitution.logo_url) {
+        try { doc.addImage(currentInstitution.logo_url, 'PNG', margin, finalY + 1, 20, 8); }
+        catch(e) { doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184); doc.text(footerInstName, margin, finalY + 6); }
+      } else {
+        doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(148,163,184);
+        doc.text(footerInstName, margin, finalY + 6);
+      }
+      if (testfloLogoB64) {
+        try { doc.addImage(testfloLogoB64, 'PNG', pageW - margin - 22, finalY + 1, 22, 8); }
+        catch(e) { doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(100,116,139); doc.text('testflo', pageW - margin, finalY + 6, { align:'right' }); }
+      } else {
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(100,116,139);
+        doc.text('testflo', pageW - margin, finalY + 6, { align:'right' });
+      }
+
+      doc.save('report-' + _sdSafeFilename(a.student_name) + '-' + _sdSafeFilename(exam.title) + '.pdf');
+    } catch(err) {
+      console.error('PDF error:', err);
+      showToast('PDF generation failed — please try again.');
+    }
+    if (btn) { btn.disabled = false; btn.textContent = 'Download Report'; }
   }
 
   function sdGrantRetake() {
