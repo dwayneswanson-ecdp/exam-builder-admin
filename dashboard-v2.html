@@ -3121,14 +3121,10 @@
       sb.from('institution_admins').select('teacher_id, institution_id, institutions(name)'),
       sb.from('exams').select('teacher_id, status').eq('status', 'published')
     ]);
-    if (e1) console.error('sa-teachers/teachers error:', e1?.message, e1?.code, e1?.details, e1?.hint);
-    if (e2) console.error('sa-teachers/institution_teachers error:', e2?.message, e2?.code, e2?.details, e2?.hint);
-    if (e3) console.error('sa-teachers/institution_admins error:', e3?.message, e3?.code, e3?.details, e3?.hint);
-    if (e4) console.error('sa-teachers/exams error:', e4?.message, e4?.code, e4?.details, e4?.hint);
-    console.log('teachers result:', { data: teachers, error: e1 });
-    console.log('instTeachers result:', { data: tLinks, error: e2 });
-    console.log('instAdmins result:', { data: aLinks, error: e3 });
-    console.log('exams result:', { data: exams, error: e4 });
+    if (e1) console.error('sa-teachers/teachers:', e1?.message, e1?.code);
+    if (e2) console.error('sa-teachers/institution_teachers:', e2?.message, e2?.code);
+    if (e3) console.error('sa-teachers/institution_admins:', e3?.message, e3?.code);
+    if (e4) console.error('sa-teachers/exams:', e4?.message, e4?.code);
 
     const instMap = {};
     [...(tLinks||[]), ...(aLinks||[])].forEach(l => {
@@ -3185,10 +3181,8 @@
       sb.from('exams').select('id, title, created_at, status, groups, teacher_id, teachers(full_name)').order('created_at', { ascending: false }),
       sb.from('institution_teachers').select('teacher_id, institutions(name)')
     ]);
-    if (e1) console.error('sa-all-exams/exams error:', e1?.message, e1?.code, e1?.details, e1?.hint);
-    if (e2) console.error('sa-all-exams/institution_teachers error:', e2?.message, e2?.code, e2?.details, e2?.hint);
-    console.log('exams result:', { data: exams, error: e1 });
-    console.log('instTeachers result:', { data: instTeachers, error: e2 });
+    if (e1) console.error('sa-all-exams/exams:', e1?.message, e1?.code);
+    if (e2) console.error('sa-all-exams/institution_teachers:', e2?.message, e2?.code);
 
     if (!(exams||[]).length) {
       if (body) body.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No exams yet.</td></tr>`;
