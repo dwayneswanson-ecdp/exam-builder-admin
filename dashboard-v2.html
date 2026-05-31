@@ -962,6 +962,14 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Teachers
       </div>
+      <div id="navSaAllExams" class="nav-item" data-nav="sa-all-exams" onclick="navigate('sa-all-exams')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        All Exams
+      </div>
+      <div id="navSaAllSubmissions" class="nav-item" data-nav="sa-all-submissions" onclick="navigate('sa-all-submissions')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        All Submissions
+      </div>
 
       <div class="nav-section-label">SUPPORT</div>
       <div id="navSaTickets" class="nav-item" data-nav="sa-tickets" onclick="navigate('sa-tickets')">
@@ -1677,7 +1685,7 @@
         <div class="settings-panel" style="margin-top:20px;">
           <div class="settings-panel-title">Members</div>
           <p style="font-size:13px;color:#475569;margin:0 0 16px;">Manage who has access to this institution, assign roles, and invite new members.</p>
-          <a href="institution.html"><button class="btn btn-ghost btn-sm">Manage Members →</button></a>
+          <a id="settingsManageMembersLink" href="#" style="display:none;"><button class="btn btn-ghost btn-sm">Manage Members →</button></a>
         </div>
 
       </div>
@@ -2095,19 +2103,19 @@
       <div class="page-sub">Platform-wide stats across all institutions.</div>
     </div>
     <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
-      <div class="card stat-block">
+      <div class="card stat-block" style="cursor:pointer;transition:border-color 0.15s;" onclick="navigate('institutions')" onmouseenter="this.style.borderColor='#2563eb'" onmouseleave="this.style.borderColor='#e2e8f0'">
         <div class="stat-block-val" id="saDash-institutions">—</div>
         <div class="stat-block-lbl">Institutions</div>
       </div>
-      <div class="card stat-block">
+      <div class="card stat-block" style="cursor:pointer;transition:border-color 0.15s;" onclick="navigate('sa-teachers')" onmouseenter="this.style.borderColor='#2563eb'" onmouseleave="this.style.borderColor='#e2e8f0'">
         <div class="stat-block-val" style="color:#7c3aed;" id="saDash-teachers">—</div>
         <div class="stat-block-lbl">Teachers</div>
       </div>
-      <div class="card stat-block">
+      <div class="card stat-block" style="cursor:pointer;transition:border-color 0.15s;" onclick="navigate('sa-all-exams')" onmouseenter="this.style.borderColor='#2563eb'" onmouseleave="this.style.borderColor='#e2e8f0'">
         <div class="stat-block-val" style="color:#2563eb;" id="saDash-exams">—</div>
         <div class="stat-block-lbl">Exams Published</div>
       </div>
-      <div class="card stat-block">
+      <div class="card stat-block" style="cursor:pointer;transition:border-color 0.15s;" onclick="navigate('sa-all-submissions')" onmouseenter="this.style.borderColor='#2563eb'" onmouseleave="this.style.borderColor='#e2e8f0'">
         <div class="stat-block-val" style="color:#16a34a;" id="saDash-submissions">—</div>
         <div class="stat-block-lbl">Total Submissions</div>
       </div>
@@ -2164,6 +2172,28 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </section>
+
+  <!-- ── SUPER ADMIN ALL EXAMS (placeholder) ──────────────────────── -->
+  <section class="section" id="section-sa-all-exams">
+    <div class="page-header">
+      <div class="page-title">All Exams</div>
+      <div class="page-sub">All published exams across all institutions.</div>
+    </div>
+    <div class="card" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.85rem;">
+      Coming soon — this view is being built.
+    </div>
+  </section>
+
+  <!-- ── SUPER ADMIN ALL SUBMISSIONS (placeholder) ─────────────────── -->
+  <section class="section" id="section-sa-all-submissions">
+    <div class="page-header">
+      <div class="page-title">All Submissions</div>
+      <div class="page-sub">All exam submissions across all institutions.</div>
+    </div>
+    <div class="card" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.85rem;">
+      Coming soon — this view is being built.
     </div>
   </section>
 
@@ -2429,9 +2459,11 @@
 
   const SECTION_MAP = {
     'home': 'home',
-    'sa-dashboard': 'sa-dashboard',
-    'sa-teachers':  'sa-teachers',
-    'sa-tickets':   'sa-tickets',
+    'sa-dashboard':       'sa-dashboard',
+    'sa-teachers':        'sa-teachers',
+    'sa-tickets':         'sa-tickets',
+    'sa-all-exams':       'sa-all-exams',
+    'sa-all-submissions': 'sa-all-submissions',
     'institutions': 'institutions',
     'admin-view': 'admin',
     'exams-create': 'exams-create',
@@ -2454,9 +2486,11 @@
 
   const NAV_ACTIVE_MAP = {
     'home': 'home',
-    'sa-dashboard': 'sa-dashboard',
-    'sa-teachers':  'sa-teachers',
-    'sa-tickets':   'sa-tickets',
+    'sa-dashboard':       'sa-dashboard',
+    'sa-teachers':        'sa-teachers',
+    'sa-tickets':         'sa-tickets',
+    'sa-all-exams':       'sa-all-exams',
+    'sa-all-submissions': 'sa-all-submissions',
     'institutions': 'institutions',
     'admin-view': 'admin-view',
     'exams-create': 'manage-exams',
@@ -2471,9 +2505,11 @@
   // nav → hash for section-level navigation
   const NAV_TO_HASH = {
     'home':             '',
-    'sa-dashboard':     'sa/dashboard',
-    'sa-teachers':      'sa/teachers',
-    'sa-tickets':       'sa/tickets',
+    'sa-dashboard':       'sa/dashboard',
+    'sa-teachers':        'sa/teachers',
+    'sa-tickets':         'sa/tickets',
+    'sa-all-exams':       'sa/all-exams',
+    'sa-all-submissions': 'sa/all-submissions',
     'institutions':     'institutions',
     'admin-view':       'admin',
     'exams-create':     'exams/create',
@@ -2612,6 +2648,8 @@
     else if (nav === 'sa-dashboard') loadSaDashboard();
     else if (nav === 'sa-teachers') loadSaTeachers();
     else if (nav === 'sa-tickets') loadSaTickets();
+    else if (nav === 'sa-all-exams') {}
+    else if (nav === 'sa-all-submissions') {}
     else if (nav === 'institutions') loadInstitutions();
     else if (nav === 'admin-view') loadAdminDashboard();
     else if (nav === 'exams-all') { examTab = 'all'; setExamTab('all'); }
@@ -6640,6 +6678,15 @@
     const lang = t.lang || 'fr';
     document.getElementById('langFR').classList.toggle('active', lang === 'fr');
     document.getElementById('langEN').classList.toggle('active', lang === 'en');
+    const membersLink = document.getElementById('settingsManageMembersLink');
+    if (membersLink) {
+      if (currentInstitution?.id) {
+        membersLink.href = `institution.html?id=${currentInstitution.id}`;
+        membersLink.style.display = '';
+      } else {
+        membersLink.style.display = 'none';
+      }
+    }
   }
 
   async function saveProfile() {
