@@ -1042,14 +1042,12 @@
       </div>
       <!-- Tab bar -->
       <div class="subtabs" style="margin-bottom:0;">
-        <div class="subtab active" id="sdTab-overview" onclick="sdSwitchTab('overview')">Overview</div>
-        <div class="subtab" id="sdTab-qa" onclick="sdSwitchTab('qa')">Q&amp;A Breakdown</div>
+        <div class="subtab active" id="sdTab-qa" onclick="sdSwitchTab('qa')">Q&amp;A Breakdown</div>
         <div class="subtab" id="sdTab-email" onclick="sdSwitchTab('email')">Email History</div>
         <div class="subtab" id="sdTab-actions" onclick="sdSwitchTab('actions')">Actions</div>
       </div>
       <!-- Tab panels -->
-      <div id="sdPane-overview" style="padding-top:18px;"></div>
-      <div id="sdPane-qa" style="display:none;padding-top:18px;"></div>
+      <div id="sdPane-qa" style="padding-top:18px;"></div>
       <div id="sdPane-email" style="display:none;padding-top:18px;"></div>
       <div id="sdPane-actions" style="display:none;padding-top:18px;"></div>
     </div>
@@ -1981,7 +1979,7 @@
   let drillCurrentAttempt = null;
   let _sdQuestions = [];
   let _sdAnswers = {};
-  let _sdTab = 'overview';
+  let _sdTab = 'qa';
   let _sdRetakeCount = 0;
   let _sdPendingScores = {};
   let _sdPendingComments = {};
@@ -2736,7 +2734,7 @@
     if (!attempt || !drillCurrentExam) return;
     drillCurrentAttempt = attempt;
     if (!skipPush) history.pushState({view:'studentDetail', examId:drillCurrentExam.id, examName:drillCurrentExam.title||'', groupName:drillCurrentGroup, attemptId}, '', '#exams/' + drillCurrentExam.id + '/' + encodeURIComponent(drillCurrentGroup||'') + '/' + attemptId);
-    _sdTab = 'overview';
+    _sdTab = 'qa';
     _sdRetakeCount = 0;
     _sdQuestions = [];
     _sdAnswers = {};
@@ -2750,7 +2748,7 @@
     document.getElementById('drillL4StudentCrumb').textContent = fmtStudentName(attempt.student_name) || '—';
     _sdRenderHeader();
     _sdUpdateNavButtons();
-    sdSwitchTab('overview');
+    sdSwitchTab('qa');
     _sdLoadData();
   }
 
@@ -2773,7 +2771,6 @@
     }
     _sdRenderMetaStrip();
     if (_sdTab === 'qa') sdSwitchTab('qa');
-    else if (_sdTab === 'overview') _sdRenderOverview();
   }
 
   function _sdRenderHeader() {
@@ -2814,13 +2811,12 @@
 
   function sdSwitchTab(tab) {
     _sdTab = tab;
-    ['overview','qa','email','actions'].forEach(t => {
+    ['qa','email','actions'].forEach(t => {
       document.getElementById(`sdTab-${t}`)?.classList.toggle('active', t === tab);
       const p = document.getElementById(`sdPane-${t}`);
       if (p) p.style.display = t === tab ? 'block' : 'none';
     });
-    if (tab === 'overview') _sdRenderOverview();
-    else if (tab === 'qa') _sdRenderQA();
+    if (tab === 'qa') _sdRenderQA();
     else if (tab === 'email') _sdRenderEmailHistory();
     else if (tab === 'actions') _sdRenderActions();
   }
