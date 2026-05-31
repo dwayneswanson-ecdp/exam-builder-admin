@@ -2297,6 +2297,10 @@
     </div>
     <div class="stats-row" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
       <div class="card stat-block">
+        <div class="stat-block-val" style="color:#0f172a;" id="saEmails-total">—</div>
+        <div class="stat-block-label">All Emails</div>
+      </div>
+      <div class="card stat-block">
         <div class="stat-block-val" id="saEmail-stat-invite">—</div>
         <div class="stat-block-label">Invitations</div>
       </div>
@@ -3400,6 +3404,7 @@
     // Stat counts
     const counts = { invite: 0, results: 0, retake: 0, ticket: 0 };
     (logs||[]).forEach(l => { if (counts[l.type] !== undefined) counts[l.type]++; });
+    document.getElementById('saEmails-total').textContent       = (logs||[]).length;
     document.getElementById('saEmail-stat-invite').textContent  = counts.invite;
     document.getElementById('saEmail-stat-results').textContent = counts.results;
     document.getElementById('saEmail-stat-retake').textContent  = counts.retake;
