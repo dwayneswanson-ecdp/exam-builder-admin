@@ -880,6 +880,10 @@
     #saInstAddMemberModal.open { display:flex; }
     #saInstRemoveModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9100;align-items:center;justify-content:center; }
     #saInstRemoveModal.open { display:flex; }
+    #retakeChoiceModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9200;align-items:center;justify-content:center; }
+    #retakeChoiceModal.open { display:flex; }
+    .retake-choice-label { display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e2e8f0;cursor:pointer;margin-bottom:8px; }
+    .retake-choice-label:last-of-type { margin-bottom:0; }
     .sa-inst-modal-box { background:#fff;border-radius:0;max-width:460px;width:calc(100% - 32px);padding:24px 28px;box-sizing:border-box; }
     .modal-label { display:block;font-size:0.72rem;font-weight:600;color:#475569;margin-bottom:5px; }
     .modal-input { width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:0;padding:9px 12px;font-size:0.85rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box; }
@@ -2605,6 +2609,33 @@
   </div>
 </div>
 
+<!-- Retake choice modal -->
+<div id="retakeChoiceModal" onclick="if(event.target===this)closeRetakeChoiceModal()">
+  <div class="confirm-modal-box" onclick="event.stopPropagation()" style="max-width:480px;">
+    <div id="retakeChoiceTitle" style="font-size:16px;font-weight:600;color:#0f172a;margin-bottom:6px;">Grant retake</div>
+    <div id="retakeChoiceSub" style="font-size:13px;color:#64748b;margin-bottom:18px;"></div>
+    <div style="font-size:0.78rem;font-weight:600;color:#0f172a;margin-bottom:10px;">What should happen to their previous submission?</div>
+    <label class="retake-choice-label">
+      <input type="radio" name="retakeChoiceDash" value="keep" onchange="retakeChoiceDashChanged()" style="margin-top:3px;flex-shrink:0;">
+      <div>
+        <div style="font-size:0.82rem;font-weight:600;color:#0f172a;">Keep previous answers and score</div>
+        <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">The previous submission stays on record. Student retakes and new score replaces old.</div>
+      </div>
+    </label>
+    <label class="retake-choice-label" style="margin-bottom:18px;">
+      <input type="radio" name="retakeChoiceDash" value="erase" onchange="retakeChoiceDashChanged()" style="margin-top:3px;flex-shrink:0;">
+      <div>
+        <div style="font-size:0.82rem;font-weight:600;color:#0f172a;">Erase previous submission</div>
+        <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">The previous attempt is permanently deleted. Student starts completely fresh.</div>
+      </div>
+    </label>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeRetakeChoiceModal()">Cancel</button>
+      <button id="retakeChoiceConfirmBtn" class="btn btn-primary" onclick="confirmRetakeChoice()">Grant Retake</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2628,6 +2659,7 @@
   let examSortCol = null, examSortDir = 'asc', examSortClicks = 0;
   let _examMenuEl = null, _examMenuBtn = null;
   let _dotMenuEl  = null, _dotMenuBtn  = null;
+  let _retakeChoiceId = null, _retakeChoiceCtx = null;
   let selectedAttemptIds = new Set();
   let retakesAllAttempts = [];
   let histResultsAll = [];
@@ -5628,30 +5660,11 @@
     } catch(e) { if (!silent) showToast('Error sending link.'); return false; }
   }
 
-  async function drillAllowRetake(attemptId) {
+  function drillAllowRetake(attemptId) {
     document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
     const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
     if (!attempt || !drillCurrentExam) return;
-    if (!confirm(`Send a retake link to ${attempt.student_name}?`)) return;
-    const token = crypto.randomUUID();
-    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
-    if (error) { showToast('Error generating retake.'); return; }
-    const exam = drillCurrentExam;
-    const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
-    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
-    await fetch(SEND_EMAIL_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({
-        type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
-        exam_title: exam.title||'', retake_link: retakeLink,
-        access_code: exam.access_code||'', lang: exam.lang||'fr',
-        teacher_name: currentTeacher.full_name||currentTeacher.email,
-        teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
-      })
-    });
-    showToast(`Retake link sent to ${attempt.student_name}.`);
+    openRetakeChoiceModal(attemptId, attempt.student_name, 'drill');
   }
 
   async function drillDeleteAttempt(attemptId, studentName) {
@@ -6110,29 +6123,105 @@
     } catch(e) { if (!silent) showToast('Error sending link.'); return false; }
   }
 
-  async function subsL3AllowRetake(attemptId) {
+  function subsL3AllowRetake(attemptId) {
     document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
     const attempt = subsL3Attempts.find(a => a.id === attemptId);
     if (!attempt || !subsCurrentExam) return;
-    if (!confirm(`Send a retake link to ${attempt.student_name}?`)) return;
+    openRetakeChoiceModal(attemptId, attempt.student_name, 'subs');
+  }
+
+  function openRetakeChoiceModal(attemptId, studentName, context) {
+    _retakeChoiceId  = attemptId;
+    _retakeChoiceCtx = context;
+    document.getElementById('retakeChoiceTitle').textContent = 'Grant retake to ' + (studentName || 'student') + '?';
+    document.getElementById('retakeChoiceSub').textContent   = studentName || '';
+    const eraseRadio = document.querySelector('input[name="retakeChoiceDash"][value="erase"]');
+    if (eraseRadio) eraseRadio.checked = true;
+    const keepRadio = document.querySelector('input[name="retakeChoiceDash"][value="keep"]');
+    if (keepRadio) keepRadio.checked = false;
+    document.getElementById('retakeChoiceConfirmBtn').disabled = false;
+    document.getElementById('retakeChoiceModal').classList.add('open');
+  }
+  function closeRetakeChoiceModal() {
+    document.getElementById('retakeChoiceModal').classList.remove('open');
+    _retakeChoiceId  = null;
+    _retakeChoiceCtx = null;
+  }
+  function retakeChoiceDashChanged() {
+    const selected = document.querySelector('input[name="retakeChoiceDash"]:checked');
+    document.getElementById('retakeChoiceConfirmBtn').disabled = !selected;
+  }
+  async function confirmRetakeChoice() {
+    const choice = document.querySelector('input[name="retakeChoiceDash"]:checked')?.value;
+    if (!choice || !_retakeChoiceId || !_retakeChoiceCtx) return;
+    const btn = document.getElementById('retakeChoiceConfirmBtn');
+    btn.disabled = true; btn.textContent = 'Sending…';
+
+    const isDrill = _retakeChoiceCtx === 'drill';
+    const attempt = isDrill
+      ? drillCurrentAttempts.find(a => a.id === _retakeChoiceId)
+      : subsL3Attempts.find(a => a.id === _retakeChoiceId);
+    const exam = isDrill ? drillCurrentExam : subsCurrentExam;
+    if (!attempt || !exam) { closeRetakeChoiceModal(); return; }
+
+    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const baseLink = `${base}/exam-engine.html?id=${exam.share_id||''}`;
+    const emailPayload = {
+      type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
+      exam_title: exam.title||'', access_code: exam.access_code||'', lang: exam.lang||'fr',
+      teacher_name: currentTeacher.full_name||currentTeacher.email,
+      teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
+    };
+
+    if (choice === 'erase') {
+      const { error } = await sb.from('exam_attempts').delete().eq('id', attempt.id);
+      if (error) { showToast('Error deleting submission.'); btn.disabled = false; btn.textContent = 'Grant Retake'; return; }
+      if (isDrill) {
+        drillCurrentAttempts = drillCurrentAttempts.filter(a => a.id !== attempt.id);
+        drillSelectedIds.delete(attempt.id);
+        drillUpdateBulkBar();
+        filterDrillStudents();
+      } else {
+        subsL3Attempts    = subsL3Attempts.filter(a => a.id !== attempt.id);
+        subsAllAttempts   = subsAllAttempts.filter(a => a.id !== attempt.id);
+        subsL3SelectedIds.delete(attempt.id);
+        subsL3UpdateBulkBar();
+        filterSubsL3Students();
+      }
+      closeRetakeChoiceModal();
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        await fetch(SEND_EMAIL_FN, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({ ...emailPayload, retake_link: baseLink }),
+        });
+      } catch(e) { console.error('Retake email error:', e); }
+      showToast(`Retake link sent to ${attempt.student_name}.`);
+      return;
+    }
+
+    // "keep" — generate token, update attempt, send email
     const token = crypto.randomUUID();
-    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
-    if (error) { showToast('Error generating retake.'); return; }
-    const exam = subsCurrentExam;
-    const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
-    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
-    await fetch(SEND_EMAIL_FN, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-      body: JSON.stringify({
-        type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
-        exam_title: exam.title||'', retake_link: retakeLink,
-        access_code: exam.access_code||'', lang: exam.lang||'fr',
-        teacher_name: currentTeacher.full_name||currentTeacher.email,
-        teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
-      })
-    });
+    const retakeLink = `${baseLink}&retake=${token}`;
+    const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attempt.id);
+    if (error) { showToast('Error generating retake.'); btn.disabled = false; btn.textContent = 'Grant Retake'; return; }
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      await fetch(SEND_EMAIL_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify({ ...emailPayload, retake_link: retakeLink }),
+      });
+    } catch(e) { console.error('Retake email error:', e); }
+    if (isDrill) {
+      const a = drillCurrentAttempts.find(x => x.id === attempt.id);
+      if (a) a.retake_token = token;
+    } else {
+      const a = subsL3Attempts.find(x => x.id === attempt.id);
+      if (a) a.retake_token = token;
+    }
+    closeRetakeChoiceModal();
     showToast(`Retake link sent to ${attempt.student_name}.`);
   }
 

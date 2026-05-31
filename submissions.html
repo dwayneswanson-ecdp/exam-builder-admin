@@ -597,21 +597,33 @@
 
   <div class="toast" id="toast"></div>
 
-  <!-- Resend exam modal -->
+  <!-- Retake modal -->
   <div class="modal-backdrop" id="retakeModal" style="display:none;" onclick="if(event.target===this)closeRetakeModal()">
     <div class="modal" style="max-width:480px;">
-      <div class="modal-title" data-i18n="retakeModalTitle">Resend exam access</div>
-      <div class="modal-sub" id="retakeModalSub">A new one-time exam link will be emailed to the student. Their previous submission is kept.</div>
-      <div id="retakeSessionLog" style="display:none;margin-top:12px;border:1px solid #fecaca;background:#fef2f2;padding:12px 14px;">
-        <div id="retakeSessionLogTitle" style="font-size:0.72rem;font-weight:700;color:#dc2626;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;" data-i18n="retakeSessionIncidents">⚠ Session incidents on previous attempt</div>
+      <div class="modal-title" id="retakeModalTitle">Grant retake</div>
+      <div class="modal-sub" id="retakeModalSub" style="margin-bottom:12px;"></div>
+      <div id="retakeSessionLog" style="display:none;margin-bottom:16px;border:1px solid #fecaca;background:#fef2f2;padding:12px 14px;">
+        <div id="retakeSessionLogTitle" style="font-size:0.72rem;font-weight:700;color:#dc2626;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">⚠ Session incidents on previous attempt</div>
         <div id="retakeSessionLogRows" style="font-size:0.78rem;color:#7f1d1d;line-height:1.7;"></div>
       </div>
+      <div style="font-size:0.78rem;font-weight:600;color:#0f172a;margin-bottom:10px;">What should happen to their previous submission?</div>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e2e8f0;cursor:pointer;margin-bottom:8px;">
+        <input type="radio" name="retakeChoice" value="keep" onchange="retakeChoiceChanged()" style="margin-top:3px;flex-shrink:0;">
+        <div>
+          <div style="font-size:0.82rem;font-weight:600;color:#0f172a;">Keep previous answers and score</div>
+          <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">The previous submission stays on record. Student retakes and new score replaces old.</div>
+        </div>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e2e8f0;cursor:pointer;">
+        <input type="radio" name="retakeChoice" value="erase" onchange="retakeChoiceChanged()" style="margin-top:3px;flex-shrink:0;">
+        <div>
+          <div style="font-size:0.82rem;font-weight:600;color:#0f172a;">Erase previous submission</div>
+          <div style="font-size:0.75rem;color:#64748b;margin-top:2px;">The previous attempt is permanently deleted. Student starts completely fresh.</div>
+        </div>
+      </label>
       <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeRetakeModal()" data-i18n="cancelModal">Cancel</button>
-        <button class="btn btn-primary" id="retakeConfirmBtn" onclick="confirmRetake()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-          <span data-i18n="retakeSendLink">Send link</span>
-        </button>
+        <button class="btn-cancel" onclick="closeRetakeModal()">Cancel</button>
+        <button class="btn btn-primary" id="retakeConfirmBtn" onclick="confirmRetake()">Grant Retake</button>
       </div>
     </div>
   </div>
@@ -1665,8 +1677,15 @@
       const a = attempts.find(x => x.id === attemptId);
       if (!a) return;
       _retakeAttemptId = attemptId;
+      document.getElementById('retakeModalTitle').textContent =
+        'Grant retake to ' + (a.student_name || a.student_email || 'student') + '?';
       document.getElementById('retakeModalSub').textContent =
         Lang.t('retakeModalSub').replace('{name}', a.student_name || '—').replace('{email}', a.student_email || '—');
+
+      // Pre-select erase and enable button
+      const eraseRadio = document.querySelector('input[name="retakeChoice"][value="erase"]');
+      if (eraseRadio) eraseRadio.checked = true;
+      document.getElementById('retakeConfirmBtn').disabled = false;
 
       // Show session incidents if any flagged events exist
       const flagged = ['Screenshot', 'Copy', 'Paste', 'Anti-cheat', 'Terminat', 'Visibility', 'Fullscreen', 'Escape', 'blur'];
@@ -1689,15 +1708,59 @@
       document.getElementById('retakeModal').style.display = 'none';
       _retakeAttemptId = null;
     }
+    function retakeChoiceChanged() {
+      const selected = document.querySelector('input[name="retakeChoice"]:checked');
+      document.getElementById('retakeConfirmBtn').disabled = !selected;
+    }
 
     async function confirmRetake() {
+      const choice = document.querySelector('input[name="retakeChoice"]:checked')?.value;
+      if (!choice) return;
       const a = attempts.find(x => x.id === _retakeAttemptId);
       if (!a) return;
       const btn = document.getElementById('retakeConfirmBtn');
       btn.disabled = true; btn.textContent = Lang.t('sending');
 
+      const studentEmail = a.student_email?.trim() || '';
+      const studentName  = a.student_name || '';
+      const baseLink     = buildExamLink();
+
+      const emailPayloadBase = {
+        type:             'retake',
+        reply_to:         currentTeacher?.email?.trim() || '',
+        to_email:         studentEmail,
+        to_name:          studentName,
+        exam_title:       currentExam.title,
+        lang:             currentExam.lang || 'fr',
+        teacher_name:     currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
+        teacher_email:    currentTeacher?.email?.trim() || '',
+        access_code:      currentExam.access_code || '',
+        institution_name: currentInstitution?.name || '',
+      };
+
+      if (choice === 'erase') {
+        const { error } = await sb.from('exam_attempts').delete().eq('id', a.id);
+        if (error) { showToast(Lang.t('errorGeneric'), 5500); btn.disabled = false; btn.textContent = 'Grant Retake'; return; }
+        attempts = attempts.filter(x => x.id !== a.id);
+        closeRetakeModal();
+        buildGroupTabs(); updateStats(); renderList(); updateOverviewState();
+        const badge = document.getElementById('tabSubBadge');
+        if (badge) badge.textContent = attempts.length || '';
+        // Send retake email with base link (student starts fresh)
+        try {
+          const { data: { session } } = await sb.auth.getSession();
+          await fetch(SEND_EMAIL_FN, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ ...emailPayloadBase, retake_link: baseLink }),
+          });
+        } catch (e) { console.error('Retake email error:', e); }
+        showToast(Lang.t('toastExamLinkSentTo').replace('{email}', studentEmail));
+        return;
+      }
+
+      // "keep" — generate retake token, update attempt, send email
       const token = generateToken();
-      const baseLink = buildExamLink();
       const retakeLink = baseLink + '&retake=' + token;
 
       const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', a.id);
@@ -1708,23 +1771,11 @@
         const res = await fetch(SEND_EMAIL_FN, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-          body: JSON.stringify({
-            type:             'retake',
-            reply_to:         currentTeacher?.email?.trim() || '',
-            to_email:         a.student_email?.trim() || '',
-            to_name:          a.student_name  || '',
-            exam_title:       currentExam.title,
-            lang:             currentExam.lang || 'fr',
-            retake_link:      retakeLink,
-            teacher_name:     currentTeacher?.full_name || currentTeacher?.email?.trim() || '',
-            teacher_email:    currentTeacher?.email?.trim() || '',
-            access_code:      currentExam.access_code || '',
-            institution_name: currentInstitution?.name || '',
-          }),
+          body: JSON.stringify({ ...emailPayloadBase, retake_link: retakeLink }),
         });
         if (!res.ok) throw new Error(await res.text());
         a.retake_token = token;
-        showToast(Lang.t('toastExamLinkSentTo').replace('{email}', a.student_email));
+        showToast(Lang.t('toastExamLinkSentTo').replace('{email}', studentEmail));
       } catch (e) {
         console.error('Retake email error:', e);
         showToast(Lang.t('errorGeneric'), 5500);
