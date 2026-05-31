@@ -155,6 +155,7 @@
     .dot-menu-item:hover { background: #f8fafc; }
     .dot-menu-item.danger { color: #dc2626; }
     .dot-menu-item.danger:hover { background: #fef2f2; }
+    .dot-menu-fixed { position: fixed; background: white; border: 1px solid #e2e8f0; min-width: 160px; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.10); }
 
     /* ── Badges ── */
     .badge { display: inline-block; padding: 2px 8px; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 9999px; }
@@ -2626,6 +2627,7 @@
   let examTab = 'all';
   let examSortCol = null, examSortDir = 'asc', examSortClicks = 0;
   let _examMenuEl = null, _examMenuBtn = null;
+  let _dotMenuEl  = null, _dotMenuBtn  = null;
   let selectedAttemptIds = new Set();
   let retakesAllAttempts = [];
   let histResultsAll = [];
@@ -6183,22 +6185,41 @@
   }
 
   function toggleDotMenu(btn) {
-    const menu = btn.nextElementSibling;
-    const isOpen = menu.classList.contains('open');
     document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
-    if (!isOpen) menu.classList.add('open');
+    if (_dotMenuBtn === btn) { closeDotMenu(); return; }
+    closeDotMenu();
+    const src = btn.nextElementSibling;
+    const menu = document.createElement('div');
+    menu.className = 'dot-menu-fixed';
+    menu.innerHTML = src.innerHTML;
+    menu.style.visibility = 'hidden';
+    document.body.appendChild(menu);
+    _dotMenuEl = menu;
+    _dotMenuBtn = btn;
+    menu.addEventListener('click', () => closeDotMenu());
+    const r = btn.getBoundingClientRect();
+    const mW = menu.offsetWidth, mH = menu.offsetHeight;
+    menu.style.left = `${Math.max(8, r.right - mW)}px`;
+    menu.style.top = (window.innerHeight - r.bottom < mH + 8) ? `${r.top - mH - 4}px` : `${r.bottom + 4}px`;
+    menu.style.visibility = '';
+  }
+
+  function closeDotMenu() {
+    if (_dotMenuEl) { _dotMenuEl.remove(); _dotMenuEl = null; }
+    _dotMenuBtn = null;
   }
 
   document.addEventListener('click', e => {
     if (!e.target.closest('.dot-menu-wrap')) {
       document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
+      if (!_dotMenuEl || !_dotMenuEl.contains(e.target)) closeDotMenu();
     }
     if (_examMenuEl && !_examMenuEl.contains(e.target) && e.target !== _examMenuBtn && !e.target.closest('.dot-menu-wrap')) {
       closeExamDotMenu();
     }
   });
 
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeExamDotMenu(); closeConfirmModal(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeExamDotMenu(); closeDotMenu(); closeConfirmModal(); } });
 
   function showConfirmModal(title, bodyHTML, confirmLabel, onConfirm) {
     document.getElementById('confirmModalTitle').textContent = title;
