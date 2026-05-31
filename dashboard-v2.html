@@ -1010,6 +1010,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
         All Submissions
       </div>
+      <div id="navSaEmails" class="nav-item" data-nav="sa-emails" onclick="navigate('sa-emails')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+        Emails
+      </div>
 
       <div class="nav-section-label">SUPPORT</div>
       <div id="navSaTickets" class="nav-item" data-nav="sa-tickets" onclick="navigate('sa-tickets')">
@@ -2281,6 +2285,63 @@
     </div>
   </section>
 
+  <!-- ── SUPER ADMIN EMAILS ────────────────────────────────────────── -->
+  <section class="section" id="section-sa-emails">
+    <div class="page-header">
+      <div class="page-title">Emails</div>
+      <div class="page-sub">All transactional emails sent by the platform.</div>
+    </div>
+    <div class="stats-row" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      <div class="card stat-block">
+        <div class="stat-block-val" id="saEmail-stat-invite">—</div>
+        <div class="stat-block-label">Invitations</div>
+      </div>
+      <div class="card stat-block">
+        <div class="stat-block-val" id="saEmail-stat-results">—</div>
+        <div class="stat-block-label">Results Sent</div>
+      </div>
+      <div class="card stat-block">
+        <div class="stat-block-val" id="saEmail-stat-retake">—</div>
+        <div class="stat-block-label">Retakes</div>
+      </div>
+      <div class="card stat-block">
+        <div class="stat-block-val" id="saEmail-stat-ticket">—</div>
+        <div class="stat-block-label">Tickets</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" style="padding-bottom:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input id="saEmail-search" type="text" placeholder="Search by email address…"
+               oninput="_saEmailFilter()"
+               style="flex:1;min-width:200px;max-width:300px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.82rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;">
+        <select id="saEmail-type" onchange="_saEmailFilter()"
+                style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;font-size:0.82rem;font-family:inherit;color:#0f172a;outline:none;">
+          <option value="">All types</option>
+          <option value="invite">Invite</option>
+          <option value="results">Results</option>
+          <option value="retake">Retake</option>
+          <option value="ticket">Ticket</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Type</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">To</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Exam</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Sent</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
+            </tr>
+          </thead>
+          <tbody id="saEmail-body">
+            <tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ── SUPER ADMIN TICKETS ───────────────────────────────────────── -->
   <section class="section" id="section-sa-tickets">
     <div class="page-header">
@@ -2657,6 +2718,7 @@
     'sa-tickets':         'sa-tickets',
     'sa-all-exams':       'sa-all-exams',
     'sa-all-submissions': 'sa-all-submissions',
+    'sa-emails':          'sa-emails',
     'institutions': 'institutions',
     'sa-institution-detail': 'sa-institution-detail',
     'admin-view': 'admin',
@@ -2685,6 +2747,7 @@
     'sa-tickets':         'sa-tickets',
     'sa-all-exams':       'sa-all-exams',
     'sa-all-submissions': 'sa-all-submissions',
+    'sa-emails':          'sa-emails',
     'institutions': 'institutions',
     'sa-institution-detail': 'institutions',
     'admin-view': 'admin-view',
@@ -2705,6 +2768,7 @@
     'sa-tickets':         'sa/tickets',
     'sa-all-exams':       'sa/all-exams',
     'sa-all-submissions': 'sa/all-submissions',
+    'sa-emails':          'sa/emails',
     'institutions':            'institutions',
     'sa-institution-detail':   'sa/institution',
     'admin-view':              'admin',
@@ -2850,6 +2914,7 @@
     else if (nav === 'sa-tickets') loadSaTickets();
     else if (nav === 'sa-all-exams') loadSaAllExams();
     else if (nav === 'sa-all-submissions') loadSaAllSubmissions();
+    else if (nav === 'sa-emails') loadSaEmails();
     else if (nav === 'institutions') loadInstitutions();
     else if (nav === 'sa-institution-detail') loadSaInstitutionDetail(currentEntityId);
     else if (nav === 'admin-view') loadAdminDashboard();
@@ -3304,6 +3369,80 @@
     const q = (document.getElementById('saSub-search')?.value || '').toLowerCase().trim();
     document.querySelectorAll('#saSub-body tr[data-search]').forEach(row => {
       row.style.display = (!q || row.dataset.search.includes(q)) ? '' : 'none';
+    });
+  }
+
+  // ── EMAILS (super admin view) ─────────────────────────────────────
+
+  let _saEmailRows = [];
+
+  async function loadSaEmails() {
+    const body = document.getElementById('saEmail-body');
+    if (body) body.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
+    const searchEl = document.getElementById('saEmail-search');
+    if (searchEl) searchEl.value = '';
+    const typeEl = document.getElementById('saEmail-type');
+    if (typeEl) typeEl.value = '';
+
+    const [{ data: logs, error: e1 }, { data: exams, error: e2 }] = await Promise.all([
+      sb.from('email_logs').select('*').order('created_at', { ascending: false }),
+      sb.from('exams').select('id, title')
+    ]);
+    if (e1) console.error('email_logs:', e1?.message);
+    if (e2) console.error('email_logs/exams:', e2?.message);
+
+    // Stat counts
+    const counts = { invite: 0, results: 0, retake: 0, ticket: 0 };
+    (logs||[]).forEach(l => { if (counts[l.type] !== undefined) counts[l.type]++; });
+    document.getElementById('saEmail-stat-invite').textContent  = counts.invite;
+    document.getElementById('saEmail-stat-results').textContent = counts.results;
+    document.getElementById('saEmail-stat-retake').textContent  = counts.retake;
+    document.getElementById('saEmail-stat-ticket').textContent  = counts.ticket;
+
+    if (!(logs||[]).length) {
+      if (body) body.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No emails logged yet.</td></tr>`;
+      return;
+    }
+
+    const examMap = {};
+    (exams||[]).forEach(e => { examMap[e.id] = e.title; });
+
+    const typeBadge = t => {
+      if (t === 'invite')  return `<span style="background:#dbeafe;color:#1d4ed8;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Invite</span>`;
+      if (t === 'results') return `<span style="background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Results</span>`;
+      if (t === 'retake')  return `<span style="background:#fef3c7;color:#92400e;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Retake</span>`;
+      if (t === 'ticket')  return `<span style="background:#fee2e2;color:#991b1b;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Ticket</span>`;
+      return `<span style="background:#f1f5f9;color:#64748b;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">${esc(t||'—')}</span>`;
+    };
+
+    const statusBadge = s => {
+      if (s === 'sent')    return `<span style="background:#dcfce7;color:#16a34a;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Sent</span>`;
+      if (s === 'bounced') return `<span style="background:#fee2e2;color:#991b1b;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Bounced</span>`;
+      return `<span style="background:#f1f5f9;color:#64748b;font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;">Failed</span>`;
+    };
+
+    _saEmailRows = (logs||[]).map(l => {
+      const exam   = l.exam_id ? (examMap[l.exam_id] || '—') : '—';
+      const search = `${l.to_email||''} ${exam}`.toLowerCase();
+      return { type: l.type || '', search, html: `<tr data-search="${search}" data-type="${l.type||''}" style="border-bottom:1px solid #f1f5f9;">
+        <td style="padding:10px 14px;">${typeBadge(l.type)}</td>
+        <td style="padding:10px 14px;color:#64748b;font-size:0.82rem;">${esc(l.to_email||'—')}</td>
+        <td style="padding:10px 14px;color:#64748b;">${esc(exam)}</td>
+        <td style="padding:10px 14px;color:#94a3b8;">${l.created_at ? _relTime(l.created_at) : '—'}</td>
+        <td style="padding:10px 14px;">${statusBadge(l.status)}</td>
+      </tr>` };
+    });
+
+    if (body) body.innerHTML = _saEmailRows.map(r => r.html).join('');
+  }
+
+  function _saEmailFilter() {
+    const q    = (document.getElementById('saEmail-search')?.value || '').toLowerCase().trim();
+    const type = (document.getElementById('saEmail-type')?.value   || '').toLowerCase();
+    document.querySelectorAll('#saEmail-body tr[data-search]').forEach(row => {
+      const matchQ    = !q    || row.dataset.search.includes(q);
+      const matchType = !type || row.dataset.type === type;
+      row.style.display = (matchQ && matchType) ? '' : 'none';
     });
   }
 
