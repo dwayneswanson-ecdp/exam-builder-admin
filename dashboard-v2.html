@@ -2972,7 +2972,7 @@
             <div style="font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Teacher comment</div>
             <textarea id="sd-comment-${i}" data-qidx="${i}" class="sd-comment-inp" rows="4"
               placeholder="Add a comment — visible to the student when results are sent."
-              onchange="sdSetOpenComment(${i}, this.value)">${esc(savedComment)}</textarea>
+              oninput="sdSetOpenComment(${i}, this.value)">${esc(savedComment)}</textarea>
           </div>`);
       } else {
         const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
@@ -3002,7 +3002,6 @@
     const hasMCQ = mcqRows.length > 0;
 
     pane.innerHTML = `
-      <button class="sd-save-btn" id="sdSaveBtn" onclick="sdSaveGrades()">Save grades</button>
       <div class="card" style="padding:0;overflow:hidden;">
         ${hasMCQ ? `
           <div style="padding:12px 16px 0;font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;">Multiple Choice</div>
@@ -3014,7 +3013,11 @@
           </div>` : ''}
         ${hasOpen ? `
           <div style="padding:12px 16px 0;font-size:0.65rem;font-weight:700;color:#94a3b8;letter-spacing:0.08em;text-transform:uppercase;${hasMCQ ? 'border-top:1px solid #e2e8f0;' : ''}">Open Questions</div>
-          ${openCards.join('')}` : ''}
+          ${openCards.join('')}
+          <div style="padding:12px 16px;border-top:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;">
+            <button class="btn btn-primary btn-sm" id="sdSaveBtn" onclick="sdSaveGrades()">Save grades</button>
+            <span id="sdSavedChip" style="font-size:0.72rem;color:#16a34a;font-weight:600;opacity:0;transition:opacity 0.4s;"></span>
+          </div>` : ''}
         <div style="border-top:2px solid #e2e8f0;padding:12px 16px;display:flex;justify-content:flex-end;gap:16px;">
           <span style="font-size:0.82rem;color:#64748b;">Total</span>
           <span style="font-size:0.82rem;font-weight:600;color:#0f172a;">${totalEarned} / ${scoreMax} pts &nbsp;·&nbsp; ${pctStr}</span>
@@ -3055,14 +3058,14 @@
 
   function sdSetOpenScore(qIdx, val, max) {
     _sdPendingScores[qIdx] = val === '' ? null : Math.min(parseFloat(val) || 0, max);
-    const btn = document.getElementById('sdSaveBtn');
-    if (btn) { btn.style.display = 'inline-block'; btn.textContent = 'Save grades'; btn.classList.remove('saved'); btn.disabled = false; }
+    const chip = document.getElementById('sdSavedChip');
+    if (chip) chip.style.opacity = '0';
   }
 
   function sdSetOpenComment(qIdx, val) {
     _sdPendingComments[qIdx] = val;
-    const btn = document.getElementById('sdSaveBtn');
-    if (btn) { btn.style.display = 'inline-block'; btn.textContent = 'Save grades'; btn.classList.remove('saved'); btn.disabled = false; }
+    const chip = document.getElementById('sdSavedChip');
+    if (chip) chip.style.opacity = '0';
   }
 
   function sdFlash(el) {
@@ -3193,9 +3196,11 @@
       drillCurrentAttempt.open_comments = openComments;
       _sdPendingScores = {};
       _sdPendingComments = {};
-      if (btn) { btn.textContent = 'Saved ✓'; btn.classList.add('saved'); }
+      const chip = document.getElementById('sdSavedChip');
+      if (btn) { btn.textContent = 'Save grades'; btn.disabled = false; }
+      if (chip) { chip.textContent = '✓ Saved'; chip.style.opacity = '1'; }
       _sdRenderMetaStrip();
-      setTimeout(() => { if (btn) { btn.style.display = 'none'; btn.classList.remove('saved'); btn.disabled = false; } }, 2200);
+      setTimeout(() => { if (chip) chip.style.opacity = '0'; }, 2500);
     } else {
       if (btn) { btn.textContent = 'Save grades'; btn.disabled = false; }
       showToast('Failed to save — please try again.');
