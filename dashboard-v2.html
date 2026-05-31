@@ -3125,6 +3125,10 @@
     if (e2) console.error('sa-teachers/institution_teachers:', e2);
     if (e3) console.error('sa-teachers/institution_admins:', e3);
     if (e4) console.error('sa-teachers/exams:', e4);
+    console.log('teachers result:', { data: teachers, error: e1 });
+    console.log('instTeachers result:', { data: tLinks, error: e2 });
+    console.log('instAdmins result:', { data: aLinks, error: e3 });
+    console.log('exams result:', { data: exams, error: e4 });
 
     const instMap = {};
     [...(tLinks||[]), ...(aLinks||[])].forEach(l => {
@@ -3183,6 +3187,8 @@
     ]);
     if (e1) console.error('sa-all-exams/exams:', e1);
     if (e2) console.error('sa-all-exams/institution_teachers:', e2);
+    console.log('exams result:', { data: exams, error: e1 });
+    console.log('instTeachers result:', { data: instTeachers, error: e2 });
 
     if (!(exams||[]).length) {
       if (body) body.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No exams yet.</td></tr>`;
