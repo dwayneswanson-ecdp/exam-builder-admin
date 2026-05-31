@@ -2163,6 +2163,10 @@
         <div class="stat-block-val" style="color:#16a34a;" id="saDash-submissions">—</div>
         <div class="stat-block-lbl">Total Submissions</div>
       </div>
+      <div class="card stat-block" style="cursor:pointer;transition:border-color 0.15s;" onclick="navigate('sa-emails')" onmouseenter="this.style.borderColor='#2563eb'" onmouseleave="this.style.borderColor='#e2e8f0'">
+        <div class="stat-block-val" style="color:#64748b;" id="saDash-emails">—</div>
+        <div class="stat-block-lbl">Emails Sent</div>
+      </div>
     </div>
     <div class="card">
       <div class="card-header"><div class="card-title">Recent Submissions</div></div>
@@ -3099,18 +3103,19 @@
   // ── SUPER ADMIN ──────────────────────────────────────────────────────
 
   async function loadSaDashboard() {
-    ['institutions','teachers','exams','submissions'].forEach(k => {
+    ['institutions','teachers','exams','submissions','emails'].forEach(k => {
       const el = document.getElementById(`saDash-${k}`);
       if (el) el.textContent = '…';
     });
     const body = document.getElementById('saDash-activityBody');
     if (body) body.innerHTML = `<tr><td colspan="5" style="padding:24px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
 
-    const [instRes, teachRes, examRes, subRes, actRes] = await Promise.all([
+    const [instRes, teachRes, examRes, subRes, emailRes, actRes] = await Promise.all([
       sb.from('institutions').select('id', {count:'exact', head:true}),
       sb.from('teachers').select('id', {count:'exact', head:true}).eq('role','teacher'),
       sb.from('exams').select('id', {count:'exact', head:true}).eq('status','published'),
       sb.from('exam_attempts').select('id', {count:'exact', head:true}).eq('status','submitted'),
+      sb.from('email_logs').select('id', {count:'exact', head:true}),
       sb.from('exam_attempts')
         .select('student_name, score, score_max, submitted_at, exams(title, teacher_id)')
         .eq('status','submitted')
@@ -3122,6 +3127,7 @@
     document.getElementById('saDash-teachers').textContent     = teachRes.count ?? '—';
     document.getElementById('saDash-exams').textContent        = examRes.count ?? '—';
     document.getElementById('saDash-submissions').textContent  = subRes.count ?? '—';
+    document.getElementById('saDash-emails').textContent       = emailRes.count ?? '—';
 
     const attempts = actRes.data || [];
     const teacherIds = [...new Set(attempts.map(a => a.exams?.teacher_id).filter(Boolean))];
