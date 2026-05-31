@@ -1128,7 +1128,7 @@
       let poolAdjustedMcq  = mcqTotal;
       let poolAdjustedOpen = openMaxTotal;
 
-      if (sectionMeta.some(s => s.pool_draw && s.pool_total && s.pool_draw < s.pool_total)) {
+      if (sectionMeta.some(s => Number(s.pool_draw) > 0)) {
         // Rebuild counts using only drawn questions per pool section
         let secQCount = {}; // sectionId -> count of questions seen so far
         let adjMcq = 0, adjOpen = 0;
@@ -1139,8 +1139,8 @@
           if (!secQCount[secId]) secQCount[secId] = 0;
           secQCount[secId]++;
 
-          // If this section has pool_draw, only count up to pool_draw questions
-          const draw = sec?.pool_draw || null;
+          // Use pool_draw (not pool_total) as the per-student question limit
+          const draw = sec?.pool_draw ? Number(sec.pool_draw) : null;
           const visible = !draw || secQCount[secId] <= draw;
 
           if (visible) {
