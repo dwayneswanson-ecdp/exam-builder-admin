@@ -3204,8 +3204,8 @@
 
     // Batch question counts
     const examIds = exams.map(e => e.id);
-    const { data: qRows, error: e3 } = await sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds);
-    if (e3) console.error('sa-all-exams/questions:', e3);
+    const { data: qRows, error: e3b } = await sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds);
+    if (e3b) console.error('sa-all-exams/questions:', e3b);
     const qCount = {};
     (qRows||[]).forEach(q => { qCount[q.exam_id] = (qCount[q.exam_id]||0) + 1; });
 
