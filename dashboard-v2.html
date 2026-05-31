@@ -2715,7 +2715,7 @@
   async function _sdLoadData() {
     if (!drillCurrentAttempt || !drillCurrentExam) return;
     try {
-      const qRes = await sb.from('questions').select('id,type,question_text,correct_answer,options,max_points,order_index').eq('exam_id', drillCurrentExam.id).neq('type','section').order('order_index');
+      const qRes = await sb.from('questions').select('id,type,question_text,option_a,option_b,option_c,option_d,correct_index,grading_criteria,max_points,position').eq('exam_id', drillCurrentExam.id).neq('type','section').order('position', { ascending: true });
       _sdQuestions = qRes.data || [];
     } catch(e) {
       _sdQuestions = [];
@@ -2823,12 +2823,13 @@
         earned = openScores[i] !== undefined ? openScores[i] : '';
         isCorrect = null;
       } else {
-        const opts = Array.isArray(q.options) ? q.options : [];
+        const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
         const selIdx = parseInt(rawAns, 10);
-        const selText = !isNaN(selIdx) ? (opts[selIdx] || String(rawAns)) : '—';
+        const selText = !isNaN(selIdx) ? (opts[selIdx] || '—') : '—';
+        const correctText = opts[q.correct_index] || '—';
         studentAns = esc(selText);
-        correctAns = esc(q.correct_answer || '—');
-        isCorrect = a.score_mcq !== null && rawAns !== undefined ? (selText === q.correct_answer) : null;
+        correctAns = esc(correctText);
+        isCorrect = a.score_mcq !== null && !isNaN(selIdx) ? (selIdx === q.correct_index) : null;
         earned = isCorrect === true ? (q.max_points || 1) : isCorrect === false ? 0 : '';
       }
       const pendingGrade = isOpen && a.score_mcq === null;
