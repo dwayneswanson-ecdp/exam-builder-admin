@@ -2935,6 +2935,8 @@
     const { data: teacher } = await sb.from('teachers').select('*').eq('id', user.id).single();
     if (!teacher) {
       document.getElementById('loginError').textContent = 'No account found for this user.';
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.textContent = 'Sign in'; loginBtn.disabled = false;
       return;
     }
     currentTeacher = teacher;
