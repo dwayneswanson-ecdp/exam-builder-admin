@@ -303,6 +303,12 @@
     .email-tag-remove:hover { opacity: 1; }
     #confirmModal { display: none; position: absolute; top: 0; left: 0; width: 100%; min-height: 100%; background: rgba(15,23,42,0.45); z-index: 8000; align-items: flex-start; justify-content: center; padding-top: 10vh; padding-bottom: 40px; box-sizing: border-box; }
     #confirmModal.open { display: flex; }
+    #ticketModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9000;align-items:center;justify-content:center; }
+    #ticketModal.open { display:flex; }
+    #ticketFloatBtn { position:fixed;bottom:24px;right:24px;z-index:800;background:#0f172a;color:#fff;border:none;border-radius:50%;width:46px;height:46px;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:none;align-items:center;justify-content:center;transition:background 0.15s; }
+    #ticketFloatBtn:hover { background:#1e293b; }
+    .tick-cat { font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap; }
+    .tick-status { font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap; }
     .confirm-modal-box { background: white; border-radius: 14px; max-width: 420px; width: calc(100% - 32px); padding: 24px 28px; box-sizing: border-box; }
     .confirm-list { font-family: monospace; font-size: 13px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px 12px; margin: 8px 0 0; line-height: 1.6; }
     .preview-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; font-size: 0.78rem; color: #475569; line-height: 1.6; }
@@ -2161,6 +2167,39 @@
     </div>
   </section>
 
+  <!-- ── SUPER ADMIN TICKETS ───────────────────────────────────────── -->
+  <section class="section" id="section-sa-tickets">
+    <div class="page-header">
+      <div class="page-title">Tickets</div>
+      <div class="page-sub">Teacher-submitted issues and support requests.</div>
+    </div>
+    <div class="subtabs" style="margin-bottom:16px;">
+      <div class="subtab active" id="saTickTab-all"      onclick="_saTicketFilter('all')">All</div>
+      <div class="subtab"        id="saTickTab-open"     onclick="_saTicketFilter('open')">Open</div>
+      <div class="subtab"        id="saTickTab-resolved" onclick="_saTicketFilter('resolved')">Resolved</div>
+    </div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Category</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Description</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Teacher</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Student</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Submitted</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Status</th>
+              <th style="padding:9px 14px;font-size:0.72rem;font-weight:600;color:#94a3b8;text-align:left;text-transform:uppercase;letter-spacing:0.05em;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="saTicket-body">
+            <tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ── INSTITUTIONS (Super Admin) ──────────────────────────────── -->
   <section class="section" id="section-institutions">
     <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
@@ -2239,12 +2278,48 @@
   </div>
 </div>
 
+<!-- Floating ticket report button — teacher + admin only -->
+<button id="ticketFloatBtn" onclick="openTicketModal()" title="Report an issue">🚩</button>
+
+<!-- Ticket submission modal -->
+<div id="ticketModal" onclick="closeTicketModal()">
+  <div class="confirm-modal-box" onclick="event.stopPropagation()" style="max-width:460px;">
+    <div style="font-size:16px;font-weight:600;color:#0f172a;margin-bottom:18px;">Report an issue</div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:0.75rem;font-weight:600;color:#475569;margin-bottom:5px;">Category</label>
+      <select id="ticketCategory" style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:9px 12px;font-size:0.85rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;">
+        <option>Student issue</option>
+        <option>Technical bug</option>
+        <option>Email problem</option>
+        <option>Grading issue</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-size:0.75rem;font-weight:600;color:#475569;margin-bottom:5px;">Student email <span style="font-weight:400;color:#94a3b8;">(if relevant)</span></label>
+      <input id="ticketStudentEmail" type="email" placeholder="student@example.com"
+             style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:9px 12px;font-size:0.85rem;font-family:inherit;color:#0f172a;outline:none;box-sizing:border-box;">
+    </div>
+    <div style="margin-bottom:18px;">
+      <label style="display:block;font-size:0.75rem;font-weight:600;color:#475569;margin-bottom:5px;">Description <span style="color:#dc2626;">*</span></label>
+      <textarea id="ticketDescription" rows="3" placeholder="Describe the issue…"
+                style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:9px 12px;font-size:0.85rem;font-family:inherit;color:#0f172a;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <div id="ticketDescError" style="font-size:0.75rem;color:#dc2626;margin-top:4px;min-height:1em;"></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button class="btn btn-ghost" onclick="closeTicketModal()">Cancel</button>
+      <button id="ticketSubmitBtn" class="btn btn-primary" onclick="submitTicket()">Submit</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
   const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRveGdpaGR5ZnpkeW1naWRndmFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODQ0OTYsImV4cCI6MjA5MjI2MDQ5Nn0.FOA3ZA8Eh-g231al2DS4NjGfLjIkpRlmb7_fKXz65Xo';
   const SEND_EMAIL_FN = `${SUPABASE_URL}/functions/v1/send-email`;
+  const SUPER_ADMIN_EMAIL = 'dwayne.swanson@gmail.com';
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -2706,6 +2781,8 @@
     if (saGroup) saGroup.style.display = role === 'super_admin' ? '' : 'none';
     const adminNav = document.getElementById('navMyInstitution');
     if (adminNav) adminNav.style.display = role === 'admin' ? '' : 'none';
+    const floatBtn = document.getElementById('ticketFloatBtn');
+    if (floatBtn) floatBtn.style.display = role === 'super_admin' ? 'none' : 'flex';
   }
 
   async function signOut() {
@@ -2840,6 +2917,170 @@
     document.querySelectorAll('#saTeach-body tr[data-search]').forEach(row => {
       row.style.display = (!q || row.dataset.search.includes(q)) ? '' : 'none';
     });
+  }
+
+  // ── TICKETS (super admin view) ────────────────────────────────────
+
+  const _ticketCatStyle = {
+    'Student issue':  'background:#fef3c7;color:#92400e;',
+    'Technical bug':  'background:#fee2e2;color:#991b1b;',
+    'Email problem':  'background:#dbeafe;color:#1e40af;',
+    'Grading issue':  'background:#ede9fe;color:#7c3aed;',
+    'Other':          'background:#f1f5f9;color:#64748b;',
+  };
+
+  async function loadSaTickets() {
+    const body = document.getElementById('saTicket-body');
+    if (body) body.innerHTML = `<tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">Loading…</td></tr>`;
+    ['all','open','resolved'].forEach(t => {
+      document.getElementById(`saTickTab-${t}`)?.classList.toggle('active', t === 'all');
+    });
+    const { data: tickets } = await sb.from('tickets').select('*').order('created_at', {ascending:false});
+    window._saTicketData = tickets || [];
+    _saTicketRender(window._saTicketData);
+  }
+
+  function _saTicketFilter(status) {
+    ['all','open','resolved'].forEach(t => {
+      document.getElementById(`saTickTab-${t}`)?.classList.toggle('active', t === status);
+    });
+    const data = (window._saTicketData || []).filter(t => status === 'all' || t.status === status);
+    _saTicketRender(data);
+  }
+
+  function _saTicketRender(tickets) {
+    const body = document.getElementById('saTicket-body');
+    if (!body) return;
+    if (!tickets.length) {
+      body.innerHTML = `<tr><td colspan="7" style="padding:40px;text-align:center;color:#94a3b8;font-size:0.82rem;">No tickets yet — teachers can report issues from their dashboard.</td></tr>`;
+      return;
+    }
+    body.innerHTML = tickets.map(t => {
+      const catStyle  = _ticketCatStyle[t.category] || _ticketCatStyle['Other'];
+      const statusStyle = t.status === 'resolved'
+        ? 'background:#dcfce7;color:#166534;'
+        : 'background:#fef3c7;color:#92400e;';
+      const date = t.created_at ? new Date(t.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+      const desc = t.description ? (t.description.length > 60 ? t.description.slice(0,60) + '…' : t.description) : '—';
+      const resolveBtn = t.status === 'open'
+        ? `<button onclick="_saResolveOpen('${t.id}')" style="font-size:0.75rem;color:#2563eb;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;margin-left:8px;">Mark resolved</button>`
+        : '';
+      return `
+        <tr class="saTicket-row" data-id="${t.id}">
+          <td><span class="tick-cat" style="${catStyle}">${esc(t.category||'—')}</span></td>
+          <td style="max-width:220px;color:#475569;">${esc(desc)}</td>
+          <td style="font-size:0.82rem;">${esc(t.teacher_name||'—')}</td>
+          <td style="font-size:0.82rem;color:#64748b;">${esc(t.student_email||'—')}</td>
+          <td style="color:#94a3b8;white-space:nowrap;">${date}</td>
+          <td><span class="tick-status" style="${statusStyle}">${t.status||'open'}</span></td>
+          <td style="white-space:nowrap;">
+            <button onclick="_saExpandTicket('${t.id}')" style="font-size:0.75rem;color:#2563eb;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;">View details</button>
+            ${resolveBtn}
+          </td>
+        </tr>
+        <tr id="saTickDetail-${t.id}" style="display:none;background:#f8fafc;">
+          <td colspan="7" style="padding:14px 18px;" id="saTickDetailContent-${t.id}"></td>
+        </tr>`;
+    }).join('');
+  }
+
+  function _saExpandTicket(id) {
+    const row  = document.getElementById(`saTickDetail-${id}`);
+    const cell = document.getElementById(`saTickDetailContent-${id}`);
+    if (!row || !cell) return;
+    const isOpen = row.style.display !== 'none';
+    if (isOpen) { row.style.display = 'none'; return; }
+    const t = (window._saTicketData||[]).find(x => x.id === id);
+    if (!t) return;
+    const resolved = t.status === 'resolved'
+      ? `<div style="margin-top:10px;font-size:0.78rem;color:#64748b;"><strong>Resolution note:</strong> ${esc(t.resolution_note||'—')}</div>
+         <div style="font-size:0.75rem;color:#94a3b8;margin-top:2px;">Resolved ${t.resolved_at ? new Date(t.resolved_at).toLocaleString() : ''}</div>`
+      : '';
+    cell.innerHTML = `
+      <div style="font-size:0.82rem;color:#0f172a;margin-bottom:6px;"><strong>Full description:</strong></div>
+      <div style="font-size:0.82rem;color:#475569;white-space:pre-wrap;line-height:1.6;">${esc(t.description||'—')}</div>
+      ${t.student_email ? `<div style="margin-top:8px;font-size:0.78rem;color:#64748b;"><strong>Student:</strong> ${esc(t.student_email)}</div>` : ''}
+      <div style="margin-top:6px;font-size:0.78rem;color:#94a3b8;"><strong>Teacher email:</strong> ${esc(t.teacher_email||'—')}</div>
+      ${resolved}`;
+    row.style.display = '';
+  }
+
+  function _saResolveOpen(id) {
+    const row  = document.getElementById(`saTickDetail-${id}`);
+    const cell = document.getElementById(`saTickDetailContent-${id}`);
+    if (!row || !cell) return;
+    row.style.display = '';
+    cell.innerHTML = `
+      <div style="font-size:0.82rem;font-weight:600;color:#0f172a;margin-bottom:8px;">Resolution note</div>
+      <textarea id="saResolveNote-${id}" rows="2" placeholder="Describe how this was resolved…"
+                style="width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;font-size:0.82rem;font-family:inherit;color:#0f172a;outline:none;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" onclick="_saResolveTicket('${id}')">Confirm resolved</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('saTickDetail-${id}').style.display='none'">Cancel</button>
+      </div>`;
+  }
+
+  async function _saResolveTicket(id) {
+    const note = document.getElementById(`saResolveNote-${id}`)?.value.trim() || '';
+    const btn  = document.querySelector(`[onclick="_saResolveTicket('${id}')"]`);
+    if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+    const { error } = await sb.from('tickets').update({
+      status: 'resolved',
+      resolved_at: new Date().toISOString(),
+      resolution_note: note
+    }).eq('id', id);
+    if (error) { showToast('Error saving — try again.'); if (btn) { btn.textContent = 'Confirm resolved'; btn.disabled = false; } return; }
+    const idx = (window._saTicketData||[]).findIndex(t => t.id === id);
+    if (idx > -1) {
+      window._saTicketData[idx].status = 'resolved';
+      window._saTicketData[idx].resolved_at = new Date().toISOString();
+      window._saTicketData[idx].resolution_note = note;
+    }
+    showToast('Ticket marked as resolved.');
+    const activeTab = document.querySelector('.subtab.active[id^="saTickTab-"]')?.id?.replace('saTickTab-','') || 'all';
+    _saTicketFilter(activeTab);
+  }
+
+  // ── TICKETS (teacher submit) ──────────────────────────────────────
+
+  function openTicketModal() {
+    document.getElementById('ticketCategory').value    = 'Student issue';
+    document.getElementById('ticketStudentEmail').value = '';
+    document.getElementById('ticketDescription').value  = '';
+    document.getElementById('ticketDescError').textContent = '';
+    const btn = document.getElementById('ticketSubmitBtn');
+    if (btn) { btn.textContent = 'Submit'; btn.disabled = false; }
+    document.getElementById('ticketModal').classList.add('open');
+  }
+
+  function closeTicketModal() {
+    document.getElementById('ticketModal').classList.remove('open');
+  }
+
+  async function submitTicket() {
+    const desc = document.getElementById('ticketDescription').value.trim();
+    const errEl = document.getElementById('ticketDescError');
+    if (!desc) { errEl.textContent = 'Description is required.'; return; }
+    errEl.textContent = '';
+    const btn = document.getElementById('ticketSubmitBtn');
+    btn.textContent = 'Submitting…'; btn.disabled = true;
+    const payload = {
+      teacher_id:    currentTeacher?.id    || null,
+      teacher_name:  currentTeacher?.full_name || currentTeacher?.email || '',
+      teacher_email: currentTeacher?.email  || '',
+      category:      document.getElementById('ticketCategory').value,
+      student_email: document.getElementById('ticketStudentEmail').value.trim() || null,
+      description:   desc,
+      status:        'open'
+    };
+    const { error } = await sb.from('tickets').insert(payload);
+    if (error) {
+      errEl.textContent = 'Failed to submit — please try again.';
+      btn.textContent = 'Submit'; btn.disabled = false;
+      return;
+    }
+    closeTicketModal();
+    showToast('Issue reported — we\'ll look into it shortly.');
   }
 
   async function loadInstitutions() {
