@@ -1152,7 +1152,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Group</th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Created</th><th style="width:40px;"></th></tr></thead>
+            <thead><tr><th>Group</th><th>Code</th><th style="width:40px;"></th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Created</th><th style="width:40px;"></th></tr></thead>
             <tbody id="drillGroupsTable"></tbody>
           </table>
         </div>
@@ -4331,12 +4331,26 @@
       if (!groupMap[g]) groupMap[g] = { name: g, submitted: 0, graded: 0, pending: 0 };
     });
     const rows = Object.values(groupMap);
+    let codes = {};
+    try { codes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
     if (!rows.length) {
-      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-title">No groups yet</div><div class="empty-sub">Add a group or wait for students to submit.</div></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-title">No groups yet</div><div class="empty-sub">Add a group or wait for students to submit.</div></div></td></tr>`;
       return;
     }
-    tbody.innerHTML = rows.map(g => `<tr class="tr-click" onclick="drillToGroup('${g.name.replace(/'/g, "\\'")}')">
+    const _svgCopy = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+    const _svgLink = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+    tbody.innerHTML = rows.map(g => {
+      const code  = codes[g.name] || '';
+      const gLink = `https://examify.app/exam-engine.html?id=${drillCurrentExam.share_id}&group=${encodeURIComponent(g.name)}&code=${code}`;
+      const codeJs  = JSON.stringify(code);
+      const gLinkJs = JSON.stringify(gLink);
+      return `<tr class="tr-click" onclick="drillToGroup('${g.name.replace(/'/g, "\\'")}')">
       <td style="font-weight:600;">${esc(g.name)}</td>
+      <td onclick="event.stopPropagation()" style="color:#0f172a;"><span style="font-family:monospace;font-size:0.88rem;">${esc(code) || '—'}</span></td>
+      <td onclick="event.stopPropagation()" style="white-space:nowrap;">
+        <button onclick="copyCodeWithFeedback(${codeJs},this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;line-height:1;" title="Copy code">${_svgCopy}</button>
+        <button onclick="copyCodeWithFeedback(${gLinkJs},this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;line-height:1;" title="Copy link">${_svgLink}</button>
+      </td>
       <td style="color:#64748b;">${g.submitted}</td>
       <td style="color:#64748b;">${g.graded}</td>
       <td style="color:#64748b;">${g.pending}</td>
@@ -4349,7 +4363,8 @@
           </div>
         </div>
       </td>
-    </tr>`).join('');
+    </tr>`;
+    }).join('');
   }
 
   function copyToClipboard(val) {
@@ -5401,9 +5416,9 @@
     let groupCodes = {};
     try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
     _drillGroupCode = groupCodes[groupName] || drillCurrentExam.access_code || '';
-    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://examify.app';
     const isDefault = !groupName || groupName === '(Default)';
-    _drillGroupLink = `${base}/exam-engine.html?id=${drillCurrentExam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}`;
+    _drillGroupLink = `${base}/exam-engine.html?id=${drillCurrentExam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}&code=${_drillGroupCode}`;
     const codeEl = document.getElementById('drillInfoCode');
     const linkEl = document.getElementById('drillInfoLink');
     if (codeEl) codeEl.textContent = _drillGroupCode || '—';
