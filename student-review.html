@@ -876,7 +876,10 @@
       document.querySelectorAll('.score-text-input').forEach(input => {
         const idx = parseInt(input.dataset.qidx, 10);
         const val = input.value.trim();
-        if (val !== '') openScores[idx] = parseFloat(val) || 0;
+        if (val !== '') {
+          const parsed = parseFloat(val);
+          openScores[idx] = isNaN(parsed) ? 0 : parsed;
+        }
       });
 
       document.querySelectorAll('.comment-textarea').forEach(ta => {
@@ -884,9 +887,10 @@
         openComments[idx] = ta.value.trim();
       });
 
-      // Check if all visible open questions are now graded
-      const allInputs = document.querySelectorAll('.score-text-input');
-      const allGraded = allInputs.length > 0 && [...allInputs].every(inp => inp.value.trim() !== '');
+      // Check if all visible open questions are now graded (idx in openScores handles score=0)
+      const openInputIdxs = [...document.querySelectorAll('.score-text-input')]
+        .map(inp => parseInt(inp.dataset.qidx, 10));
+      const allGraded = openInputIdxs.length > 0 && openInputIdxs.every(idx => idx in openScores);
 
       const updatePayload = { open_scores: openScores, open_comments: openComments };
       if (allGraded) updatePayload.status = 'graded';
