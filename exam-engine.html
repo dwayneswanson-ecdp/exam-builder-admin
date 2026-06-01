@@ -496,6 +496,7 @@
   let VISIBLE_TOTAL = 0; // count of questions visible after pool selection
   let urlGroup = null;   // pre-selected group from ?group= URL param
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  const isSEB    = navigator.userAgent.includes('SEB');
 
   // ============================================================
   //  SHUFFLE HELPERS
@@ -930,8 +931,8 @@
     isStartingExam = true;
     setTimeout(() => { isStartingExam = false; }, 1200);
 
-    // Fullscreen
-    if (document.documentElement.requestFullscreen) {
+    // Fullscreen — skip in SEB (SEB owns OS-level fullscreen; requestFullscreen causes false fullscreenchange events)
+    if (!isSEB && document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
 
@@ -1657,7 +1658,7 @@
     document.getElementById('exitOverlay').style.display = 'none';
     setOverlayActive(false);
     logEvent('Student returned', 'After warning #' + violationCount);
-    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+    if (!isSEB && !document.fullscreenElement && document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
   });
@@ -1701,6 +1702,7 @@
     askToExit('Vous avez quitté la fenêtre.', 'blur');
   });
   document.addEventListener('fullscreenchange', () => {
+    if (isSEB) return;
     if (!examActive || examSubmitted || isStartingExam) return;
     if (Date.now() < antiCheatSuspendedUntil) return;
     if (!document.fullscreenElement) { logEvent('Fullscreen exited', 'fullscreenchange'); askToExit('Vous avez quitté le plein écran.', 'fullscreenchange'); }
