@@ -5,6 +5,12 @@ Project: toxgihdyfzdymgidgvaq
 
 ---
 
+## Known Limitations
+
+- **exam-engine.html exists in two repos** — `exam-builder-admin` and `testflo-exam`. Changes must be manually synced until a shared build pipeline is set up.
+
+---
+
 ## Phase 3 — RLS & Edge Function Migration (COMPLETE)
 
 All student-facing database operations moved from direct anonymous Supabase calls
