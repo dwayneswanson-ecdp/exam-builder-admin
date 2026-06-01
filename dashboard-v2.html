@@ -1185,12 +1185,12 @@
         <span>
           <span style="color:#64748b;font-weight:600;">Access code:</span>
           <span id="drillInfoCode" style="font-family:monospace;margin:0 5px;color:#0f172a;">—</span>
-          <button onclick="copyCodeWithFeedback(_drillGroupCode,this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;vertical-align:middle;line-height:1;" title="Copy access code"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></button>
+          <button onclick="copyCodeWithFeedback(_drillGroupCode,this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;vertical-align:middle;line-height:1;" title="Copy access code"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
         </span>
         <span>
           <span style="color:#64748b;font-weight:600;">Exam link:</span>
           <span id="drillInfoLink" style="color:#2563eb;font-size:0.78rem;margin:0 5px;"></span>
-          <button onclick="copyToClipboard(_drillGroupLink)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy exam link">📋</button>
+          <button onclick="copyToClipboard(_drillGroupLink)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;vertical-align:middle;line-height:1;" title="Copy exam link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
         </span>
       </div>
       <div class="bulk-bar" id="drillBulkBar">
@@ -1330,12 +1330,12 @@
         <span>
           <span style="color:#64748b;font-weight:600;">Access code:</span>
           <span id="subsL3InfoCode" style="font-family:monospace;margin:0 5px;color:#0f172a;">—</span>
-          <button onclick="copyToClipboard(_subsGroupCode)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy access code">📋</button>
+          <button onclick="copyToClipboard(_subsGroupCode)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;vertical-align:middle;line-height:1;" title="Copy access code"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
         </span>
         <span>
           <span style="color:#64748b;font-weight:600;">Exam link:</span>
           <span id="subsL3InfoLink" style="color:#2563eb;font-size:0.78rem;margin:0 5px;"></span>
-          <button onclick="copyToClipboard(_subsGroupLink)" style="background:none;border:none;cursor:pointer;padding:0;color:#94a3b8;font-size:0.85rem;vertical-align:middle;" title="Copy exam link">📋</button>
+          <button onclick="copyToClipboard(_subsGroupLink)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;vertical-align:middle;line-height:1;" title="Copy exam link"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
         </span>
       </div>
       <div class="card">
@@ -5474,7 +5474,7 @@
     const graded    = groupAttempts.filter(a => a.score_mcq !== null).length;
     const pending   = groupAttempts.filter(a => a.score_mcq === null).length;
     const code = _drillGroupCode || '';
-    const _svg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>';
+    const _svg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
     const copyBtn = code ? `<button onclick="copyCodeWithFeedback(${JSON.stringify(code)},this)" style="background:none;border:none;cursor:pointer;padding:2px 4px;color:#94a3b8;border-radius:3px;line-height:1;" title="Copy access code">${_svg}</button>` : '';
     const div = '<div class="drill-strip-div"></div>';
     const envSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>';
@@ -6352,7 +6352,7 @@
     if (_examMenuBtn === btn) { closeExamDotMenu(); return; }
     closeExamDotMenu();
     const _svg = {
-      copy: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`,
+      copy: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`,
       subs: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
       dup:  `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,
       arch: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>`
