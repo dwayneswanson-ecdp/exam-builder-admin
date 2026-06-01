@@ -4285,10 +4285,12 @@
     renderDrillL2Strip(true);
     const [{ data }, { data: qs }] = await Promise.all([
       sb.from('exam_attempts').select('*').eq('exam_id', examId).order('submitted_at', { ascending: false }),
-      sb.from('questions').select('type,max_points').eq('exam_id', examId).neq('type','section')
+      sb.from('questions').select('type,max_points,pool_draw').eq('exam_id', examId).order('position', { ascending: true })
     ]);
     drillCurrentAttempts = data || [];
-    drillCurrentScoreMax = (qs||[]).reduce((s, q) => s + (q.type === 'mcq' ? 1 : (q.max_points || 5)), 0) || null;
+    { let _m = 0, _pd = null, _pc = 0;
+      (qs||[]).forEach(q => { if (q.type === 'section') { _pd = Number(q.pool_draw) > 0 ? Number(q.pool_draw) : null; _pc = 0; return; } if (_pd !== null) { if (_pc >= _pd) return; _pc++; } _m += q.type === 'mcq' ? 1 : (q.max_points || 5); });
+      drillCurrentScoreMax = _m || null; }
     renderDrillL2Strip(false);
     renderDrillGroups(drillCurrentAttempts);
   }
@@ -5958,8 +5960,10 @@
     document.getElementById('subsL3InfoCode').textContent = _subsGroupCode || '—';
     document.getElementById('subsL3InfoLink').textContent = _subsGroupLink;
     subsL3Attempts = subsAllAttempts.filter(a => a.exam_id === examId && (a.group_name || '(Default)') === groupName);
-    const { data: qs } = await sb.from('questions').select('type,max_points').eq('exam_id', examId).neq('type','section');
-    subsL3ScoreMax = (qs||[]).reduce((s, q) => s + (q.type === 'mcq' ? 1 : (q.max_points || 5)), 0) || null;
+    const { data: qs } = await sb.from('questions').select('type,max_points,pool_draw').eq('exam_id', examId).order('position', { ascending: true });
+    { let _m = 0, _pd = null, _pc = 0;
+      (qs||[]).forEach(q => { if (q.type === 'section') { _pd = Number(q.pool_draw) > 0 ? Number(q.pool_draw) : null; _pc = 0; return; } if (_pd !== null) { if (_pc >= _pd) return; _pc++; } _m += q.type === 'mcq' ? 1 : (q.max_points || 5); });
+      subsL3ScoreMax = _m || null; }
     subsL3UpdateBulkBar();
     filterSubsL3Students();
   }
