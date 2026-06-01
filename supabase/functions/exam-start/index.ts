@@ -51,7 +51,31 @@ Deno.serve(async (req) => {
     const { share_id, access_code, student_name, student_email, group_name, shuffle_map } =
       await req.json();
 
-    if (!share_id || !access_code || !student_name || !student_email) {
+    if (!share_id) {
+      return respond({ error: "Missing required fields" }, 400);
+    }
+
+    // ── 0. Metadata-only mode — boot() pre-login fetch ───────────────────────
+    // Called with only share_id to populate the login screen before the student
+    // enters their details. Returns public info only — no attempt is created.
+    if (!access_code && !student_name && !student_email) {
+      const metaRes = await dbGet(
+        `exams?share_id=eq.${encodeURIComponent(share_id)}&status=eq.published` +
+        `&select=title,duration_mins,lang&limit=1`
+      );
+      if (!metaRes.ok || !metaRes.data || metaRes.data.length === 0) {
+        return respond({ error: "Exam not found or not published" }, 404);
+      }
+      const meta = metaRes.data[0];
+      return respond({
+        title:         meta.title          ?? "",
+        duration_mins: meta.duration_mins  ?? 0,
+        lang:          meta.lang           ?? "fr",
+      });
+    }
+
+    // ── Full-start mode — requires all login fields ───────────────────────────
+    if (!access_code || !student_name || !student_email) {
       return respond({ error: "Missing required fields" }, 400);
     }
 
