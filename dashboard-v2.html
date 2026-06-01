@@ -4693,14 +4693,15 @@
     const autoSubmitted  = log.some(e => ev(e).includes('auto') || ev(e).includes('terminé') || ev(e).includes('automatique'));
     const modalAbuse     = log.filter(e => ev(e).includes('modal')).length > 1;
     const suspicionCount = log.filter(e => ev(e).includes('suspendu')).length;
+    const dbSuspiciousFlag = !!(drillCurrentAttempt && drillCurrentAttempt.suspicious_flag);
     let bg, border, icon, riskLabel, bodyText;
     if (violationCount >= 3 || (autoSubmitted && pasteCount > 0)) {
       bg = '#fef2f2'; border = '#fecaca'; icon = '🔴'; riskLabel = 'High Risk';
       const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', autoSubmitted ? 'auto-submitted' : ''].filter(Boolean);
       bodyText = parts.join(' · ');
-    } else if (violationCount >= 2 || pasteCount > 0 || modalAbuse) {
+    } else if (violationCount >= 2 || pasteCount > 0 || modalAbuse || dbSuspiciousFlag) {
       bg = '#fefce8'; border = '#fde68a'; icon = '🟡'; riskLabel = 'Moderately Suspicious';
-      const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', modalAbuse ? 'repeated modal use' : ''].filter(Boolean);
+      const parts = [violationCount > 0 ? `${violationCount} exit${violationCount !== 1 ? 's' : ''} detected` : '', pasteCount > 0 ? `${pasteCount} paste attempt${pasteCount !== 1 ? 's' : ''}` : '', modalAbuse ? 'repeated modal use' : '', dbSuspiciousFlag ? 'fast-answer pattern detected' : ''].filter(Boolean);
       bodyText = parts.join(' · ');
     } else {
       bg = '#f0fdf4'; border = '#bbf7d0'; icon = '🟢'; riskLabel = 'No Issues';
@@ -5536,9 +5537,10 @@
     tbody.innerHTML = attempts.map(a => {
       const checked = drillSelectedIds.has(a.id) ? 'checked' : '';
       if (!a.id) console.warn('Missing attempt ID for student:', a.student_name);
+      const suspFlag = a.suspicious_flag ? ` <span title="Suspicious activity detected during exam" style="font-size:0.85em;">⚠️</span>` : '';
       const nameEl = a.id
-        ? `<a onclick="drillToStudent('${a.id}')" style="font-weight:500;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>`
-        : `<span style="font-weight:500;">${esc(fmtStudentName(a.student_name))}</span>`;
+        ? `<a onclick="drillToStudent('${a.id}')" style="font-weight:500;cursor:pointer;color:#2563eb;text-decoration:none;">${esc(fmtStudentName(a.student_name))}</a>${suspFlag}`
+        : `<span style="font-weight:500;">${esc(fmtStudentName(a.student_name))}</span>${suspFlag}`;
       const sc = calcScore(a);
       const scoreText = a.score_mcq !== null
         ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
@@ -6020,7 +6022,7 @@
       return `<tr class="student-row">
         <td onclick="event.stopPropagation()"><input type="checkbox" ${checked} onchange="subsL3ToggleSelect('${a.id}',this)"></td>
         <td>
-          <span onclick="openStudentReview('${a.id}','${esc(subsCurrentExam?.id||'')}','subs','${esc(subsCurrentGroup||'')}')" style="font-weight:500;color:#2563eb;cursor:pointer;display:block;">${esc(fmtStudentName(a.student_name))}</span>
+          <span onclick="openStudentReview('${a.id}','${esc(subsCurrentExam?.id||'')}','subs','${esc(subsCurrentGroup||'')}')" style="font-weight:500;color:#2563eb;cursor:pointer;display:block;">${esc(fmtStudentName(a.student_name))}${a.suspicious_flag ? ' <span title="Suspicious activity detected during exam" style="font-size:0.85em;">⚠️</span>' : ''}</span>
           <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
         </td>
         <td>${studentStatusBadge(a)}</td>
