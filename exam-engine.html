@@ -836,9 +836,12 @@
     } else if (attemptId && sessionToken) {
       // Retake — credentials set by exam-retake in boot(), generate fresh shuffle for this session
       SHUFFLE_MAP = generateShuffleMap();
+      // Store credentials before any async calls — a page reload after this point restores
+      // the session from localStorage instead of re-validating the (now-consumed) retake token
       localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
       localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
+      startAutosave();
     } else {
       // Fresh start — generate shuffle and call exam-start (validates code + creates attempt)
       SHUFFLE_MAP = generateShuffleMap();
