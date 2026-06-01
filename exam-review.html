@@ -617,6 +617,59 @@
     });
   }
 
+  // ── SEB helpers ──────────────────────────────────────────────
+
+  function generateSebConfig(shareId) {
+    const examUrl = `https://exam.test-flo.com/exam-engine.html?id=${shareId}&group=`;
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>startURL</key>
+  <string>${examUrl}</string>
+  <key>sendBrowserExamKey</key>
+  <false/>
+  <key>allowQuit</key>
+  <false/>
+  <key>quitURLConfirm</key>
+  <false/>
+  <key>browserWindowAllowAddressBar</key>
+  <false/>
+  <key>newBrowserWindowByLinkPolicy</key>
+  <integer>2</integer>
+  <key>enablePlugIns</key>
+  <false/>
+  <key>enableJavaScript</key>
+  <true/>
+  <key>URLFilterEnable</key>
+  <false/>
+  <key>showTaskBar</key>
+  <false/>
+  <key>enableAltEscape</key>
+  <false/>
+  <key>enableEsc</key>
+  <false/>
+  <key>allowSpellCheck</key>
+  <false/>
+  <key>zoomMode</key>
+  <integer>1</integer>
+  <key>browserUserAgent</key>
+  <string>SEB</string>
+</dict>
+</plist>`;
+  }
+
+  async function uploadSebFile(shareId, sebXml) {
+    const fileName = `exam-${shareId}.seb`;
+    const blob = new Blob([sebXml], { type: 'application/seb' });
+    const { error } = await sb.storage
+      .from('seb-configs')
+      .upload(fileName, blob, { contentType: 'application/seb', upsert: true });
+    if (error) throw new Error('SEB upload failed: ' + error.message);
+    const { data } = sb.storage.from('seb-configs').getPublicUrl(fileName);
+    return data.publicUrl;
+  }
+
   // ── Publish ───────────────────────────────────────────────────
 
   async function publish() {
@@ -643,6 +696,14 @@
         accessCode = generateCode();
       }
 
+      let sebDownloadUrl = null;
+      try {
+        const sebXml = generateSebConfig(shareId);
+        sebDownloadUrl = await uploadSebFile(shareId, sebXml);
+      } catch (sebErr) {
+        console.warn('SEB upload skipped:', sebErr.message);
+      }
+
       const { data: examRows, error: examErr } = await sb.from('exams').insert({
         teacher_id:    session.user.id,
         teacher_email: ob.teacherEmail || session.user.email,
@@ -655,7 +716,8 @@
         groups:        groups.map(g => g.name).join(', '),
         group_codes:   JSON.stringify(groupCodes),
         instructions:  ob.instructions || null,
-        rubric:        null
+        rubric:        null,
+        seb_url:       sebDownloadUrl,
       }).select();
 
       if (examErr) throw examErr;
