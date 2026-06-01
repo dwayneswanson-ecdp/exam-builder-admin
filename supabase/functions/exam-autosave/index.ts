@@ -46,9 +46,9 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return respond({ error: "Method not allowed" }, 405);
 
   try {
-    const { attempt_id, session_token, answers_json, last_autosave_at } = await req.json();
+    const { attempt_id, session_token, answers_json, last_autosave_at, suspicious_flag } = await req.json();
 
-    if (!attempt_id || !session_token || !answers_json) {
+    if (!attempt_id || !session_token || (!answers_json && !suspicious_flag)) {
       return respond({ error: "Missing required fields" }, 400);
     }
 
@@ -75,12 +75,16 @@ Deno.serve(async (req) => {
     }
 
     // ── 4. Save answers ──────────────────────────────────────────────────────
+    const patch: Record<string, unknown> = {
+      last_autosave_at: last_autosave_at ?? new Date().toISOString(),
+    };
+    if (answers_json) patch.answers_json = answers_json;
+    // suspicious_flag is additive — only ever set to true, never cleared
+    if (suspicious_flag === true) patch.suspicious_flag = true;
+
     const patchRes = await dbPatch(
       `exam_attempts?id=eq.${encodeURIComponent(attempt_id)}`,
-      {
-        answers_json:     answers_json,
-        last_autosave_at: last_autosave_at ?? new Date().toISOString(),
-      }
+      patch
     );
 
     if (!patchRes.ok) {

@@ -468,6 +468,7 @@
   let examSubmitted = false;
   let isStartingExam = false;
   let violationCount = 0;
+  let fastAnswerCount = 0;
   const MAX_VIOLATIONS = 3;
   const MAX_WARNINGS = 2;
   let exitPromptOpen = false;
@@ -1131,7 +1132,25 @@
             div.classList.add('answered');
             updateProgress();
             const elapsed = Date.now() - parseInt(div.dataset.renderedAt || Date.now(), 10);
-            if (elapsed < 3000) logEvent('Réponse très rapide', `Q${visibleRank} — ${elapsed}ms`);
+            if (elapsed < 3000) {
+              logEvent('Réponse très rapide', `Q${visibleRank} — ${elapsed}ms`);
+              fastAnswerCount++;
+              if (fastAnswerCount === 3) {
+                logEvent('Activité suspecte détectée', '3+ réponses en moins de 3 secondes');
+                if (attemptId) {
+                  navigator.sendBeacon(
+                    `${EF_BASE}/exam-autosave`,
+                    JSON.stringify({
+                      attempt_id: attemptId,
+                      session_token: sessionToken,
+                      answers_json: null,
+                      last_autosave_at: new Date().toISOString(),
+                      suspicious_flag: true
+                    })
+                  );
+                }
+              }
+            }
           });
           optsDiv.appendChild(label);
         });
