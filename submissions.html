@@ -1860,7 +1860,7 @@
     function buildExamLink(group) {
       const base = window.location.protocol === 'file:'
         ? 'http://localhost:3000'
-        : window.location.origin + (window.location.pathname.replace(/\/[^/]*$/, '') || '');
+        : 'https://exam.test-flo.com';
       const link = base + '/exam-engine.html?id=' + (currentExam.share_id || '');
       return group ? link + '&group=' + encodeURIComponent(group) : link;
     }

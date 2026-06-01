@@ -5385,7 +5385,7 @@
     let groupCodes = {};
     try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
     _drillGroupCode = groupCodes[groupName] || drillCurrentExam.access_code || '';
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const isDefault = !groupName || groupName === '(Default)';
     _drillGroupLink = `${base}/exam-engine.html?id=${drillCurrentExam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}`;
     const codeEl = document.getElementById('drillInfoCode');
@@ -5641,7 +5641,7 @@
     if (!attempt || !drillCurrentExam) return false;
     const exam = drillCurrentExam;
     const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     let groupCodes = {};
     try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
     const g = attempt.group_name || '';
@@ -5954,7 +5954,7 @@
     let groupCodes = {};
     try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
     _subsGroupCode = groupCodes[groupName] || exam.access_code || '';
-    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const isDefault = !groupName || groupName === '(Default)';
     _subsGroupLink = `${base}/exam-engine.html?id=${exam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}`;
     document.getElementById('subsL3InfoCode').textContent = _subsGroupCode || '—';
@@ -6107,7 +6107,7 @@
     if (!attempt || !subsCurrentExam) return false;
     const exam = subsCurrentExam;
     const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     let groupCodes = {};
     try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
     const g = attempt.group_name || '';
@@ -6170,7 +6170,7 @@
     const exam = isDrill ? drillCurrentExam : subsCurrentExam;
     if (!attempt || !exam) { closeRetakeChoiceModal(); return; }
 
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const baseLink = `${base}/exam-engine.html?id=${exam.share_id||''}`;
     const emailPayload = {
       type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
@@ -6673,7 +6673,7 @@
     const code = hasGroups
       ? (inviteActiveGroup ? (_inviteGroupCodes[inviteActiveGroup] || '') : null)
       : (exam.access_code || '');
-    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const link = `${base}/exam-engine.html?id=${exam.share_id}${inviteActiveGroup ? '&group=' + encodeURIComponent(inviteActiveGroup) : ''}`;
     const teacherName = currentTeacher?.full_name || currentTeacher?.email || 'Your teacher';
     const teacherEmail = currentTeacher?.email || '';
@@ -6755,7 +6755,7 @@
     const feedback = document.getElementById('inviteFeedback');
     if (feedback) feedback.innerHTML = '<div style="color:#64748b;">Sending…</div>';
     const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     let groupCodes = {};
     try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
     const code = groupVal && groupCodes[groupVal] ? groupCodes[groupVal] : (exam.access_code || '');
@@ -7164,7 +7164,7 @@
     if (error) { showToast('Error generating retake.'); return; }
     const exam = allExams.find(e => e.id === examId) || {};
     const { data: { session } } = await sb.auth.getSession();
-    const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
     await fetch(SEND_EMAIL_FN, {
       method: 'POST',

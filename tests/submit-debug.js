@@ -4,7 +4,7 @@
 
 const { chromium } = require('@playwright/test');
 
-const EXAM_URL  = 'https://dwayneswanson-ecdp.github.io/exam-builder-admin/exam-engine.html?id=3w9xexfs';
+const EXAM_URL  = 'https://exam.test-flo.com/exam-engine.html?id=3w9xexfs';
 const SHARE_ID  = '3w9xexfs';
 const CODE      = 'Y7LJ8X';
 const GROUP     = 'M2 EFI G1';
