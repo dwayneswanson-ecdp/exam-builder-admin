@@ -307,8 +307,8 @@
     #confirmModal.open { display: flex; }
     #ticketModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9000;align-items:center;justify-content:center; }
     #ticketModal.open { display:flex; }
-    #ticketFloatBtn { position:fixed;bottom:24px;right:24px;z-index:800;background:#0f172a;color:#fff;border:none;border-radius:50%;width:46px;height:46px;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.22);display:none;align-items:center;justify-content:center;transition:background 0.15s; }
-    #ticketFloatBtn:hover { background:#1e293b; }
+    #ticketFloatBtn { position:fixed;bottom:24px;right:24px;z-index:900;display:none;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;color:#64748b;font-family:inherit;user-select:none; }
+    #ticketFloatBtn:hover { color:#0f172a; }
     .tick-cat { font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap; }
     .tick-status { font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap; }
     .confirm-modal-box { background: white; border-radius: 14px; max-width: 420px; width: calc(100% - 32px); padding: 24px 28px; box-sizing: border-box; }
@@ -2517,7 +2517,17 @@
 </div>
 
 <!-- Floating ticket report button — teacher + admin only -->
-<button id="ticketFloatBtn" onclick="openTicketModal()" title="Report an issue">🚩</button>
+<div id="ticketFloatBtn" onclick="openTicketModal()"
+  style="position:fixed;bottom:24px;right:24px;z-index:900;
+         display:none;align-items:center;gap:6px;
+         cursor:pointer;font-size:0.78rem;color:#64748b;
+         font-family:inherit;user-select:none;">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+    <line x1="4" y1="22" x2="4" y2="15"/>
+  </svg>
+  Report an Issue
+</div>
 
 <!-- Ticket submission modal -->
 <div id="ticketModal" onclick="closeTicketModal()">
