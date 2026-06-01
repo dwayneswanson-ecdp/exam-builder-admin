@@ -1,0 +1,14 @@
+[functions.exam-start]
+verify_jwt = false
+
+[functions.exam-submit]
+verify_jwt = false
+
+[functions.exam-autosave]
+verify_jwt = false
+
+[functions.exam-questions]
+verify_jwt = false
+
+[functions.exam-retake]
+verify_jwt = false

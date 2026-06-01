@@ -1,0 +1,2 @@
+[functions.exam-start]
+verify_jwt = false

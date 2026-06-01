@@ -1,0 +1,2 @@
+[functions.exam-autosave]
+verify_jwt = false
