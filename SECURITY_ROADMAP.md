@@ -94,6 +94,31 @@ teachers need EXECUTE. No data from other users is accessible via this function.
 
 ---
 
+## Known Threats and Mitigations
+
+### AI-Assisted Exam Taking
+**Threat:** Students using AI tools (Claude in Chrome, ChatGPT, etc.) during exams to answer questions.
+
+**Current mitigations:**
+- Fullscreen enforcement — using a side panel requires exiting fullscreen, triggering anti-cheat
+- Blur/visibilitychange detection — switching to any other window triggers violation countdown
+- Paste disabled on open questions — AI-generated answers cannot be pasted
+- navigator.webdriver check — blocks automated browsers (Playwright, Selenium)
+- Fast answer detection — answers under 3 seconds logged in session journal
+- Session log visible to teacher — unusual patterns flagged for review
+
+**Remaining risk:**
+- Chrome extensions operating in side panel may not trigger focus loss
+- Students photographing screen and asking AI separately (undetectable client-side)
+- Recommended mitigation: teacher review of session logs + academic integrity policy
+
+**Post-MVP:**
+- Keystroke dynamics analysis to detect copy-paste disguised as typing
+- Answer time distribution analysis across cohort to flag statistical outliers
+- Randomized question order per student (pool already implemented for Part B)
+
+---
+
 ## Known Anti-Cheat Limitations
 
 ### Volume key press triggers false-positive blur violation

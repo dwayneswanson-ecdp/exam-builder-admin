@@ -532,6 +532,13 @@
       return;
     }
 
+    // Block automated browsers
+    if (navigator.webdriver) {
+      document.body.innerHTML = '';
+      window.location.href = 'error.html?title=Access+denied&msg=Automated+browsers+are+not+permitted+during+exams.&code=403';
+      return;
+    }
+
     TERMINATED_KEY = 'terminated_exam_' + shareId;
 
     if (params.get('debug') === '1') {
@@ -994,6 +1001,7 @@
       div.className = 'q-card';
       div.dataset.idx = idx;
       div.dataset.type = q.type;
+      div.dataset.renderedAt = Date.now();
 
       // Number badge
       const num = document.createElement('div');
@@ -1122,6 +1130,8 @@
             label.classList.add('selected');
             div.classList.add('answered');
             updateProgress();
+            const elapsed = Date.now() - parseInt(div.dataset.renderedAt || Date.now(), 10);
+            if (elapsed < 3000) logEvent('Réponse très rapide', `Q${visibleRank} — ${elapsed}ms`);
           });
           optsDiv.appendChild(label);
         });
