@@ -1733,7 +1733,7 @@
 
       const studentEmail = a.student_email?.trim() || '';
       const studentName  = a.student_name || '';
-      const baseLink     = buildExamLink();
+      const baseLink     = buildExamLink(a.group_name || null);
 
       const emailPayloadBase = {
         type:             'retake',

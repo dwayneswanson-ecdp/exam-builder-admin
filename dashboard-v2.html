@@ -6183,7 +6183,7 @@
     if (!attempt || !exam) { closeRetakeChoiceModal(); return; }
 
     const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
-    const baseLink = `${base}/exam-engine.html?id=${exam.share_id||''}`;
+    const baseLink = `${base}/exam-engine.html?id=${exam.share_id||''}${attempt.group_name ? '&group=' + encodeURIComponent(attempt.group_name) : ''}`;
     const emailPayload = {
       type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
       exam_title: exam.title||'', access_code: exam.access_code||'', lang: exam.lang||'fr',
@@ -7164,12 +7164,12 @@
         <td>${fmtScore(a)}</td>
         <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
         <td>${retakeBadge}</td>
-        <td><button class="btn btn-ghost btn-sm" onclick="sendRetakeFromComm('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}','${a.exam_id}')">Allow Retake</button></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="sendRetakeFromComm('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}','${a.exam_id}','${esc((a.group_name||'').replace(/'/g,"\\'"))}')">Allow Retake</button></td>
       </tr>`;
     }).join('');
   }
 
-  async function sendRetakeFromComm(attemptId, studentName, studentEmail, examId) {
+  async function sendRetakeFromComm(attemptId, studentName, studentEmail, examId, groupName) {
     if (!confirm(`Send a retake link to ${studentName}?`)) return;
     const token = crypto.randomUUID();
     const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
@@ -7177,7 +7177,7 @@
     const exam = allExams.find(e => e.id === examId) || {};
     const { data: { session } } = await sb.auth.getSession();
     const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
-    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}`;
+    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}${groupName ? '&group=' + encodeURIComponent(groupName) : ''}`;
     await fetch(SEND_EMAIL_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
