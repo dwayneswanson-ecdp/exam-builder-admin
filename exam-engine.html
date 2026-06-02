@@ -1673,6 +1673,7 @@
 
   // Anti-cheat event listeners
   document.addEventListener('visibilitychange', () => {
+    if (isSEB) return;
     if (isStartingExam || !examActive || examSubmitted) return;
     if (Date.now() < antiCheatSuspendedUntil) return;
     if (!document.hidden) return;
@@ -1692,6 +1693,7 @@
     askToExit('Vous avez quitté l\'écran.', 'visibilitychange');
   });
   window.addEventListener('blur', () => {
+    if (isSEB) return;
     if (isStartingExam || !examActive || examSubmitted) return;
     if (Date.now() < safeBlurUntil || Date.now() < antiCheatSuspendedUntil) return;
     if (isMobile) {
