@@ -621,47 +621,50 @@
 
   function generateSebConfig(shareId) {
     const examUrl = `https://examify.app/exam-engine.html?id=${shareId}&group=`;
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>startURL</key>
-  <string>${examUrl}</string>
-  <key>sendBrowserExamKey</key>
-  <false/>
-  <key>allowQuit</key>
-  <false/>
-  <key>quitURLConfirm</key>
-  <false/>
-  <key>browserWindowAllowAddressBar</key>
-  <false/>
-  <key>newBrowserWindowByLinkPolicy</key>
-  <integer>2</integer>
-  <key>enablePlugIns</key>
-  <false/>
-  <key>enableJavaScript</key>
-  <true/>
-  <key>URLFilterEnable</key>
-  <false/>
-  <key>showTaskBar</key>
-  <false/>
-  <key>enableAltEscape</key>
-  <false/>
-  <key>enableEsc</key>
-  <false/>
-  <key>allowSpellCheck</key>
-  <false/>
-  <key>zoomMode</key>
-  <integer>1</integer>
-  <key>browserUserAgent</key>
-  <string>SEB</string>
-</dict>
-</plist>`;
+    // Array join guarantees \n line endings and no BOM
+    return [
+      '<?xml version="1.0" encoding="UTF-8"?>',
+      '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+      '<plist version="1.0">',
+      '<dict>',
+      '  <key>startURL</key>',
+      `  <string>${examUrl}</string>`,
+      '  <key>sendBrowserExamKey</key>',
+      '  <false/>',
+      '  <key>allowQuit</key>',
+      '  <true/>',
+      '  <key>browserWindowAllowAddressBar</key>',
+      '  <false/>',
+      '  <key>newBrowserWindowByLinkPolicy</key>',
+      '  <integer>2</integer>',
+      '  <key>enablePlugIns</key>',
+      '  <false/>',
+      '  <key>enableJavaScript</key>',
+      '  <true/>',
+      '  <key>URLFilterEnable</key>',
+      '  <false/>',
+      '  <key>showTaskBar</key>',
+      '  <false/>',
+      '  <key>enableAltEscape</key>',
+      '  <false/>',
+      '  <key>enableEsc</key>',
+      '  <false/>',
+      '  <key>allowSpellCheck</key>',
+      '  <false/>',
+      '  <key>zoomMode</key>',
+      '  <integer>1</integer>',
+      '  <key>browserUserAgent</key>',
+      '  <string>SEB</string>',
+      '</dict>',
+      '</plist>',
+    ].join('\n');
   }
 
   async function uploadSebFile(shareId, sebXml) {
     const fileName = `exam-${shareId}.seb`;
-    const blob = new Blob([sebXml], { type: 'application/seb' });
+    const encoder = new TextEncoder();
+    const bytes = encoder.encode(sebXml);
+    const blob = new Blob([bytes], { type: 'application/seb' });
     const { error } = await sb.storage
       .from('seb-configs')
       .upload(fileName, blob, { contentType: 'application/seb', upsert: true });
