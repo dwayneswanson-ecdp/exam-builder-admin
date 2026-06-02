@@ -3,6 +3,10 @@
 // Usage: node backfill-seb.js
 // Requires Node 18+ (native fetch).
 
+const zlib = require('zlib');
+const { promisify } = require('util');
+const gzip = promisify(zlib.gzip);
+
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://toxgihdyfzdymgidgvaq.supabase.co";
 const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -72,9 +76,17 @@ async function fetchPublishedExams() {
   return res.json();
 }
 
+async function buildSebBinary(xmlString) {
+  const xmlBytes   = Buffer.from(xmlString, 'utf8');
+  const compressed = await gzip(xmlBytes);
+  const prefix     = Buffer.from('plnd', 'ascii');
+  return Buffer.concat([prefix, compressed]);
+}
+
 async function uploadSebFile(shareId, sebXml) {
-  const filename = `exam-${shareId}.seb`;
-  const url      = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`;
+  const filename  = `exam-${shareId}.seb`;
+  const url       = `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`;
+  const sebBinary = await buildSebBinary(sebXml);
 
   const res = await fetch(url, {
     method: "POST",
@@ -84,7 +96,7 @@ async function uploadSebFile(shareId, sebXml) {
       "Content-Type": "application/octet-stream",
       "x-upsert":    "true",
     },
-    body: Buffer.from(sebXml, 'utf8'),
+    body: sebBinary,
   });
 
   if (!res.ok) {

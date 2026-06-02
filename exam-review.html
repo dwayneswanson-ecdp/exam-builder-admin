@@ -662,9 +662,26 @@
 
   async function uploadSebFile(shareId, sebXml) {
     const fileName = `exam-${shareId}.seb`;
-    const encoder = new TextEncoder();
-    const bytes = encoder.encode(sebXml);
-    const blob = new Blob([bytes], { type: 'application/seb' });
+
+    // 1. Encode XML as UTF-8 bytes
+    const encoder  = new TextEncoder();
+    const xmlBytes = encoder.encode(sebXml);
+
+    // 2. Gzip compress using CompressionStream (Chromium built-in)
+    const cs = new CompressionStream('gzip');
+    const writer = cs.writable.getWriter();
+    writer.write(xmlBytes);
+    writer.close();
+    const compressedBytes = await new Response(cs.readable).arrayBuffer();
+
+    // 3. Prepend the 4-byte "plnd" prefix (plain unencrypted SEB format)
+    const prefix    = new TextEncoder().encode('plnd');
+    const sebBinary = new Uint8Array(prefix.byteLength + compressedBytes.byteLength);
+    sebBinary.set(prefix, 0);
+    sebBinary.set(new Uint8Array(compressedBytes), prefix.byteLength);
+
+    // 4. Upload binary blob
+    const blob = new Blob([sebBinary], { type: 'application/seb' });
     const { error } = await sb.storage
       .from('seb-configs')
       .upload(fileName, blob, { contentType: 'application/seb', upsert: true });
