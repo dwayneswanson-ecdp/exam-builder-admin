@@ -519,9 +519,10 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     singleUse:       `This link is for single use.`,
     accessCodeLabel: `Your access code :`,
     contactLabel:    `For any question, contact your instructor :`,
-    sebStep1:        `Step 1 — Download the SEB file`,
-    sebInstr:        `Download and double-click the file to open the secure browser.`,
-    sebBtn:          `⬇ Download SEB file`,
+    sebStep1:        `Step 1 — Open the secure browser`,
+    sebInstr:        `Click the button below to launch Safe Exam Browser directly.`,
+    sebBtn:          `Launch Safe Exam Browser →`,
+    sebDownload:     `Don't have SEB installed? Download the config file instead.`,
     sebStep2:        `Step 2 — Sign in with your access code`,
   } : {
     greeting:        `Bonjour,`,
@@ -535,9 +536,10 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     singleUse:       `Ce lien est à usage unique.`,
     accessCodeLabel: `Votre code d'accès :`,
     contactLabel:    `Pour toute question, contactez votre enseignant :`,
-    sebStep1:        `Étape 1 — Téléchargez le fichier SEB`,
-    sebInstr:        `Téléchargez et double-cliquez sur le fichier pour ouvrir le navigateur sécurisé.`,
-    sebBtn:          `⬇ Télécharger le fichier SEB`,
+    sebStep1:        `Étape 1 — Ouvrir le navigateur sécurisé`,
+    sebInstr:        `Cliquez sur le bouton ci-dessous pour lancer Safe Exam Browser directement.`,
+    sebBtn:          `Lancer Safe Exam Browser →`,
+    sebDownload:     `SEB non installé ? Téléchargez le fichier de configuration.`,
     sebStep2:        `Étape 2 — Connectez-vous avec votre code d'accès`,
   };
 
@@ -552,7 +554,8 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(code)}</span>` : ''}
     ${sebUrl ? `<p style="margin:0 0 4px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;">${T.sebStep1}</p>
     <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;">${T.sebInstr}</p>
-    <a href="${esc(sebUrl)}" download style="display:inline-block;background:#0f172a;color:#fff;padding:10px 24px;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:24px;">${T.sebBtn}</a>
+    <a href="${esc(sebUrl.replace('https://', 'sebs://'))}" style="display:inline-block;background:#0f172a;color:#fff;padding:10px 24px;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:8px;">${T.sebBtn}</a>
+    <p style="margin:0 0 20px;font-size:0.75rem;color:#94a3b8;"><a href="${esc(sebUrl)}" download style="color:#94a3b8;">${T.sebDownload}</a></p>
     <p style="margin:20px 0 8px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;">${T.sebStep2}</p>
     ` : ''}
     <a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
