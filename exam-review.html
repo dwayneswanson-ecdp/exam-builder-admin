@@ -663,25 +663,29 @@
   async function uploadSebFile(shareId, sebXml) {
     const fileName = `exam-${shareId}.seb`;
 
-    // 1. Encode XML as UTF-8 bytes
-    const encoder  = new TextEncoder();
-    const xmlBytes = encoder.encode(sebXml);
+    async function gzipBytes(input) {
+      const cs = new CompressionStream('gzip');
+      const writer = cs.writable.getWriter();
+      writer.write(input);
+      writer.close();
+      return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+    }
 
-    // 2. Gzip compress using CompressionStream (Chromium built-in)
-    const cs = new CompressionStream('gzip');
-    const writer = cs.writable.getWriter();
-    writer.write(xmlBytes);
-    writer.close();
-    const compressedBytes = await new Response(cs.readable).arrayBuffer();
+    // Step 1: inner gzip of the UTF-8 XML
+    const xmlBytes        = new TextEncoder().encode(sebXml);
+    const innerCompressed = await gzipBytes(xmlBytes);
 
-    // 3. Prepend the 4-byte "plnd" prefix (plain unencrypted SEB format)
+    // Step 2: prepend "plnd" prefix
     const prefix    = new TextEncoder().encode('plnd');
-    const sebBinary = new Uint8Array(prefix.byteLength + compressedBytes.byteLength);
-    sebBinary.set(prefix, 0);
-    sebBinary.set(new Uint8Array(compressedBytes), prefix.byteLength);
+    const plndBlock = new Uint8Array(prefix.byteLength + innerCompressed.byteLength);
+    plndBlock.set(prefix, 0);
+    plndBlock.set(innerCompressed, prefix.byteLength);
 
-    // 4. Upload binary blob
-    const blob = new Blob([sebBinary], { type: 'application/seb' });
+    // Step 3: outer gzip of the entire plnd block
+    const outerCompressed = await gzipBytes(plndBlock);
+
+    // Step 4: upload
+    const blob = new Blob([outerCompressed], { type: 'application/seb' });
     const { error } = await sb.storage
       .from('seb-configs')
       .upload(fileName, blob, { contentType: 'application/seb', upsert: true });
