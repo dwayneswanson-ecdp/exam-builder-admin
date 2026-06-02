@@ -24,7 +24,7 @@ const authHeaders = {
 };
 
 function generateSebConfig(shareId) {
-  const examUrl = `https://examify.app/exam-engine.html?id=${shareId}&group=`;
+  const examUrl = `https://exam.test-flo.com/exam-engine.html?id=${shareId}&amp;group=`;
   // Array join guarantees \n line endings and no BOM
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',

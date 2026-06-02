@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       {
         retake_token:  null,            // single-use — consumed immediately
         session_token: newSessionToken, // fresh token for this retake session
-        status:        "active",        // reset so exam-submit accepts the new submission
+        status:        "in_progress",    // reset so exam-submit accepts the new submission
       }
     );
 

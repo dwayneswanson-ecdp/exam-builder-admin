@@ -5690,6 +5690,7 @@
         body: JSON.stringify({
           type: 'invite', to_email: attempt.student_email, to_name: attempt.student_name,
           exam_title: exam.title||'', exam_link: link, access_code: code, lang: exam.lang||'fr',
+          seb_url: exam.seb_url || null,
           teacher_name: currentTeacher.full_name||currentTeacher.email,
           teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
         })
@@ -6156,6 +6157,7 @@
         body: JSON.stringify({
           type: 'invite', to_email: attempt.student_email, to_name: attempt.student_name,
           exam_title: exam.title||'', exam_link: link, access_code: code, lang: exam.lang||'fr',
+          seb_url: exam.seb_url || null,
           teacher_name: currentTeacher.full_name||currentTeacher.email,
           teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
         })
@@ -6806,6 +6808,7 @@
             type: 'invite', to_email: email, to_name: '',
             exam_title: exam.title || '', exam_link: link, access_code: code,
             lang: exam.lang || 'fr',
+            seb_url: exam.seb_url || null,
             teacher_name: currentTeacher.full_name || currentTeacher.email,
             teacher_email: currentTeacher.email,
             institution_name: currentInstitution?.name || ''

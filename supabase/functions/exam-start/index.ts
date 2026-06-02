@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     if (!access_code && !student_name && !student_email) {
       const metaRes = await dbGet(
         `exams?share_id=eq.${encodeURIComponent(share_id)}&status=eq.published` +
-        `&select=title,duration_mins,lang&limit=1`
+        `&select=title,duration_mins,lang,groups,instructions&limit=1`
       );
       if (!metaRes.ok || !metaRes.data || metaRes.data.length === 0) {
         return respond({ error: "Exam not found or not published" }, 404);
@@ -71,6 +71,8 @@ Deno.serve(async (req) => {
         title:         meta.title          ?? "",
         duration_mins: meta.duration_mins  ?? 0,
         lang:          meta.lang           ?? "fr",
+        groups:        meta.groups         ?? null,
+        instructions:  meta.instructions   ?? null,
       });
     }
 
