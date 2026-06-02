@@ -77,14 +77,7 @@ async function fetchPublishedExams() {
 }
 
 async function buildSebBinary(xmlString) {
-  // Step 1: inner gzip of the UTF-8 XML
-  const xmlBytes       = Buffer.from(xmlString, 'utf8');
-  const innerCompressed = await gzip(xmlBytes);
-  // Step 2: prepend "plnd" prefix
-  const prefix   = Buffer.from('plnd', 'ascii');
-  const plndBlock = Buffer.concat([prefix, innerCompressed]);
-  // Step 3: outer gzip of the entire plnd block
-  return await gzip(plndBlock);
+  return await gzip(Buffer.from(xmlString, 'utf8'));
 }
 
 async function uploadSebFile(shareId, sebXml) {

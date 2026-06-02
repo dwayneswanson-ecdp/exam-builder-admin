@@ -671,21 +671,10 @@
       return new Uint8Array(await new Response(cs.readable).arrayBuffer());
     }
 
-    // Step 1: inner gzip of the UTF-8 XML
-    const xmlBytes        = new TextEncoder().encode(sebXml);
-    const innerCompressed = await gzipBytes(xmlBytes);
+    const xmlBytes   = new TextEncoder().encode(sebXml);
+    const compressed = await gzipBytes(xmlBytes);
 
-    // Step 2: prepend "plnd" prefix
-    const prefix    = new TextEncoder().encode('plnd');
-    const plndBlock = new Uint8Array(prefix.byteLength + innerCompressed.byteLength);
-    plndBlock.set(prefix, 0);
-    plndBlock.set(innerCompressed, prefix.byteLength);
-
-    // Step 3: outer gzip of the entire plnd block
-    const outerCompressed = await gzipBytes(plndBlock);
-
-    // Step 4: upload
-    const blob = new Blob([outerCompressed], { type: 'application/seb' });
+    const blob = new Blob([compressed], { type: 'application/seb' });
     const { error } = await sb.storage
       .from('seb-configs')
       .upload(fileName, blob, { contentType: 'application/seb', upsert: true });
