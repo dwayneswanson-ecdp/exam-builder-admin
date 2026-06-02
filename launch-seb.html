@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opening Safe Exam Browser…</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+    .card { background: #fff; border: 1px solid #e2e8f0; padding: 40px 48px; text-align: center; max-width: 420px; }
+    h1 { font-size: 1.1rem; color: #0f172a; margin: 0 0 8px; }
+    p { font-size: 0.875rem; color: #64748b; margin: 0 0 24px; }
+    a.btn { display: inline-block; background: #2563eb; color: #fff; padding: 10px 24px; text-decoration: none; font-weight: 700; font-size: 0.875rem; }
+    a.dl { font-size: 0.78rem; color: #94a3b8; display: block; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Opening Safe Exam Browser…</h1>
+    <p>If it doesn't open automatically, click the button below.</p>
+    <a id="launchBtn" href="#" class="btn">Launch Safe Exam Browser</a>
+    <a id="dlLink" href="#" download class="dl">Download config file instead</a>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const httpsUrl = params.get('url') || '';
+    const sebsUrl  = httpsUrl.replace('https://', 'sebs://');
+
+    document.getElementById('launchBtn').href = sebsUrl;
+    document.getElementById('dlLink').href    = httpsUrl;
+
+    // Auto-redirect after a short delay
+    if (sebsUrl) setTimeout(() => { window.location.href = sebsUrl; }, 500);
+  </script>
+</body>
+</html>
