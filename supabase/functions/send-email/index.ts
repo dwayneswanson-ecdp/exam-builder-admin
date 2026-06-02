@@ -554,15 +554,13 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(code)}</span>` : ''}
     ${sebUrl ? `<p style="margin:0 0 4px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;">${T.sebStep1}</p>
     <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;">${T.sebInstr}</p>
-    <a href="${esc(sebUrl.replace('https://', 'sebs://'))}" style="display:inline-block;background:#0f172a;color:#fff;padding:10px 24px;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:8px;">${T.sebBtn}</a>
-    <p style="margin:0 0 20px;font-size:0.75rem;color:#94a3b8;"><a href="${esc(sebUrl)}" download style="color:#94a3b8;">${T.sebDownload}</a></p>
-    <p style="margin:20px 0 8px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;">${T.sebStep2}</p>
-    ` : ''}
-    <a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
+    <a href="${esc(sebUrl.replace('https://', 'sebs://'))}" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 24px;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:8px;">${T.sebBtn}</a>
+    <p style="margin:0 0 4px;font-size:0.75rem;color:#94a3b8;"><a href="${esc(sebUrl)}" download style="color:#94a3b8;">${T.sebDownload}</a></p>
+    ` : `<a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
     <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br>
       <span style="color:#2563eb;">${esc(link)}</span>
-    </p>
+    </p>`}
     ${(teacher || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${T.contactLabel}<br>${teacher ? `<strong style="color:#1e293b;">${esc(teacher)}</strong>` : ''}${teacher && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
     <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${lang === 'en' ? 'This message was generated automatically by testflo.' : 'Ce message a été généré automatiquement par testflo.'}</p>
   </div>`;
