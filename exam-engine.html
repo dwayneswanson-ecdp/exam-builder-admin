@@ -497,6 +497,7 @@
   let urlGroup = null;   // pre-selected group from ?group= URL param
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   const isSEB    = navigator.userAgent.includes('SEB');
+  let restoreAnswers = false;
 
   // ============================================================
   //  SHUFFLE HELPERS
@@ -528,6 +529,7 @@
     const params = new URLSearchParams(window.location.search);
     const shareId = params.get('id');
     urlGroup = params.get('group') || null;
+    restoreAnswers = params.get('restore') === 'true';
 
     if (!shareId) {
       showError('Aucun identifiant d\'épreuve dans l\'URL. Vérifiez le lien avec votre enseignant.');
@@ -842,6 +844,34 @@
       localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
       localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
+      if (restoreAnswers && attemptId) {
+        const { data: attemptData } = await sb
+          .from('exam_attempts')
+          .select('answers_json')
+          .eq('id', attemptId)
+          .single();
+        if (attemptData?.answers_json) {
+          Object.entries(attemptData.answers_json).forEach(([key, value]) => {
+            if (key.startsWith('q') && typeof value === 'number' && value >= 0) {
+              const idx = parseInt(key.slice(1));
+              const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
+              if (card) {
+                const radio = card.querySelector(`input[data-original-index="${value}"]`);
+                if (radio) { radio.checked = true; card.classList.add('answered'); }
+              }
+            }
+            if (key.startsWith('q') && typeof value === 'string' && value.length > 0) {
+              const idx = parseInt(key.slice(1));
+              const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
+              if (card?._quill) {
+                card._quill.clipboard.dangerouslyPasteHTML(value);
+                card.classList.add('answered');
+              }
+            }
+          });
+          updateProgress();
+        }
+      }
       startAutosave();
     } else {
       // Fresh start — generate shuffle and call exam-start (validates code + creates attempt)
