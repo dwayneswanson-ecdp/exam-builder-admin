@@ -1771,7 +1771,8 @@
 
       // "keep" — generate retake token, update attempt, send email
       const token = generateToken();
-      const retakeLink = baseLink + '&retake=' + token;
+      const sebsBaseLink = baseLink.replace('https://exam.test-flo.com', 'sebs://exam.test-flo.com');
+      const retakeLink = sebsBaseLink + '&retake=' + token;
 
       const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', a.id);
       if (error) { showToast(Lang.t('errorGeneric'), 5500); btn.disabled = false; btn.textContent = Lang.t('retakeSendLink'); return; }

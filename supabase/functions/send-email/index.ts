@@ -488,6 +488,7 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
       <span style="color:#2563eb;">${esc(link)}</span>
     </p>
     <p style="font-size:0.75rem;color:#94a3b8;margin:16px 0 0;">${T.singleUse}</p>
+    <p style="font-size:0.75rem;color:#94a3b8;margin:8px 0 0;">${lang === 'en' ? 'This link opens automatically in Safe Exam Browser.<br>If it does not open, make sure SEB is installed on your computer.' : 'Ce lien s\'ouvre automatiquement dans Safe Exam Browser.<br>Si le lien ne s\'ouvre pas, assurez-vous que SEB est bien installé sur votre ordinateur.'}</p>
     ${(teacher || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${T.contactLabel}<br>${teacher ? `<strong style="color:#1e293b;">${esc(teacher)}</strong>` : ''}${teacher && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
     <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${lang === 'en' ? 'This message was generated automatically by testflo.' : 'Ce message a été généré automatiquement par testflo.'}</p>
   </div>`;
