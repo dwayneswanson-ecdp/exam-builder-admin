@@ -6247,7 +6247,7 @@
 
     // "keep" — generate token, update attempt, send email
     const token = crypto.randomUUID();
-    const retakeLink = `${baseLink}&retake=${token}`;
+    const retakeLink = `${baseLink}&retake=${token}&restore=true`;
     const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attempt.id);
     if (error) { showToast('Error generating retake.'); btn.disabled = false; btn.textContent = 'Grant Retake'; return; }
     try {
@@ -7196,15 +7196,19 @@
     }).join('');
   }
 
-  async function sendRetakeFromComm(attemptId, studentName, studentEmail, examId, groupName) {
+  async function sendRetakeFromComm(attemptId, studentName, studentEmail, examId, groupName, restore = true) {
     if (!confirm(`Send a retake link to ${studentName}?`)) return;
     const token = crypto.randomUUID();
     const { error } = await sb.from('exam_attempts').update({ retake_token: token }).eq('id', attemptId);
     if (error) { showToast('Error generating retake.'); return; }
-    const exam = allExams.find(e => e.id === examId) || {};
+    let exam = allExams.find(e => e.id === examId);
+    if (!exam) {
+      const { data } = await sb.from('exams').select('id, share_id, title, access_code, lang').eq('id', examId).single();
+      exam = data || {};
+    }
     const { data: { session } } = await sb.auth.getSession();
     const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
-    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}&retake=${token}${groupName ? '&group=' + encodeURIComponent(groupName) : ''}`;
+    const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}${groupName ? '&group=' + encodeURIComponent(groupName) : ''}&retake=${token}${restore ? '&restore=true' : ''}`;
     await fetch(SEND_EMAIL_FN, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
