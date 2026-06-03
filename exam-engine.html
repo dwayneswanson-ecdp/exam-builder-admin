@@ -498,6 +498,7 @@
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   const isSEB    = navigator.userAgent.includes('SEB');
   let restoreAnswers = false;
+  let isRetake = false;
 
   // ============================================================
   //  SHUFFLE HELPERS
@@ -549,6 +550,16 @@
       localStorage.removeItem(TERMINATED_KEY);
     }
 
+    // Clear localStorage blocks for erase-retake fresh starts
+    if (params.get('reset') === '1') {
+      localStorage.removeItem(TERMINATED_KEY);
+      localStorage.removeItem('submitted_' + shareId);
+      localStorage.removeItem('examAttemptId_' + shareId);
+      localStorage.removeItem('examShuffleCache_' + shareId);
+      localStorage.removeItem('examSessionToken_' + shareId);
+      localStorage.removeItem('examIsRetake_' + shareId);
+    }
+
     // Detect mid-exam reconnect — restore shuffle map from cache so order is preserved
     const _cachedAttemptId    = localStorage.getItem('examAttemptId_' + shareId);
     const _cachedShuffleMap   = localStorage.getItem('examShuffleCache_' + shareId);
@@ -559,16 +570,19 @@
         attemptId    = _cachedAttemptId;
         sessionToken = _cachedSessionToken;
         isReconnect  = true;
+        if (localStorage.getItem('examIsRetake_' + shareId) === '1') isRetake = true;
       } catch(e) {
         localStorage.removeItem('examAttemptId_' + shareId);
         localStorage.removeItem('examShuffleCache_' + shareId);
         localStorage.removeItem('examSessionToken_' + shareId);
+        localStorage.removeItem('examIsRetake_' + shareId);
       }
     }
 
     // Retake bypass: teacher issued a one-time token — validated server-side
     const retakeToken = params.get('retake');
-    if (retakeToken) {
+    if (retakeToken && !isReconnect) {
+      // Only validate if not already reconnecting — token may already be consumed on reload
       const retakeRes = await efFetch('exam-retake', { retake_token: retakeToken }).catch(() => null);
       if (retakeRes && retakeRes.attempt_id) {
         // Valid token — clear all local blocks and reconnect cache so student starts fresh
@@ -581,11 +595,17 @@
         // Store retake credentials — startExam() will use these and skip exam-start
         attemptId    = retakeRes.attempt_id;
         sessionToken = retakeRes.session_token;
+        isRetake = true;
+        // Store credentials immediately so a reload before startExam() uses reconnect path
+        localStorage.setItem('examAttemptId_' + shareId, attemptId);
+        localStorage.setItem('examSessionToken_' + shareId, sessionToken);
+        localStorage.setItem('examShuffleCache_' + shareId, '{}');
+        localStorage.setItem('examIsRetake_' + shareId, '1');
       } else {
         showError('Ce lien de reprise est invalide ou a déjà été utilisé. Contactez votre enseignant.');
         return;
       }
-    } else {
+    } else if (!retakeToken) {
       if (localStorage.getItem(TERMINATED_KEY) === '1') {
         showTerminated(); return;
       }
@@ -832,18 +852,17 @@
     document.getElementById('rulesScreen').style.display   = 'none';
     document.getElementById('preLangPicker').style.display = 'none';
 
-    if (isReconnect) {
+    if (isReconnect && !isRetake) {
       // Reconnect — credentials and SHUFFLE_MAP already restored from localStorage in boot()
       violationCount = 1;
       logEvent('Reconnexion détectée', 'La page a été rechargée — violation comptabilisée');
     } else if (attemptId && sessionToken) {
-      // Retake — credentials set by exam-retake in boot(), generate fresh shuffle for this session
+      // Retake (fresh or reloaded) — generate fresh shuffle for this session
       SHUFFLE_MAP = generateShuffleMap();
-      // Store credentials before any async calls — a page reload after this point restores
-      // the session from localStorage instead of re-validating the (now-consumed) retake token
       localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
       localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
+      localStorage.removeItem('examIsRetake_' + EXAM.share_id);
       if (restoreAnswers && attemptId) {
         const { data: attemptData } = await sb
           .from('exam_attempts')

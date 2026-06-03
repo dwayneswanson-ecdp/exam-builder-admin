@@ -6241,7 +6241,7 @@
         await fetch(SEND_EMAIL_FN, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
-          body: JSON.stringify({ ...emailPayload, retake_link: baseLink }),
+          body: JSON.stringify({ ...emailPayload, retake_link: baseLink + '&reset=1' }),
         });
       } catch(e) { console.error('Retake email error:', e); }
       showToast(`Retake link sent to ${attempt.student_name}.`);
