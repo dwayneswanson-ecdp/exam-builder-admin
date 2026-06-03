@@ -4512,7 +4512,7 @@
     if (examSel && examId) {
       examSel.value = examId;
       onInviteExamChange();
-      if (groupName && groupName !== '(Default)') {
+      if (groupName) {
         const groupSel = document.getElementById('inviteGroupSel');
         if (groupSel) {
           groupSel.value = groupName;
@@ -5555,7 +5555,7 @@
       if (inviteBtn) inviteBtn.style.display = 'block';
       return;
     }
-    if (inviteBtn) inviteBtn.style.display = 'none';
+    if (inviteBtn) inviteBtn.style.display = 'block';
     const examId = drillCurrentExam?.id || '';
     const scoreMax = drillCurrentScoreMax || '?';
     tbody.innerHTML = attempts.map(a => {
