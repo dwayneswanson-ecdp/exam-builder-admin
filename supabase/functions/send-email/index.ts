@@ -482,7 +482,7 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
     ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
     ${accessCode ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p>
     <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(accessCode)}</span>` : ''}
-    <a href="${link}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
+    <a href="https://dashboard.test-flo.com/launch-seb.html?url=${encodeURIComponent(link.replace('sebs://', 'https://'))}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
     <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
     <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br>
       <span style="color:#2563eb;">${esc(link)}</span>

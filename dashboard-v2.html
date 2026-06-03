@@ -4341,7 +4341,7 @@
     const _svgLink = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
     tbody.innerHTML = rows.map(g => {
       const code  = codes[g.name] || '';
-      const gLink = `https://examify.app/exam-engine.html?id=${drillCurrentExam.share_id}&group=${encodeURIComponent(g.name)}&code=${code}`;
+      const gLink = `https://exam.test-flo.com/exam-engine.html?id=${drillCurrentExam.share_id}&group=${encodeURIComponent(g.name)}&code=${code}`;
       const codeJs  = JSON.stringify(code);
       const gLinkJs = JSON.stringify(gLink);
       return `<tr class="tr-click" onclick="drillToGroup('${g.name.replace(/'/g, "\\'")}')">
@@ -5416,7 +5416,7 @@
     let groupCodes = {};
     try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
     _drillGroupCode = groupCodes[groupName] || drillCurrentExam.access_code || '';
-    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://examify.app';
+    const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const isDefault = !groupName || groupName === '(Default)';
     _drillGroupLink = `${base}/exam-engine.html?id=${drillCurrentExam.share_id || ''}${!isDefault ? '&group=' + encodeURIComponent(groupName) : ''}&code=${_drillGroupCode}`;
     const codeEl = document.getElementById('drillInfoCode');
@@ -6210,9 +6210,12 @@
 
     const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const baseLink = `${base}/exam-engine.html?id=${exam.share_id||''}${attempt.group_name ? '&group=' + encodeURIComponent(attempt.group_name) : ''}`;
+    let _retakeCodes = {};
+    try { _retakeCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    const _retakeCode = (attempt.group_name && _retakeCodes[attempt.group_name]) ? _retakeCodes[attempt.group_name] : (exam.access_code || '');
     const emailPayload = {
       type: 'retake', to_email: attempt.student_email, to_name: attempt.student_name,
-      exam_title: exam.title||'', access_code: exam.access_code||'', lang: exam.lang||'fr',
+      exam_title: exam.title||'', access_code: _retakeCode, lang: exam.lang||'fr',
       teacher_name: currentTeacher.full_name||currentTeacher.email,
       teacher_email: currentTeacher.email, institution_name: currentInstitution?.name||''
     };
