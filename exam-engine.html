@@ -296,7 +296,8 @@
       </div>
 
       <label id="labelCode">Code d'accès</label>
-      <input type="text" id="inputCode" placeholder="Ex : AB3C7D" style="margin-bottom:28px;letter-spacing:0.08em;">
+      <input type="text" id="inputCode" placeholder="Ex : AB3C7D" style="margin-bottom:6px;letter-spacing:0.08em;">
+      <div id="codeError" style="display:none;color:#dc2626;font-size:0.8rem;margin-bottom:20px;"></div>
 
       <button id="loginBtn" style="width:100%;padding:15px;">Continuer →</button>
     </section>
@@ -499,6 +500,7 @@
   const isSEB    = navigator.userAgent.includes('SEB');
   let restoreAnswers = false;
   let isRetake = false;
+  let _earlyStartRes = null;
 
   // ============================================================
   //  SHUFFLE HELPERS
@@ -768,7 +770,7 @@
   // ============================================================
   //  LOGIN
   // ============================================================
-  document.getElementById('loginBtn').addEventListener('click', () => {
+  document.getElementById('loginBtn').addEventListener('click', async () => {
     try {
       const lastName  = document.getElementById('inputLastName').value.trim().toUpperCase();
       const firstName = document.getElementById('inputFirstName').value.trim();
@@ -789,11 +791,37 @@
       const groupRow = document.getElementById('groupRow');
       if (groupRow && groupRow.style.display !== 'none' && !group) { alert(UI.alertGroup); return; }
 
-      // Access code presence check — full validation happens server-side in exam-start
       if (code !== 'DEBUG' && !code) { alert(UI.alertCode); return; }
 
       studentName  = lastName + ' ' + firstName;
       studentEmail = email;
+
+      // Validate access code server-side now — show error immediately rather than on final click
+      if (code !== 'DEBUG') {
+        const btn = document.getElementById('loginBtn');
+        const origText = btn.textContent;
+        btn.disabled = true; btn.textContent = '…';
+        const codeErrEl = document.getElementById('codeError');
+        if (codeErrEl) codeErrEl.style.display = 'none';
+        let startRes = null;
+        try {
+          startRes = await efFetch('exam-start', {
+            share_id: EXAM.share_id, access_code: code,
+            student_name: studentName, student_email: email,
+            group_name: group || null, shuffle_map: null,
+          });
+        } catch(err) {
+          btn.disabled = false; btn.textContent = origText;
+          const msg = err.message === 'Invalid access code'
+            ? (uiLang === 'en' ? 'Invalid access code. Please check and try again.' : 'Code d\'accès incorrect. Veuillez vérifier et réessayer.')
+            : (uiLang === 'en' ? 'Connection error. Please try again.' : 'Erreur de connexion. Veuillez réessayer.');
+          if (codeErrEl) { codeErrEl.textContent = msg; codeErrEl.style.display = 'block'; }
+          else alert(msg);
+          return;
+        }
+        btn.disabled = false; btn.textContent = origText;
+        _earlyStartRes = startRes;
+      }
 
       document.getElementById('confirmName').textContent  = studentName;
       document.getElementById('confirmEmail').textContent = studentEmail;
@@ -804,8 +832,6 @@
         confirmGroupRow.style.display = 'block';
         window._studentGroup = group;
       }
-
-
 
       document.getElementById('loginScreen').style.display   = 'none';
       document.getElementById('confirmScreen').style.display = 'block';
@@ -827,6 +853,7 @@
     if (cb) { cb.checked = false; }
     const btn = document.getElementById('confirmStartBtn');
     if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
+    _earlyStartRes = null;
     document.getElementById('confirmScreen').style.display = 'none';
     document.getElementById('loginScreen').style.display   = 'block';
   });
@@ -893,33 +920,35 @@
       }
       startAutosave();
     } else {
-      // Fresh start — generate shuffle and call exam-start (validates code + creates attempt)
+      // Fresh start — use early-validated result from screen 1, or call exam-start now
       SHUFFLE_MAP = generateShuffleMap();
-      let startRes = null;
-      try {
-        startRes = await efFetch('exam-start', {
-          share_id:      EXAM.share_id,
-          access_code:   document.getElementById('inputCode').value.trim(),
-          student_name:  studentName,
-          student_email: studentEmail,
-          group_name:    window._studentGroup || null,
-          shuffle_map:   SHUFFLE_MAP,
-        });
-      } catch (err) {
-        console.error('exam-start failed:', err);
-        document.getElementById('rulesScreen').style.display = 'block';
-        const btn = document.getElementById('confirmStartBtn');
-        if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
-        const msg = err.message === 'Invalid access code'
-          ? (EXAM.lang === 'en' ? 'Invalid access code. Please check and try again.' : 'Code d\'accès incorrect. Veuillez vérifier et réessayer.')
-          : 'Impossible de démarrer l\'épreuve. Vérifiez votre connexion et réessayez.';
-        alert(msg);
-        return;
+      let startRes = _earlyStartRes;
+      _earlyStartRes = null;
+      if (!startRes) {
+        try {
+          startRes = await efFetch('exam-start', {
+            share_id:      EXAM.share_id,
+            access_code:   document.getElementById('inputCode').value.trim(),
+            student_name:  studentName,
+            student_email: studentEmail,
+            group_name:    window._studentGroup || null,
+            shuffle_map:   SHUFFLE_MAP,
+          });
+        } catch (err) {
+          console.error('exam-start failed:', err);
+          document.getElementById('rulesScreen').style.display = 'block';
+          const btn = document.getElementById('confirmStartBtn');
+          if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
+          const msg = err.message === 'Invalid access code'
+            ? (EXAM.lang === 'en' ? 'Invalid access code. Please check and try again.' : 'Code d\'accès incorrect. Veuillez vérifier et réessayer.')
+            : 'Impossible de démarrer l\'épreuve. Vérifiez votre connexion et réessayez.';
+          alert(msg);
+          return;
+        }
       }
       attemptId    = startRes.attempt_id;
       sessionToken = startRes.session_token;
       EXAM.id      = startRes.exam_id;
-      console.log('exam started', { attemptId, sessionToken });
       startAutosave();
       localStorage.setItem('examAttemptId_' + EXAM.share_id, attemptId);
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
@@ -2005,7 +2034,12 @@
     window.UI = UI;
 
     // Populate groups dropdown
-    const groups = (window._examGroupsRaw || '').split(',').map(g => g.trim()).filter(Boolean);
+    let groups = [];
+    try {
+      const _raw = (window._examGroupsRaw || '').trim();
+      groups = _raw.startsWith('[') ? JSON.parse(_raw).map(g => String(g).trim()).filter(Boolean)
+                                    : _raw.split(',').map(g => g.trim()).filter(Boolean);
+    } catch(e) { groups = []; }
     if (groups.length > 0) {
       const select = document.getElementById('inputGroup');
       const row    = document.getElementById('groupRow');
