@@ -1009,7 +1009,9 @@
           const idx = parseInt(key.slice(1));
           const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
           if (card) {
-            const radio = card.querySelector(`input[data-original-index="${value}"]`);
+            // data-original-index is on the label, not the input
+            const lbl = card.querySelector(`label[data-original-index="${value}"]`);
+            const radio = lbl ? lbl.querySelector('input[type="radio"]') : null;
             if (radio) { radio.checked = true; card.classList.add('answered'); }
           }
         }
@@ -1785,6 +1787,7 @@
   });
   document.addEventListener('keydown', e => {
     if ((e.key === 'Escape' || e.key === 'Esc') && examActive && !isStartingExam && !examSubmitted) {
+      if (isSEB) return;
       if (Date.now() < antiCheatSuspendedUntil) return;
       e.preventDefault();
       logEvent('Escape pressed', 'keydown');
