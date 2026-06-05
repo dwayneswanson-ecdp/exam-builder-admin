@@ -1315,7 +1315,7 @@
       } else {
         const c = cards[cardI++];
         if (c) {
-          c.dataset.pageIdx   = item._pageIdx;
+          c.dataset.pageIdx   = item._pageIdx ?? 0;
           c.dataset.sectionId = item._sectionId || '';
         }
       }
