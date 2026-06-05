@@ -981,8 +981,9 @@
     isStartingExam = true;
     setTimeout(() => { isStartingExam = false; }, 1200);
 
-    // Fullscreen — skip in SEB (SEB owns OS-level fullscreen; requestFullscreen causes false fullscreenchange events)
-    if (!isSEB && document.documentElement.requestFullscreen) {
+    // Fullscreen — request for all browsers including SEB
+    // fullscreenchange handler has if(isSEB) return guard so no false exit events
+    if (document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
 
@@ -1734,7 +1735,7 @@
     document.getElementById('exitOverlay').style.display = 'none';
     setOverlayActive(false);
     logEvent('Student returned', 'After warning #' + violationCount);
-    if (!isSEB && !document.fullscreenElement && document.documentElement.requestFullscreen) {
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
       document.documentElement.requestFullscreen().catch(() => {});
     }
   });
