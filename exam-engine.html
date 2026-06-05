@@ -497,7 +497,7 @@
   let VISIBLE_TOTAL = 0; // count of questions visible after pool selection
   let urlGroup = null;   // pre-selected group from ?group= URL param
   const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-  const isSEB    = navigator.userAgent.includes('SEB');
+  const isSEB    = navigator.userAgent.includes('SEB') || new URLSearchParams(window.location.search).get('seb') === '1';
   let restoreAnswers = false;
   let isRetake = false;
   let _earlyStartRes = null;
