@@ -890,34 +890,6 @@
       localStorage.setItem('examShuffleCache_' + EXAM.share_id, JSON.stringify(SHUFFLE_MAP));
       localStorage.setItem('examSessionToken_' + EXAM.share_id, sessionToken);
       localStorage.removeItem('examIsRetake_' + EXAM.share_id);
-      if (restoreAnswers && attemptId) {
-        const { data: attemptData } = await sb
-          .from('exam_attempts')
-          .select('answers_json')
-          .eq('id', attemptId)
-          .single();
-        if (attemptData?.answers_json) {
-          Object.entries(attemptData.answers_json).forEach(([key, value]) => {
-            if (key.startsWith('q') && typeof value === 'number' && value >= 0) {
-              const idx = parseInt(key.slice(1));
-              const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
-              if (card) {
-                const radio = card.querySelector(`input[data-original-index="${value}"]`);
-                if (radio) { radio.checked = true; card.classList.add('answered'); }
-              }
-            }
-            if (key.startsWith('q') && typeof value === 'string' && value.length > 0) {
-              const idx = parseInt(key.slice(1));
-              const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
-              if (card?._quill) {
-                card._quill.clipboard.dangerouslyPasteHTML(value);
-                card.classList.add('answered');
-              }
-            }
-          });
-          updateProgress();
-        }
-      }
       startAutosave();
     } else {
       // Fresh start — use early-validated result from screen 1, or call exam-start now
@@ -959,7 +931,7 @@
     try {
       let qData = null;
       for (let _attempt = 0; _attempt < 3; _attempt++) {
-        try { qData = await efFetch('exam-questions', { attempt_id: attemptId, session_token: sessionToken }); break; }
+        try { qData = await efFetch('exam-questions', { attempt_id: attemptId, session_token: sessionToken, restore: restoreAnswers }); break; }
         catch (retryErr) { if (_attempt === 2) throw retryErr; await new Promise(r => setTimeout(r, 1000)); }
       }
       const allItems = qData.questions || [];
@@ -1029,6 +1001,30 @@
     buildQuestions();    // unchanged — renders all question cards
     buildNavigator();    // unchanged — builds all nav dots
     markDOMPageIndices(); // post-marks each card/divider with its page index
+
+    // Restore previous answers for keep-retake (cards now exist in DOM)
+    if (restoreAnswers && qData.answers_json) {
+      Object.entries(qData.answers_json).forEach(([key, value]) => {
+        if (key.startsWith('q') && typeof value === 'number' && value >= 0) {
+          const idx = parseInt(key.slice(1));
+          const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
+          if (card) {
+            const radio = card.querySelector(`input[data-original-index="${value}"]`);
+            if (radio) { radio.checked = true; card.classList.add('answered'); }
+          }
+        }
+        if (key.startsWith('q') && typeof value === 'string' && value.length > 0) {
+          const idx = parseInt(key.slice(1));
+          const card = document.querySelector(`.q-card[data-idx="${idx}"]`);
+          if (card?._quill) {
+            card._quill.clipboard.dangerouslyPasteHTML(value);
+            card.classList.add('answered');
+          }
+        }
+      });
+      updateProgress();
+    }
+
     showPage(0);         // show first page, hide the rest
 
     document.getElementById('examScreen').style.display = 'block';

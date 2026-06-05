@@ -44,16 +44,17 @@ Deno.serve(async (req) => {
   if (req.method !== "POST") return respond({ error: "Method not allowed" }, 405);
 
   try {
-    const { attempt_id, session_token } = await req.json();
+    const { attempt_id, session_token, restore } = await req.json();
 
     if (!attempt_id || !session_token) {
       return respond({ error: "Missing required fields" }, 400);
     }
 
     // ── 1. Verify session token ──────────────────────────────────────────────
+    const answersCols = restore ? ",answers_json" : "";
     const attemptRes = await dbGet(
       `exam_attempts?id=eq.${encodeURIComponent(attempt_id)}` +
-      `&select=exam_id,session_token&limit=1`
+      `&select=exam_id,session_token${answersCols}&limit=1`
     );
 
     if (!attemptRes.ok || !attemptRes.data || attemptRes.data.length === 0) {
@@ -77,7 +78,10 @@ Deno.serve(async (req) => {
       return respond({ error: "Failed to fetch questions" }, 500);
     }
 
-    return respond({ questions: questionsRes.data ?? [] });
+    return respond({
+      questions:    questionsRes.data ?? [],
+      answers_json: restore ? (attempt.answers_json ?? null) : null,
+    });
 
   } catch (e) {
     console.error("exam-questions unhandled error:", String(e));
