@@ -1816,7 +1816,7 @@
   // Language sentinel
   const sentinel = document.getElementById('langSentinel');
   const sentinelBaseline = sentinel ? sentinel.textContent.trim() : null;
-  if (sentinel && sentinelBaseline) {
+  if (sentinel && sentinelBaseline && !isSEB) {
     setInterval(() => {
       if (!examActive || examSubmitted) return;
       if (sentinel.textContent.trim() !== sentinelBaseline) {
