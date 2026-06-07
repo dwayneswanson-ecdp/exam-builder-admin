@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Downloading Retake Config…</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f8fafc; }
+    .card { background: #fff; border: 1px solid #e2e8f0; padding: 40px 48px; text-align: center; max-width: 420px; }
+    h1 { font-size: 1.1rem; color: #0f172a; margin: 0 0 8px; }
+    p { font-size: 0.875rem; color: #64748b; margin: 0 0 24px; }
+    a.btn { display: inline-block; background: #2563eb; color: #fff; padding: 10px 24px; text-decoration: none; font-weight: 700; font-size: 0.875rem; }
+    .note { font-size: 0.75rem; color: #94a3b8; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="title">Preparing your retake file…</h1>
+    <p id="sub">Your Safe Exam Browser configuration file is being generated.</p>
+    <a id="manualBtn" href="#" style="display:none;" class="btn">Download retake file</a>
+    <p class="note">Double-click the downloaded file to open Safe Exam Browser and start your exam.</p>
+  </div>
+  <script>
+    (async () => {
+      const params  = new URLSearchParams(window.location.search);
+      const retakeUrl = params.get('url') || '';
+
+      if (!retakeUrl) {
+        document.getElementById('title').textContent = 'Invalid link';
+        document.getElementById('sub').textContent   = 'This retake link is missing required information. Contact your instructor.';
+        return;
+      }
+
+      const xml = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
+        '<plist version="1.0">',
+        '<dict>',
+        '  <key>startURL</key>',
+        '  <string>' + retakeUrl + '</string>',
+        '  <key>sendBrowserExamKey</key>',
+        '  <false/>',
+        '  <key>allowQuit</key>',
+        '  <true/>',
+        '  <key>browserWindowAllowAddressBar</key>',
+        '  <false/>',
+        '  <key>newBrowserWindowByLinkPolicy</key>',
+        '  <integer>2</integer>',
+        '  <key>enablePlugIns</key>',
+        '  <false/>',
+        '  <key>enableJavaScript</key>',
+        '  <true/>',
+        '  <key>URLFilterEnable</key>',
+        '  <false/>',
+        '  <key>showTaskBar</key>',
+        '  <false/>',
+        '  <key>enableAltEscape</key>',
+        '  <false/>',
+        '  <key>enableEsc</key>',
+        '  <false/>',
+        '  <key>allowSpellCheck</key>',
+        '  <false/>',
+        '  <key>zoomMode</key>',
+        '  <integer>1</integer>',
+        '  <key>browserUserAgent</key>',
+        '  <string>SEB</string>',
+        '</dict>',
+        '</plist>',
+      ].join('\n');
+
+      try {
+        const encoder   = new TextEncoder();
+        const xmlBytes  = encoder.encode(xml);
+        const cs        = new CompressionStream('gzip');
+        const writer    = cs.writable.getWriter();
+        writer.write(xmlBytes);
+        writer.close();
+        const compressed = await new Response(cs.readable).arrayBuffer();
+        const blob       = new Blob([compressed], { type: 'application/octet-stream' });
+        const blobUrl    = URL.createObjectURL(blob);
+
+        const a       = document.createElement('a');
+        a.href        = blobUrl;
+        a.download    = 'exam-retake.seb';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 5000);
+
+        document.getElementById('title').textContent = 'Retake file downloaded';
+        document.getElementById('sub').textContent   = 'Open the file "exam-retake.seb" from your Downloads folder to start Safe Exam Browser.';
+        const btn = document.getElementById('manualBtn');
+        btn.href  = blobUrl;
+        btn.style.display = 'inline-block';
+      } catch (e) {
+        document.getElementById('title').textContent = 'Download failed';
+        document.getElementById('sub').textContent   = 'Could not generate the config file. Contact your instructor.';
+        console.error('retake-seb generation error:', e);
+      }
+    })();
+  </script>
+</body>
+</html>
