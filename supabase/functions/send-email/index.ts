@@ -525,7 +525,6 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     sebBtn:          `Start exam →`,
     sebDownload:     `Don't have SEB installed? Download the config file instead.`,
     sebStep2:        `Step 2 — Sign in with your access code`,
-    volumeWarning:   `Important: set your computer volume to a comfortable level BEFORE clicking the link below. You cannot adjust it once Safe Exam Browser is running.`,
   } : {
     greeting:        `Bonjour,`,
     body:            teacher
@@ -543,7 +542,6 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     sebBtn:          `Commencer l'épreuve →`,
     sebDownload:     `SEB non installé ? Téléchargez le fichier de configuration.`,
     sebStep2:        `Étape 2 — Connectez-vous avec votre code d'accès`,
-    volumeWarning:   `Important : réglez le volume de votre ordinateur à un niveau confortable AVANT de cliquer sur le lien ci-dessous. Vous ne pourrez plus l'ajuster une fois Safe Exam Browser lancé.`,
   };
 
   const content = `
@@ -555,7 +553,6 @@ function inviteHtml(p: Record<string, unknown>, lang: string) {
     ${duration ? `<p style="margin:0 0 12px;font-size:0.85rem;color:#475569;"><strong>${T.duration}:</strong> ${esc(duration)} ${T.minutes}</p>` : ''}
     ${code ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p>
     <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(code)}</span>` : ''}
-    <p style="margin:0 0 20px;padding:12px 16px;background:#fff7ed;border:1px solid #fdba74;color:#9a3412;font-size:0.82rem;font-weight:700;text-align:center;">⚠ ${T.volumeWarning}</p>
     ${sebUrl ? `<p style="margin:0 0 4px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;">${T.sebStep1}</p>
     <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;">${T.sebInstr}</p>
     <a href="https://dashboard.test-flo.com/launch-seb.html?url=${encodeURIComponent(sebUrl)}" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 24px;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:8px;">${T.sebBtn}</a>
