@@ -48,7 +48,7 @@ function generateSebConfig(shareId) {
     '  <key>URLFilterEnable</key>',
     '  <false/>',
     '  <key>showTaskBar</key>',
-    '  <false/>',
+    '  <true/>',
     '  <key>enableAltEscape</key>',
     '  <false/>',
     '  <key>enableEsc</key>',
