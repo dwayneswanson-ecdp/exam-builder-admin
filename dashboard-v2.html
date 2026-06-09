@@ -1152,7 +1152,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Group</th><th>Code</th><th style="width:40px;"></th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Created</th><th style="width:40px;"></th></tr></thead>
+            <thead><tr><th>Group</th><th>Code</th><th style="width:40px;"></th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Exam Date</th><th style="width:40px;"></th></tr></thead>
             <tbody id="drillGroupsTable"></tbody>
           </table>
         </div>
@@ -4315,13 +4315,18 @@
     const tbody = document.getElementById('drillGroupsTable');
     const examCreated = drillCurrentExam?.created_at || null;
     const groupMap = {};
-    attempts.forEach(a => {
+    const groupEarliest = {};
+    attempts.filter(a => a.status !== 'void').forEach(a => {
       const g = a.group_name || '(Default)';
       if (!groupMap[g]) groupMap[g] = { name: g, submitted: 0, graded: 0, pending: 0 };
-      if (a.status === 'submitted') {
+      if (a.status === 'submitted' || a.status === 'results_sent') {
         groupMap[g].submitted++;
         if (a.score_mcq !== null) groupMap[g].graded++;
         else groupMap[g].pending++;
+        if (a.submitted_at) {
+          const t = new Date(a.submitted_at);
+          if (!groupEarliest[g] || t < groupEarliest[g]) groupEarliest[g] = t;
+        }
       }
     });
     let definedGroups = [];
@@ -4354,7 +4359,7 @@
       <td style="color:#64748b;">${g.submitted}</td>
       <td style="color:#64748b;">${g.graded}</td>
       <td style="color:#64748b;">${g.pending}</td>
-      <td style="color:#64748b;">${formatDate(examCreated)}</td>
+      <td style="color:#64748b;">${formatDate(groupEarliest[g.name] || examCreated)}</td>
       <td onclick="event.stopPropagation()">
         <div class="dot-menu-wrap">
           <button class="dot-btn" onclick="toggleDotMenu(this)">···</button>
@@ -4466,11 +4471,22 @@
   }
 
   async function drillDeleteGroup(groupName) {
-    if (!confirm(`Delete group "${groupName}"? This does not delete student submissions.`)) return;
+    if (!confirm(`Remove group "${groupName}"? All attempts for this group will be voided.`)) return;
     if (!drillCurrentExam) return;
-    let groups = [];
-    groups = parseGroups(drillCurrentExam.groups);
-    groups = groups.filter(g => g !== groupName);
+
+    // Void all attempts for this group in the DB
+    const groupAttemptIds = drillCurrentAttempts
+      .filter(a => (a.group_name || '(Default)') === groupName && a.status !== 'void')
+      .map(a => a.id);
+    if (groupAttemptIds.length > 0) {
+      const { error: voidErr } = await sb.from('exam_attempts')
+        .update({ status: 'void' })
+        .in('id', groupAttemptIds);
+      if (voidErr) { showToast('Error voiding attempts.'); return; }
+    }
+
+    // Remove from exam groups definition
+    let groups = parseGroups(drillCurrentExam.groups).filter(g => g !== groupName);
     let groupCodes = {};
     try { groupCodes = JSON.parse(drillCurrentExam.group_codes || '{}'); } catch(e) {}
     delete groupCodes[groupName];
@@ -4478,14 +4494,21 @@
       groups: JSON.stringify(groups),
       group_codes: JSON.stringify(groupCodes)
     }).eq('id', drillCurrentExam.id);
-    if (error) { showToast('Error deleting group.'); return; }
+    if (error) { showToast('Error removing group.'); return; }
+
     drillCurrentExam.groups = JSON.stringify(groups);
     drillCurrentExam.group_codes = JSON.stringify(groupCodes);
     const examIdx = allExams.findIndex(e => e.id === drillCurrentExam.id);
     if (examIdx >= 0) { allExams[examIdx].groups = drillCurrentExam.groups; allExams[examIdx].group_codes = drillCurrentExam.group_codes; }
+
+    // Update in-memory attempts so the group disappears immediately
+    drillCurrentAttempts = drillCurrentAttempts.map(a =>
+      (a.group_name || '(Default)') === groupName ? { ...a, status: 'void' } : a
+    );
+
     renderDrillGroups(drillCurrentAttempts);
     renderDrillL2Strip(false);
-    showToast('Group deleted.');
+    showToast('Group removed.');
   }
 
   function drillGoToResults() {
@@ -4841,6 +4864,7 @@
       } else {
         const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
         const selIdx = parseInt(rawAns, 10);
+        if (selIdx < 0) return;
         const selText = !isNaN(selIdx) ? (opts[selIdx] || '—') : '—';
         const correctText = opts[q.correct_index] || '—';
         const isCorrect = a.score_mcq !== null && !isNaN(selIdx) ? (selIdx === q.correct_index) : null;

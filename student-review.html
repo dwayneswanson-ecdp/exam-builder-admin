@@ -353,6 +353,7 @@
           poolBanner = `<tr><td colspan="4" style="background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:0.7rem;font-weight:700;color:#1e40af;padding:8px 24px;letter-spacing:0.05em;text-transform:uppercase;">Pool — ${drawn} of ${total} questions drawn</td></tr>`;
         }
         const selectedIdx = parseInt(answers['q' + globalIdx], 10);
+        if (selectedIdx < 0) return '';
         const isCorrect   = selectedIdx === q.correct_index;
         const studentAns  = isNaN(selectedIdx) ? '—' : getOptionText(q, selectedIdx);
         const correctAns  = getOptionText(q, q.correct_index);
