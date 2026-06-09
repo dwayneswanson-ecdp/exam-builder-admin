@@ -814,6 +814,8 @@
           btn.disabled = false; btn.textContent = origText;
           const msg = err.message === 'Invalid access code'
             ? (uiLang === 'en' ? 'Invalid access code. Please check and try again.' : 'Code d\'accès incorrect. Veuillez vérifier et réessayer.')
+            : err.message === 'active_session_exists'
+            ? (uiLang === 'en' ? 'An active exam session already exists for this email address. Please continue on your original device, or contact your instructor.' : 'Une session d\'examen est déjà active pour cette adresse e-mail. Continuez sur votre appareil d\'origine ou contactez votre enseignant.')
             : (uiLang === 'en' ? 'Connection error. Please try again.' : 'Erreur de connexion. Veuillez réessayer.');
           if (codeErrEl) { codeErrEl.textContent = msg; codeErrEl.style.display = 'block'; }
           else alert(msg);
@@ -913,6 +915,8 @@
           if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.cursor = 'pointer'; }
           const msg = err.message === 'Invalid access code'
             ? (EXAM.lang === 'en' ? 'Invalid access code. Please check and try again.' : 'Code d\'accès incorrect. Veuillez vérifier et réessayer.')
+            : err.message === 'active_session_exists'
+            ? (EXAM.lang === 'en' ? 'An active exam session already exists for this email address. Please continue on your original device, or contact your instructor.' : 'Une session d\'examen est déjà active pour cette adresse e-mail. Continuez sur votre appareil d\'origine ou contactez votre enseignant.')
             : 'Impossible de démarrer l\'épreuve. Vérifiez votre connexion et réessayez.';
           alert(msg);
           return;
