@@ -5636,16 +5636,60 @@
   async function _drillDoSendResult(attempt) {
     const exam = drillCurrentExam || allExams.find(e => e.id === attempt.exam_id) || {};
     const { data: { session } } = await sb.auth.getSession();
+
+    // Fetch questions for this exam
+    const { data: qData } = await sb.from('questions')
+      .select('id,type,question_text,option_a,option_b,option_c,option_d,correct_index,max_points,position,pool_draw')
+      .eq('exam_id', exam.id || attempt.exam_id)
+      .order('position', { ascending: true });
+    const qs = qData || [];
+
+    // Build questions payload
+    const answersJson = attempt.answers_json || {};
+    const openScores  = attempt.open_scores  || {};
+    const openComments = attempt.open_comments || {};
+    const questionsPayload = qs.map((q, i) => {
+      if (q.type === 'section') return { type: 'section', id: q.id, text: q.question_text || '' };
+      const raw = answersJson['q' + i];
+      if (q.type === 'mcq') {
+        const sa = raw !== undefined && raw !== null ? parseInt(raw, 10) : -1;
+        return { type: 'mcq', idx: i, text: q.question_text || '', position: q.position,
+          options: [q.option_a, q.option_b, q.option_c, q.option_d],
+          correct_index: q.correct_index, student_answer: isNaN(sa) ? -1 : sa };
+      }
+      return { type: 'open', idx: i, text: q.question_text || '', position: q.position,
+        max_points: q.max_points, student_response: typeof raw === 'string' ? raw : '',
+        open_score: openScores[i] ?? null, comment: openComments[i] || '' };
+    });
+
+    // Score max from pool-aware question count
+    let scoreMax = 0, curSec = null, secDrawn = {}, secSeen = {};
+    qs.forEach((q, i) => {
+      if (q.type === 'section') { curSec = q.id; if (q.pool_draw) secDrawn[q.id] = q.pool_draw; secSeen[q.id] = 0; return; }
+      if (curSec && secDrawn[curSec] !== undefined) { if (secSeen[curSec] >= secDrawn[curSec]) return; secSeen[curSec]++; }
+      scoreMax += q.type === 'mcq' ? 1 : (q.max_points || 5);
+    });
+    const scoreTotal    = scoreMax || drillCurrentScoreMax || '?';
+    const scoreObtained = attempt.score_mcq != null ? calcScore(attempt) : '—';
+    const dateTaken     = attempt.submitted_at
+      ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '—';
+
     try {
       const res = await fetch(SEND_EMAIL_FN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({
           type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
-          exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
-          teacher_name: currentTeacher.full_name||currentTeacher.email,
-          teacher_email: currentTeacher.email,
-          institution_name: currentInstitution?.name||'', attempt_id: attempt.id,
+          exam_title: exam.title || '', lang: exam.lang || 'fr',
+          teacher_name: currentTeacher.full_name || currentTeacher.email,
+          teacher_email: currentTeacher.email, reply_to: currentTeacher.email,
+          institution_name: currentInstitution?.name || '', attempt_id: attempt.id,
+          date_taken: dateTaken,
+          score_obtained: String(scoreObtained),
+          score_total: String(scoreTotal),
+          questions: questionsPayload.length > 0 ? questionsPayload : null,
+          pool_selection: attempt.pool_selection || null,
         })
       });
       if (res.ok) {
