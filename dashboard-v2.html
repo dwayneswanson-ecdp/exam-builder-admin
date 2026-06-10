@@ -95,23 +95,13 @@
 
     /* ── Action cards ── */
     .action-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 28px; }
-    .action-card { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #e2e8f0; padding: 18px 20px; cursor: pointer; transition: background 0.1s, box-shadow 0.1s; position: relative; }
+    .action-card { background: white; border: 1px solid #e2e8f0; border-left: 4px solid #cbd5e1; padding: 18px 20px; cursor: pointer; transition: background 0.1s, box-shadow 0.1s; position: relative; }
     .action-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); background: #f8fafc; }
     .action-card::after { content: '→'; position: absolute; bottom: 14px; right: 16px; font-size: 0.75rem; color: #94a3b8; opacity: 0; transition: opacity 0.1s; pointer-events: none; }
     .action-card:hover::after { opacity: 1; }
-    .action-card.amber { border-left-color: #f59e0b; }
-    .action-card.blue { border-left-color: #2563eb; }
-    .action-card.green { border-left-color: #16a34a; }
-    .action-card.purple { border-left-color: #7c3aed; }
-    .action-card.muted { border-left-color: #e2e8f0; }
     .action-card-title { font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
     .action-card-sub { font-size: 0.75rem; color: #64748b; }
-    .action-card-count { font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
-    .action-card.amber .action-card-count { color: #d97706; }
-    .action-card.blue .action-card-count { color: #2563eb; }
-    .action-card.green .action-card-count { color: #16a34a; }
-    .action-card.purple .action-card-count { color: #7c3aed; }
-    .action-card.muted .action-card-count { color: #94a3b8; }
+    .action-card-count { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
 
     /* ── Card ── */
     .card { background: white; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 20px; overflow: hidden; }
@@ -2745,6 +2735,7 @@
     if (a.bounce_at) return `<span class="badge badge-bounced">Bounced</span>`;
     if (a.results_sent_at) return `<span class="badge badge-sent">Sent</span>`;
     if (a.scheduled_send_at) return `<span class="badge badge-sched">Scheduled</span>`;
+    if (a.status === 'submitted' && Object.keys(a.open_scores || {}).length > 0) return statusBadge('graded');
     return statusBadge(a.status || 'in_progress');
   }
   function formatDateTime(d) {
@@ -3115,9 +3106,9 @@
           sb.from('questions').select('exam_id').neq('type','section').in('exam_id', examIds)
         ]);
         const _groupSets = {};
-        (attRes.data || []).forEach(r => {
+        (attRes.data || []).filter(r => r.status !== 'void').forEach(r => {
           examStudentCounts[r.exam_id] = (examStudentCounts[r.exam_id] || 0) + 1;
-          if (r.status === 'submitted') examSubmittedCounts[r.exam_id] = (examSubmittedCounts[r.exam_id] || 0) + 1;
+          if (r.status === 'submitted' || r.status === 'results_sent') examSubmittedCounts[r.exam_id] = (examSubmittedCounts[r.exam_id] || 0) + 1;
           if (r.group_name) {
             if (!_groupSets[r.exam_id]) _groupSets[r.exam_id] = new Set();
             _groupSets[r.exam_id].add(r.group_name);
@@ -4129,27 +4120,27 @@
     }
 
     document.getElementById('homeActionCards').innerHTML = `
-      <div class="action-card ${pendingCount > 0 ? 'amber' : 'green'}" onclick="navigate('subs-grading')">
+      <div class="action-card" onclick="navigate('subs-grading')">
         <div class="action-card-count">${pendingCount}</div>
         <div class="action-card-title">to grade</div>
         <div class="action-card-sub">Open-ended answers awaiting review</div>
       </div>
-      <div class="action-card ${unsentCount > 0 ? 'amber' : 'green'}" onclick="navigate('comm-results')">
+      <div class="action-card" onclick="navigate('comm-results')">
         <div class="action-card-count">${unsentCount}</div>
         <div class="action-card-title">results to send</div>
         <div class="action-card-sub">Students waiting for their scores</div>
       </div>
-      <div class="action-card blue" onclick="navigate('exams-published')">
+      <div class="action-card" onclick="navigate('exams-published')">
         <div class="action-card-count">${activeExamsCount}</div>
         <div class="action-card-title">active exams</div>
         <div class="action-card-sub">Exams currently published</div>
       </div>
-      <div class="action-card blue" onclick="navigate('subs-all')">
+      <div class="action-card" onclick="navigate('subs-all')">
         <div class="action-card-count">${totalSubmissions}</div>
         <div class="action-card-title">total submissions</div>
         <div class="action-card-sub">All student submissions across exams</div>
       </div>
-      <div class="action-card ${scheduledCount > 0 ? 'purple' : 'muted'}" onclick="navigate('hist-scheduled')">
+      <div class="action-card" onclick="navigate('hist-scheduled')">
         <div class="action-card-count">${scheduledCount}</div>
         <div class="action-card-title">scheduled deliveries</div>
         <div class="action-card-sub">Pending result emails queued to send</div>
@@ -5463,6 +5454,7 @@
     if (toLevel <= 3) { drillCurrentAttempt = null; _sdQuestions = []; _sdAnswers = {}; }
     drillSelectedIds = new Set();
     drillUpdateBulkBar();
+    if (toLevel === 3) filterDrillStudents();
     if (toLevel === 1) {
       history.pushState({view:'nav', nav:'exams-all'}, '', '#exams');
     } else if (toLevel === 2 && drillCurrentExam) {
