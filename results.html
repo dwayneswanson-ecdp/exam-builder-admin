@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>testflo — Résultats</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f1f5f9; min-height: 100vh; }
+
+  /* Header */
+  .site-header { background: #0f172a; padding: 18px 32px; }
+  .site-header .logo { font-family: Inter, Arial, sans-serif; font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.02em; text-decoration: none; }
+
+  /* Layout */
+  .page-body { max-width: 720px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  /* Loading / error states */
+  .state-card { background: #fff; border: 1px solid #e2e8f0; padding: 48px 32px; text-align: center; margin-top: 0; }
+  .state-card .spinner { width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: #0f172a; border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .state-card p { font-size: 0.9rem; color: #64748b; }
+  .state-card .err-title { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+
+  /* Exam header stripe */
+  .exam-header { background: #fff; padding: 24px 28px 20px; border: 1px solid #e2e8f0; border-bottom: none; }
+  .exam-header .institution { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+  .exam-header h1 { font-size: 1.15rem; font-weight: 700; color: #0a0a0a; line-height: 1.3; margin-bottom: 8px; }
+  .exam-header .student-name { font-size: 0.85rem; color: #475569; font-weight: 700; }
+  .exam-header .meta { font-size: 0.78rem; color: #94a3b8; margin-top: 4px; }
+
+  /* Score cards */
+  .score-row { display: grid; grid-template-columns: 1fr 1fr; background: #fff; border: 1px solid #e2e8f0; border-bottom: none; }
+  .score-cell { padding: 20px 24px; }
+  .score-cell:first-child { border-right: 1px solid #e2e8f0; }
+  .score-cell .label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+  .score-cell .value { font-size: 2rem; font-weight: 700; color: #0a0a0a; line-height: 1; }
+  .score-cell .sub { font-size: 0.8rem; color: #64748b; margin-top: 6px; }
+  .score-cell .date-value { font-size: 0.95rem; font-weight: 600; color: #1e293b; line-height: 1.3; }
+
+  /* Section header */
+  .section-bar { background: #0f172a; padding: 11px 20px; border: 1px solid #0f172a; }
+  .section-bar span { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.85); }
+
+  /* Tables */
+  .results-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #e2e8f0; border-top: none; border-bottom: none; }
+  .results-table th { padding: 10px 16px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+  .results-table td { padding: 10px 16px; font-size: 0.8rem; color: #1e293b; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table tr:nth-child(even) td { background: #f8fafc; }
+  .results-table tr:nth-child(odd) td { background: #fff; }
+
+  .col-result { text-align: center; font-size: 1rem; }
+  .correct { color: #16a34a; }
+  .wrong { color: #dc2626; font-weight: 600; }
+  .no-answer { color: #94a3b8; font-style: italic; }
+
+  /* Open question rows */
+  .open-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; margin-bottom: 3px; }
+  .open-response { font-size: 0.82rem; color: #475569; font-style: italic; white-space: pre-wrap; margin-bottom: 10px; }
+  .open-comment { font-size: 0.82rem; color: #1e293b; }
+  .open-score { font-size: 0.82rem; font-weight: 700; color: #475569; margin-top: 8px; }
+
+  /* Bottom border cap */
+  .table-cap { border: 1px solid #e2e8f0; border-top: none; height: 1px; background: #fff; margin-bottom: 0; }
+
+  /* Pool note */
+  .pool-note { font-size: 0.72rem; color: #94a3b8; padding: 8px 16px; border: 1px solid #e2e8f0; border-top: none; background: #fff; }
+
+  /* Contact block */
+  .contact-block { text-align: center; font-size: 0.82rem; color: #64748b; margin-top: 28px; }
+  .contact-block a { color: #2563eb; text-decoration: none; }
+  .contact-block .teacher-name { font-weight: 700; color: #1e293b; }
+
+  /* Footer */
+  .site-footer { text-align: center; font-size: 11px; color: #94a3b8; padding: 20px 0 0; }
+
+  @media (max-width: 480px) {
+    .score-row { grid-template-columns: 1fr; }
+    .score-cell:first-child { border-right: none; border-bottom: 1px solid #e2e8f0; }
+    .page-body { padding: 16px 8px 48px; }
+    .exam-header { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="#" class="logo">testflo</a>
+</header>
+
+<div class="page-body">
+  <div id="content">
+    <div class="state-card">
+      <div class="spinner"></div>
+      <p id="loading-text">Chargement des résultats…</p>
+    </div>
+  </div>
+  <p class="site-footer" id="footer" style="display:none;"></p>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://toxgihdyfzdymgidgvaq.supabase.co';
+const GET_RESULTS_FN = `${SUPABASE_URL}/functions/v1/get-results`;
+
+const params = new URLSearchParams(window.location.search);
+const attemptId = params.get('attempt');
+
+function esc(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function stripHtml(html) {
+  return (html || '')
+    .replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<\/li>/gi, '\n')
+    .replace(/<li>/gi, '• ').replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim();
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+async function load() {
+  if (!attemptId) { showError('Lien invalide', 'Aucun identifiant de résultats trouvé dans l\'URL.'); return; }
+
+  let data;
+  try {
+    const res = await fetch(`${GET_RESULTS_FN}?attempt=${encodeURIComponent(attemptId)}`);
+    data = await res.json();
+    if (!res.ok) { showError('Résultats introuvables', data.error || 'Impossible de charger les résultats.'); return; }
+  } catch(e) {
+    showError('Erreur réseau', 'Impossible de se connecter au serveur. Réessayez dans quelques instants.'); return;
+  }
+
+  render(data);
+}
+
+function showError(title, msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="state-card">
+      <p class="err-title">${esc(title)}</p>
+      <p>${esc(msg)}</p>
+    </div>`;
+}
+
+function render(data) {
+  const { attempt, exam, questions, teacher, score_max } = data;
+  const lang = exam.lang === 'en' ? 'en' : 'fr';
+
+  const T = lang === 'en' ? {
+    scoreTotal: 'Total Score', date: 'Date', submittedOn: 'Submitted on',
+    noAnswer: 'No answer', studentAns: 'Student answer', correctAns: 'Correct answer',
+    result: 'Result', poolNote: 'Questions shown reflect those served to this student.',
+    contactLine: 'For any question, contact your instructor:',
+    footerNote: 'This page was generated automatically by testflo.',
+    openResponse: 'Response', openComment: 'Teacher comment', openScore: 'Score',
+    question: 'Question',
+  } : {
+    scoreTotal: 'Score Total', date: 'Date', submittedOn: 'Soumis le',
+    noAnswer: 'Sans réponse', studentAns: 'Réponse candidat', correctAns: 'Bonne réponse',
+    result: 'Résultat', poolNote: 'Les questions affichées correspondent à celles présentées à cet étudiant.',
+    contactLine: 'Pour toute question, contactez votre enseignant :',
+    footerNote: 'Cette page a été générée automatiquement par testflo.',
+    openResponse: 'Réponse', openComment: 'Commentaire de l\'enseignant', openScore: 'Note',
+    question: 'Question',
+  };
+
+  document.title = `testflo — ${exam.title}`;
+  if (lang === 'en') document.documentElement.lang = 'en';
+
+  const answersJson   = attempt.answers_json   || {};
+  const openScores    = attempt.open_scores    || {};
+  const openComments  = attempt.open_comments  || {};
+  const poolSelection = attempt.pool_selection || {};
+  const poolActive    = Object.keys(poolSelection).length > 0;
+
+  // Compute displayed score
+  let scoreMcq = attempt.score_mcq;
+  let openTotal = 0;
+  let openCount = 0;
+  Object.values(openScores).forEach(v => { openTotal += Number(v); openCount++; });
+  const hasOpen = openCount > 0;
+  const scoreObtained = scoreMcq != null
+    ? (hasOpen ? (scoreMcq + openTotal) : scoreMcq)
+    : null;
+  const scoreDisplay = scoreObtained != null ? scoreObtained : '—';
+  const scoreMaxDisplay = score_max || exam.score_max || '—';
+
+  let pct = null;
+  if (scoreObtained != null && score_max > 0) {
+    pct = Math.round((scoreObtained / score_max) * 100);
+  }
+
+  // Exam header
+  const institutionHtml = exam.institution_name
+    ? `<p class="institution">${esc(exam.institution_name)}</p>` : '';
+  const metaLine = [
+    T.submittedOn + ' ' + fmtDate(attempt.submitted_at),
+    teacher.name ? teacher.name : ''
+  ].filter(Boolean).join(' · ');
+
+  let html = `
+    <div class="exam-header">
+      ${institutionHtml}
+      <h1>${esc(exam.title)}</h1>
+      <p class="student-name">${esc(attempt.student_name)}</p>
+      <p class="meta">${esc(metaLine)}</p>
+    </div>
+    <div class="score-row">
+      <div class="score-cell">
+        <p class="label">${T.scoreTotal}</p>
+        <p class="value">${scoreDisplay} / ${scoreMaxDisplay}</p>
+        ${pct != null ? `<p class="sub">${pct}%</p>` : ''}
+      </div>
+      <div class="score-cell">
+        <p class="label">${T.date}</p>
+        <p class="date-value">${fmtDate(attempt.submitted_at)}</p>
+        ${exam.institution_name ? `<p class="sub" style="margin-top:4px;">${esc(exam.institution_name)}</p>` : ''}
+      </div>
+    </div>`;
+
+  // Build Q&A
+  const hasSections = questions.some(q => q.type === 'section');
+  let anyPoolActive = false;
+
+  if (hasSections) {
+    // Group into sections
+    const groups = [];
+    let cur = { title: '', sectionId: null, mcq: [], open: [] };
+    let gIdx = 0;
+
+    for (const q of questions) {
+      if (q.type === 'section') {
+        if (cur.mcq.length > 0 || cur.open.length > 0 || cur.title) groups.push(cur);
+        cur = { title: stripHtml(q.question_text), sectionId: q.id, mcq: [], open: [] };
+      } else {
+        const drawn = poolSelection[cur.sectionId] ? poolSelection[cur.sectionId] : null;
+        const include = drawn ? drawn.includes(gIdx) : true;
+        if (!include) { gIdx++; continue; }
+        if (drawn) anyPoolActive = true;
+
+        const rawAns = answersJson['q' + gIdx];
+        if (q.type === 'mcq') {
+          const selIdx = rawAns !== undefined && rawAns !== null ? parseInt(rawAns, 10) : -1;
+          const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
+          const isCorrect = selIdx >= 0 ? (selIdx === q.correct_index) : false;
+          const studentText = selIdx >= 0 ? (stripHtml(opts[selIdx]) || '—') : null;
+          const correctText = q.correct_index >= 0 ? (stripHtml(opts[q.correct_index]) || '—') : '—';
+          cur.mcq.push({ q, idx: gIdx, selIdx, studentText, correctText, isCorrect });
+        } else if (q.type === 'open') {
+          const response = typeof rawAns === 'string' ? rawAns : '';
+          const score = openScores[gIdx] != null ? openScores[gIdx] : null;
+          const comment = openComments[gIdx] || '';
+          cur.open.push({ q, idx: gIdx, response: stripHtml(response), score, comment });
+        }
+        gIdx++;
+      }
+    }
+    if (cur.mcq.length > 0 || cur.open.length > 0 || cur.title) groups.push(cur);
+
+    for (const g of groups) {
+      if (g.mcq.length === 0 && g.open.length === 0) continue;
+      html += `<div class="section-bar"><span>${esc(g.title || '')}</span></div>`;
+
+      if (g.mcq.length > 0) {
+        html += `<table class="results-table">
+          <thead><tr>
+            <th style="width:42%;">${T.question}</th>
+            <th style="width:23%;">${T.studentAns}</th>
+            <th style="width:23%;">${T.correctAns}</th>
+            <th style="width:12%; text-align:center;">${T.result}</th>
+          </tr></thead><tbody>`;
+        for (const row of g.mcq) {
+          const studentCell = row.studentText
+            ? `<span class="${row.isCorrect ? 'correct' : 'wrong'}">${esc(row.studentText)}</span>`
+            : `<span class="no-answer">${T.noAnswer}</span>`;
+          html += `<tr>
+            <td>${esc(stripHtml(row.q.question_text))}</td>
+            <td>${studentCell}</td>
+            <td>${esc(row.correctText)}</td>
+            <td class="col-result ${row.isCorrect ? 'correct' : 'wrong'}">${row.isCorrect ? '✓' : '✗'}</td>
+          </tr>`;
+        }
+        html += `</tbody></table>`;
+      }
+
+      if (g.open.length > 0) {
+        const gradedOpen = g.open.filter(row => row.response || row.comment || row.score != null);
+        if (gradedOpen.length > 0) {
+          if (g.mcq.length > 0) {
+            html += `<div style="border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-top:1px solid #e2e8f0;"></div>`;
+          }
+          html += `<table class="results-table">
+            <thead><tr>
+              <th style="width:42%;">${T.question}</th>
+              <th>${T.openResponse} · ${T.openComment} · ${T.openScore}</th>
+            </tr></thead><tbody>`;
+          for (const row of gradedOpen) {
+            const responseHtml = row.response
+              ? `<p class="open-label">${T.openResponse}</p><p class="open-response">${esc(row.response)}</p>` : '';
+            const commentHtml = row.comment
+              ? `<p class="open-label">${T.openComment}</p><p class="open-comment">${esc(row.comment)}</p>` : '';
+            const scoreHtml = row.score != null
+              ? `<p class="open-score">${T.openScore} : ${row.score} / ${row.q.max_points ?? '?'}</p>` : '';
+            html += `<tr>
+              <td style="font-weight:600;">${esc(stripHtml(row.q.question_text))}</td>
+              <td>${responseHtml}${commentHtml}${scoreHtml}</td>
+            </tr>`;
+          }
+          html += `</tbody></table>`;
+        }
+      }
+    }
+  } else {
+    // No sections — flat list
+    const mcqRows = [];
+    const openRows = [];
+    let gIdx = 0;
+    for (const q of questions) {
+      if (q.type === 'section') continue;
+      const rawAns = answersJson['q' + gIdx];
+      if (q.type === 'mcq') {
+        const selIdx = rawAns !== undefined && rawAns !== null ? parseInt(rawAns, 10) : -1;
+        const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
+        const isCorrect = selIdx >= 0 ? (selIdx === q.correct_index) : false;
+        const studentText = selIdx >= 0 ? (stripHtml(opts[selIdx]) || '—') : null;
+        const correctText = q.correct_index >= 0 ? (stripHtml(opts[q.correct_index]) || '—') : '—';
+        mcqRows.push({ q, idx: gIdx, selIdx, studentText, correctText, isCorrect });
+      } else if (q.type === 'open') {
+        const response = typeof rawAns === 'string' ? rawAns : '';
+        const score = openScores[gIdx] != null ? openScores[gIdx] : null;
+        const comment = openComments[gIdx] || '';
+        openRows.push({ q, idx: gIdx, response: stripHtml(response), score, comment });
+      }
+      gIdx++;
+    }
+
+    if (mcqRows.length > 0) {
+      html += `<div class="section-bar"><span>Questions à choix multiple</span></div>
+        <table class="results-table">
+          <thead><tr>
+            <th style="width:42%;">${T.question}</th>
+            <th style="width:23%;">${T.studentAns}</th>
+            <th style="width:23%;">${T.correctAns}</th>
+            <th style="width:12%; text-align:center;">${T.result}</th>
+          </tr></thead><tbody>`;
+      for (const row of mcqRows) {
+        const studentCell = row.studentText
+          ? `<span class="${row.isCorrect ? 'correct' : 'wrong'}">${esc(row.studentText)}</span>`
+          : `<span class="no-answer">${T.noAnswer}</span>`;
+        html += `<tr>
+          <td>${esc(stripHtml(row.q.question_text))}</td>
+          <td>${studentCell}</td>
+          <td>${esc(row.correctText)}</td>
+          <td class="col-result ${row.isCorrect ? 'correct' : 'wrong'}">${row.isCorrect ? '✓' : '✗'}</td>
+        </tr>`;
+      }
+      html += `</tbody></table>`;
+    }
+
+    const gradedOpen = openRows.filter(r => r.response || r.comment || r.score != null);
+    if (gradedOpen.length > 0) {
+      html += `<div class="section-bar"><span>Questions rédigées</span></div>
+        <table class="results-table">
+          <thead><tr>
+            <th style="width:42%;">${T.question}</th>
+            <th>${T.openResponse} · ${T.openComment} · ${T.openScore}</th>
+          </tr></thead><tbody>`;
+      for (const row of gradedOpen) {
+        const responseHtml = row.response
+          ? `<p class="open-label">${T.openResponse}</p><p class="open-response">${esc(row.response)}</p>` : '';
+        const commentHtml = row.comment
+          ? `<p class="open-label">${T.openComment}</p><p class="open-comment">${esc(row.comment)}</p>` : '';
+        const scoreHtml = row.score != null
+          ? `<p class="open-score">${T.openScore} : ${row.score} / ${row.q.max_points ?? '?'}</p>` : '';
+        html += `<tr>
+          <td style="font-weight:600;">${esc(stripHtml(row.q.question_text))}</td>
+          <td>${responseHtml}${commentHtml}${scoreHtml}</td>
+        </tr>`;
+      }
+      html += `</tbody></table>`;
+    }
+  }
+
+  html += `<div class="table-cap"></div>`;
+
+  if (anyPoolActive || poolActive) {
+    html += `<p class="pool-note">${T.poolNote}</p>`;
+  }
+
+  if (teacher.name || teacher.email) {
+    html += `<div class="contact-block">
+      <p>${T.contactLine}</p>
+      <p style="margin-top:6px;">
+        ${teacher.name ? `<span class="teacher-name">${esc(teacher.name)}</span>` : ''}
+        ${teacher.name && teacher.email ? ' — ' : ''}
+        ${teacher.email ? `<a href="mailto:${esc(teacher.email)}">${esc(teacher.email)}</a>` : ''}
+      </p>
+    </div>`;
+  }
+
+  document.getElementById('content').innerHTML = html;
+  const footer = document.getElementById('footer');
+  footer.textContent = T.footerNote;
+  footer.style.display = 'block';
+}
+
+load();
+</script>
+</body>
+</html>

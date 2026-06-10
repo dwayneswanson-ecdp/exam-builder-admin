@@ -141,7 +141,8 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
   const teacherEmail  = String(p.teacher_email || '');
   const toEmail       = String(p.to_email      || '');
 
-  const questions = Array.isArray(p.questions) ? p.questions as Record<string, unknown>[] : null;
+  const questions  = Array.isArray(p.questions) ? p.questions as Record<string, unknown>[] : null;
+  const resultsUrl = p.results_url ? String(p.results_url) : null;
 
   // ── i18n strings ──────────────────────────────────────────────────────────
   const T = lang === "en" ? {
@@ -204,9 +205,23 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
     </tr>
   </table>`;
 
+  // ── CTA button (results-by-link mode) ────────────────────────────────────
+  let ctaBlock = '';
+  if (resultsUrl) {
+    const btnLabel = lang === 'en' ? 'View your results →' : 'Consulter mes résultats →';
+    const btnNote  = lang === 'en'
+      ? 'This link gives access to your personal results only.'
+      : 'Ce lien donne accès à vos résultats personnels uniquement.';
+    ctaBlock = `
+  <div style="background:#fff;padding:28px 32px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;text-align:center;">
+    <a href="${esc(resultsUrl)}" style="display:inline-block;background:#0f172a;color:#fff;padding:14px 32px;text-decoration:none;font-weight:700;font-size:0.9rem;letter-spacing:0.01em;">${btnLabel}</a>
+    <p style="margin:12px 0 0;font-size:0.75rem;color:#94a3b8;">${btnNote}</p>
+  </div>`;
+  }
+
   // ── Question table ────────────────────────────────────────────────────────
   let questionTable = '';
-  if (questions && questions.length > 0) {
+  if (!resultsUrl && questions && questions.length > 0) {
     // Pool filtering — pool_selection: { sectionId: [qIdx, ...] } keyed by section DB id
     const poolSel = p.pool_selection && typeof p.pool_selection === 'object'
       ? p.pool_selection as Record<string, number[]>
@@ -435,7 +450,7 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
     ${teacherName ? `<span style="font-weight:700;color:#1e293b;">${esc(teacherName)}</span>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}
   </div>` : '';
 
-  const body = headerStripe + heroStats + questionTable + contactBlock;
+  const body = headerStripe + heroStats + ctaBlock + questionTable + contactBlock;
   return emailShell(body, lang);
 }
 

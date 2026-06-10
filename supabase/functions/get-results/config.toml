@@ -1,0 +1,2 @@
+[functions.get-results]
+verify_jwt = false
