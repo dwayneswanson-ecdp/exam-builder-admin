@@ -153,22 +153,49 @@
   .result-icon.ok { color: var(--green); }
   .result-icon.bad { color: var(--red); }
 
-  /* open question cells */
-  .open-label {
+  /* ── Open question vertical cards ────────────────────────────────────────── */
+  .open-q-list {
+    background: var(--white); border: 1px solid var(--line); border-top: none;
+  }
+  .open-q-item {
+    padding: 20px 24px; border-bottom: 1px solid var(--line);
+  }
+  .open-q-item:last-child { border-bottom: none; }
+  .open-q-meta {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 8px; gap: 12px;
+  }
+  .open-q-num {
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
+    text-transform: uppercase; color: var(--muted);
   }
-  .open-response {
-    font-size: 0.82rem; color: var(--slate);
-    font-style: italic; white-space: pre-wrap; margin-bottom: 10px;
-    line-height: 1.6;
+  .open-q-score-badge {
+    font-size: 0.78rem; font-weight: 700; color: var(--slate);
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 3px 10px; white-space: nowrap; flex-shrink: 0;
   }
-  .open-comment { font-size: 0.82rem; color: var(--ink); line-height: 1.6; }
-  .open-score {
-    font-size: 0.82rem; font-weight: 700; color: var(--slate);
-    margin-top: 8px; display: inline-flex; align-items: center; gap: 4px;
+  .open-q-score-badge .score-val {
+    font-size: 0.95rem; font-weight: 800; color: var(--black);
   }
-  .open-score-num { font-size: 1rem; font-weight: 800; color: var(--black); }
+  .open-q-text {
+    font-size: 0.9rem; font-weight: 600; color: var(--black);
+    line-height: 1.5; margin-bottom: 16px;
+  }
+  .open-q-fields { display: flex; flex-direction: column; gap: 12px; }
+  .open-q-field-label {
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+  }
+  .open-q-response {
+    font-size: 0.85rem; color: var(--slate); font-style: italic;
+    white-space: pre-wrap; line-height: 1.65;
+    background: var(--surface); padding: 10px 14px;
+    border-left: 3px solid var(--line);
+  }
+  .open-q-comment {
+    font-size: 0.85rem; color: var(--ink); line-height: 1.65;
+    padding: 10px 14px; background: #fffbeb; border-left: 3px solid #fcd34d;
+  }
 
   /* bottom cap */
   .table-end { border: 1px solid var(--line); border-top: none; height: 0; margin-bottom: 24px; }
@@ -245,6 +272,41 @@ function stripHtml(html) {
 function fmtDate(iso) {
   if (!iso) return '—';
   return new Date(iso).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+}
+
+// Render open questions as vertical cards (full-width, stacked)
+function renderOpenCards(openRows, T, qNumberOffset) {
+  const items = openRows.filter(r => r.response || r.comment || r.score != null);
+  if (!items.length) return '';
+  let html = '<div class="open-q-list">';
+  items.forEach((r, i) => {
+    const qNum = (qNumberOffset || 0) + i + 1;
+    const scoreHtml = r.score != null
+      ? `<span class="open-q-score-badge"><span class="score-val">${r.score}</span> / ${r.q.max_points ?? '?'}</span>`
+      : '';
+    html += `<div class="open-q-item">
+      <div class="open-q-meta">
+        <span class="open-q-num">${T.questionCol} ${qNum}</span>
+        ${scoreHtml}
+      </div>
+      <p class="open-q-text">${esc(stripHtml(r.q.question_text))}</p>
+      <div class="open-q-fields">`;
+    if (r.response) {
+      html += `<div>
+        <p class="open-q-field-label">${T.openResp}</p>
+        <p class="open-q-response">${esc(r.response)}</p>
+      </div>`;
+    }
+    if (r.comment) {
+      html += `<div>
+        <p class="open-q-field-label">${T.openComment}</p>
+        <p class="open-q-comment">${esc(r.comment)}</p>
+      </div>`;
+    }
+    html += `</div></div>`;
+  });
+  html += '</div>';
+  return html;
 }
 
 function showError(title, msg) {
@@ -429,26 +491,7 @@ function render(data) {
         html += `</tbody></table></div>`;
       }
 
-      const gradedOpen = g.open.filter(r => r.response || r.comment || r.score != null);
-      if (gradedOpen.length) {
-        html += `<div class="q-table-wrap" style="${g.mcq.length ? 'border-top:1px solid var(--line);' : ''}"><table>
-          <thead><tr>
-            <th class="td-q" style="width:44%;">${T.questionCol}</th>
-            <th>${T.openResp} · ${T.openComment} · ${T.openScore}</th>
-          </tr></thead><tbody>`;
-        for (const r of gradedOpen) {
-          const respHtml = r.response ? `<p class="open-label">${T.openResp}</p><p class="open-response">${esc(r.response)}</p>` : '';
-          const cmtHtml  = r.comment  ? `<p class="open-label">${T.openComment}</p><p class="open-comment">${esc(r.comment)}</p>` : '';
-          const scHtml   = r.score != null
-            ? `<p class="open-score"><span class="open-score-num">${r.score}</span> / ${r.q.max_points ?? '?'}</p>`
-            : '';
-          html += `<tr>
-            <td class="td-q" style="font-weight:600;">${esc(stripHtml(r.q.question_text))}</td>
-            <td>${respHtml}${cmtHtml}${scHtml}</td>
-          </tr>`;
-        }
-        html += `</tbody></table></div>`;
-      }
+      html += renderOpenCards(g.open, T, 0);
     }
 
   } else {
@@ -500,26 +543,9 @@ function render(data) {
       html += `</tbody></table></div>`;
     }
 
-    const gradedOpen = openRows.filter(r => r.response || r.comment || r.score != null);
-    if (gradedOpen.length) {
-      html += `<div class="section-bar" style="margin-top:20px;"><span>${lang === 'en' ? 'Written questions' : 'Questions rédigées'}</span></div>
-        <div class="q-table-wrap"><table>
-          <thead><tr>
-            <th class="td-q" style="width:44%;">${T.questionCol}</th>
-            <th>${T.openResp} · ${T.openComment} · ${T.openScore}</th>
-          </tr></thead><tbody>`;
-      for (const r of gradedOpen) {
-        const respHtml = r.response ? `<p class="open-label">${T.openResp}</p><p class="open-response">${esc(r.response)}</p>` : '';
-        const cmtHtml  = r.comment  ? `<p class="open-label">${T.openComment}</p><p class="open-comment">${esc(r.comment)}</p>` : '';
-        const scHtml   = r.score != null
-          ? `<p class="open-score"><span class="open-score-num">${r.score}</span> / ${r.q.max_points ?? '?'}</p>`
-          : '';
-        html += `<tr>
-          <td class="td-q" style="font-weight:600;">${esc(stripHtml(r.q.question_text))}</td>
-          <td>${respHtml}${cmtHtml}${scHtml}</td>
-        </tr>`;
-      }
-      html += `</tbody></table></div>`;
+    if (openRows.some(r => r.response || r.comment || r.score != null)) {
+      html += `<div class="section-bar" style="margin-top:20px;"><span>${lang === 'en' ? 'Written questions' : 'Questions rédigées'}</span></div>`;
+      html += renderOpenCards(openRows, T, 0);
     }
   }
 
