@@ -119,82 +119,85 @@
     text-transform: uppercase; color: rgba(255,255,255,0.8);
   }
 
-  /* ── Question tables ──────────────────────────────────────────────────────── */
-  .q-table-wrap {
-    background: var(--white); border: 1px solid var(--line);
-    border-top: none; margin-bottom: 0;
-    overflow-x: auto;
-  }
-  .q-table-wrap + .section-bar { margin-top: 20px; }
-  .q-table-wrap:last-child { margin-bottom: 0; }
-
-  table { width: 100%; border-collapse: collapse; }
-  thead th {
-    padding: 9px 16px;
-    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--muted); text-align: left;
-    border-bottom: 1px solid var(--line); background: var(--surface);
-  }
-  tbody td {
-    padding: 11px 16px; font-size: 0.82rem; color: var(--ink);
-    border-bottom: 1px solid var(--line); vertical-align: top;
-  }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:nth-child(even) td { background: #fafbfd; }
-
-  .td-q { width: 44%; font-size: 0.82rem; color: var(--ink); }
-  .td-ans { width: 22%; }
-  .td-correct { width: 22%; }
-  .td-result { width: 12%; text-align: center; }
-  .ans-correct { color: var(--ink); }
-  .ans-wrong { color: var(--red); font-weight: 600; }
-  .ans-none { color: var(--muted); font-style: italic; }
-  .result-icon { font-size: 1.05rem; font-weight: 700; }
-  .result-icon.ok { color: var(--green); }
-  .result-icon.bad { color: var(--red); }
-
-  /* ── Open question vertical cards ────────────────────────────────────────── */
-  .open-q-list {
+  /* ── Question cards (shared for MCQ + open) ──────────────────────────────── */
+  .q-card-list {
     background: var(--white); border: 1px solid var(--line); border-top: none;
   }
-  .open-q-item {
+  .q-card-item {
     padding: 20px 24px; border-bottom: 1px solid var(--line);
   }
-  .open-q-item:last-child { border-bottom: none; }
-  .open-q-meta {
+  .q-card-item:last-child { border-bottom: none; }
+  .q-card-item:nth-child(even) { background: #fafbfd; }
+
+  /* meta row: question number left, result/score right */
+  .q-card-meta {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 8px; gap: 12px;
+    margin-bottom: 10px; gap: 12px;
   }
-  .open-q-num {
+  .q-card-num {
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted);
   }
-  .open-q-score-badge {
+  .q-card-result { font-size: 1rem; font-weight: 800; flex-shrink: 0; }
+  .q-card-result.ok { color: var(--green); }
+  .q-card-result.bad { color: var(--red); }
+  .q-score-badge {
     font-size: 0.78rem; font-weight: 700; color: var(--slate);
     background: var(--surface); border: 1px solid var(--line);
     padding: 3px 10px; white-space: nowrap; flex-shrink: 0;
   }
-  .open-q-score-badge .score-val {
-    font-size: 0.95rem; font-weight: 800; color: var(--black);
-  }
-  .open-q-text {
+  .q-score-badge .score-val { font-size: 0.95rem; font-weight: 800; color: var(--black); }
+
+  /* question text — renders Quill HTML */
+  .q-card-text {
     font-size: 0.9rem; font-weight: 600; color: var(--black);
-    line-height: 1.5; margin-bottom: 16px;
+    line-height: 1.6; margin-bottom: 14px;
   }
-  .open-q-fields { display: flex; flex-direction: column; gap: 12px; }
-  .open-q-field-label {
+  .q-card-text p { margin: 0 0 6px; }
+  .q-card-text p:last-child { margin-bottom: 0; }
+  .q-card-text ol, .q-card-text ul { margin: 6px 0 0 20px; padding: 0; }
+  .q-card-text li { margin-bottom: 4px; font-weight: 400; color: var(--ink); }
+  .q-card-text strong { font-weight: 700; }
+  .q-card-text em { font-style: italic; }
+
+  /* MCQ answer rows */
+  .mcq-answer-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 0.82rem; line-height: 1.5; margin-bottom: 4px;
+  }
+  .mcq-answer-row:last-child { margin-bottom: 0; }
+  .mcq-ans-label {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 3px;
+  }
+  .mcq-ans-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; font-size: 0.82rem; line-height: 1.4;
+  }
+  .mcq-ans-pill.correct-ans { background: #f0fdf4; border-left: 3px solid var(--green); color: var(--ink); }
+  .mcq-ans-pill.wrong-ans   { background: #fef2f2; border-left: 3px solid var(--red);   color: var(--red); font-weight: 600; }
+  .mcq-ans-pill.no-ans      { background: var(--surface); border-left: 3px solid var(--line); color: var(--muted); font-style: italic; }
+
+  /* open question fields */
+  .q-card-fields { display: flex; flex-direction: column; gap: 12px; }
+  .q-card-field-label {
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
   }
-  .open-q-response {
-    font-size: 0.85rem; color: var(--slate); font-style: italic;
-    white-space: pre-wrap; line-height: 1.65;
-    background: var(--surface); padding: 10px 14px;
+  /* student response — renders Quill HTML */
+  .q-card-response {
+    font-size: 0.85rem; color: var(--slate); line-height: 1.7;
+    background: var(--surface); padding: 12px 16px;
     border-left: 3px solid var(--line);
   }
-  .open-q-comment {
-    font-size: 0.85rem; color: var(--ink); line-height: 1.65;
-    padding: 10px 14px; background: #fffbeb; border-left: 3px solid #fcd34d;
+  .q-card-response p { margin: 0 0 8px; }
+  .q-card-response p:last-child { margin-bottom: 0; }
+  .q-card-response ol, .q-card-response ul { margin: 4px 0 0 20px; }
+  .q-card-response li { margin-bottom: 4px; }
+  /* teacher comment */
+  .q-card-comment {
+    font-size: 0.85rem; color: var(--ink); line-height: 1.7;
+    padding: 12px 16px; background: #fffbeb; border-left: 3px solid #fcd34d;
   }
 
   /* bottom cap */
@@ -274,33 +277,87 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
 }
 
-// Render open questions as vertical cards (full-width, stacked)
-function renderOpenCards(openRows, T, qNumberOffset) {
+// Safe HTML renderer — keeps Quill formatting tags, strips dangerous content
+function renderHtml(html) {
+  if (!html) return '';
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  div.querySelectorAll('script,style,iframe,object,embed,form,input,button,link').forEach(el => el.remove());
+  div.querySelectorAll('*').forEach(el => {
+    Array.from(el.attributes).forEach(attr => {
+      if (attr.name.startsWith('on') || (attr.name === 'href' && /^javascript:/i.test(attr.value))) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+  // Clean up empty Quill paragraphs at top/bottom
+  const children = Array.from(div.children);
+  while (children.length && children[0].matches('p') && !children[0].textContent.trim()) {
+    children.shift().remove();
+  }
+  while (children.length && children[children.length - 1].matches('p') && !children[children.length - 1].textContent.trim()) {
+    children.pop().remove();
+  }
+  return div.innerHTML;
+}
+
+// Render MCQ questions as vertical cards
+function renderMcqCards(mcqRows, T) {
+  if (!mcqRows.length) return '';
+  let html = '<div class="q-card-list">';
+  mcqRows.forEach((r, i) => {
+    const resultCls = r.isCorrect ? 'ok' : 'bad';
+    const resultIcon = r.isCorrect ? '✓' : '✗';
+    html += `<div class="q-card-item">
+      <div class="q-card-meta">
+        <span class="q-card-num">${T.questionCol} ${i + 1}</span>
+        <span class="q-card-result ${resultCls}">${resultIcon}</span>
+      </div>
+      <div class="q-card-text">${renderHtml(r.q.question_text) || `<em>Q${i + 1}</em>`}</div>`;
+
+    if (r.studentText) {
+      const pillCls = r.isCorrect ? 'correct-ans' : 'wrong-ans';
+      html += `<div class="mcq-ans-label">${T.studentAns}</div>
+        <div class="mcq-ans-pill ${pillCls}">${esc(r.studentText)}</div>`;
+      if (!r.isCorrect) {
+        html += `<div class="mcq-ans-label" style="margin-top:8px;">${T.correctAns}</div>
+          <div class="mcq-ans-pill correct-ans">${esc(r.correctText)}</div>`;
+      }
+    } else {
+      html += `<div class="mcq-ans-pill no-ans">${T.noAnswer}</div>`;
+    }
+    html += `</div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+// Render open questions as vertical cards
+function renderOpenCards(openRows, T) {
   const items = openRows.filter(r => r.response || r.comment || r.score != null);
   if (!items.length) return '';
-  let html = '<div class="open-q-list">';
+  let html = '<div class="q-card-list">';
   items.forEach((r, i) => {
-    const qNum = (qNumberOffset || 0) + i + 1;
     const scoreHtml = r.score != null
-      ? `<span class="open-q-score-badge"><span class="score-val">${r.score}</span> / ${r.q.max_points ?? '?'}</span>`
+      ? `<span class="q-score-badge"><span class="score-val">${r.score}</span> / ${r.q.max_points ?? '?'}</span>`
       : '';
-    html += `<div class="open-q-item">
-      <div class="open-q-meta">
-        <span class="open-q-num">${T.questionCol} ${qNum}</span>
+    html += `<div class="q-card-item">
+      <div class="q-card-meta">
+        <span class="q-card-num">${T.questionCol} ${i + 1}</span>
         ${scoreHtml}
       </div>
-      <p class="open-q-text">${esc(stripHtml(r.q.question_text))}</p>
-      <div class="open-q-fields">`;
+      <div class="q-card-text">${renderHtml(r.q.question_text) || `<em>Q${i + 1}</em>`}</div>
+      <div class="q-card-fields">`;
     if (r.response) {
       html += `<div>
-        <p class="open-q-field-label">${T.openResp}</p>
-        <p class="open-q-response">${esc(r.response)}</p>
+        <p class="q-card-field-label">${T.openResp}</p>
+        <div class="q-card-response">${renderHtml(r.response)}</div>
       </div>`;
     }
     if (r.comment) {
       html += `<div>
-        <p class="open-q-field-label">${T.openComment}</p>
-        <p class="open-q-comment">${esc(r.comment)}</p>
+        <p class="q-card-field-label">${T.openComment}</p>
+        <div class="q-card-comment">${esc(r.comment)}</div>
       </div>`;
     }
     html += `</div></div>`;
@@ -455,7 +512,7 @@ function render(data) {
         } else if (q.type === 'open') {
           cur.open.push({
             q, idx: gIdx,
-            response: stripHtml(typeof rawAns === 'string' ? rawAns : ''),
+            response: typeof rawAns === 'string' ? rawAns : '',
             score:    openScores[gIdx] != null ? openScores[gIdx] : null,
             comment:  openComments[gIdx] || '',
           });
@@ -469,29 +526,8 @@ function render(data) {
       if (!g.mcq.length && !g.open.length) continue;
 
       html += `<div class="section-bar"><span>${esc(g.title || '')}</span></div>`;
-
-      if (g.mcq.length) {
-        html += `<div class="q-table-wrap"><table>
-          <thead><tr>
-            <th class="td-q">${T.questionCol}</th>
-            <th class="td-ans">${T.studentAns}</th>
-            <th class="td-correct">${T.correctAns}</th>
-            <th class="td-result">${T.resultCol}</th>
-          </tr></thead><tbody>`;
-        for (const r of g.mcq) {
-          const ansCls = r.studentText ? (r.isCorrect ? 'ans-correct' : 'ans-wrong') : 'ans-none';
-          const ansText = r.studentText ? esc(r.studentText) : `<em>${T.noAnswer}</em>`;
-          html += `<tr>
-            <td class="td-q">${esc(stripHtml(r.q.question_text))}</td>
-            <td class="td-ans"><span class="${ansCls}">${ansText}</span></td>
-            <td class="td-correct">${esc(r.correctText)}</td>
-            <td class="td-result"><span class="result-icon ${r.isCorrect ? 'ok' : 'bad'}">${r.isCorrect ? '✓' : '✗'}</span></td>
-          </tr>`;
-        }
-        html += `</tbody></table></div>`;
-      }
-
-      html += renderOpenCards(g.open, T, 0);
+      html += renderMcqCards(g.mcq, T);
+      html += renderOpenCards(g.open, T);
     }
 
   } else {
@@ -522,30 +558,12 @@ function render(data) {
     }
 
     if (mcqRows.length) {
-      html += `<div class="section-bar"><span>${lang === 'en' ? 'Multiple choice' : 'Questions à choix multiple'}</span></div>
-        <div class="q-table-wrap"><table>
-          <thead><tr>
-            <th class="td-q">${T.questionCol}</th>
-            <th class="td-ans">${T.studentAns}</th>
-            <th class="td-correct">${T.correctAns}</th>
-            <th class="td-result">${T.resultCol}</th>
-          </tr></thead><tbody>`;
-      for (const r of mcqRows) {
-        const ansCls = r.studentText ? (r.isCorrect ? 'ans-correct' : 'ans-wrong') : 'ans-none';
-        const ansText = r.studentText ? esc(r.studentText) : `<em>${T.noAnswer}</em>`;
-        html += `<tr>
-          <td class="td-q">${esc(stripHtml(r.q.question_text))}</td>
-          <td class="td-ans"><span class="${ansCls}">${ansText}</span></td>
-          <td class="td-correct">${esc(r.correctText)}</td>
-          <td class="td-result"><span class="result-icon ${r.isCorrect ? 'ok' : 'bad'}">${r.isCorrect ? '✓' : '✗'}</span></td>
-        </tr>`;
-      }
-      html += `</tbody></table></div>`;
+      html += `<div class="section-bar"><span>${lang === 'en' ? 'Multiple choice' : 'Questions à choix multiple'}</span></div>`;
+      html += renderMcqCards(mcqRows, T);
     }
-
     if (openRows.some(r => r.response || r.comment || r.score != null)) {
       html += `<div class="section-bar" style="margin-top:20px;"><span>${lang === 'en' ? 'Written questions' : 'Questions rédigées'}</span></div>`;
-      html += renderOpenCards(openRows, T, 0);
+      html += renderOpenCards(openRows, T);
     }
   }
 
