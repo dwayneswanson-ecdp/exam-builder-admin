@@ -4603,7 +4603,7 @@
     const scoreStr = a.score_mcq !== null
       ? `${Number.isInteger(sc) ? sc : sc.toFixed(1)} / ${scoreMax}`
       : '—';
-    const statusPill = statusBadge(a.status || 'in_progress');
+    const statusPill = studentStatusBadge(a);
     const div = '<div class="drill-strip-div"></div>';
     document.getElementById('sdMetaStrip').innerHTML = `
       <div class="drill-strip-block"><span class="drill-strip-val">${esc(scoreStr)}</span><span class="drill-strip-label">Score</span></div>
