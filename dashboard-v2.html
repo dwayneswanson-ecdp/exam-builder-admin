@@ -1145,7 +1145,7 @@
       <div class="card">
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Group</th><th>Code</th><th style="width:40px;"></th><th>Submitted</th><th>Graded</th><th>Pending</th><th>Exam Date</th><th style="width:40px;"></th></tr></thead>
+            <thead><tr><th>Group</th><th>Code</th><th style="width:40px;"></th><th>Submitted</th><th>Graded</th><th>To Grade</th><th>Exam Date</th><th style="width:40px;"></th></tr></thead>
             <tbody id="drillGroupsTable"></tbody>
           </table>
         </div>
@@ -4310,7 +4310,7 @@
       if (!groupMap[g]) groupMap[g] = { name: g, submitted: 0, graded: 0, pending: 0 };
       if (a.status === 'submitted' || a.status === 'results_sent') {
         groupMap[g].submitted++;
-        if (a.score_mcq !== null) groupMap[g].graded++;
+        if (Object.keys(a.open_scores || {}).length > 0) groupMap[g].graded++;
         else groupMap[g].pending++;
         if (a.submitted_at) {
           const t = new Date(a.submitted_at);
@@ -5466,9 +5466,9 @@
     const isPublished = exam.status === 'published';
     const statusPill = `<span class="badge ${isPublished ? 'badge-published' : 'badge-draft'}">${isPublished ? 'Published' : 'Draft'}</span>`;
     const questions = examQuestionCounts[exam.id] || 0;
-    const submitted = drillCurrentAttempts.filter(a => a.status === 'submitted').length;
+    const submitted = drillCurrentAttempts.filter(a => a.status === 'submitted' || a.status === 'results_sent').length;
     const groupMap = {};
-    drillCurrentAttempts.forEach(a => { groupMap[a.group_name || '(Default)'] = true; });
+    drillCurrentAttempts.filter(a => a.status !== 'void').forEach(a => { groupMap[a.group_name || '(Default)'] = true; });
     let definedGroups = [];
     definedGroups = parseGroups(exam.groups);
     definedGroups.forEach(g => { groupMap[g] = true; });
