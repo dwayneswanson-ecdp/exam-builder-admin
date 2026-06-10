@@ -4857,10 +4857,11 @@
       } else {
         const opts = [q.option_a, q.option_b, q.option_c, q.option_d];
         const selIdx = parseInt(rawAns, 10);
-        if (selIdx < 0) return;
-        const selText = !isNaN(selIdx) ? (opts[selIdx] || '—') : '—';
+        // Skip only if unanswered AND in a pool section with no pool_selection (can't tell if drawn)
+        if (selIdx < 0 && sec && sec.pool_draw && !poolSelection[sec.id]) return;
+        const selText = selIdx >= 0 ? (opts[selIdx] || '—') : '—';
         const correctText = opts[q.correct_index] || '—';
-        const isCorrect = a.score_mcq !== null && !isNaN(selIdx) ? (selIdx === q.correct_index) : null;
+        const isCorrect = a.score_mcq !== null && selIdx >= 0 ? (selIdx === q.correct_index) : (selIdx < 0 ? false : null);
         const earned = isCorrect === true ? (q.max_points || 1) : isCorrect === false ? 0 : '';
         const result = isCorrect === true ? '<span style="color:#16a34a;font-weight:700;">✓</span>'
           : isCorrect === false ? '<span style="color:#dc2626;font-weight:700;">✗</span>'
