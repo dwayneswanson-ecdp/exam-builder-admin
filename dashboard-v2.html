@@ -300,7 +300,7 @@
     #confirmModal.open { display: flex; }
     #ticketModal { display:none;position:fixed;inset:0;background:rgba(15,23,42,0.45);z-index:9000;align-items:center;justify-content:center; }
     #ticketModal.open { display:flex; }
-    #ticketFloatBtn { position:fixed;bottom:24px;right:24px;z-index:900;display:none;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;color:#64748b;font-family:inherit;user-select:none; }
+    #ticketFloatBtn { position:fixed;bottom:24px;right:24px;z-index:900;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;color:#64748b;font-family:inherit;user-select:none; }
     #ticketFloatBtn:hover { color:#0f172a; }
     .tick-cat { font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap; }
     .tick-status { font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap; }
@@ -2509,11 +2509,7 @@
 </div>
 
 <!-- Floating ticket report button — teacher + admin only -->
-<div id="ticketFloatBtn" onclick="openTicketModal()"
-  style="position:fixed;bottom:24px;right:24px;z-index:900;
-         display:none;align-items:center;gap:6px;
-         cursor:pointer;font-size:0.78rem;color:#64748b;
-         font-family:inherit;user-select:none;">
+<div id="ticketFloatBtn" onclick="openTicketModal()">
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
     <line x1="4" y1="22" x2="4" y2="15"/>
@@ -4968,23 +4964,8 @@
   }
 
   function sdUpdateConfirmAllBtn() {
-    const visible = [...document.querySelectorAll('.sd-ai-box')].filter(el => el.style.display !== 'none' && el.style.display !== '');
-    let bar = document.getElementById('sdConfirmAllBar');
-    if (visible.length > 0) {
-      if (!bar) {
-        bar = document.createElement('div');
-        bar.id = 'sdConfirmAllBar';
-        bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#0f172a;padding:12px 40px;display:flex;align-items:center;justify-content:flex-end;gap:14px;z-index:500;border-top:1px solid rgba(255,255,255,0.1);';
-        bar.innerHTML = `<span id="sdConfirmAllLabel" style="font-size:0.78rem;color:#94a3b8;"></span>
-          <button class="btn btn-primary" onclick="sdConfirmAllGrades()" style="font-size:0.82rem;padding:10px 22px;">Confirm all grades</button>`;
-        document.body.appendChild(bar);
-      }
-      const label = document.getElementById('sdConfirmAllLabel');
-      if (label) label.textContent = visible.length + ' AI suggestion' + (visible.length !== 1 ? 's' : '') + ' pending';
-      bar.style.display = 'flex';
-    } else {
-      if (bar) bar.style.display = 'none';
-    }
+    const bar = document.getElementById('sdConfirmAllBar');
+    if (bar) bar.remove();
   }
 
   async function sdConfirmAllGrades() {
@@ -5454,7 +5435,7 @@
     document.getElementById('exams-l4').style.display = 'none';
     if (toLevel === 1) { drillCurrentExam = null; drillCurrentAttempts = []; drillCurrentGroup = null; drillCurrentScoreMax = null; }
     if (toLevel <= 2) drillCurrentGroup = null;
-    if (toLevel <= 3) { drillCurrentAttempt = null; _sdQuestions = []; _sdAnswers = {}; }
+    if (toLevel <= 3) { drillCurrentAttempt = null; _sdQuestions = []; _sdAnswers = {}; const b = document.getElementById('sdConfirmAllBar'); if (b) b.remove(); }
     drillSelectedIds = new Set();
     drillUpdateBulkBar();
     if (toLevel === 3) filterDrillStudents();
