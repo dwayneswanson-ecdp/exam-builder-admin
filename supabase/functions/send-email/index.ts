@@ -195,7 +195,6 @@ function resultsHtml(p: Record<string, unknown>, lang: string) {
       <td style="padding:20px 24px;border-right:1px solid #e2e8f0;vertical-align:top;width:50%;">
         <p style="margin:0 0 4px;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${T.scoreTotal}</p>
         <p style="margin:0;font-size:2rem;font-weight:700;color:#0a0a0a;line-height:1;">${esc(scoreObtained)} / ${esc(scoreTotal)}</p>
-        ${pct !== null ? `<p style="margin:6px 0 0;font-size:0.8rem;color:#64748b;">${pct}%${scoreConverted ? ` · ${scoreConverted} / 20` : ''}</p>` : ''}
       </td>
       <td style="padding:20px 24px;vertical-align:top;width:50%;">
         <p style="margin:0 0 4px;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${T.date}</p>

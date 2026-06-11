@@ -358,13 +358,9 @@ function renderOpenCards(openRows, T) {
   if (!items.length) return '';
   let html = '<div class="q-card-list">';
   items.forEach((r, i) => {
-    const scoreHtml = r.score != null
-      ? `<span class="q-score-badge"><span class="score-val">${r.score}</span> / ${r.q.max_points ?? '?'}</span>`
-      : '';
     html += `<div class="q-card-item">
       <div class="q-card-meta">
         <span class="q-card-num">${T.questionCol} ${i + 1}</span>
-        ${scoreHtml}
       </div>
       <div class="q-card-text">${renderHtml(r.q.question_text) || `<em>Q${i + 1}</em>`}</div>
       <div class="q-card-fields">`;
@@ -515,7 +511,6 @@ function render(data) {
       <div class="score-cell">
         <p class="sc-label">${T.scoreLabel}</p>
         <p class="sc-value">${scoreDisplay}<span style="font-size:1.2rem;font-weight:600;color:var(--muted);"> / ${scoreMaxDisp}</span></p>
-        ${pct != null ? `<p class="sc-sub">${pct}%</p>` : ''}
       </div>
       <div class="score-cell">
         <p class="sc-label">${T.dateLabel}</p>
