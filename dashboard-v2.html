@@ -1457,9 +1457,6 @@
             <label class="field-label">Exam</label>
             <select class="ctrl" id="resultsExamSel" onchange="onResultsExamChange()" style="width:100%;"></select>
           </div>
-          <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:500;color:#475569;cursor:pointer;align-self:flex-end;padding-bottom:6px;">
-            <input type="checkbox" id="resultsIncludeBreakdown" checked onchange="refreshResultsPreview()"> Include detailed Q&amp;A breakdown
-          </label>
         </div>
         <div id="resultsGroupWrap" style="display:none;margin-top:12px;">
           <label class="field-label">Group</label>
@@ -2688,6 +2685,7 @@
   let _confirmModalCallback = null;
   let resultsActiveGroup = '';
   let _resultsAllAttempts = [];
+  let _resultsScoreMax = null;
   let _resultsSelectedIds = new Set();
   let _drillGroupCode = '';
   let _drillGroupLink = '';
@@ -6931,9 +6929,14 @@
   }
 
   async function loadResultsAttempts(examId) {
-    const { data } = await sb.from('exam_attempts')
-      .select('*').eq('exam_id', examId).eq('status', 'submitted').order('student_name');
+    const [{ data }, { data: qs }] = await Promise.all([
+      sb.from('exam_attempts').select('*').eq('exam_id', examId).eq('status', 'submitted').order('student_name'),
+      sb.from('questions').select('type,max_points,pool_draw').eq('exam_id', examId).order('position', { ascending: true })
+    ]);
     _resultsAllAttempts = data || [];
+    let _m = 0, _pd = null, _pc = 0;
+    (qs||[]).forEach(q => { if (q.type === 'section') { _pd = Number(q.pool_draw) > 0 ? Number(q.pool_draw) : null; _pc = 0; return; } if (_pd !== null) { if (_pc >= _pd) return; _pc++; } _m += q.type === 'mcq' ? 1 : (q.max_points || 5); });
+    _resultsScoreMax = _m || null;
     renderResultsChecklist();
     refreshResultsPreview();
     loadResultsHistory();
@@ -6993,48 +6996,54 @@
     const preview = resultsActiveGroup
       ? _resultsAllAttempts.find(a => a.score_mcq !== null && (a.group_name || '(Default)') === resultsActiveGroup)
       : _resultsAllAttempts.find(a => a.score_mcq !== null);
-    const teacherName = currentTeacher?.full_name || currentTeacher?.email || 'Your teacher';
+    const teacherName = currentTeacher?.full_name || currentTeacher?.email || '';
     const teacherEmail = currentTeacher?.email || '';
     const examTitle = exam.title || '(Untitled)';
+    const lang = exam.lang || 'fr';
+    const institution = currentInstitution?.name || '';
     const studentName = preview ? esc(fmtStudentName(preview.student_name || 'Student')) : 'Student Name';
-    const score = preview ? fmtScore(preview) : '—';
-    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
-    const breakdownBlock = includeBreakdown ? `
-      <div style="margin-bottom:20px;">
-        <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Question Breakdown</div>
-        <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
-          <thead><tr style="background:#f8fafc;">
-            <th style="padding:6px 10px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Question</th>
-            <th style="padding:6px 10px;text-align:right;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0;">Score</th>
-          </tr></thead>
-          <tbody>
-            <tr><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;">Q1 — Multiple choice</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">4 / 5</td></tr>
-            <tr><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;">Q2 — Open question</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">8 / 10</td></tr>
-            <tr><td style="padding:6px 10px;">Q3 — Multiple choice</td><td style="padding:6px 10px;text-align:right;">3 / 5</td></tr>
-          </tbody>
-        </table>
-      </div>` : '';
-    const contactLine = teacherEmail
-      ? `Questions? Contact ${esc(teacherName)} at <a href="mailto:${teacherEmail}" style="color:#2563eb;">${esc(teacherEmail)}</a>.`
-      : `Questions? Contact ${esc(teacherName)}.`;
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;">
-<div style="max-width:560px;margin:0 auto;padding:24px 16px;">
-  <div style="background:#0f172a;border-radius:8px 8px 0 0;padding:20px 28px;">
-    <span style="color:white;font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;">testflo</span>
+    const scoreObtained = preview ? fmtScore(preview) : '—';
+    const scoreTotal = _resultsScoreMax || '?';
+    const dateTaken = preview?.submitted_at
+      ? new Date(preview.submitted_at).toLocaleDateString(lang === 'en' ? 'en-GB' : 'fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '—';
+    const btnLabel    = lang === 'en' ? 'View your results →' : 'Consulter mes résultats →';
+    const btnNote     = lang === 'en' ? 'This link gives access to your personal results only.' : 'Ce lien donne accès à vos résultats personnels uniquement.';
+    const scoreLbl    = lang === 'en' ? 'Total Score' : 'Score Total';
+    const dateLbl     = lang === 'en' ? 'Date' : 'Date';
+    const submittedLbl = lang === 'en' ? 'Submitted on' : 'Soumis le';
+    const contactLbl  = lang === 'en' ? 'For any question regarding your result, contact your instructor :' : 'Pour toute question concernant votre résultat, contactez votre enseignant :';
+    const footerTxt   = lang === 'en' ? 'This message was automatically generated by testflo.' : 'Ce message a été généré automatiquement par testflo.';
+    return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:32px 16px;">
+<div style="max-width:600px;margin:0 auto;">
+  <div style="background:#0f172a;padding:24px 32px;">
+    <span style="font-family:Inter,Arial,sans-serif;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">testflo</span>
   </div>
-  <div style="background:white;padding:28px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
-    <div style="font-size:1rem;color:#0f172a;margin-bottom:4px;">Hello, <strong>${studentName}</strong>,</div>
-    <div style="font-size:0.9rem;color:#475569;margin-bottom:24px;">Here are your results for <strong style="color:#0f172a;">${esc(examTitle)}</strong>.</div>
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
-      <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Your Score</div>
-      <div style="font-size:2rem;font-weight:800;color:#0f172a;">${score}</div>
-    </div>
-    ${breakdownBlock}
-    <div style="font-size:0.8rem;color:#64748b;">${contactLine}</div>
+  <div style="background:#fff;padding:24px 32px 20px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+    ${institution ? `<p style="margin:0 0 2px;font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${esc(institution)}</p>` : ''}
+    <h2 style="margin:0 0 8px;font-size:1.15rem;font-weight:700;color:#0a0a0a;line-height:1.3;">${esc(examTitle)}</h2>
+    <p style="margin:0;font-size:0.85rem;color:#475569;"><strong>${studentName}</strong></p>
+    <p style="margin:4px 0 0;font-size:0.8rem;color:#94a3b8;">${submittedLbl} ${dateTaken}${teacherName ? ` · ${esc(teacherName)}` : ''}</p>
   </div>
-  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:16px 28px;">
-    <div style="font-size:0.75rem;color:#94a3b8;">This score report was sent via testflo.</div>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;background:#fff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;">
+    <tr>
+      <td style="padding:20px 24px;border-right:1px solid #e2e8f0;vertical-align:top;width:50%;">
+        <p style="margin:0 0 4px;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${scoreLbl}</p>
+        <p style="margin:0;font-size:2rem;font-weight:700;color:#0a0a0a;line-height:1;">${scoreObtained}<span style="font-size:1rem;font-weight:400;color:#94a3b8;"> / ${scoreTotal}</span></p>
+      </td>
+      <td style="padding:20px 24px;vertical-align:top;width:50%;">
+        <p style="margin:0 0 4px;font-size:0.6rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;">${dateLbl}</p>
+        <p style="margin:0;font-size:0.95rem;font-weight:600;color:#1e293b;">${dateTaken}</p>
+        ${institution ? `<p style="margin:4px 0 0;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : ''}
+      </td>
+    </tr>
+  </table>
+  <div style="background:#fff;padding:28px 32px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;text-align:center;">
+    <a href="#" style="display:inline-block;background:#0f172a;color:#fff;padding:14px 32px;text-decoration:none;font-weight:700;font-size:0.9rem;letter-spacing:0.01em;">${btnLabel}</a>
+    <p style="margin:12px 0 0;font-size:0.75rem;color:#94a3b8;">${btnNote}</p>
   </div>
+  ${(teacherName || teacherEmail) ? `<div style="background:#fff;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;border-top:1px solid #e2e8f0;padding:16px 32px;text-align:center;font-size:0.85rem;color:#64748b;">${contactLbl}<br>${teacherName ? `<span style="font-weight:700;color:#1e293b;">${esc(teacherName)}</span>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${teacherEmail}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</div>` : ''}
+  <div style="padding:20px 0;text-align:center;font-size:11px;color:#94a3b8;">${footerTxt}</div>
 </div>
 </body></html>`;
   }
@@ -7049,15 +7058,13 @@
     if (!ids.length) { showToast('Select at least one student.'); return; }
     const examId = document.getElementById('resultsExamSel').value;
     const exam = allExams.find(e => e.id === examId) || {};
-    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
     const names = ids.map(id => { const a = _resultsAllAttempts.find(a => a.id === id); return a ? fmtStudentName(a.student_name || '—') : '—'; });
     const n = names.length;
     const shown = names.slice(0, 5), more = n - 5;
     const listHTML = `<div class="confirm-list">${shown.map(nm => `<div>${esc(nm)}</div>`).join('')}${more > 0 ? `<div style="color:#94a3b8;margin-top:4px;">+${more} more</div>` : ''}</div>`;
-    const bdLine = `<div style="margin-top:12px;">Q&amp;A breakdown: <span style="font-weight:600;color:${includeBreakdown ? '#16a34a' : '#64748b'};">${includeBreakdown ? 'Included' : 'Not included'}</span></div>`;
     showConfirmModal(
       'Send result emails?',
-      `<div>You are about to send score reports for:</div><div style="font-weight:600;color:#0f172a;margin:8px 0;">${esc(exam.title||'(Untitled)')}</div><div>To ${n} selected student${n !== 1 ? 's' : ''}:</div>${listHTML}${bdLine}`,
+      `<div>You are about to send results links for:</div><div style="font-weight:600;color:#0f172a;margin:8px 0;">${esc(exam.title||'(Untitled)')}</div><div>To ${n} selected student${n !== 1 ? 's' : ''}:</div>${listHTML}`,
       `Send to ${n} student${n !== 1 ? 's' : ''} →`,
       _doSendToSelected
     );
@@ -7068,7 +7075,7 @@
     if (!ids.length) { showToast('Select at least one student.'); return; }
     const examId = document.getElementById('resultsExamSel').value;
     const exam = allExams.find(e => e.id === examId) || {};
-    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
+    const scoreTotal = String(_resultsScoreMax || '?');
     const feedback = document.getElementById('resultsFeedback');
     if (feedback) feedback.innerHTML = '<div style="color:#64748b;">Sending…</div>';
     const { data: { session } } = await sb.auth.getSession();
@@ -7077,16 +7084,22 @@
       const attempt = _resultsAllAttempts.find(a => a.id === id);
       if (!attempt) continue;
       try {
+        const dateTaken = attempt.submitted_at
+          ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+          : '—';
         const res = await fetch(SEND_EMAIL_FN, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({
             type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
-            exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
+            exam_title: exam.title||'', lang: exam.lang||'fr',
             teacher_name: currentTeacher.full_name||currentTeacher.email,
-            teacher_email: currentTeacher.email,
+            teacher_email: currentTeacher.email, reply_to: currentTeacher.email,
             institution_name: currentInstitution?.name||'',
-            attempt_id: attempt.id, include_breakdown: includeBreakdown
+            attempt_id: attempt.id, date_taken: dateTaken,
+            score_obtained: String(fmtScore(attempt)),
+            score_total: scoreTotal,
+            results_url: `https://dashboard.test-flo.com/results.html?attempt=${attempt.id}`
           })
         });
         if (res.ok) {
@@ -7146,19 +7159,24 @@
     const attempt = _resultsAllAttempts.find(a => a.id === attemptId);
     if (!attempt) return;
     const exam = allExams.find(e => e.id === attempt.exam_id) || {};
-    const includeBreakdown = document.getElementById('resultsIncludeBreakdown')?.checked || false;
     const { data: { session } } = await sb.auth.getSession();
+    const dateTaken = attempt.submitted_at
+      ? new Date(attempt.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+      : '—';
     try {
       await fetch(SEND_EMAIL_FN, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({
           type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
-          exam_title: exam.title||'', score: fmtScore(attempt), lang: exam.lang||'fr',
+          exam_title: exam.title||'', lang: exam.lang||'fr',
           teacher_name: currentTeacher.full_name||currentTeacher.email,
-          teacher_email: currentTeacher.email,
+          teacher_email: currentTeacher.email, reply_to: currentTeacher.email,
           institution_name: currentInstitution?.name||'',
-          attempt_id: attemptId, include_breakdown: includeBreakdown,
+          attempt_id: attemptId, date_taken: dateTaken,
+          score_obtained: String(fmtScore(attempt)),
+          score_total: String(_resultsScoreMax || '?'),
+          results_url: `https://dashboard.test-flo.com/results.html?attempt=${attemptId}`
         })
       });
       await sb.from('exam_attempts').update({ results_sent_at: new Date().toISOString(), status: 'results_sent' }).eq('id', attemptId);
