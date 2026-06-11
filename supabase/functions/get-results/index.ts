@@ -37,6 +37,14 @@ Deno.serve(async (req) => {
       return respond({ error: "Results not available" }, 410);
     }
 
+    // Track first view
+    if (!attempt.results_viewed_at) {
+      supabaseAdmin.from("exam_attempts")
+        .update({ results_viewed_at: new Date().toISOString() })
+        .eq("id", attemptId)
+        .then(() => {}).catch(() => {});
+    }
+
     // Fetch the exam
     const { data: exam, error: eErr } = await supabaseAdmin
       .from("exams")
