@@ -1456,7 +1456,7 @@
       <!-- Steps bar -->
       <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:20px;margin-bottom:20px;">
         <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">Step 1 — Select exam</div>
-        <select class="ctrl" id="resultsExamSel" onchange="onResultsExamChange()" style="width:100%;font-size:0.88rem;padding:10px 14px;"></select>
+        <select class="ctrl" id="resultsExamSel" onchange="onResultsExamChange()" style="width:100%;font-size:0.88rem;padding:10px 14px;"><option value="">— Select an exam —</option></select>
         <div id="resultsGroupWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
           <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 2 — Select group</div>
           <div id="resultsGroupTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
@@ -4508,7 +4508,7 @@
       sel.value = examId;
       onResultsExamChange();
       if (groupName && groupName !== '(Default)') {
-        document.querySelectorAll('#resultsGroupTabs .group-tab').forEach(tab => {
+        document.querySelectorAll('#resultsGroupTabs .results-group-btn').forEach(tab => {
           if (tab.textContent.trim() === groupName) tab.click();
         });
       }
@@ -6931,7 +6931,7 @@
 
   async function loadResultsAttempts(examId) {
     const [{ data }, { data: qs }] = await Promise.all([
-      sb.from('exam_attempts').select('*').eq('exam_id', examId).eq('status', 'submitted').order('student_name'),
+      sb.from('exam_attempts').select('*').eq('exam_id', examId).in('status', ['submitted','results_sent']).order('student_name'),
       sb.from('questions').select('type,max_points,pool_draw').eq('exam_id', examId).order('position', { ascending: true })
     ]);
     _resultsAllAttempts = data || [];
