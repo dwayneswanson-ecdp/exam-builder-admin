@@ -470,8 +470,8 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
   const T = lang === "en" ? {
     greeting:    firstName ? `Hello ${esc(firstName)},` : `Hello,`,
     body:        teacher
-      ? `<strong>${esc(teacher)}</strong> has sent you an exam link for <strong>${esc(examTitle)}</strong>.`
-      : `You have received an exam link for <strong>${esc(examTitle)}</strong>.`,
+      ? `Your instructor <strong>${esc(teacher)}</strong> has granted you permission to retake the following exam:`
+      : `You have been granted permission to retake the following exam:`,
     btnLabel:        "⬇ Download retake file",
     fallback:        "If the button doesn't work, copy this link:",
     singleUse:       "This link is for single use.",
@@ -480,8 +480,8 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
   } : {
     greeting:    firstName ? `Bonjour ${esc(firstName)},` : `Bonjour,`,
     body:        teacher
-      ? `<strong>${esc(teacher)}</strong> vous a envoyé un lien de reprise pour <strong>${esc(examTitle)}</strong>.`
-      : `Vous avez reçu un lien de reprise pour <strong>${esc(examTitle)}</strong>.`,
+      ? `Votre enseignant <strong>${esc(teacher)}</strong> vous a autorisé(e) à repasser l'examen suivant :`
+      : `Vous avez été autorisé(e) à repasser l'examen suivant :`,
     btnLabel:        "⬇ Télécharger le fichier de reprise",
     fallback:        "Si le bouton ne fonctionne pas, copiez ce lien :",
     singleUse:       "Ce lien est à usage unique.",
@@ -493,6 +493,7 @@ function retakeHtml(p: Record<string, unknown>, lang: string) {
   <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
     <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
     <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${T.body}</p>
+    <h3 style="margin:0 0 2px;font-size:1rem;font-weight:700;color:#0f172a;">${esc(examTitle)}</h3>
     ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
     ${accessCode ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p>
     <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;border-radius:0;margin-bottom:24px;">${esc(accessCode)}</span>` : ''}

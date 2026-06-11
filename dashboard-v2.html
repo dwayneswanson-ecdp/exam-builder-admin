@@ -1411,6 +1411,13 @@
           <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 2 — Select group</div>
           <div id="inviteGroupTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
         </div>
+        <div id="inviteLangWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
+          <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 3 — Language</div>
+          <div style="display:flex;gap:6px;">
+            <button class="results-group-btn active" id="inviteLangFr" onclick="setInviteLang('fr',this)">Français</button>
+            <button class="results-group-btn" id="inviteLangEn" onclick="setInviteLang('en',this)">English</button>
+          </div>
+        </div>
       </div>
       <!-- Two-column body -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
@@ -1455,6 +1462,13 @@
         <div id="resultsGroupWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
           <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 2 — Select group</div>
           <div id="resultsGroupTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+        <div id="resultsLangWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
+          <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 3 — Language</div>
+          <div style="display:flex;gap:6px;">
+            <button class="results-group-btn active" id="resultsLangFr" onclick="setResultsLang('fr',this)">Français</button>
+            <button class="results-group-btn" id="resultsLangEn" onclick="setResultsLang('en',this)">English</button>
+          </div>
         </div>
       </div>
       <!-- Two-column body -->
@@ -1509,6 +1523,17 @@
       <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:20px;margin-bottom:20px;">
         <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">Step 1 — Select exam</div>
         <select class="ctrl" id="retakesExamSel" onchange="loadRetakesStudents()" style="width:100%;font-size:0.88rem;padding:10px 14px;"><option value="">— Select an exam —</option></select>
+        <div id="retakesGroupWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
+          <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 2 — Select group</div>
+          <div id="retakesGroupTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+        <div id="retakesLangWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
+          <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 3 — Language</div>
+          <div style="display:flex;gap:6px;">
+            <button class="results-group-btn active" id="retakesLangFr" onclick="setRetakeLang('fr',this)">Français</button>
+            <button class="results-group-btn" id="retakesLangEn" onclick="setRetakeLang('en',this)">English</button>
+          </div>
+        </div>
       </div>
       <!-- Two-column body -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
@@ -2698,6 +2723,11 @@
   let resultsActiveGroup = '';
   let _resultsAllAttempts = [];
   let _resultsScoreMax = null;
+  let inviteLang = 'fr';
+  let resultsLang = 'fr';
+  let retakeLang = 'fr';
+  let retakeActiveGroup = '';
+  let _retakeGroupCodes = {};
   let _resultsSelectedIds = new Set();
   let _drillGroupCode = '';
   let _drillGroupLink = '';
@@ -6695,10 +6725,18 @@
     const exam = allExams.find(e => e.id === examId);
     const groupWrap = document.getElementById('inviteGroupWrap');
     const groupTabs = document.getElementById('inviteGroupTabs');
+    const langWrap = document.getElementById('inviteLangWrap');
     _inviteGroupCodes = {};
     inviteActiveGroup = '';
+    inviteLang = 'fr';
+    if (langWrap) {
+      langWrap.querySelectorAll('.results-group-btn').forEach(b => b.classList.remove('active'));
+      const frBtn = document.getElementById('inviteLangFr');
+      if (frBtn) frBtn.classList.add('active');
+    }
     if (!examId || !exam) {
       if (groupWrap) groupWrap.style.display = 'none';
+      if (langWrap) langWrap.style.display = 'none';
       refreshInvitePreview();
       loadInviteHistory();
       _updateInviteSendBtn();
@@ -6715,6 +6753,7 @@
     } else {
       groupWrap.style.display = 'none';
     }
+    if (langWrap) langWrap.style.display = 'block';
     refreshInvitePreview();
     loadInviteHistory();
     _updateInviteSendBtn();
@@ -6741,45 +6780,65 @@
     const examId = document.getElementById('inviteExamSel')?.value;
     const exam = allExams.find(e => e.id === examId);
     if (!exam) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:sans-serif;font-size:0.85rem;padding:40px;">Select an exam to preview the invitation email.</div>';
+    const lang = inviteLang;
     const hasGroups = Object.keys(_inviteGroupCodes).length > 0;
-    const code = hasGroups
-      ? (inviteActiveGroup ? (_inviteGroupCodes[inviteActiveGroup] || '') : null)
-      : (exam.access_code || '');
+    const code = hasGroups ? (inviteActiveGroup ? (_inviteGroupCodes[inviteActiveGroup] || '') : null) : (exam.access_code || '');
     const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'https://exam.test-flo.com';
     const link = `${base}/exam-engine.html?id=${exam.share_id}${inviteActiveGroup ? '&group=' + encodeURIComponent(inviteActiveGroup) : ''}`;
-    const teacherName = currentTeacher?.full_name || currentTeacher?.email || 'Your teacher';
+    const sebUrl = exam.seb_url || null;
+    const teacherName = currentTeacher?.full_name || currentTeacher?.email || '';
     const teacherEmail = currentTeacher?.email || '';
     const institution = currentInstitution?.name || '';
     const examTitle = exam.title || '(Untitled)';
+    const T = lang === 'en' ? {
+      greeting: 'Hello,',
+      body: teacherName ? `<strong>${esc(teacherName)}</strong> has invited you to take the following exam:` : 'You have been invited to take the following exam:',
+      accessCodeLabel: 'Your access code :',
+      sebStep1: 'Step 1 — Open the secure browser',
+      sebInstr: 'Click the button below — it will open Safe Exam Browser and load your exam automatically.',
+      sebBtn: 'Start exam →',
+      sebDownload: "Don't have SEB installed? Download the config file instead.",
+      btnLabel: 'Start exam →',
+      fallback: "If the button doesn't work, copy this link:",
+      contactLabel: 'For any question, contact your instructor :',
+      footer: 'This message was generated automatically by testflo.',
+    } : {
+      greeting: 'Bonjour,',
+      body: teacherName ? `<strong>${esc(teacherName)}</strong> vous invite à passer l'examen suivant :` : 'Vous êtes invité(e) à passer l\'examen suivant :',
+      accessCodeLabel: "Votre code d'accès :",
+      sebStep1: 'Étape 1 — Ouvrir le navigateur sécurisé',
+      sebInstr: "Cliquez sur le bouton ci-dessous — Safe Exam Browser s'ouvrira et chargera votre examen automatiquement.",
+      sebBtn: "Commencer l'épreuve →",
+      sebDownload: 'SEB non installé ? Téléchargez le fichier de configuration.',
+      btnLabel: "Commencer l'épreuve →",
+      fallback: 'Si le bouton ne fonctionne pas, copiez ce lien :',
+      contactLabel: 'Pour toute question, contactez votre enseignant :',
+      footer: 'Ce message a été généré automatiquement par testflo.',
+    };
     const codeBlock = code === null
-      ? `<div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
-        <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Access Code</div>
-        <div style="font-size:2rem;font-weight:800;font-family:monospace;color:#cbd5e1;letter-spacing:0.12em;">——</div>
-      </div>`
-      : code ? `<div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:8px;padding:20px;text-align:center;margin-bottom:24px;">
-        <div style="font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Access Code</div>
-        <div style="font-size:2rem;font-weight:800;font-family:monospace;color:#0f172a;letter-spacing:0.12em;">${esc(code)}</div>
-      </div>` : '';
-    const contactLine = teacherEmail
-      ? `Questions? Contact ${esc(teacherName)} at <a href="mailto:${teacherEmail}" style="color:#2563eb;">${esc(teacherEmail)}</a>.`
-      : `Questions? Contact ${esc(teacherName)}.`;
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;">
-<div style="max-width:560px;margin:0 auto;padding:24px 16px;">
-  <div style="background:#0f172a;border-radius:8px 8px 0 0;padding:20px 28px;">
-    <span style="color:white;font-size:1.1rem;font-weight:700;letter-spacing:-0.02em;">testflo</span>
-  </div>
-  <div style="background:white;padding:28px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
-    <div style="font-size:1rem;color:#0f172a;margin-bottom:12px;">Hello,</div>
-    <div style="font-size:0.9rem;color:#475569;margin-bottom:24px;">
-      <strong>${esc(teacherName)}</strong>${institution ? ' (' + esc(institution) + ')' : ''} has invited you to:<br><br>
-      <strong style="color:#0f172a;font-size:1rem;">${esc(examTitle)}</strong>
-    </div>
+      ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p><span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#cbd5e1;margin-bottom:24px;">——</span>`
+      : code ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p><span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;margin-bottom:24px;">${esc(code)}</span>` : '';
+    const ctaBlock = sebUrl
+      ? `<p style="margin:0 0 4px;font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64748b;">${T.sebStep1}</p>
+         <p style="margin:0 0 10px;font-size:0.82rem;color:#475569;">${T.sebInstr}</p>
+         <a href="#" style="display:inline-block;background:#2563eb;color:#fff;padding:10px 24px;text-decoration:none;font-weight:700;font-size:0.85rem;margin-bottom:8px;">${T.sebBtn}</a>
+         <p style="margin:0 0 4px;font-size:0.75rem;color:#94a3b8;">${T.sebDownload}</p>`
+      : `<a href="${esc(link)}" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
+         <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
+         <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br><span style="color:#2563eb;">${esc(link)}</span></p>`;
+    const contactBlock = (teacherName || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${T.contactLabel}<br>${teacherName ? `<strong style="color:#1e293b;">${esc(teacherName)}</strong>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : '';
+    return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:32px 16px;">
+<div style="max-width:600px;margin:0 auto;">
+  <div style="background:#0f172a;padding:24px 32px;"><span style="font-family:Inter,Arial,sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.02em;">testflo</span></div>
+  <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
+    <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${T.body}</p>
+    <h3 style="margin:0 0 2px;font-size:1rem;font-weight:700;color:#0f172a;">${esc(examTitle)}</h3>
+    ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
     ${codeBlock}
-    <a href="${link}" style="display:block;background:#2563eb;color:white;text-decoration:none;text-align:center;padding:14px 28px;border-radius:6px;font-size:0.9rem;font-weight:600;margin-bottom:24px;">Access the exam →</a>
-    <div style="font-size:0.8rem;color:#64748b;">${contactLine}</div>
-  </div>
-  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 8px 8px;padding:16px 28px;">
-    <div style="font-size:0.75rem;color:#94a3b8;">This invitation was sent via testflo. If you did not expect this email, you can ignore it.</div>
+    ${ctaBlock}
+    ${contactBlock}
+    <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${T.footer}</p>
   </div>
 </div>
 </body></html>`;
@@ -6836,7 +6895,7 @@
           body: JSON.stringify({
             type: 'invite', to_email: email, to_name: '',
             exam_title: exam.title || '', exam_link: link, access_code: code,
-            lang: exam.lang || 'fr',
+            lang: inviteLang,
             seb_url: exam.seb_url || null,
             teacher_name: currentTeacher.full_name || currentTeacher.email,
             teacher_email: currentTeacher.email,
@@ -6898,12 +6957,19 @@
     const exam = allExams.find(e => e.id === examId);
     const groupWrap = document.getElementById('resultsGroupWrap');
     const groupTabs = document.getElementById('resultsGroupTabs');
+    const langWrap = document.getElementById('resultsLangWrap');
     let groupCodes = {};
     try { groupCodes = JSON.parse(exam?.group_codes || '{}'); } catch(e) {}
     const groups = Object.keys(groupCodes);
     resultsActiveGroup = '';
+    resultsLang = 'fr';
     _resultsAllAttempts = [];
     _resultsSelectedIds = new Set();
+    if (langWrap) {
+      langWrap.querySelectorAll('.results-group-btn').forEach(b => b.classList.remove('active'));
+      const frBtn = document.getElementById('resultsLangFr');
+      if (frBtn) frBtn.classList.add('active');
+    }
     if (groups.length) {
       groupTabs.innerHTML = `<button class="results-group-btn active" onclick="setResultsGroup('',this)">All</button>` +
         groups.map(g => `<button class="results-group-btn" onclick="setResultsGroup('${esc(g)}',this)">${esc(g)}</button>`).join('');
@@ -6912,8 +6978,10 @@
       groupWrap.style.display = 'none';
     }
     if (examId) {
+      if (langWrap) langWrap.style.display = 'block';
       loadResultsAttempts(examId);
     } else {
+      if (langWrap) langWrap.style.display = 'none';
       renderResultsChecklist();
       refreshResultsPreview();
       loadResultsHistory();
@@ -7001,7 +7069,7 @@
     const teacherName = currentTeacher?.full_name || currentTeacher?.email || '';
     const teacherEmail = currentTeacher?.email || '';
     const examTitle = exam.title || '(Untitled)';
-    const lang = exam.lang || 'fr';
+    const lang = resultsLang;
     const institution = currentInstitution?.name || '';
     const studentName = preview ? esc(fmtStudentName(preview.student_name || 'Student')) : 'Student Name';
     const scoreObtained = preview ? fmtScore(preview) : '—';
@@ -7094,7 +7162,7 @@
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({
             type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
-            exam_title: exam.title||'', lang: exam.lang||'fr',
+            exam_title: exam.title||'', lang: resultsLang,
             teacher_name: currentTeacher.full_name||currentTeacher.email,
             teacher_email: currentTeacher.email, reply_to: currentTeacher.email,
             institution_name: currentInstitution?.name||'',
@@ -7171,34 +7239,46 @@
     const examId = document.getElementById('retakesExamSel')?.value;
     const exam = allExams.find(e => e.id === examId);
     if (!exam) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:sans-serif;font-size:0.85rem;padding:40px;">Select an exam to preview the retake email.</div>';
-    const lang = exam.lang || 'fr';
+    const lang = retakeLang;
     const teacherName = currentTeacher?.full_name || currentTeacher?.email || '';
     const teacherEmail = currentTeacher?.email || '';
     const institution = currentInstitution?.name || '';
-    const greeting  = lang === 'en' ? 'Hello,' : 'Bonjour,';
-    const bodyLine   = teacherName
-      ? (lang === 'en' ? `<strong>${esc(teacherName)}</strong> has sent you an exam link for <strong>${esc(exam.title||'')}</strong>.`
-                       : `<strong>${esc(teacherName)}</strong> vous a envoyé un lien de reprise pour <strong>${esc(exam.title||'')}</strong>.`)
-      : (lang === 'en' ? `You have received an exam link for <strong>${esc(exam.title||'')}</strong>.`
-                       : `Vous avez reçu un lien de reprise pour <strong>${esc(exam.title||'')}</strong>.`);
-    const codeLabel  = lang === 'en' ? "Your access code :" : "Votre code d'accès :";
-    const btnLabel   = lang === 'en' ? '⬇ Download retake file' : '⬇ Télécharger le fichier de reprise';
-    const singleUse  = lang === 'en' ? 'This link is for single use.' : 'Ce lien est à usage unique.';
-    const ctLabel    = lang === 'en' ? 'For any question, contact your instructor :' : 'Pour toute question, contactez votre enseignant :';
-    const footer     = lang === 'en' ? 'This message was automatically generated by testflo.' : 'Ce message a été généré automatiquement par testflo.';
+    const examTitle = exam.title || '(Untitled)';
+    const code = (retakeActiveGroup && _retakeGroupCodes[retakeActiveGroup]) ? _retakeGroupCodes[retakeActiveGroup] : (exam.access_code || '');
+    const T = lang === 'en' ? {
+      greeting: 'Hello,',
+      body: teacherName ? `Your instructor <strong>${esc(teacherName)}</strong> has granted you permission to retake the following exam:` : 'You have been granted permission to retake the following exam:',
+      accessCodeLabel: 'Your access code :',
+      btnLabel: '⬇ Download retake file',
+      fallback: "If the button doesn't work, copy this link:",
+      singleUse: 'This link is for single use.',
+      contactLabel: 'For any question, contact your instructor :',
+      footer: 'This message was generated automatically by testflo.',
+    } : {
+      greeting: 'Bonjour,',
+      body: teacherName ? `Votre enseignant <strong>${esc(teacherName)}</strong> vous a autorisé(e) à repasser l'examen suivant :` : "Vous avez été autorisé(e) à repasser l'examen suivant :",
+      accessCodeLabel: "Votre code d'accès :",
+      btnLabel: '⬇ Télécharger le fichier de reprise',
+      fallback: 'Si le bouton ne fonctionne pas, copiez ce lien :',
+      singleUse: 'Ce lien est à usage unique.',
+      contactLabel: 'Pour toute question, contactez votre enseignant :',
+      footer: 'Ce message a été généré automatiquement par testflo.',
+    };
     return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:32px 16px;">
 <div style="max-width:600px;margin:0 auto;">
   <div style="background:#0f172a;padding:24px 32px;"><span style="font-family:Inter,Arial,sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.02em;">testflo</span></div>
   <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
-    <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${greeting}</h2>
-    <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${bodyLine}</p>
+    <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${T.greeting}</h2>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${T.body}</p>
+    <h3 style="margin:0 0 2px;font-size:1rem;font-weight:700;color:#0f172a;">${esc(examTitle)}</h3>
     ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
-    <p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${codeLabel}</p>
-    <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;margin-bottom:24px;">——————</span>
-    <a href="#" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${btnLabel}</a>
-    <p style="font-size:0.75rem;color:#94a3b8;margin:16px 0 0;">${singleUse}</p>
-    ${(teacherName || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${ctLabel}<br>${teacherName ? `<strong style="color:#1e293b;">${esc(teacherName)}</strong>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
-    <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${footer}</p>
+    ${code ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${T.accessCodeLabel}</p><span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;margin-bottom:24px;">${esc(code)}</span>` : ''}
+    <a href="#" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${T.btnLabel}</a>
+    <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0 16px;">
+    <p style="font-size:0.8rem;color:#64748b;margin:0;">${T.fallback}<br><span style="color:#2563eb;">[retake link]</span></p>
+    <p style="font-size:0.75rem;color:#94a3b8;margin:16px 0 0;">${T.singleUse}</p>
+    ${(teacherName || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${T.contactLabel}<br>${teacherName ? `<strong style="color:#1e293b;">${esc(teacherName)}</strong>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
+    <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${T.footer}</p>
   </div>
 </div>
 </body></html>`;
@@ -7207,6 +7287,27 @@
   function refreshRetakePreview() {
     const frame = document.getElementById('retakesPreviewFrame');
     if (frame) frame.srcdoc = buildRetakePreviewHTML();
+  }
+
+  function setInviteLang(lang, el) {
+    inviteLang = lang;
+    document.querySelectorAll('#inviteLangWrap .results-group-btn').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    refreshInvitePreview();
+  }
+
+  function setResultsLang(lang, el) {
+    resultsLang = lang;
+    document.querySelectorAll('#resultsLangWrap .results-group-btn').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    refreshResultsPreview();
+  }
+
+  function setRetakeLang(lang, el) {
+    retakeLang = lang;
+    document.querySelectorAll('#retakesLangWrap .results-group-btn').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    refreshRetakePreview();
   }
 
   async function sendOneResult(attemptId, skipReload) {
@@ -7223,7 +7324,7 @@
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
         body: JSON.stringify({
           type: 'results', to_email: attempt.student_email, to_name: attempt.student_name,
-          exam_title: exam.title||'', lang: exam.lang||'fr',
+          exam_title: exam.title||'', lang: resultsLang,
           teacher_name: currentTeacher.full_name||currentTeacher.email,
           teacher_email: currentTeacher.email, reply_to: currentTeacher.email,
           institution_name: currentInstitution?.name||'',
@@ -7254,24 +7355,61 @@
 
   async function loadRetakesStudents() {
     const examId = document.getElementById('retakesExamSel').value;
+    const exam = allExams.find(e => e.id === examId);
     const tbody = document.getElementById('retakesTable');
+    const groupWrap = document.getElementById('retakesGroupWrap');
+    const groupTabs = document.getElementById('retakesGroupTabs');
+    const langWrap = document.getElementById('retakesLangWrap');
+    _retakeGroupCodes = {};
+    retakeActiveGroup = '';
+    retakeLang = 'fr';
+    if (langWrap) {
+      langWrap.querySelectorAll('.results-group-btn').forEach(b => b.classList.remove('active'));
+      const frBtn = document.getElementById('retakesLangFr');
+      if (frBtn) frBtn.classList.add('active');
+    }
     refreshRetakePreview();
     if (!examId) {
       retakesAllAttempts = [];
+      if (groupWrap) groupWrap.style.display = 'none';
+      if (langWrap) langWrap.style.display = 'none';
       tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
       return;
     }
+    if (exam) {
+      try { _retakeGroupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    }
+    const groups = Object.keys(_retakeGroupCodes);
+    if (groups.length) {
+      groupTabs.innerHTML = `<button class="results-group-btn active" onclick="setRetakeGroup('',this)">All</button>` +
+        groups.map(g => `<button class="results-group-btn" onclick="setRetakeGroup('${esc(g)}',this)">${esc(g)}</button>`).join('');
+      groupWrap.style.display = 'block';
+    } else {
+      groupWrap.style.display = 'none';
+    }
+    if (langWrap) langWrap.style.display = 'block';
     tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
     const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).order('student_name');
     retakesAllAttempts = data || [];
     filterRetakes();
   }
 
+  function setRetakeGroup(group, el) {
+    retakeActiveGroup = group;
+    document.querySelectorAll('#retakesGroupTabs .results-group-btn').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    filterRetakes();
+    refreshRetakePreview();
+  }
+
   function filterRetakes() {
     const q = (document.getElementById('retakesSearch').value || '').toLowerCase();
-    const list = q ? retakesAllAttempts.filter(a =>
+    let list = retakeActiveGroup
+      ? retakesAllAttempts.filter(a => (a.group_name || '') === retakeActiveGroup)
+      : [...retakesAllAttempts];
+    if (q) list = list.filter(a =>
       (a.student_name||'').toLowerCase().includes(q) || (a.student_email||'').toLowerCase().includes(q)
-    ) : [...retakesAllAttempts];
+    );
     renderRetakesTable(list);
   }
 
@@ -7303,9 +7441,12 @@
     if (error) { showToast('Error generating retake.'); return; }
     let exam = allExams.find(e => e.id === examId);
     if (!exam) {
-      const { data } = await sb.from('exams').select('id, share_id, title, access_code, lang').eq('id', examId).single();
+      const { data } = await sb.from('exams').select('id, share_id, title, access_code, group_codes, lang').eq('id', examId).single();
       exam = data || {};
     }
+    let groupCodes = {};
+    try { groupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
+    const accessCode = (groupName && groupCodes[groupName]) ? groupCodes[groupName] : (exam.access_code || '');
     const { data: { session } } = await sb.auth.getSession();
     const base = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:3000' : 'sebs://exam.test-flo.com';
     const retakeLink = `${base}/exam-engine.html?id=${exam.share_id||''}${groupName ? '&group=' + encodeURIComponent(groupName) : ''}&retake=${token}${restore ? '&restore=true' : ''}&seb=1`;
@@ -7315,7 +7456,7 @@
       body: JSON.stringify({
         type: 'retake', to_email: studentEmail, to_name: studentName,
         exam_title: exam.title||'', retake_link: retakeLink,
-        access_code: exam.access_code||'', lang: exam.lang||'fr',
+        access_code: accessCode, lang: retakeLang,
         teacher_name: currentTeacher.full_name||currentTeacher.email,
         teacher_email: currentTeacher.email,
         institution_name: currentInstitution?.name||''
