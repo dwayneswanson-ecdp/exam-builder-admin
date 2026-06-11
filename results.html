@@ -109,15 +109,35 @@
   .score-cell .sc-date { font-size: 0.95rem; font-weight: 600; color: var(--ink); line-height: 1.3; }
   .score-cell .sc-group { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
 
+  /* ── Intro card ───────────────────────────────────────────────────────────── */
+  .intro-card {
+    background: var(--white); border: 1px solid var(--line);
+    padding: 22px 28px; margin-bottom: 20px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .intro-card svg { flex-shrink: 0; margin-top: 2px; color: var(--muted); }
+  .intro-card-body { flex: 1; }
+  .intro-greeting { font-size: 0.95rem; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+  .intro-body { font-size: 0.85rem; color: var(--slate); line-height: 1.6; margin-bottom: 8px; }
+  .intro-contact { font-size: 0.82rem; color: var(--slate); }
+  .intro-contact a { color: var(--blue); text-decoration: none; }
+  .intro-contact strong { color: var(--ink); }
+
   /* ── Section bar ──────────────────────────────────────────────────────────── */
   .section-bar {
     background: var(--navy); padding: 10px 20px;
     border: 1px solid var(--navy); border-bottom: none;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
   }
   .section-bar span {
     font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
     text-transform: uppercase; color: rgba(255,255,255,0.8);
   }
+  .section-score {
+    font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.6);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .section-score strong { color: #fff; font-size: 0.88rem; }
 
   /* ── Question cards (shared for MCQ + open) ──────────────────────────────── */
   .q-card-list {
@@ -315,16 +335,16 @@ function renderMcqCards(mcqRows, T) {
       </div>
       <div class="q-card-text">${renderHtml(r.q.question_text) || `<em>Q${i + 1}</em>`}</div>`;
 
+    html += `<div class="mcq-ans-label">${T.studentAns}</div>`;
     if (r.studentText) {
       const pillCls = r.isCorrect ? 'correct-ans' : 'wrong-ans';
-      html += `<div class="mcq-ans-label">${T.studentAns}</div>
-        <div class="mcq-ans-pill ${pillCls}">${esc(r.studentText)}</div>`;
-      if (!r.isCorrect) {
-        html += `<div class="mcq-ans-label" style="margin-top:8px;">${T.correctAns}</div>
-          <div class="mcq-ans-pill correct-ans">${esc(r.correctText)}</div>`;
-      }
+      html += `<div class="mcq-ans-pill ${pillCls}">${esc(r.studentText)}</div>`;
     } else {
       html += `<div class="mcq-ans-pill no-ans">${T.noAnswer}</div>`;
+    }
+    if (!r.isCorrect) {
+      html += `<div class="mcq-ans-label" style="margin-top:8px;">${T.correctAns}</div>
+        <div class="mcq-ans-pill correct-ans">${esc(r.correctText)}</div>`;
     }
     html += `</div>`;
   });
@@ -409,24 +429,30 @@ function render(data) {
     headerBadge:   'Exam results',
     scoreLabel:    'Total Score', dateLabel: 'Date',
     submittedOn:   'Submitted on', groupLabel: 'Group',
-    noAnswer:      'No answer', studentAns: 'Answer', correctAns: 'Correct answer', resultCol: 'Result',
+    noAnswer:      'No answer', studentAns: 'Your answer', correctAns: 'Correct answer', resultCol: 'Result',
     poolNote:      'Questions shown reflect those served to this student.',
     contactTitle:  'Questions about your results?',
     contactLine:   'Contact your instructor:',
     footerNote:    'This page was generated automatically by testflo.',
     openResp:      'Response', openComment: 'Teacher comment', openScore: 'Score',
     questionCol:   'Question',
+    introGreeting: n => `Hello ${n},`,
+    introBody:     t => `Below are the results of your exam: ${t}. If you have any questions about your results, please contact your instructor.`,
+    introContact:  'Instructor:',
   } : {
     headerBadge:   'Résultats d\'examen',
     scoreLabel:    'Score Total', dateLabel: 'Date',
     submittedOn:   'Soumis le', groupLabel: 'Groupe',
-    noAnswer:      'Sans réponse', studentAns: 'Réponse', correctAns: 'Bonne réponse', resultCol: 'Résultat',
+    noAnswer:      'Sans réponse', studentAns: 'Votre réponse', correctAns: 'Bonne réponse', resultCol: 'Résultat',
     poolNote:      'Les questions affichées correspondent à celles qui vous ont été présentées.',
     contactTitle:  'Des questions sur vos résultats ?',
     contactLine:   'Contactez votre enseignant :',
     footerNote:    'Cette page a été générée automatiquement par testflo.',
     openResp:      'Réponse', openComment: 'Commentaire de l\'enseignant', openScore: 'Note',
     questionCol:   'Question',
+    introGreeting: n => `Bonjour ${n},`,
+    introBody:     t => `Vous trouverez ci-dessous les résultats de votre épreuve : ${t}. Pour toute question concernant vos résultats, veuillez contacter votre enseignant.`,
+    introContact:  'Enseignant :',
   };
 
   // Update header badge and page title
@@ -450,9 +476,28 @@ function render(data) {
   const scoreMaxDisp  = score_max || exam.score_max || '—';
   const pct = scoreObtained != null && score_max > 0 ? Math.round((scoreObtained / score_max) * 100) : null;
 
-  // Exam identity card
+  // First name extraction (last word of name, common in francophone convention)
+  const nameParts = attempt.student_name.trim().split(/\s+/);
+  const firstName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : nameParts[0];
+
+  // Intro card
   const institution = exam.institution_name || '';
+  const teacherContact = teacher.name || teacher.email
+    ? `<span class="intro-contact">${T.introContact} ${teacher.name ? `<strong>${esc(teacher.name)}</strong>` : ''}${teacher.name && teacher.email ? ' — ' : ''}${teacher.email ? `<a href="mailto:${esc(teacher.email)}">${esc(teacher.email)}</a>` : ''}</span>`
+    : '';
+
   let html = `
+    <div class="intro-card">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div class="intro-card-body">
+        <p class="intro-greeting">${esc(T.introGreeting(firstName))}</p>
+        <p class="intro-body">${esc(T.introBody(exam.title))}</p>
+        ${teacherContact}
+      </div>
+    </div>`;
+
+  // Exam identity card
+  html += `
     <div class="exam-id-card">
       ${institution ? `<p class="exam-id-eyebrow">${esc(institution)}</p>` : ''}
       <h1 class="exam-id-title">${esc(exam.title)}</h1>
@@ -525,7 +570,18 @@ function render(data) {
     for (const g of groups) {
       if (!g.mcq.length && !g.open.length) continue;
 
-      html += `<div class="section-bar"><span>${esc(g.title || '')}</span></div>`;
+      // Per-section score
+      let secScoreHtml = '';
+      if (g.mcq.length) {
+        const correct = g.mcq.filter(r => r.isCorrect).length;
+        secScoreHtml = `<span class="section-score"><strong>${correct}</strong> / ${g.mcq.length}</span>`;
+      } else if (g.open.some(r => r.score != null)) {
+        const earned = g.open.reduce((s, r) => s + (r.score ?? 0), 0);
+        const max    = g.open.reduce((s, r) => s + (r.q.max_points ?? 0), 0);
+        secScoreHtml = `<span class="section-score"><strong>${earned}</strong> / ${max}</span>`;
+      }
+
+      html += `<div class="section-bar"><span>${esc(g.title || '')}</span>${secScoreHtml}</div>`;
       html += renderMcqCards(g.mcq, T);
       html += renderOpenCards(g.open, T);
     }
@@ -549,7 +605,7 @@ function render(data) {
       } else if (q.type === 'open') {
         openRows.push({
           q, idx: gIdx,
-          response: stripHtml(typeof rawAns === 'string' ? rawAns : ''),
+          response: typeof rawAns === 'string' ? rawAns : '',
           score: openScores[gIdx] != null ? openScores[gIdx] : null,
           comment: openComments[gIdx] || '',
         });
