@@ -1463,17 +1463,17 @@
         </div>
       </div>
       <!-- Two-column body -->
-      <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
         <!-- Left: email preview -->
         <div>
           <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Email Preview</div>
-          <iframe id="resultsPreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
+          <iframe id="resultsPreviewFrame" srcdoc="" style="width:100%;height:580px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
         </div>
         <!-- Right: checklist + history -->
         <div>
           <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Students</div>
           <div class="card" style="padding:18px;margin-bottom:0;">
-            <div class="table-wrap" style="max-height:240px;overflow-y:auto;">
+            <div class="table-wrap" style="height:220px;overflow-y:auto;">
               <table>
                 <thead>
                   <tr>
@@ -1497,7 +1497,7 @@
             <button onclick="clearResultsHistory()" style="font-size:0.72rem;color:#94a3b8;background:none;border:none;cursor:pointer;padding:0;line-height:1;">Clear</button>
           </div>
           <div class="card">
-            <div class="table-wrap" style="max-height:200px;overflow-y:auto;">
+            <div class="table-wrap" style="height:220px;overflow-y:auto;">
               <table>
                 <thead><tr><th>Student</th><th>Sent At</th><th>Status</th></tr></thead>
                 <tbody id="resultsHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
@@ -3309,7 +3309,7 @@
     const [{ data: exams,        error: e1 },
            { data: allTeachers,  error: e2 },
            { data: instTeachers, error: e3 }] = await Promise.all([
-      sb.from('exams').select('id, title, created_at, status, groups, teacher_id').order('created_at', { ascending: false }),
+      sb.from('exams').select('id, title, created_at, status, groups, group_codes, lang, teacher_id').order('created_at', { ascending: false }),
       sb.from('teachers').select('id, full_name'),
       sb.from('institution_teachers').select('teacher_id, institutions(name)')
     ]);
