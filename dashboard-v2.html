@@ -1403,32 +1403,25 @@
 
     <!-- Send Invitations pane -->
     <div id="commPane-invite">
-      <!-- Top bar: exam + group selectors -->
-      <div class="info-strip" style="padding:16px;margin-bottom:20px;">
-        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
-          <div style="flex:1;min-width:200px;">
-            <label class="field-label">Exam</label>
-            <select class="ctrl" id="inviteExamSel" onchange="onInviteExamChange()" style="width:100%;"></select>
-          </div>
-        </div>
-        <div style="margin-top:12px;">
-          <label class="field-label">Group</label>
-          <select class="ctrl" id="inviteGroupSel" onchange="onInviteGroupChange()" style="width:100%;" disabled>
-            <option value="">Select an exam first</option>
-          </select>
+      <!-- Steps bar -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:20px;margin-bottom:20px;">
+        <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">Step 1 — Select exam</div>
+        <select class="ctrl" id="inviteExamSel" onchange="onInviteExamChange()" style="width:100%;font-size:0.88rem;padding:10px 14px;"><option value="">— Select an exam —</option></select>
+        <div id="inviteGroupWrap" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid #e2e8f0;">
+          <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Step 2 — Select group</div>
+          <div id="inviteGroupTabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
         </div>
       </div>
       <!-- Two-column body -->
-      <div style="display:grid;grid-template-columns:55fr 45fr;gap:20px;align-items:start;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
         <!-- Left: email preview -->
         <div>
-          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Email Preview</div>
-          <iframe id="invitePreviewFrame" srcdoc="" style="width:100%;height:500px;border:1px solid #e2e8f0;border-radius:4px;background:white;display:block;"></iframe>
-          <div id="invitePreviewNote" style="display:none;font-size:0.75rem;color:#94a3b8;margin-top:6px;">Select a group to see the correct access code.</div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Email Preview</div>
+          <iframe id="invitePreviewFrame" srcdoc="" style="width:100%;height:580px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
         </div>
         <!-- Right: send + history -->
         <div>
-          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send Invitations</div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Send Invitations</div>
           <div class="card" style="padding:18px;margin-bottom:0;">
             <div id="inviteTagContainer" class="tag-input-wrap" onclick="document.getElementById('inviteTagInput').focus()">
               <input type="text" id="inviteTagInput" class="tag-input-field" placeholder="Add email addresses…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
@@ -1437,10 +1430,12 @@
             <button id="inviteSendBtn" class="btn btn-primary" onclick="sendInvitations()" style="width:100%;margin-top:10px;" disabled>Send Invitations</button>
             <div id="inviteFeedback" style="margin-top:10px;font-size:0.78rem;"></div>
           </div>
-          <div style="height:1px;background:#e2e8f0;margin:20px 0;"></div>
-          <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Send History</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin:20px 0 8px;">
+            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;">Send History</div>
+            <button onclick="clearInviteHistory()" style="font-size:0.72rem;color:#94a3b8;background:none;border:none;cursor:pointer;padding:0;line-height:1;">Clear</button>
+          </div>
           <div class="card">
-            <div class="table-wrap">
+            <div class="table-wrap" style="height:220px;overflow-y:auto;">
               <table>
                 <thead><tr><th>Email</th><th>Sent At</th><th>Status</th></tr></thead>
                 <tbody id="inviteHistoryTable"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody>
@@ -1510,16 +1505,32 @@
 
     <!-- Retakes pane -->
     <div id="commPane-retakes" style="display:none;">
-      <div class="toolbar">
-        <select class="ctrl" id="retakesExamSel" onchange="loadRetakesStudents()" style="min-width:230px;"><option value="">Select an exam…</option></select>
-        <input class="search-input" type="text" id="retakesSearch" placeholder="Search students…" oninput="filterRetakes()">
+      <!-- Steps bar -->
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:20px;margin-bottom:20px;">
+        <div style="font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px;">Step 1 — Select exam</div>
+        <select class="ctrl" id="retakesExamSel" onchange="loadRetakesStudents()" style="width:100%;font-size:0.88rem;padding:10px 14px;"><option value="">— Select an exam —</option></select>
       </div>
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Student</th><th>Email</th><th>Status</th><th>Score</th><th>Submitted</th><th>Retake</th><th>Action</th></tr></thead>
-            <tbody id="retakesTable"><tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
-          </table>
+      <!-- Two-column body -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;">
+        <!-- Left: email preview -->
+        <div>
+          <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;margin-bottom:8px;">Email Preview</div>
+          <iframe id="retakesPreviewFrame" srcdoc="" style="width:100%;height:580px;border:1px solid #e2e8f0;display:block;background:white;"></iframe>
+        </div>
+        <!-- Right: student list -->
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748b;white-space:nowrap;">Students</div>
+            <input class="search-input" type="text" id="retakesSearch" placeholder="Search…" oninput="filterRetakes()" style="font-size:0.78rem;padding:5px 10px;flex:1;">
+          </div>
+          <div class="card">
+            <div class="table-wrap" style="height:480px;overflow-y:auto;">
+              <table>
+                <thead><tr><th>Student</th><th>Status</th><th>Score</th><th>Retake</th><th></th></tr></thead>
+                <tbody id="retakesTable"><tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -4524,11 +4535,9 @@
       examSel.value = examId;
       onInviteExamChange();
       if (groupName) {
-        const groupSel = document.getElementById('inviteGroupSel');
-        if (groupSel) {
-          groupSel.value = groupName;
-          onInviteGroupChange();
-        }
+        document.querySelectorAll('#inviteGroupTabs .results-group-btn').forEach(btn => {
+          if (btn.textContent.trim() === groupName) btn.click();
+        });
       }
       setTimeout(() => document.getElementById('inviteTagInput')?.focus(), 50);
     }
@@ -6684,12 +6693,12 @@
   function onInviteExamChange() {
     const examId = document.getElementById('inviteExamSel').value;
     const exam = allExams.find(e => e.id === examId);
-    const sel = document.getElementById('inviteGroupSel');
+    const groupWrap = document.getElementById('inviteGroupWrap');
+    const groupTabs = document.getElementById('inviteGroupTabs');
     _inviteGroupCodes = {};
     inviteActiveGroup = '';
     if (!examId || !exam) {
-      sel.innerHTML = '<option value="">Select an exam first</option>';
-      sel.disabled = true;
+      if (groupWrap) groupWrap.style.display = 'none';
       refreshInvitePreview();
       loadInviteHistory();
       _updateInviteSendBtn();
@@ -6697,27 +6706,24 @@
     }
     try { _inviteGroupCodes = JSON.parse(exam.group_codes || '{}'); } catch(e) {}
     const groups = Object.keys(_inviteGroupCodes);
-    if (groups.length === 0) {
-      sel.innerHTML = '<option value="">No groups found — add a group to this exam first</option>';
-      sel.disabled = true;
-    } else if (groups.length === 1) {
-      sel.innerHTML = groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
-      sel.value = groups[0];
-      sel.disabled = false;
+    if (groups.length) {
+      groupTabs.innerHTML = groups.map((g, i) =>
+        `<button class="results-group-btn${i === 0 ? ' active' : ''}" onclick="setInviteGroup('${esc(g)}',this)">${esc(g)}</button>`
+      ).join('');
       inviteActiveGroup = groups[0];
+      groupWrap.style.display = 'block';
     } else {
-      sel.innerHTML = '<option value="">Select a group…</option>' +
-        groups.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
-      sel.value = '';
-      sel.disabled = false;
+      groupWrap.style.display = 'none';
     }
     refreshInvitePreview();
     loadInviteHistory();
     _updateInviteSendBtn();
   }
 
-  function onInviteGroupChange() {
-    inviteActiveGroup = document.getElementById('inviteGroupSel').value;
+  function setInviteGroup(group, el) {
+    inviteActiveGroup = group;
+    document.querySelectorAll('#inviteGroupTabs .results-group-btn').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
     refreshInvitePreview();
     _updateInviteSendBtn();
   }
@@ -6726,9 +6732,9 @@
     const sendBtn = document.getElementById('inviteSendBtn');
     if (!sendBtn) return;
     const examId = document.getElementById('inviteExamSel').value;
-    const group = document.getElementById('inviteGroupSel').value;
     const validTags = _inviteTags.filter(t => t.valid).length;
-    sendBtn.disabled = !examId || !group || validTags === 0;
+    const hasGroups = Object.keys(_inviteGroupCodes).length > 0;
+    sendBtn.disabled = !examId || (hasGroups && !inviteActiveGroup) || validTags === 0;
   }
 
   function buildInvitePreviewHTML() {
@@ -6783,18 +6789,13 @@
     const frame = document.getElementById('invitePreviewFrame');
     if (frame) frame.srcdoc = buildInvitePreviewHTML();
     const note = document.getElementById('invitePreviewNote');
-    if (note) {
-      const examId = document.getElementById('inviteExamSel')?.value;
-      const group = document.getElementById('inviteGroupSel')?.value;
-      const hasGroups = Object.keys(_inviteGroupCodes).length > 0;
-      note.style.display = (examId && hasGroups && !group) ? '' : 'none';
-    }
+    if (note) note.style.display = 'none';
   }
 
   function sendInvitations() {
     const examId = document.getElementById('inviteExamSel').value;
     if (!examId) { showToast('Please select an exam.'); return; }
-    const group = document.getElementById('inviteGroupSel').value;
+    const group = inviteActiveGroup;
     if (!group) { showToast('Please select a group.'); return; }
     const exam = allExams.find(e => e.id === examId) || {};
     const emails = _inviteTags.filter(t => t.valid).map(t => t.email);
@@ -7161,6 +7162,53 @@
     if (tbody) tbody.innerHTML = `<tr><td colspan="3" style="padding:16px;text-align:center;color:#94a3b8;font-size:0.82rem;">History cleared. Select a different exam to reload.</td></tr>`;
   }
 
+  function clearInviteHistory() {
+    const tbody = document.getElementById('inviteHistoryTable');
+    if (tbody) tbody.innerHTML = `<tr><td colspan="3" style="padding:16px;text-align:center;color:#94a3b8;font-size:0.82rem;">History cleared. Select a different exam to reload.</td></tr>`;
+  }
+
+  function buildRetakePreviewHTML() {
+    const examId = document.getElementById('retakesExamSel')?.value;
+    const exam = allExams.find(e => e.id === examId);
+    if (!exam) return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-family:sans-serif;font-size:0.85rem;padding:40px;">Select an exam to preview the retake email.</div>';
+    const lang = exam.lang || 'fr';
+    const teacherName = currentTeacher?.full_name || currentTeacher?.email || '';
+    const teacherEmail = currentTeacher?.email || '';
+    const institution = currentInstitution?.name || '';
+    const greeting  = lang === 'en' ? 'Hello,' : 'Bonjour,';
+    const bodyLine   = teacherName
+      ? (lang === 'en' ? `<strong>${esc(teacherName)}</strong> has sent you an exam link for <strong>${esc(exam.title||'')}</strong>.`
+                       : `<strong>${esc(teacherName)}</strong> vous a envoyé un lien de reprise pour <strong>${esc(exam.title||'')}</strong>.`)
+      : (lang === 'en' ? `You have received an exam link for <strong>${esc(exam.title||'')}</strong>.`
+                       : `Vous avez reçu un lien de reprise pour <strong>${esc(exam.title||'')}</strong>.`);
+    const codeLabel  = lang === 'en' ? "Your access code :" : "Votre code d'accès :";
+    const btnLabel   = lang === 'en' ? '⬇ Download retake file' : '⬇ Télécharger le fichier de reprise';
+    const singleUse  = lang === 'en' ? 'This link is for single use.' : 'Ce lien est à usage unique.';
+    const ctLabel    = lang === 'en' ? 'For any question, contact your instructor :' : 'Pour toute question, contactez votre enseignant :';
+    const footer     = lang === 'en' ? 'This message was automatically generated by testflo.' : 'Ce message a été généré automatiquement par testflo.';
+    return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"></head><body style="font-family:Arial,sans-serif;background:#f1f5f9;margin:0;padding:32px 16px;">
+<div style="max-width:600px;margin:0 auto;">
+  <div style="background:#0f172a;padding:24px 32px;"><span style="font-family:Inter,Arial,sans-serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.02em;">testflo</span></div>
+  <div style="background:#fff;padding:36px 32px;border:1px solid #e2e8f0;border-top:none;">
+    <h2 style="margin:0 0 6px;font-size:1.1rem;color:#0a0a0a;">${greeting}</h2>
+    <p style="color:#64748b;font-size:0.9rem;margin:0 0 4px;">${bodyLine}</p>
+    ${institution ? `<p style="margin:0 0 20px;font-size:0.78rem;color:#94a3b8;">${esc(institution)}</p>` : '<div style="margin-bottom:20px;"></div>'}
+    <p style="font-size:0.8rem;color:#64748b;text-align:center;margin:0 0 6px;">${codeLabel}</p>
+    <span style="display:block;background:#f1f5f9;padding:12px 16px;font-size:1.1rem;font-weight:700;letter-spacing:0.1em;text-align:center;color:#0f172a;margin-bottom:24px;">——————</span>
+    <a href="#" style="display:inline-block;background:#2563eb;color:#fff;padding:12px 28px;text-decoration:none;font-weight:700;font-size:0.9rem;">${btnLabel}</a>
+    <p style="font-size:0.75rem;color:#94a3b8;margin:16px 0 0;">${singleUse}</p>
+    ${(teacherName || teacherEmail) ? `<p style="font-size:0.8rem;color:#64748b;text-align:center;margin:16px 0 0;">${ctLabel}<br>${teacherName ? `<strong style="color:#1e293b;">${esc(teacherName)}</strong>` : ''}${teacherName && teacherEmail ? ' — ' : ''}${teacherEmail ? `<a href="mailto:${esc(teacherEmail)}" style="color:#2563eb;text-decoration:none;">${esc(teacherEmail)}</a>` : ''}</p>` : ''}
+    <p style="font-size:0.75rem;color:#94a3b8;text-align:center;padding:16px 0 0;">${footer}</p>
+  </div>
+</div>
+</body></html>`;
+  }
+
+  function refreshRetakePreview() {
+    const frame = document.getElementById('retakesPreviewFrame');
+    if (frame) frame.srcdoc = buildRetakePreviewHTML();
+  }
+
   async function sendOneResult(attemptId, skipReload) {
     const attempt = _resultsAllAttempts.find(a => a.id === attemptId);
     if (!attempt) return;
@@ -7207,12 +7255,13 @@
   async function loadRetakesStudents() {
     const examId = document.getElementById('retakesExamSel').value;
     const tbody = document.getElementById('retakesTable');
+    refreshRetakePreview();
     if (!examId) {
       retakesAllAttempts = [];
-      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">Select an exam above.</td></tr>`;
       return;
     }
-    tbody.innerHTML = `<tr><td colspan="7" class="loading">Loading…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="loading">Loading…</td></tr>`;
     const { data } = await sb.from('exam_attempts').select('*').eq('exam_id', examId).order('student_name');
     retakesAllAttempts = data || [];
     filterRetakes();
@@ -7229,20 +7278,18 @@
   function renderRetakesTable(attempts) {
     const tbody = document.getElementById('retakesTable');
     if (!attempts.length) {
-      tbody.innerHTML = `<tr><td colspan="7" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:#94a3b8;font-size:0.82rem;">No students found.</td></tr>`;
       return;
     }
     tbody.innerHTML = attempts.map(a => {
-      const attemptStatusBadge = statusBadge(a.status || 'in_progress');
-      const retakeBadge = a.retake_token
-        ? `<span class="badge badge-invited">Sent</span>`
-        : `<span style="color:#94a3b8;">—</span>`;
+      const retakeBadge = a.retake_token ? `<span class="badge badge-invited">Sent</span>` : `<span style="color:#94a3b8;">—</span>`;
       return `<tr>
-        <td style="font-weight:500;">${esc(fmtStudentName(a.student_name||'—'))}</td>
-        <td style="color:#64748b;font-size:0.75rem;">${esc(a.student_email||'—')}</td>
-        <td>${attemptStatusBadge}</td>
-        <td>${fmtScore(a)}</td>
-        <td style="color:#64748b;">${formatDate(a.submitted_at)}</td>
+        <td>
+          <div style="font-weight:500;font-size:0.82rem;">${esc(fmtStudentName(a.student_name||'—'))}</div>
+          <div style="font-size:0.7rem;color:#94a3b8;">${esc(a.student_email||'')}</div>
+        </td>
+        <td>${studentStatusBadge(a)}</td>
+        <td style="font-size:0.82rem;">${fmtScore(a)}</td>
         <td>${retakeBadge}</td>
         <td><button class="btn btn-ghost btn-sm" onclick="sendRetakeFromComm('${a.id}','${esc((a.student_name||'').replace(/'/g,"\\'"))}','${esc((a.student_email||'').replace(/'/g,"\\'"))}','${a.exam_id}','${esc((a.group_name||'').replace(/'/g,"\\'"))}')">Allow Retake</button></td>
       </tr>`;
