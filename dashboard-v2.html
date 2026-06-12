@@ -2729,6 +2729,7 @@
   let retakeActiveGroup = '';
   let _retakeGroupCodes = {};
   let _resultsSelectedIds = new Set();
+  let _pendingResultsSelect = null;
   let _drillGroupCode = '';
   let _drillGroupLink = '';
 
@@ -4556,6 +4557,21 @@
     }
   }
 
+  function navigateToResultsSend(examId, groupName, attemptIds) {
+    _pendingResultsSelect = Array.isArray(attemptIds) ? attemptIds : [attemptIds];
+    navigate('comm-results');
+    const sel = document.getElementById('resultsExamSel');
+    if (sel && examId) {
+      sel.value = examId;
+      onResultsExamChange();
+      if (groupName && groupName !== '(Default)') {
+        document.querySelectorAll('#resultsGroupTabs .results-group-btn').forEach(btn => {
+          if (btn.textContent.trim() === groupName) btn.click();
+        });
+      }
+    }
+  }
+
   function drillGoToInvite() {
     const examId = drillCurrentExam?.id;
     const groupName = drillCurrentGroup;
@@ -5724,13 +5740,10 @@
     return false;
   }
 
-  async function drillSendResults(attemptId) {
+  function drillSendResults(attemptId) {
     document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
-    const attempt = drillCurrentAttempts.find(a => a.id === attemptId);
-    if (!attempt) return;
-    const ok = await _drillDoSendResult(attempt);
-    showToast(ok ? 'Result sent.' : 'Error sending result.');
-    filterDrillStudents();
+    if (!drillCurrentAttempts.find(a => a.id === attemptId)) return;
+    navigateToResultsSend(drillCurrentExam?.id, drillCurrentGroup, [attemptId]);
   }
 
   async function drillResendLink(attemptId, silent = false) {
@@ -5781,17 +5794,11 @@
     showToast('Submission deleted.');
   }
 
-  async function drillBulkSendResults() {
+  function drillBulkSendResults() {
     if (!drillSelectedIds.size) return;
-    if (!confirm(`Send results to ${drillSelectedIds.size} student(s)?`)) return;
-    let sent = 0;
-    for (const id of [...drillSelectedIds]) {
-      const a = drillCurrentAttempts.find(x => x.id === id);
-      if (a && await _drillDoSendResult(a)) sent++;
-    }
-    showToast(`Results sent to ${sent} student(s).`);
+    const ids = [...drillSelectedIds];
     drillClearSelection();
-    filterDrillStudents();
+    navigateToResultsSend(drillCurrentExam?.id, drillCurrentGroup, ids);
   }
 
   async function drillBulkResendLinks() {
@@ -6192,13 +6199,10 @@
     return false;
   }
 
-  async function subsL3SendResults(attemptId) {
+  function subsL3SendResults(attemptId) {
     document.querySelectorAll('.dot-menu.open').forEach(m => m.classList.remove('open'));
-    const attempt = subsL3Attempts.find(a => a.id === attemptId);
-    if (!attempt) return;
-    const ok = await _subsDoSendResult(attempt);
-    showToast(ok ? 'Result sent.' : 'Error sending result.');
-    filterSubsL3Students();
+    if (!subsL3Attempts.find(a => a.id === attemptId)) return;
+    navigateToResultsSend(subsCurrentExam?.id, subsCurrentGroup || '', [attemptId]);
   }
 
   async function subsL3ResendLink(attemptId, silent = false) {
@@ -6349,17 +6353,11 @@
     showToast('Submission deleted.');
   }
 
-  async function subsL3BulkSendResults() {
+  function subsL3BulkSendResults() {
     if (!subsL3SelectedIds.size) return;
-    if (!confirm(`Send results to ${subsL3SelectedIds.size} student(s)?`)) return;
-    let sent = 0;
-    for (const id of [...subsL3SelectedIds]) {
-      const a = subsL3Attempts.find(x => x.id === id);
-      if (a && await _subsDoSendResult(a)) sent++;
-    }
-    showToast(`Results sent to ${sent} student(s).`);
+    const ids = [...subsL3SelectedIds];
     subsL3ClearSelection();
-    filterSubsL3Students();
+    navigateToResultsSend(subsCurrentExam?.id, subsCurrentGroup || '', ids);
   }
 
   async function subsL3BulkResendLinks() {
@@ -7018,6 +7016,10 @@
     _resultsSelectedIds = new Set();
     const sa = document.getElementById('resultsSelectAll');
     if (sa) sa.checked = false;
+    if (_pendingResultsSelect && _pendingResultsSelect.length) {
+      const showAllCb = document.getElementById('resultsShowAll');
+      if (showAllCb) showAllCb.checked = true;
+    }
     const showAll = document.getElementById('resultsShowAll')?.checked || false;
     let attempts = resultsActiveGroup
       ? _resultsAllAttempts.filter(a => (a.group_name || '(Default)') === resultsActiveGroup)
@@ -7031,7 +7033,7 @@
       const isGraded = a.score_mcq !== null;
       const isSent = !!a.results_sent_at;
       const isPending = !isGraded;
-      const disabled = (isPending || isSent) ? 'disabled' : '';
+      const disabled = isPending ? 'disabled' : '';
       const badge = isSent
         ? `<span class="badge" style="background:#e2e8f0;color:#64748b;">Already sent</span>`
         : isPending
@@ -7044,6 +7046,13 @@
         <td>${badge}</td>
       </tr>`;
     }).join('');
+    if (_pendingResultsSelect && _pendingResultsSelect.length) {
+      _pendingResultsSelect.forEach(id => {
+        const cb = tbody.querySelector(`input[type=checkbox][data-id="${id}"]`);
+        if (cb && !cb.disabled) { cb.checked = true; _resultsSelectedIds.add(id); }
+      });
+      _pendingResultsSelect = null;
+    }
   }
 
   function resultsToggleSelect(cb) {
