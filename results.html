@@ -246,6 +246,29 @@
     padding: 24px 20px 40px;
   }
 
+  /* ── Language switcher ────────────────────────────────────────────────────── */
+  .lang-btn {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+    color: rgba(255,255,255,0.85); padding: 6px 12px; cursor: pointer;
+    font-size: 0.75rem; font-weight: 600; font-family: inherit; letter-spacing: 0.01em;
+    transition: background 0.15s;
+  }
+  .lang-btn:hover { background: rgba(255,255,255,0.14); }
+  .lang-dropdown {
+    display: none; position: absolute; right: 0; top: calc(100% + 6px);
+    background: #fff; border: 1px solid var(--line);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.13); min-width: 130px; z-index: 200;
+  }
+  .lang-dropdown.open { display: block; }
+  .lang-option {
+    display: block; width: 100%; text-align: left;
+    padding: 10px 16px; font-size: 0.82rem; font-family: inherit;
+    background: none; border: none; cursor: pointer; color: var(--ink);
+  }
+  .lang-option:hover { background: var(--surface); }
+  .lang-option.active { font-weight: 700; color: var(--blue); }
+
   @media (max-width: 540px) {
     main { padding: 24px 12px 60px; }
     header { padding: 0 20px; }
@@ -262,7 +285,17 @@
   <div class="logo-wrap">
     <span class="logo-text">testflo</span>
   </div>
-  <span class="header-badge">Résultats d'examen</span>
+  <div style="position:relative;">
+    <button class="lang-btn" id="lang-btn" onclick="toggleLangMenu()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <span id="lang-label">Français</span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="lang-dropdown" id="lang-menu">
+      <button class="lang-option active" id="lang-opt-fr" onclick="switchLang('fr')">Français</button>
+      <button class="lang-option" id="lang-opt-en" onclick="switchLang('en')">English</button>
+    </div>
+  </div>
 </header>
 
 <main id="main">
@@ -282,6 +315,32 @@ const GET_RESULTS_FN = `${SUPABASE_URL}/functions/v1/get-results`;
 
 const params = new URLSearchParams(window.location.search);
 const attemptId = params.get('attempt');
+
+let pageLang = 'fr';
+let _renderData = null;
+
+function toggleLangMenu() {
+  document.getElementById('lang-menu').classList.toggle('open');
+}
+
+function switchLang(lang) {
+  pageLang = lang;
+  document.getElementById('lang-menu').classList.remove('open');
+  document.getElementById('lang-label').textContent = lang === 'en' ? 'English' : 'Français';
+  document.getElementById('lang-opt-fr').classList.toggle('active', lang === 'fr');
+  document.getElementById('lang-opt-en').classList.toggle('active', lang === 'en');
+  if (_renderData) {
+    const scrollY = window.scrollY;
+    render(_renderData);
+    window.scrollTo(0, scrollY);
+  }
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#lang-btn') && !e.target.closest('#lang-menu')) {
+    document.getElementById('lang-menu')?.classList.remove('open');
+  }
+});
 
 function esc(s) {
   return String(s || '')
@@ -418,8 +477,9 @@ async function load() {
 }
 
 function render(data) {
+  _renderData = data;
   const { attempt, exam, questions, teacher, score_max } = data;
-  const lang = exam.lang === 'en' ? 'en' : 'fr';
+  const lang = pageLang;
 
   const T = lang === 'en' ? {
     headerBadge:   'Exam results',
@@ -451,10 +511,9 @@ function render(data) {
     introContact:  'Enseignant :',
   };
 
-  // Update header badge and page title
-  document.querySelector('.header-badge').textContent = T.headerBadge;
+  // Update page title and lang attribute
   document.title = `testflo — ${exam.title}`;
-  if (lang === 'en') document.documentElement.lang = 'en';
+  document.documentElement.lang = lang;
 
   const answersJson   = attempt.answers_json   || {};
   const openScores    = attempt.open_scores    || {};
